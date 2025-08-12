@@ -1,0 +1,38 @@
+.root {
+  padding: 0 5rem 0 0.75rem;
+}
+
+.ui5-shellbar-root {
+  padding: 0px 1rem;
+}
+
+.sapTntToolPageHeaderWrapper.white {
+  z-index: 2;
+  margin: 0 0.5rem 0 0.5rem;
+  box-shadow:
+    0 0 0.125rem 0 rgba(85, 107, 130, 0.16),
+    0 0.5rem 1rem 0 rgba(85, 107, 130, 0.16);
+}
+.sapTntToolPageHeaderWrapper.dark {
+  z-index: 2;
+  margin: 0 0.5rem 0 0.5rem;
+}
+
+.sapTntToolHeader.sapMTB.white {
+  background-color: #fff;
+  padding: 0 0.5rem 0 0.5rem;
+}
+
+.sapTntToolHeader.sapMTB.dark {
+  background-color: #fff;
+  padding: 0 0 0 0;
+}
+
+.sapTntToolHeader.sapMTB {
+  height: 3.25rem;
+  border-radius: 0.5rem;
+
+  box-shadow:
+    0 0 0.125rem 0 rgba(34, 53, 72, 0.16),
+    0 0.5rem 1rem 0 rgba(34, 53, 72, 0.16);
+}
