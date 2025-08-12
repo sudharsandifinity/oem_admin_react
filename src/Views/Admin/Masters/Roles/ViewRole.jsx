@@ -1,0 +1,93 @@
+import React, { useEffect, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { useNavigate, useParams } from "react-router-dom";
+import { fetchRoleById } from "../../../../store/slices/roleSlice";
+import {
+  BusyIndicator,
+  Card,
+  FlexBox,
+  MessageStrip,
+  Text,
+  Title,
+} from "@ui5/webcomponents-react";
+
+const ViewRole = (props) => {
+  const { id } = props;
+  const dispatch = useDispatch();
+  const navigate = useNavigate()
+
+  const [loading, setLoading] = useState(true);
+  const [apiError, setApiError] = useState(null);
+
+  const { roles } = useSelector((state) => state.roles);
+  const role = roles.find((c) => c.id === id);
+console.log("role",roles,id,role)
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        if (!role) {
+          const res = await dispatch(fetchRoleById(id)).unwrap();
+          if (res.message === "Please Login!") {
+          navigate("/login");
+        }
+        }
+      } catch (err) {
+        setApiError("Failed to fetch role");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [dispatch, id, role]);
+
+  if (loading) {
+    return (
+      <FlexBox
+        justifyContent="Center"
+        alignItems="Center"
+        direction="Column"
+        style={{ marginTop: "2rem" }}
+      >
+        <BusyIndicator active size="Medium" />
+      </FlexBox>
+    );
+  }
+
+  if (!role) {
+    return (
+      <FlexBox style={{ marginTop: "2rem" }}>
+        <MessageStrip
+          design="Negative"
+          hideCloseButton={false}
+          hideIcon={false}
+        >
+          Role not found
+        </MessageStrip>
+      </FlexBox>
+    );
+  }
+
+  return (
+     <Card style={{ margin: "1rem" ,padding:"1rem"}}>
+      
+
+      <FlexBox direction="Column" style={{ gap: "0.5rem" }}>
+        <Text>
+          <strong>Role Name:</strong><Title level="h6"> {role.name}</Title>
+        </Text>
+        <Text>
+         <strong>Permissions:</strong> {role.Permissions.map(perm=><FlexBox direction="Column"><Title level="h6">{perm.name}</Title> </FlexBox>)}
+        </Text>
+      
+        <Text>
+          <strong>Status:</strong>{" "}
+          <Title level="h6">{role.status === "1" || role.status === 1 ? "Active" : "Inactive"}</Title>
+        </Text>
+      </FlexBox>
+    </Card>
+  );
+};
+
+
+
+export default ViewRole
