@@ -6,30 +6,33 @@ import {
   BusyIndicator,
   Card,
   FlexBox,
+  List,
+  ListItemStandard,
   MessageStrip,
   Text,
   Title,
+  Token,
 } from "@ui5/webcomponents-react";
 
 const ViewRole = (props) => {
   const { id } = props;
   const dispatch = useDispatch();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
   const [apiError, setApiError] = useState(null);
 
   const { roles } = useSelector((state) => state.roles);
   const role = roles.find((c) => c.id === id);
-console.log("role",roles,id,role)
+  console.log("role", roles, id, role);
   useEffect(() => {
     const fetchData = async () => {
       try {
         if (!role) {
           const res = await dispatch(fetchRoleById(id)).unwrap();
           if (res.message === "Please Login!") {
-          navigate("/login");
-        }
+            navigate("/login");
+          }
         }
       } catch (err) {
         setApiError("Failed to fetch role");
@@ -68,26 +71,31 @@ console.log("role",roles,id,role)
   }
 
   return (
-     <Card style={{ margin: "1rem" ,padding:"1rem"}}>
-      
-
-      <FlexBox direction="Column" style={{ gap: "0.5rem" }}>
-        <Text>
-          <strong>Role Name:</strong><Title level="h6"> {role.name}</Title>
-        </Text>
-        <Text>
-         <strong>Permissions:</strong> {role.Permissions.map(perm=><FlexBox direction="Column"><Title level="h6">{perm.name}</Title> </FlexBox>)}
-        </Text>
-      
-        <Text>
-          <strong>Status:</strong>{" "}
-          <Title level="h6">{role.status === "1" || role.status === 1 ? "Active" : "Inactive"}</Title>
-        </Text>
-      </FlexBox>
+    <Card style={{ margin: "1rem", height: "300px", padding: "1rem" }}>
+      <List>
+        <ListItemStandard
+          description={role.name}
+          text="Role Name:"
+        ></ListItemStandard>
+        <ListItemStandard text="Permissions :" description="">
+                    {role.Permissions.map((perm) => (
+            <ListItemStandard description={perm.name} />
+          ))} 
+        </ListItemStandard>
+        {role.status === "1" || role.status === 1 ? (
+          <ListItemStandard
+            text="Status :"
+            description="Active"
+          ></ListItemStandard>
+        ) : (
+          <ListItemStandard
+            text="Status :"
+            description="InActive"
+          ></ListItemStandard>
+        )}
+      </List>
     </Card>
   );
 };
 
-
-
-export default ViewRole
+export default ViewRole;

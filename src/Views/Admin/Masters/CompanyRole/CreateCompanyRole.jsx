@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import RoleForm from "./RoleForm";
 import { createRole } from "../../../../store/slices/roleSlice";
 
 import { fetchPermissions } from "../../../../store/slices/permissionSlice";
 import { fetchCompanies } from "../../../../store/slices/companiesSlice";
+import CompanyRoleForm from "./CompanyRoleForm";
 
-const CreateRole = () => {
+const CreateCompanyRole = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { permissions } = useSelector((state) => state.permissions);
@@ -48,10 +48,10 @@ const CreateRole = () => {
     }
   };
   return (
-    <RoleForm
+    <CompanyRoleForm
       onSubmit={handleCreate}
       companies={companies}
-      defaultValues={{ name: "", status: "1", permissionIds: [] }}
+      defaultValues={{ companyId:"",name: "", status: "1", permissionIds: [] }}
       permissions={permissions}
       apiError={apiError}
       mode="create"
@@ -59,4 +59,5 @@ const CreateRole = () => {
   );
 };
 
-export default CreateRole;
+
+export default CreateCompanyRole

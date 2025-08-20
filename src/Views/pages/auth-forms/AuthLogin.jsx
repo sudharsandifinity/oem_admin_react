@@ -33,7 +33,7 @@ export default function AuthLogin() {
   const [showPassword, setShowPassword] = useState(false);
   const [credentials, setCredentials] = useState({
     email: "",
-    password: "",
+    password: ""
   });
   const navigate = useNavigate();
   const { token } = useSelector((state) => state.auth);

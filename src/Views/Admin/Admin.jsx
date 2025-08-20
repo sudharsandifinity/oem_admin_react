@@ -22,6 +22,8 @@ import "@ui5/webcomponents-icons/dist/bbyd-dashboard.js";
 import "@ui5/webcomponents-icons/dist/user-edit.js";
 import "@ui5/webcomponents-icons/dist/end-user-experience-monitoring.js";
 import "@ui5/webcomponents-icons/dist/kpi-corporate-performance.js";
+import "@ui5/webcomponents-icons/dist/kpi-managing-my-area.js";
+
 import "@ui5/webcomponents-icons/dist/background.js";
 import "@ui5/webcomponents-icons/dist/doc-attachment.js";
 import "@ui5/webcomponents-icons/dist/order-status.js";
@@ -100,12 +102,25 @@ const Admin = () => {
                 icon="end-user-experience-monitoring"
                 data-key="roles"
               />
+              {/* <SideNavigationSubItem
+                style={{ marginLeft: "1rem", textAlign: "start" }}
+                text="Company Role"
+                icon="kpi-managing-my-area"
+                data-key="CompanyRole"
+              /> */}
               <SideNavigationSubItem
                 style={{ marginLeft: "1rem", textAlign: "start" }}
                 text="Users"
                 icon="user-edit"
                 data-key="users"
               />
+               <SideNavigationSubItem
+                style={{ marginLeft: "1rem", textAlign: "start" }}
+                text="Form Master"
+                icon="create-form"
+                data-key="FormMaster"
+              />
+               
             </SideNavigationItem>
             <SideNavigationItem
               style={{ textAlign: "start" }}
@@ -151,12 +166,7 @@ const Admin = () => {
               icon="form"
               data-key="dashboard"
             >
-              <SideNavigationSubItem
-                style={{ marginLeft: "1rem", textAlign: "start" }}
-                text="Form Master"
-                icon="create-form"
-                data-key="FormMaster"
-              />
+             
               <SideNavigationSubItem
                 style={{ marginLeft: "1rem", textAlign: "start" }}
                 text="Assign Form To Company"

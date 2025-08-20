@@ -26,7 +26,10 @@ const Header = () => {
   const [fioriTheme, setFioriTheme] = useState("sap_fiori_3");
   const { companies } = useSelector((state) => state.companies);
   const dispatch = useDispatch();
+  const menuRef = useRef();
 
+  const buttonRef = useRef(null);
+  const [menuIsOpen, setMenuIsOpen] = useState(false);
 
   useEffect(() => {
     setTheme(fioriTheme); // Apply theme globally
@@ -66,34 +69,30 @@ const Header = () => {
     <div>
       <div>
         <ShellBar
-          logo={
-            <img
-              alt="SAP Logo"
-              src="https://sap.github.io/ui5-webcomponents/images/sap-logo-svg.svg"
-            />
-          }
+          logo={<></>}
           menuItems={
             <>
-            
-             {companies.map((company) => (
-            <MenuItem key={company.id} text={company.name}>
-              {company.Branches.map((branch) => (
-                <MenuItem key={branch.id} text={branch.name} />
-              ))}
-            </MenuItem>
-          ))}
-              </>
-            
+              {/* {companies.map((company) => (
+                <MenuItem
+                  key={company.id}
+                  text={company.name}
+                >
+                  {company.Branches.map((branch) => (
+                    <MenuItem key={branch.id} text={branch.name} />
+                  ))}
+                </MenuItem>
+              ))} */}
+            </>
           }
           notificationsCount="10"
           onContentItemVisibilityChange={function Xs() {}}
-          onLogoClick={handleLogoClick}
+          //onLogoClick={handleLogoClick}
           onMenuItemClick={function Xs() {}}
           onNotificationsClick={function Xs() {}}
           onProfileClick={logout}
           onSearchButtonClick={function Xs() {}}
           onSearchFieldToggle={function Xs() {}}
-          primaryTitle="Company"
+          //primaryTitle="Companies"
           profile={
             <Avatar>
               <img
@@ -105,24 +104,66 @@ const Header = () => {
           searchField={
             <ShellBarSearch placeholder="Search Apps, Products" showClearIcon />
           }
-          showNotifications
+          //showNotifications
           onProductSwitchClick={handleProductSwitchClick}
           showProductSwitch
           startButton={
-            <Select
-              onChange={(e) => setFioriTheme(e.target.value)}
-              value={fioriTheme}
-              style={{ width: "150px", marginLeft: "1rem" }}
-            >
-              <Option value="sap_fiori_3">Fiori 3</Option>
-              <Option value="sap_fiori_3_dark">Fiori 3 Dark</Option>
-              <Option value="sap_fiori_3_hcb">Fiori 3 HCB</Option>
-              <Option value="sap_horizon">Horizon</Option>
-              <Option value="sap_horizon_dark">Horizon Dark</Option>
-            </Select>
+            <>
+              <img
+                onClick={handleLogoClick}
+                width={30}
+                height={30}
+                alt="SAP Logo"
+                src="https://cdn.vectorstock.com/i/2000v/40/54/oem-original-equipment-manufacturing-vector-45464054.avif"
+              />
+              <>
+                <Select
+                  onChange={(e) => setFioriTheme(e.target.value)}
+                  value={fioriTheme}
+                  style={{ marginLeft: "1rem" }}
+                >
+                  {" "}
+                  <Option value="">Theme</Option>
+                  <Option value="sap_fiori_3">Fiori 3</Option>
+                  <Option value="sap_fiori_3_dark">Fiori 3 Dark</Option>
+                  <Option value="sap_fiori_3_hcb">Fiori 3 HCB</Option>
+                  <Option value="sap_horizon">Horizon</Option>
+                  <Option value="sap_horizon_dark">Horizon Dark</Option>
+                </Select>
+                <Button
+                  endIcon="navigation-down-arrow"
+                  style={{
+                    background: "#97d5f0ff",
+                    borderRadius: "20px", // rounded corners
+                    padding: "0.5rem 1rem",
+                  }}
+                  ref={buttonRef}
+                  onClick={() => {
+                    setMenuIsOpen(true);
+                  }}
+                >
+                  Companies
+                </Button>
+                <Menu
+                  opener={buttonRef.current}
+                  open={menuIsOpen}
+                  onClose={() => {
+                    setMenuIsOpen(false);
+                  }}
+                >
+                  {companies.map((company) => (
+                    <MenuItem key={company.id} text={company.name}>
+                      {company.Branches &&
+                        company.Branches.map((branch) => (
+                          <MenuItem key={branch.id} text={branch.name} />
+                        ))}
+                    </MenuItem>
+                  ))}
+                </Menu>
+              </>
+            </>
           }
         >
-        
           <ShellBarItem icon="sys-help" text="Help" />
         </ShellBar>
       </div>

@@ -1,9 +1,7 @@
-import {
- 
+import { 
   useRef,
   useMemo,
   useEffect,
-  useState,
 } from "react";
 
 import { Controller, useForm } from "react-hook-form";
@@ -52,7 +50,7 @@ const getOptionKey = (name) => {
   return null;
 };
 
-const RoleForm = ({ onSubmit, defaultValues, permissions,mode = "create", apiError }) => {
+const CompanyRoleForm = ({ onSubmit, defaultValues, permissions,mode = "create", apiError }) => {
   const {
     control,
     handleSubmit,
@@ -65,14 +63,11 @@ const RoleForm = ({ onSubmit, defaultValues, permissions,mode = "create", apiErr
     
   });
 
-  const { companies } = useSelector((state) => state.companies);
-
-  const dispatch = useDispatch()
   const permissionIds = watch("permissionIds");
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const formRef = useRef(null);
-  const [currScope,setCurrscope] = useState("Global")
-
+ const {companies} = useSelector((state)=>state.companies)
   const grouped = {};
   permissions.forEach((perm) => {
     const option = getOptionKey(perm.name);
@@ -81,21 +76,7 @@ const RoleForm = ({ onSubmit, defaultValues, permissions,mode = "create", apiErr
     grouped[perm.module].push({ option, id: perm.id });
   });
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await dispatch(fetchCompanies()).unwrap();
-        console.log("resusers", res);
-        if (res.message === "Please Login!") {
-          navigate("/");
-        }
-      } catch (err) {
-        console.log("Failed to fetch user", err.message);
-        err.message && navigate("/");
-      }
-    };
-    fetchData();
-  }, [dispatch]);
+
   // const handleChange = (row) => {
 
   //   const permissionName = row;
@@ -136,7 +117,23 @@ const RoleForm = ({ onSubmit, defaultValues, permissions,mode = "create", apiErr
     console.log("Updatef,", updated);
     setValue("permissionIds", updated);
   };
+useEffect(() => {
+    //dispatch(fetchPermissions());
+    const fetchData = async () => {
+      try {
+        const res = await dispatch(fetchCompanies()).unwrap();
+        console.log("resusers", res);
 
+        if (res.message === "Please Login!") {
+          navigate("/");
+        }
+      } catch (err) {
+        console.log("Failed to fetch user", err.message);
+        err.message && navigate("/");
+      }
+    };
+    fetchData();
+  }, [dispatch]);
   const columns = useMemo(
     () => [
       {
@@ -363,57 +360,20 @@ const RoleForm = ({ onSubmit, defaultValues, permissions,mode = "create", apiErr
       >
         <FlexBox style={{ paddingTop: "2rem" }}>
           <FlexBox direction="Column" style={{ flex: " 28%" }}>
-            <Label>Scope</Label>{" "}
-            <FlexBox label={<Label required>Scope</Label>}>
-              <Controller
-                name="scope"
-                control={control}
-                render={({ field }) => (
-                  <Select
-                   style={{width:"80%"}}
+            <Label>Company</Label>
+            <Controller
+              name="name"
+              control={control}
+              render={({ field }) => (
+                <Select
+                   style={{width:"70%"}}
 
-                    name="scope"
-                    value={field.value ?? ""}
-
-                    onChange={(e) => {field.onChange(e.target.value);setCurrscope(e.target.value)
-                    }
-                    }
-                    valueState={errors.scope ? "Error" : "None"}
-                  >
-                    <Option>Select</Option>
-
-                    <Option value="Global">Global</Option>
-                    <Option value="Company">Company</Option>
-                  </Select>
-                )}
-              />
-
-              {errors.scope && (
-                <span
-                  slot="valueStateMessage"
-                  style={{ color: "var(--sapNegativeColor)" }}
-                >
-                  {errors.scope.message}
-                </span>
-              )}
-            </FlexBox>
-          </FlexBox><FlexBox direction="Column" style={{ flex: " 28%" }}>
-            <Label>Company</Label>{" "}
-            <FlexBox label={<Label required>Company</Label>}>
-              <Controller
-                name="company"
-                control={control}
-                render={({ field }) => (
-                  <Select
-                   style={{width:"80%"}}
-                  disabled={currScope ==="Global"}
-                    name="company"
+                    name="companyId"
                     value={field.value ?? ""}
                     onChange={(e) => field.onChange(e.target.value)}
-                    valueState={errors.company ? "Error" : "None"}
+                    valueState={errors.companyId ? "Error" : "None"}
                   >
                     <Option>Select</Option>
-
                     {companies
                       .filter((r) => r.status) /* active roles only    */
                       .map((r) => (
@@ -422,18 +382,8 @@ const RoleForm = ({ onSubmit, defaultValues, permissions,mode = "create", apiErr
                         </Option>
                       ))}
                   </Select>
-                )}
-              />
-
-              {errors.company && (
-                <span
-                  slot="valueStateMessage"
-                  style={{ color: "var(--sapNegativeColor)" }}
-                >
-                  {errors.status.message}
-                </span>
               )}
-            </FlexBox>
+            />
           </FlexBox>
           <FlexBox direction="Column" style={{ flex: " 28%" }}>
             <Label>Role Name</Label>
@@ -505,7 +455,7 @@ const RoleForm = ({ onSubmit, defaultValues, permissions,mode = "create", apiErr
             <AnalyticalTable
               columns={columns}
               data={
-                currScope ==="Global"?data: []
+                data|| []
               }
               selectionMode="None"
               visibleRows={10}
@@ -526,4 +476,4 @@ const RoleForm = ({ onSubmit, defaultValues, permissions,mode = "create", apiErr
   );
 };
 
-export default RoleForm;
+export default CompanyRoleForm

@@ -141,7 +141,7 @@ const Companyformdetails = ({
           wrap="Wrap" // allow line breaks
           style={{ gap: "1rem", paddingTop: "4rem" }}
         >
-          <FlexBox direction="Column" style={{ flex: " 28%"}}>
+          <FlexBox direction="Column" style={{ flex: " 48%"}}>
             <Label>Company Name</Label>
             <Controller
               name="name"
@@ -170,7 +170,7 @@ const Companyformdetails = ({
               )}
             />
           </FlexBox>
-          <FlexBox direction="Column" style={{ flex: " 28%" }}>
+          <FlexBox direction="Column" style={{ flex: " 48%" }}>
             <Label>Company Db Name</Label>
             <Controller
               name="company_db_name"
@@ -199,7 +199,7 @@ const Companyformdetails = ({
               )}
             />
           </FlexBox>
-          <FlexBox direction="Column" style={{ flex: " 28%" }}>
+          <FlexBox direction="Column" style={{ flex: " 48%" }}>
             <Label>Company Code</Label>
             <Controller
               name="company_code"
@@ -228,7 +228,7 @@ const Companyformdetails = ({
               )}
             />
           </FlexBox>
-          <FlexBox direction="Column" style={{ flex: " 28%" }}>
+          {/* <FlexBox direction="Column" style={{ flex: " 28%" }}>
             <Label>City</Label>
             <Controller
               name="city"
@@ -284,9 +284,9 @@ const Companyformdetails = ({
                 </FlexBox>
               )}
             />
-          </FlexBox>
+          </FlexBox> */}
 
-          <FlexBox direction="Column" style={{ flex: " 28%" }}>
+          <FlexBox direction="Column" style={{ flex: " 48%" }}>
             <Label>Status</Label>{" "}
             <FlexBox label={<Label required>Status</Label>}>
               <Controller
@@ -318,7 +318,7 @@ const Companyformdetails = ({
               )}
             </FlexBox>
           </FlexBox>
-          <FlexBox direction="Column" style={{ flex: " 25%" }}>
+          {/* <FlexBox direction="Column" style={{ flex: " 25%" }}>
             <Label>Is branch</Label>
             <FlexBox label={<Label required>Is Branch</Label>}>
               <Controller
@@ -348,7 +348,7 @@ const Companyformdetails = ({
                 </span>
               )}
             </FlexBox>
-          </FlexBox>
+          </FlexBox> */}
         </FlexBox>
       </form>
     </Page>
