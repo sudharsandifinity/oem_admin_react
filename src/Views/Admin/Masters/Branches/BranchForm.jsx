@@ -299,6 +299,38 @@ const BranchForm = ({
             />
           </FlexBox>
           <FlexBox direction="Column" style={{ flex: " 28%" }}>
+            <Label>Is Main</Label>{" "}
+            <FlexBox label={<Label required>Is Main</Label>}>
+              <Controller
+                name="is_main"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                  style={{width:"80%"}}
+                    name="is_main"
+                    value={field.value ?? ""}
+                    onChange={(e) => field.onChange(e.target.value)}
+                    valueState={errors.is_main ? "Error" : "None"}
+                  >
+                    <Option>Select</Option>
+
+                    <Option value="1">Yes</Option>
+                    <Option value="0">No</Option>
+                  </Select>
+                )}
+              />
+
+              {errors.is_main && (
+                <span
+                  slot="valueStateMessage"
+                  style={{ color: "var(--sapNegativeColor)" }}
+                >
+                  {errors.is_main.message}
+                </span>
+              )}
+            </FlexBox>
+          </FlexBox>
+          <FlexBox direction="Column" style={{ flex: " 28%" }}>
             <Label>Status</Label>
             <FlexBox label={<Label required>Status</Label>}>
               <Controller
@@ -306,7 +338,7 @@ const BranchForm = ({
                 control={control}
                 render={({ field }) => (
                   <Select
-                   style={{width:"80%"}}
+                   style={{width:"26%"}}
                     name="status"
                     value={field.value ?? ""}
                     onChange={(e) => field.onChange(e.target.value)}

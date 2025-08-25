@@ -26,7 +26,7 @@ import {
   UserMenuItem,
   Grid,
 } from "@ui5/webcomponents-react";
-import React, { useContext, useEffect, useRef } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { FormConfigContext } from "../../Components/Context/FormConfigContext";
@@ -50,12 +50,15 @@ import {
   YAxis,
 } from "recharts";
 import CustomerSelection from "../SalesOrder/Header/CustomerSelection";
+import { fetchCompanies } from "../../store/slices/companiesSlice";
 
 const UserDashboard = () => {
   const { Menuitems } = useContext(FormConfigContext);
   const { usermenus } = useSelector((state) => state.usermenus);
-  const menuRef = useRef();
+  const { companies } = useSelector((state) => state.companies);
 
+  const buttonRef = useRef(null);
+  const [menuIsOpen, setMenuIsOpen] = useState(false);
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -72,6 +75,7 @@ const UserDashboard = () => {
     const fetchData = async () => {
       try {
         const res = await dispatch(fetchUserMenus()).unwrap();
+        dispatch(fetchCompanies());
         console.log("resusers", res);
 
         if (res.message === "Please Login!") {
@@ -123,6 +127,7 @@ const UserDashboard = () => {
       {/* Side Navigation */}
 
       <FlexBox direction="Column" style={{ width: "240px" }}>
+        
         <SideNavigation>
           {console.log(
             "topLevelItems",
@@ -188,25 +193,59 @@ const UserDashboard = () => {
             <SideNavigationItem icon="employee" text="Users" />
             <SideNavigationItem icon="settings" text="Settings" />
           </SideNavigation> */}
+          
 
-      <div style={{ flex: 1, flexDirection: "column" }}>
+      <div style={{ flex: 2, flexDirection: "column" }}>
         {/* ShellBar */}
+<Button
+          endIcon="navigation-down-arrow"
+          ref={buttonRef}
+          onClick={() => {
+            setMenuIsOpen(true);
+          }}
+        >
+          Companies
+        </Button>
+        <Menu
+          opener={buttonRef.current}
+          open={menuIsOpen}
+          onClose={() => {
+            setMenuIsOpen(false);
+          }}
+        >
+          {companies.map((company) => (
+            <MenuItem key={company.id} text={company.name}>
+              {company.Branches.map((branch) => (
+                <MenuItem key={branch.id} text={branch.name}>
+                  {topLevelItems
+                    .sort((a, b) => a.order_number - b.order_number)
+                    .map((item) => (
+                      <MenuItem key={item.id} text={item.display_name} />
+                    ))}
 
+                  {/* Render grouped sub-items under their parent */}
+                  {Object.entries(groupedChildren).map(([parent, children]) => (
+                    <MenuItem key={parent} text={parent}>
+                      {children
+                        .sort((a, b) => a.order_number - b.order_number)
+                        .map((child) => (
+                          <MenuItem
+                            key={child.id}
+                            text={child.display_name}
+                            href="/ManageSalesOrder"
+                          />
+                        ))}
+                    </MenuItem>
+                  ))}
+                </MenuItem>
+              ))}
+            </MenuItem>
+          ))}
+        </Menu>
         {/* Welcome Text */}
         <div style={{ padding: "2rem" }}>
           <Title level="H2">Welcome, Vidhya</Title>
-         
 
-          <Menu ref={menuRef}>
-            <MenuItem text="Sales">
-              <MenuItem text="Orders" />
-              <MenuItem text="Invoices" />
-            </MenuItem>
-            <MenuItem text="Inventory">
-              <MenuItem text="Products" />
-              <MenuItem text="Stock Levels" />
-            </MenuItem>
-          </Menu>
           {/* Colored Cards - Single Row */}
           <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
             {cardData.map(({ title, color }) => (

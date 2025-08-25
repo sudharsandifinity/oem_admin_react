@@ -19,22 +19,23 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import Admin from "../../Admin";
-import { deleteRole, fetchRoles } from "../../../../store/slices/roleSlice";
-const ViewRole = Loadable(lazy(() => import("./ViewRole")));
+import { fetchBranch } from "../../../../store/slices/branchesSlice";
+import { deleteRole } from "../../../../store/slices/roleSlice";
+const ViewCompanyRole = Loadable(lazy(() => import("./ViewCompanyRole")));
 
-const RolesList = () => {
+const CompanyRoleList = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { roles, loading } = useSelector((state) => state.roles);
   const [search, setSearch] = useState("");
   const [layout, setLayout] = useState("OneColumn");
   const [ViewId, setViewId] = useState("");
+  const {roles} =useSelector((state)=>state.roles)
 
   useEffect(() => {
-    //dispatch(fetchRoles());
+    //dispatch(fetchCompanyRole());
     const fetchData = async () => {
       try {
-        const res = await dispatch(fetchRoles()).unwrap();
+        const res = await dispatch(fetchBranch()).unwrap();
         console.log("resusers", res);
 
         if (res.message === "Please Login!") {
@@ -65,32 +66,30 @@ const RolesList = () => {
   };
 
   const handleEdit = (role) => {
-    navigate(`/admin/roles/edit/${role.id}`);
+    navigate(`/admin/companyroles/edit/${role.id}`);
   };
 
   const handleView = (role) => {
-    //navigate(`/roles/${user.id}`);
+    //navigate(`/companyroles/${user.id}`);
     setViewId(role.id);
   };
 
   const filteredRows = roles?.filter((role) =>
     role.name.toLowerCase().includes(search.toLowerCase())
   );
-  const editRow = (row) => {
-    console.log("Edit Row:", row);
-  };
+ 
   const columns = useMemo(
     () => [
       {
-        Header: "Role Name",
+        Header: "Company Role Name",
         accessor: "name",
         width: 250,
       },
       {
         Header: "Permissions",
         accessor: "Permissions",
-        width: 600,
-        height: 400,
+        width: 500,
+        height: 500,
         Cell: ({ row }) =>
           row.original.Permissions ? (
             <FlexBox
@@ -132,7 +131,7 @@ const RolesList = () => {
         width: 250,
 
         Cell: (instance) => {
-          const { cell, row, webComponentsReactProperties } = instance;
+          const {  row, webComponentsReactProperties } = instance;
           const isOverlay = webComponentsReactProperties.showOverlay;
           return (
             <FlexBox alignItems="Center">
@@ -184,8 +183,8 @@ const RolesList = () => {
                 }}
               >
                 <BreadcrumbsItem data-route="/admin">Admin</BreadcrumbsItem>
-                <BreadcrumbsItem data-route="/admin/roles">
-                  Roles
+                <BreadcrumbsItem data-route="/admin/CompanyRole">
+                  CompanyRole
                 </BreadcrumbsItem>
               </Breadcrumbs>
             </div>
@@ -193,13 +192,13 @@ const RolesList = () => {
           endContent={
             <Button
               design="Emphasized"
-              onClick={() => navigate("/admin/roles/create")}
+              onClick={() => navigate("/admin/CompanyRole/create")}
             >
-              Add Role
+              Add Company Role
             </Button>
           }
         >
-          <Title level="H4">Role List</Title>
+          <Title level="H4">Company Role List</Title>
         </Bar>
       }
     >
@@ -237,7 +236,7 @@ const RolesList = () => {
                     <AnalyticalTable
                       columns={columns}
                       data={filteredRows || []}
-                      header={"  Roles list(" + filteredRows.length + ")"}
+                      header={"  Company Role List(" + filteredRows.length + ")"}
                       visibleRows={10}
                       rowHeight={60}
                       onAutoResize={() => {}}
@@ -265,7 +264,7 @@ const RolesList = () => {
                         onClick={() => setLayout("OneColumn")}
                       />
                     }
-                    startContent={<Title level="H5">Preview Roles</Title>}
+                    startContent={<Title level="H5">Preview Company Role</Title>}
                   ></Bar>
                 }
               >
@@ -279,7 +278,7 @@ const RolesList = () => {
                     verticalAlign: "middle",
                   }}
                 >
-                  <ViewRole id={ViewId} />
+                  <ViewCompanyRole id={ViewId} />
                 </div>
               </Page>
             }
@@ -290,4 +289,6 @@ const RolesList = () => {
   );
 };
 
-export default RolesList;
+export default CompanyRoleList;
+
+

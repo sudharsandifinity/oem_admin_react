@@ -26,6 +26,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { fetchUserMenus } from "../../../../store/slices/usermenusSlice";
 import { fetchCompanies } from "../../../../store/slices/companiesSlice";
+import { fetchForm } from "../../../../store/slices/formmasterSlice";
 
 // Validation schema
 const schema = yup.object().shape({
@@ -58,7 +59,8 @@ const MenuForm = ({
 
   const dispatch = useDispatch();
   const { roles } = useSelector((state) => state.roles);
-  const {companies} = useSelector((state)=>state.companies)
+  const {companies} = useSelector((state)=>state.companies);
+  const {forms} = useSelector((state)=>state.forms)
   const { usermenus } = useSelector((state) => state.usermenus);
   const [assignBranchEnabled, setAssignBranchEnabled] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState(null);
@@ -72,7 +74,8 @@ const MenuForm = ({
       try {
         const res = await dispatch(fetchRoles()).unwrap();
         dispatch(fetchUserMenus());
-        dispatch(fetchCompanies)
+        dispatch(fetchCompanies());
+        dispatch(fetchForm())
         console.log("resusers", res);
 
         if (res.message === "Please Login!") {
@@ -376,7 +379,45 @@ const MenuForm = ({
               )}
             </FlexBox>
           </FlexBox>
-          <FlexBox direction="Column" style={{ flex: " 48%" }}>
+          <FlexBox direction="Column" style={{ flex: " 14%" }}>
+            <Label>Form</Label>{" "}
+            <FlexBox label={<Label required>Form</Label>}>
+              <Controller
+                name="formId"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                   style={{width:"80%"}}
+
+                    name="formId"
+                    value={field.value ?? ""}
+                    onChange={(e) => field.onChange(e.target.value)}
+                    valueState={errors.formId ? "Error" : "None"}
+                  >
+                    <Option>Select</Option>
+
+                    {forms
+                          .filter((r) => r.status) /* active roles only    */
+                          .map((r) => (
+                            <Option key={r.id} value={r.id}>
+                              {r.name}
+                            </Option>
+                          ))}
+                  </Select>
+                )}
+              />
+
+              {errors.formId && (
+                <span
+                  slot="valueStateMessage"
+                  style={{ color: "var(--sapNegativeColor)" }}
+                >
+                  {errors.formId.message}
+                </span>
+              )}
+            </FlexBox>
+            </FlexBox>
+          <FlexBox direction="Column" style={{ flex: " 14%" }}>
             <Label>Status</Label>{" "}
             <FlexBox label={<Label required>Status</Label>}>
               <Controller
@@ -384,7 +425,7 @@ const MenuForm = ({
                 control={control}
                 render={({ field }) => (
                   <Select
-                   style={{width:"26%"}}
+                   style={{width:"80%"}}
 
                     name="status"
                     value={field.value ?? ""}

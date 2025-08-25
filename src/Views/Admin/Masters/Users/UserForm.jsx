@@ -62,7 +62,8 @@ const UserForm = ({
     assignBranches: false,
     company: null,
     companyId: "",
-    formId: [],
+    is_super_user:"0",
+    //formId: [],
     branchId: [],
     branchIds: [],
     adddetail: [],
@@ -483,24 +484,32 @@ const UserForm = ({
                 name="roleId"
                 control={control}
                 render={({ field }) => (
-                  <Select
-                   style={{width:"60%"}}
+                  <MultiComboBox
+                   style={{width:"80%"}}
 
                     name="roleId"
                     disabled={roleList.length === 0 && roleList.length === 0}
                     value={field.value ?? ""}
-                    onChange={(e) => field.onChange(e.target.value)}
-                    valueState={errors.roleId ? "Error" : "None"}
+                     onSelectionChange={(e) => {
+                      console.log("e.detail.selectedItems", e.detail.items);
+                      const selectedItems = e.detail.items.map((item) =>
+                        item.getAttribute("value")
+                      );
+                      field.onChange(selectedItems);
+                    }}
+                    valueState={errors.branchId ? "Error" : "None"}
                   >
-                    <Option>Select</Option>
                     {roleList
                       .filter((r) => r.status) /* active roles only    */
                       .map((r) => (
-                        <Option key={r.id} value={r.id}>
-                          {r.name}
-                        </Option>
+                        <MultiComboBoxItem
+                        key={r.id}
+                        value={r.id}
+                        text={r.name+"-"+(companies.find(c=>c.id===r.companyId)).name}
+                        selected={field.value?.includes(r.id)}
+                      />
                       ))}
-                  </Select>
+                  </MultiComboBox>
                 )}
               />
 
@@ -566,6 +575,39 @@ const UserForm = ({
             </FlexBox> 
           </FlexBox> */}
           <FlexBox direction="Column" style={{ flex: "28%" }}>
+            <Label>Is Super User</Label>
+            <FlexBox label={<Label required>Is Super User</Label>}>
+              <Controller
+                name="is_super_user"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                   style={{width:"80%"}}
+
+                    name="is_super_user"
+                    value={field.value ?? ""}
+                    onChange={(e) => field.onChange(e.target.value)}
+                    valueState={errors.is_super_user ? "Error" : "None"}
+                  >
+                    <Option>Select</Option>
+
+                    <Option value="1">Yes</Option>
+                    <Option value="0">No</Option>
+                  </Select>
+                )}
+              />
+
+              {errors.is_super_user && (
+                <span
+                  slot="valueStateMessage"
+                  style={{ color: "var(--sapNegativeColor)" }}
+                >
+                  {errors.is_super_user.message}
+                </span>
+              )}
+            </FlexBox>
+          </FlexBox>
+          <FlexBox direction="Column" style={{ flex: "28%" }}>
             <Label>Status</Label>
             <FlexBox label={<Label required>Status</Label>}>
               <Controller
@@ -573,7 +615,7 @@ const UserForm = ({
                 control={control}
                 render={({ field }) => (
                   <Select
-                   style={{width:"60%"}}
+                   style={{width:"80%"}}
 
                     name="status"
                     value={field.value ?? ""}

@@ -65,6 +65,10 @@ import EditUserMenu from "./Views/Admin/Menu/MenuMaster/EditUserMenu";
 import UserRoleMenuMaster from "./Views/Admin/Menu/UserRoleMenus/UserRoleMenuMaster";
 import CreateUserRoleMenu from "./Views/Admin/Menu/UserRoleMenus/CreateUserRoleMenu";
 import { useEffect, useState } from "react";
+import CompanyRoleList from "./Views/Admin/Masters/CompanyRole/CompanyRoleList";
+import CreateCompanyROle from "./Views/Admin/Masters/CompanyRole/CreateCompanyROle";
+import CreateCompanyRole from "./Views/Admin/Masters/CompanyRole/CreateCompanyROle";
+import EditCompanyRole from "./Views/Admin/Masters/CompanyRole/EditCompanyRole";
 //import { useEffect, useState } from "react";
 
 // const AuthLogin = Loadable(lazy(() => import('Views/pages/auth-forms/AuthLogin')));
@@ -131,6 +135,10 @@ function App() {
                     <Route path="roles" element={<RolesList />} />
                     <Route path="roles/create" element={<CreateRole />} />
                     <Route path="roles/edit/:id" element={<EditRole />} />
+
+                    <Route path="CompanyRole" element={<CompanyRoleList/>}/>
+                    <Route path="CompanyRole/create" element={<CreateCompanyRole/>}/>
+                     <Route path="CompanyRole/edit/:id" element={<EditCompanyRole />} />
 
                     <Route path="companies" element={<Companies />} />
                     <Route
