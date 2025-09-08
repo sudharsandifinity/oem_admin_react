@@ -47,6 +47,7 @@ const CreateBranch = () => {
       companies={companies}
       defaultValues={{
         companyId: "",
+        is_main: "1",
         name: "",
         city: "",
         address: "",

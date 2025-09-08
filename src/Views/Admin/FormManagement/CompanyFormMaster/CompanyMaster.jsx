@@ -27,7 +27,7 @@ const ViewCompanyMaster = Loadable(lazy(() => import("./ViewCompanyMaster")));
 const CompanyMaster = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { companyforms, loading } = useSelector((state) => state.companyforms);
+  const { companyforms } = useSelector((state) => state.companyforms);
   const [search, setSearch] = useState("");
   const [layout, setLayout] = useState("OneColumn");
   const [ViewId, setViewId] = useState("");

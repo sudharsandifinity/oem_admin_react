@@ -119,11 +119,13 @@ function App() {
 
                   <Route path="/UserDashboard" element={<UserDashboard />} />
 
-                  <Route path="/SalesOrder" element={<SalesOrder />} />
+                  <Route path="/SalesOrder/create/:formId" element={<SalesOrder />} />
                   <Route
                     path="/ManageSalesOrder"
                     element={<ManageSalesOrder />}
                   />
+                     <Route path="/form/:formId" element={<ManageSalesOrder />} />
+            <Route path="/form/:formId/:childId" element={<ManageSalesOrder />} />
                   <Route path="/Admin" element={<Admin />} />
                   <Route path="/admin" element={<Admin />}>
                     <Route path="dashboard" element={<Dashboard />} />

@@ -85,13 +85,17 @@ const Companies = () => {
         accessor: "name",
       },
       {
-        Header: "City",
-        accessor: "city",
+        Header: "Company DB Name",
+        accessor: "company_db_name",
       },
-      {
-        Header: "Address",
-        accessor: "address",
-      },
+      // {
+      //   Header: "City",
+      //   accessor: "city",
+      // },
+      // {
+      //   Header: "Address",
+      //   accessor: "address",
+      // },
 
       {
         Header: "Status",

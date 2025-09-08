@@ -26,8 +26,8 @@ import { useNavigate } from "react-router-dom";
 // Validation schema
 const schema = yup.object().shape({
   name: yup.string().required("form_name is required"),
-  city: yup.string().required("display_name is required"),
-  address: yup.string().required("display_name is required"),
+  //city: yup.string().required("display_name is required"),
+  //address: yup.string().required("display_name is required"),
 });
 
 const Companyformdetails = ({
@@ -36,9 +36,9 @@ const Companyformdetails = ({
     name: "",
     company_code: "",
     company_db_name: "",
-    city: "",
-    address: "",
-    is_branch: "",
+    //city: "",
+    //address: "",
+    //is_branch: "",
     status: "",
   },
   mode = "create",

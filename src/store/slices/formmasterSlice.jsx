@@ -4,11 +4,23 @@ import api from '../../api/axios';
 // API Base URL
 const API_URL = '/admin/forms';
 
+const GLOBAL_FORMS_API = '/admin/forms/global-forms';
+
+export const fetchGlobalForms = createAsyncThunk(
+  'forms/fetchGlobalForms',
+  async () => {
+    const response = await api.get(GLOBAL_FORMS_API, { withCredentials: true });
+    return response.data;
+  }
+);
+
 // Thunks for API calls
 export const fetchForm = createAsyncThunk('forms/fetchForms', async () => {
   const response = await api.get(API_URL, {withCredentials: true});
   return response.data;
 });
+
+
 
 export const fetchFormById = createAsyncThunk('forms/fetchForms', async (id) => {
   const response = await api.get(`${API_URL}/${id}`, {withCredentials: true});
@@ -44,6 +56,17 @@ const formsSlice = createSlice({
       .addCase(fetchForm.pending, (state) => {
         state.loading = true;
         state.error = null;
+      })
+       .addCase(fetchGlobalForms.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchGlobalForms.fulfilled, (state, action) => {
+        state.loading = false;
+        state.globalForms = action.payload;
+      })
+      .addCase(fetchGlobalForms.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
       })
       .addCase(fetchForm.fulfilled, (state, action) => {
         state.loading = false;

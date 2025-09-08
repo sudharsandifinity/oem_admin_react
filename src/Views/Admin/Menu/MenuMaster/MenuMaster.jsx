@@ -97,7 +97,7 @@ const MenuMaster = () => {
         Header: "Parent",
         accessor: "parent",
         Cell: ({ row }) => {
-          const parent = usermenus.find((item) => item.id === row.original.parent);          
+          const parent = usermenus.find((item) => item.id === row.original.parentUserMenuId);          
           return parent ? parent.display_name : "";
         },  
       },
@@ -106,20 +106,30 @@ const MenuMaster = () => {
         accessor: "order_number",
       },
       {
-        Header: "Form",
-        accessor: "form",
+        Header: "Scope",
+        accessor: "scope",
+      },
+      {
+        Header: "Company",
+        accessor: "companyName",
+        Cell: ({ row }) => row.original.company ? row.original.company.name : 'Global',
+      },
+      {
+        Header: "Branch",
+        accessor: "branchName",
+        Cell: ({ row }) => row.original.branch ? row.original.branch.name : 'All Branches',
       },
      
-      // {
-      //   Header: "Status",
-      //   accessor: "status",
-      //   Cell: ({ row }) =>
-      //     row.original.status === 1|| row.original.status === "1" ? (
-      //       <Tag children="Active" design="Positive" size="S" />
-      //     ) : (
-      //       <Tag children="Inactive" design="Negative" size="S" />
-      //     ),
-      // },
+      {
+        Header: "Status",
+        accessor: "status",
+        Cell: ({ row }) =>
+          row.original.status === 1|| row.original.status === "1" ? (
+            <Tag children="Active" design="Positive" size="S" />
+          ) : (
+            <Tag children="Inactive" design="Negative" size="S" />
+          ),
+      },
       {
         Header: "Actions",
         accessor: ".",

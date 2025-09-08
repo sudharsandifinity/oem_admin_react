@@ -33,6 +33,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCompanies } from "../../../../store/slices/companiesSlice";
+import { fetchUserMenus } from "../../../../store/slices/usermenusSlice";
 
 // Validation schema
 const schema = yup.object().shape({
@@ -66,12 +67,15 @@ const RoleForm = ({ onSubmit, defaultValues, permissions,mode = "create", apiErr
   });
 
   const { companies } = useSelector((state) => state.companies);
+  const { usermenus, loading } = useSelector((state) => state.usermenus);
+
 
   const dispatch = useDispatch()
   const permissionIds = watch("permissionIds");
   const navigate = useNavigate();
   const formRef = useRef(null);
-  const [currScope,setCurrscope] = useState("Global")
+  const [currScope,setCurrscope] = useState("global")
+  const [selectedCompany, setSelectedCompany] = useState("");
 
   const grouped = {};
   permissions.forEach((perm) => {
@@ -85,6 +89,8 @@ const RoleForm = ({ onSubmit, defaultValues, permissions,mode = "create", apiErr
     const fetchData = async () => {
       try {
         const res = await dispatch(fetchCompanies()).unwrap();
+        await dispatch(fetchUserMenus()).unwrap();
+       
         console.log("resusers", res);
         if (res.message === "Please Login!") {
           navigate("/");
@@ -116,27 +122,43 @@ const RoleForm = ({ onSubmit, defaultValues, permissions,mode = "create", apiErr
   //   setValue("permissionIds", updated);
   // };
   const handleChange = (e, permissionName) => {
+    console.log("handleChange", permissionName, permissions);
     const permission = permissions.find(
       (per) => per.name === permissionName.toLowerCase()
     );
 
-    if (!permission) return;
+  if (!permission) return;
 
-    const id = permission.id;
-    let updated;
+  const id = permission.id;
+  let updated;
 
-    if (e.target.checked) {
-      // Add permission ID (ensure no duplicates)
-      updated = Array.from(new Set([...permissionIds, id]));
-    } else {
-      // Remove permission ID
-      updated = permissionIds.filter((pid) => pid !== id);
-    }
+  if (e.target.checked) {
+    updated = [...new Set([...permissionIds, id])]; // add
+  } else {
+    updated = permissionIds.filter((pid) => pid !== id); // remove
+  }
 
-    console.log("Updatef,", updated);
-    setValue("permissionIds", updated);
-  };
+  console.log("Updated Permission IDs:", updated);
 
+  // 🔑 Notify RHF so it re-renders
+  setValue("permissionIds", updated, {
+    shouldValidate: true,
+    shouldDirty: true,
+    shouldTouch: true,
+  });
+};
+
+
+const menulist = usermenus?.filter((menu) => menu.companyId === selectedCompany);
+const menuListData = menulist.map((menu) => ({
+  Module: menu.name,
+  List: "",
+  View: "",
+  Create: "",
+  Edit: "",
+  Delete: "",
+}));
+console.log("usermenus", usermenus, menulist, selectedCompany);
   const columns = useMemo(
     () => [
       {
@@ -382,8 +404,8 @@ const RoleForm = ({ onSubmit, defaultValues, permissions,mode = "create", apiErr
                   >
                     <Option>Select</Option>
 
-                    <Option value="Global">Global</Option>
-                    <Option value="Company">Company</Option>
+                    <Option value="global">Global</Option>
+                    <Option value="company">Company</Option>
                   </Select>
                 )}
               />
@@ -401,16 +423,16 @@ const RoleForm = ({ onSubmit, defaultValues, permissions,mode = "create", apiErr
             <Label>Company</Label>{" "}
             <FlexBox label={<Label required>Company</Label>}>
               <Controller
-                name="company"
+                name="companyId"
                 control={control}
                 render={({ field }) => (
                   <Select
                    style={{width:"80%"}}
-                  disabled={currScope ==="Global"}
-                    name="company"
+                  disabled={currScope ==="global"}
+                    name="companyId"
                     value={field.value ?? ""}
-                    onChange={(e) => field.onChange(e.target.value)}
-                    valueState={errors.company ? "Error" : "None"}
+                    onChange={(e) => {field.onChange(e.target.value);setSelectedCompany(e.target.value)}}
+                    valueState={errors.companyId ? "Error" : "None"}
                   >
                     <Option>Select</Option>
 
@@ -425,12 +447,12 @@ const RoleForm = ({ onSubmit, defaultValues, permissions,mode = "create", apiErr
                 )}
               />
 
-              {errors.company && (
+              {errors.companyId && (
                 <span
                   slot="valueStateMessage"
                   style={{ color: "var(--sapNegativeColor)" }}
                 >
-                  {errors.status.message}
+                  {errors.companyId.message}
                 </span>
               )}
             </FlexBox>
@@ -505,7 +527,7 @@ const RoleForm = ({ onSubmit, defaultValues, permissions,mode = "create", apiErr
             <AnalyticalTable
               columns={columns}
               data={
-                currScope ==="Global"?data: []
+                currScope ==="global"?data:menuListData
               }
               selectionMode="None"
               visibleRows={10}

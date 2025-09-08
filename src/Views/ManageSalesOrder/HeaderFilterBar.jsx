@@ -63,6 +63,7 @@ import HeaderFilterDialog from "./HeaderFilterDialog";
     setInputValue(e.detail.item.innerHTML);
     setFilterDialogOpen(false);
   };
+  console.log("field",field)
   switch (field.inputType) {
     case "text":
     case "number":
@@ -82,6 +83,7 @@ import HeaderFilterDialog from "./HeaderFilterDialog";
           <Label>{field.DisplayName}</Label>
           <DatePicker
             value={value}
+            style={{ width: "60%" }}
             onChange={(e) => handleChange(e, field.FieldName)}
           />
         </FlexBox>
