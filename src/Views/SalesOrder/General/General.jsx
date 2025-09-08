@@ -15,7 +15,7 @@ const General = (props) => {
   const { form } = props;
   const {
     fieldConfig,
-    //CustomerDetails,
+    CustomerDetails,
     DocumentDetails
   } = useContext(FormConfigContext);
   const [inputvalue, setInputValue] = useState([]);
@@ -28,30 +28,30 @@ const General = (props) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { companyformfield } = useSelector((state) => state.companyformfield);
-  const CustomerDetails = companyformfield.filter(
-    (c) => c.Form?.name === "CusDetail"
-  );
+  // const CustomerDetails = companyformfield.filter(
+  //   (c) => c.Form?.name === "CusDetail"
+  // );
   // const DocumentDetails = companyformfield.filter(
   //   (c) => c.Form?.name === "DocDetail"
   // );
 
-  useEffect(() => {
-    //dispatch(fetchCompanyFormfields());
-    const fetchData = async () => {
-      try {
-        const res = await dispatch(fetchCompanyFormfields()).unwrap();
-        console.log("resusers", res);
+  // useEffect(() => {
+  //   //dispatch(fetchCompanyFormfields());
+  //   const fetchData = async () => {
+  //     try {
+  //       const res = await dispatch(fetchCompanyFormfields()).unwrap();
+  //       console.log("resusers", res);
 
-        if (res.message === "Please Login!") {
-          navigate("/");
-        }
-      } catch (err) {
-        console.log("Failed to fetch user", err.message);
-        err.message && navigate("/");
-      }
-    };
-    fetchData();
-  }, [dispatch]);
+  //       if (res.message === "Please Login!") {
+  //         navigate("/");
+  //       }
+  //     } catch (err) {
+  //       console.log("Failed to fetch user", err.message);
+  //       err.message && navigate("/");
+  //     }
+  //   };
+  //   fetchData();
+  // }, [dispatch]);
   const handleChange = (e, formName) => {
     console.log("handlechangevalue", formName);
     const { name, value } = e.target;

@@ -52,6 +52,32 @@ import {
 import CustomerSelection from "../SalesOrder/Header/CustomerSelection";
 import { fetchCompanies } from "../../store/slices/companiesSlice";
 
+function buildMenuTree(data) {
+  const map = {};
+  const roots = [];
+
+  // prepare map
+  data.forEach((item) => {
+    map[item.id] = { ...item, children: [] };
+  });
+
+  // assign children
+  data.forEach((item) => {
+    if (item.parentUserMenuId) {
+      map[item.parentUserMenuId]?.children.push(map[item.id]);
+    } else {
+      roots.push(map[item.id]); // top-level
+    }
+  });
+
+  // sort parents & children
+  const sortFn = (a, b) => a.order_number - b.order_number;
+  roots.sort(sortFn);
+  roots.forEach((r) => r.children.sort(sortFn));
+
+  return roots;
+}
+
 const UserDashboard = () => {
   const { Menuitems } = useContext(FormConfigContext);
   const { usermenus } = useSelector((state) => state.usermenus);
@@ -59,9 +85,14 @@ const UserDashboard = () => {
 
   const buttonRef = useRef(null);
   const [menuIsOpen, setMenuIsOpen] = useState(false);
+  const [selectedCompany, setSelectedCompany] = useState(null);
+  const [selectedBranch, setSelectedBranch] = useState(null);
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
+  const menulist = usermenus.filter((menu) => menu.companyId === selectedCompany)&&usermenus.filter((menu) => menu.branchId === selectedBranch);
+  const menuTree = buildMenuTree(menulist.length>0?menulist:usermenus);
 
   // const chartData = [
   //   { name: "Product A", users: 30 },
@@ -69,13 +100,21 @@ const UserDashboard = () => {
   //   { name: "Product C", users: 20 },
   //   { name: "Product D", users: 60 },
   // ];
-
+  const handleCompanyClick = (companyName) => {
+    console.log("Selected company:", companyName);
+    setSelectedCompany(companyName);
+  };
+  const handleBranchClick = (branchname) => {
+    console.log("Selected branch:", branchname);
+    setSelectedBranch(branchname);
+  };
   useEffect(() => {
     //dispatch(fetchRoles());
     const fetchData = async () => {
       try {
-        const res = await dispatch(fetchUserMenus()).unwrap();
-        dispatch(fetchCompanies());
+        const res = await dispatch(fetchCompanies());
+        dispatch(fetchUserMenus()).unwrap();
+
         console.log("resusers", res);
 
         if (res.message === "Please Login!") {
@@ -89,25 +128,32 @@ const UserDashboard = () => {
     fetchData();
   }, [dispatch, navigate]);
 
-  const userdata = usermenus.map((menu) => ({
-    id: menu.id,
-    name: menu.name,
-    display_name: menu.display_name,
-    parent:
-      usermenus.find((item) => item.id === menu.parent)?.display_name || null,
+  
+  const userdata =
+    usermenus.length > 0 && usermenus.map((menu) => ({
+      id: menu.id,
+      name: menu.name,
+      display_name: menu.display_name,
+      parent:
+        usermenus.find((item) => item.id === menu.parentUserMenuId)
+          ?.display_name || null,
 
-    order_number: menu.order_number,
-  }));
+      order_number: menu.order_number,
+    }));
 
-  const topLevelItems = userdata.filter((item) => item.parent === null);
-  const childItems = userdata.filter((item) => item.parent !== null);
+  const topLevelItems =
+    userdata && userdata.filter((item) => item.parentUserMenuId === null);
+  const childItems =
+    userdata && userdata.filter((item) => item.parentUserMenuId !== null);
 
   // Group children by parent
-  const groupedChildren = childItems.reduce((acc, item) => {
-    if (!acc[item.parent]) acc[item.parent] = [];
-    acc[item.parent].push(item);
-    return acc;
-  }, {});
+  const groupedChildren =
+    childItems &&
+    childItems.reduce((acc, item) => {
+      if (!acc[item.parentUserMenuId]) acc[item.parentUserMenuId] = [];
+      acc[item.parentUserMenuId].push(item);
+      return acc;
+    }, {});
   const cardData = [
     { title: "Users", color: "#0070f2" },
     { title: "Tasks", color: "#2ecc71" },
@@ -127,8 +173,63 @@ const UserDashboard = () => {
       {/* Side Navigation */}
 
       <FlexBox direction="Column" style={{ width: "240px" }}>
-        
+        <Button
+          endIcon="navigation-down-arrow"
+          style={{
+            background: "#0688f6",
+            //borderRadius: "20px", // rounded corners
+          }}
+          ref={buttonRef}
+          onClick={() => {
+            setMenuIsOpen(true);
+          }}
+        >
+          <span style={{ color: "black" }}>Companies</span>
+        </Button>
+        <Menu
+          opener={buttonRef.current}
+          open={menuIsOpen}
+          onClose={() => {
+            setMenuIsOpen(false);
+          }}
+        >
+          {companies.map((company) => (
+            <MenuItem
+              key={company.id}
+              text={company.name}
+              onClick={() => handleCompanyClick(company.id)}
+            >
+              {company.Branches &&
+                company.Branches.map((branch) => (
+                  <MenuItem
+                    onClick={() => handleBranchClick(branch.id)}
+                    key={branch.id}
+                    text={branch.name}
+                  />
+                ))}
+            </MenuItem>
+          ))}
+        </Menu>
         <SideNavigation>
+          {menuTree.map((parent) => (
+            <SideNavigationItem
+              key={parent.id}
+              text={parent.display_name}
+              onClick={() => navigate(`/form/${parent.formId}`)}
+            >
+              {parent.children.map((child) => (
+                <SideNavigationSubItem
+                  key={child.id}
+                  text={child.display_name}
+                  // href={`/${child.Form?.name || child.name}`} // 👈 dynamic route
+                  onClick={() => navigate(`/form/${child.formId}/${child.id}`)}
+                />
+              ))}
+            </SideNavigationItem>
+          ))}
+        </SideNavigation>
+
+        {/* <SideNavigation>
           {console.log(
             "topLevelItems",
             topLevelItems,
@@ -136,13 +237,12 @@ const UserDashboard = () => {
             groupedChildren
           )}
 
-          {topLevelItems
+          {topLevelItems&&topLevelItems
             .sort((a, b) => a.order_number - b.order_number)
             .map((item) => (
               <SideNavigationItem key={item.id} text={item.display_name} />
             ))}
 
-          {/* Render grouped sub-items under their parent */}
           {Object.entries(groupedChildren).map(([parent, children]) => (
             <SideNavigationItem key={parent} text={parent}>
               {children
@@ -156,7 +256,7 @@ const UserDashboard = () => {
                 ))}
             </SideNavigationItem>
           ))}
-        </SideNavigation>
+        </SideNavigation> */}
         {/* {usermenus
               .filter((item) => item.order_number === 1)
               .map((parent) => {
@@ -193,11 +293,10 @@ const UserDashboard = () => {
             <SideNavigationItem icon="employee" text="Users" />
             <SideNavigationItem icon="settings" text="Settings" />
           </SideNavigation> */}
-          
 
       <div style={{ flex: 2, flexDirection: "column" }}>
         {/* ShellBar */}
-<Button
+        {/* <Button
           endIcon="navigation-down-arrow"
           ref={buttonRef}
           onClick={() => {
@@ -205,8 +304,8 @@ const UserDashboard = () => {
           }}
         >
           Companies
-        </Button>
-        <Menu
+        </Button> */}
+        {/* <Menu
           opener={buttonRef.current}
           open={menuIsOpen}
           onClose={() => {
@@ -217,13 +316,13 @@ const UserDashboard = () => {
             <MenuItem key={company.id} text={company.name}>
               {company.Branches.map((branch) => (
                 <MenuItem key={branch.id} text={branch.name}>
-                  {topLevelItems
-                    .sort((a, b) => a.order_number - b.order_number)
-                    .map((item) => (
-                      <MenuItem key={item.id} text={item.display_name} />
-                    ))}
+                  {topLevelItems &&
+                    topLevelItems
+                      .sort((a, b) => a.order_number - b.order_number)
+                      .map((item) => (
+                        <MenuItem key={item.id} text={item.display_name} />
+                      ))}
 
-                  {/* Render grouped sub-items under their parent */}
                   {Object.entries(groupedChildren).map(([parent, children]) => (
                     <MenuItem key={parent} text={parent}>
                       {children
@@ -241,7 +340,7 @@ const UserDashboard = () => {
               ))}
             </MenuItem>
           ))}
-        </Menu>
+        </Menu> */}
         {/* Welcome Text */}
         <div style={{ padding: "2rem" }}>
           <Title level="H2">Welcome, Vidhya</Title>

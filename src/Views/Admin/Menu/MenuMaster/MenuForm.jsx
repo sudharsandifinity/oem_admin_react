@@ -27,6 +27,7 @@ import { useNavigate } from "react-router-dom";
 import { fetchUserMenus } from "../../../../store/slices/usermenusSlice";
 import { fetchCompanies } from "../../../../store/slices/companiesSlice";
 import { fetchForm } from "../../../../store/slices/formmasterSlice";
+import { fetchBranch } from "../../../../store/slices/branchesSlice";
 
 // Validation schema
 const schema = yup.object().shape({
@@ -40,6 +41,7 @@ const MenuForm = ({
     name: "",
     display_name: "",
     order_number: "",
+    parentUserMenuId:"",
     form: "",
     parent: "",
     status: "1",
@@ -58,7 +60,9 @@ const MenuForm = ({
   const formRef = useRef(null);
 
   const dispatch = useDispatch();
-  const { roles } = useSelector((state) => state.roles);
+  const [currScope, setCurrScope] = useState("global");
+
+  const { branches } = useSelector((state) => state.branches);
   const {companies} = useSelector((state)=>state.companies);
   const {forms} = useSelector((state)=>state.forms)
   const { usermenus } = useSelector((state) => state.usermenus);
@@ -75,7 +79,8 @@ const MenuForm = ({
         const res = await dispatch(fetchRoles()).unwrap();
         dispatch(fetchUserMenus());
         dispatch(fetchCompanies());
-        dispatch(fetchForm())
+        dispatch(fetchForm());
+        dispatch(fetchBranch()).unwrap();
         console.log("resusers", res);
 
         if (res.message === "Please Login!") {
@@ -271,6 +276,41 @@ const MenuForm = ({
               )}
             />
           </FlexBox>
+          <FlexBox direction="Column" style={{ flex: " 28%" }}>
+            <Label>Scope</Label>{" "}
+            <FlexBox label={<Label required>Scope</Label>}>
+              <Controller
+                name="scope"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                   style={{width:"80%"}}
+
+                    name="scope"
+                    value={field.value ?? ""}
+                    onChange={(e) => {field.onChange(e.target.value);setCurrScope(e.target.value)}}
+                    valueState={errors.scope ? "Error" : "None"}
+                  >
+                    <Option>Select</Option>
+
+                    <Option value="global">Global</Option>
+                    <Option value="company">Company</Option>
+                    <Option value="branch">Branch</Option>
+
+                  </Select>
+                )}
+              />
+
+              {errors.status && (
+                <span
+                  slot="valueStateMessage"
+                  style={{ color: "var(--sapNegativeColor)" }}
+                >
+                  {errors.status.message}
+                </span>
+              )}
+            </FlexBox>
+            </FlexBox>
           <FlexBox direction="Column" style={{ flex: "28%" }}>
             <Label>Company</Label>
             <FlexBox label={<Label required>roleId</Label>}>
@@ -280,6 +320,7 @@ const MenuForm = ({
                 render={({ field }) => (
                   <Select
                    style={{width:"80%"}}
+                    disabled={currScope==="global"?true:false}
 
                     name="companyId"
                     value={field.value ?? ""}
@@ -298,33 +339,33 @@ const MenuForm = ({
                 )}
               />
 
-              {errors.roleId && (
+              {errors.companyId && (
                 <span
                   slot="valueStateMessage"
                   style={{ color: "var(--sapNegativeColor)" }}
                 >
-                  {errors.roleId.message}
+                  {errors.companyId.message}
                 </span>
               )}
             </FlexBox>
           </FlexBox>
           <FlexBox direction="Column" style={{ flex: "28%" }}>
-            <Label>Role</Label>
-            <FlexBox label={<Label required>roleId</Label>}>
+            <Label>Branch</Label>
+            <FlexBox label={<Label required>branchId</Label>}>
               <Controller
-                name="roleId"
+                name="branchId"
                 control={control}
                 render={({ field }) => (
                   <Select
                    style={{width:"80%"}}
 
-                    name="roleId"
+                    name="branchId"
                     value={field.value ?? ""}
                     onChange={(e) => field.onChange(e.target.value)}
-                    valueState={errors.roleId ? "Error" : "None"}
+                    valueState={errors.branchId ? "Error" : "None"}
                   >
                     <Option>Select</Option>
-                    {roles
+                    {branches
                       .filter((r) => r.status) /* active roles only    */
                       .map((r) => (
                         <Option key={r.id} value={r.id}>
@@ -335,12 +376,12 @@ const MenuForm = ({
                 )}
               />
 
-              {errors.roleId && (
+              {errors.branchId && (
                 <span
                   slot="valueStateMessage"
                   style={{ color: "var(--sapNegativeColor)" }}
                 >
-                  {errors.roleId.message}
+                  {errors.branchId.message}
                 </span>
               )}
             </FlexBox>
@@ -349,16 +390,16 @@ const MenuForm = ({
             <Label>Parent</Label>
             <FlexBox label={<Label required>Parent</Label>}>
               <Controller
-                name="parent"
+                name="parentUserMenuId"
                 control={control}
                 render={({ field }) => (
                   <Select
                    style={{width:"80%"}}
 
-                    name="parent"
+                    name="parentUserMenuId"
                     value={field.value ?? ""}
                     onChange={(e) => field.onChange(e.target.value)}
-                    valueState={errors.parent ? "Error" : "None"}
+                    valueState={errors.parentUserMenuId ? "Error" : "None"}
                   >
                     <Option value="">Select</Option>
                     {usermenus.map((item) => (
@@ -369,17 +410,17 @@ const MenuForm = ({
                   </Select>
                 )}
               />
-              {errors.parent && (
+              {errors.parentUserMenuId && (
                 <span
                   slot="valueStateMessage"
                   style={{ color: "var(--sapNegativeColor)" }}
                 >
-                  {errors.parent.message}
+                  {errors.parentUserMenuId.message}
                 </span>
               )}
             </FlexBox>
           </FlexBox>
-          <FlexBox direction="Column" style={{ flex: " 14%" }}>
+          <FlexBox direction="Column" style={{ flex: " 28%" }}>
             <Label>Form</Label>{" "}
             <FlexBox label={<Label required>Form</Label>}>
               <Controller
@@ -396,7 +437,7 @@ const MenuForm = ({
                   >
                     <Option>Select</Option>
 
-                    {forms
+                    {forms.length>0&&forms
                           .filter((r) => r.status) /* active roles only    */
                           .map((r) => (
                             <Option key={r.id} value={r.id}>
@@ -417,7 +458,7 @@ const MenuForm = ({
               )}
             </FlexBox>
             </FlexBox>
-          <FlexBox direction="Column" style={{ flex: " 14%" }}>
+          <FlexBox direction="Column" style={{ flex: " 28%" }}>
             <Label>Status</Label>{" "}
             <FlexBox label={<Label required>Status</Label>}>
               <Controller

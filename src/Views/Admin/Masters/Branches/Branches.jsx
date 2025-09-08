@@ -192,7 +192,7 @@ const Branches = () => {
           endContent={
             <Button
               design="Emphasized"
-              onClick={() => navigate("/admin/branches/create")}
+              onClick={() => navigate("/admin/branches/create")} 
             >
               Add Branch
             </Button>

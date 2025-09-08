@@ -1,4 +1,4 @@
-import {  useEffect,  useRef } from "react";
+import { useEffect, useRef } from "react";
 
 import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -56,26 +56,7 @@ const BranchForm = ({
   });
   const formRef = useRef(null);
 
-  const dispatch = useDispatch();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    //dispatch(fetchRoles());
-    const fetchData = async () => {
-      try {
-        const res = await dispatch(fetchRoles()).unwrap();
-        console.log("resusers", res);
-
-        if (res.message === "Please Login!") {
-          navigate("/");
-        }
-      } catch (err) {
-        console.log("Failed to fetch user", err.message);
-        err.message && navigate("/");
-      }
-    };
-    fetchData();
-  }, [dispatch]);
 
   return (
     <Page
@@ -168,7 +149,7 @@ const BranchForm = ({
                 control={control}
                 render={({ field }) => (
                   <Select
-                   style={{width:"80%"}}
+                    style={{ width: "80%" }}
                     name="companyId"
                     value={field.value ?? ""}
                     onChange={(e) => field.onChange(e.target.value)}
@@ -204,7 +185,7 @@ const BranchForm = ({
               render={({ field }) => (
                 <FlexBox label={<Label required>Label Text</Label>}>
                   <Input
-                   style={{width:"80%"}}
+                    style={{ width: "80%" }}
                     placeholder="Branch Name"
                     name="name"
                     value={field.value ?? ""} // controlled value
@@ -230,7 +211,7 @@ const BranchForm = ({
               render={({ field }) => (
                 <FlexBox label={<Label required>Label Text</Label>}>
                   <Input
-                   style={{width:"80%"}}
+                    style={{ width: "80%" }}
                     placeholder="Branch Name"
                     name="branch_code"
                     value={field.value ?? ""} // controlled value
@@ -256,7 +237,7 @@ const BranchForm = ({
               render={({ field }) => (
                 <FlexBox label={<Label required>City</Label>}>
                   <Input
-                   style={{width:"80%"}}
+                    style={{ width: "80%" }}
                     placeholder="City"
                     name="city"
                     value={field.value ?? ""}
@@ -281,7 +262,7 @@ const BranchForm = ({
               render={({ field }) => (
                 <FlexBox label={<Label required>Address</Label>}>
                   <Input
-                   style={{width:"80%"}} 
+                    style={{ width: "80%" }}
                     placeholder="Address"
                     name="address"
                     value={field.value ?? ""}
@@ -306,7 +287,7 @@ const BranchForm = ({
                 control={control}
                 render={({ field }) => (
                   <Select
-                  style={{width:"80%"}}
+                    style={{ width: "80%" }}
                     name="is_main"
                     value={field.value ?? ""}
                     onChange={(e) => field.onChange(e.target.value)}
@@ -314,8 +295,8 @@ const BranchForm = ({
                   >
                     <Option>Select</Option>
 
-                    <Option value="1">Yes</Option>
-                    <Option value="0">No</Option>
+                    <Option value="true">Yes</Option>
+                    <Option value="false">No</Option>
                   </Select>
                 )}
               />
@@ -338,7 +319,7 @@ const BranchForm = ({
                 control={control}
                 render={({ field }) => (
                   <Select
-                   style={{width:"26%"}}
+                    style={{ width: "26%" }}
                     name="status"
                     value={field.value ?? ""}
                     onChange={(e) => field.onChange(e.target.value)}

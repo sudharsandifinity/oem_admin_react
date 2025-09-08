@@ -15,7 +15,7 @@ import React, { useEffect, useRef, useState } from "react";
 import "@ui5/webcomponents/dist/Assets.js";
 import "@ui5/webcomponents-fiori/dist/Assets.js";
 import "@ui5/webcomponents-icons/dist/employee.js";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { ThemingParameters } from "@ui5/webcomponents-react-base";
 
@@ -27,6 +27,7 @@ const Header = () => {
   const { companies } = useSelector((state) => state.companies);
   const dispatch = useDispatch();
   const menuRef = useRef();
+   const location = useLocation();
 
   const buttonRef = useRef(null);
   const [menuIsOpen, setMenuIsOpen] = useState(false);
@@ -48,6 +49,7 @@ const Header = () => {
   const logout = () => {
     navigate("/");
   };
+
   useEffect(() => {
     //dispatch(fetchRoles());
     const fetchData = async () => {
@@ -129,13 +131,14 @@ const Header = () => {
                   <Option value="sap_fiori_3_hcb">Fiori 3 HCB</Option>
                   <Option value="sap_horizon">Horizon</Option>
                   <Option value="sap_horizon_dark">Horizon Dark</Option>
-                </Select>
-                <Button
+                </Select>{console.log("location",location.pathname,location.pathname.includes("/admin"))}
+                {!location.pathname.includes("/admin")&&<>
+                {/* <Button
                   endIcon="navigation-down-arrow"
                   style={{
-                    background: "#97d5f0ff",
-                    borderRadius: "20px", // rounded corners
-                    padding: "0.5rem 1rem",
+                    background: "#0479de",
+                    //borderRadius: "20px", // rounded corners
+                    padding: "0.5rem 0.5rem",
                   }}
                   ref={buttonRef}
                   onClick={() => {
@@ -143,7 +146,7 @@ const Header = () => {
                   }}
                 >
                   Companies
-                </Button>
+                </Button> */}
                 <Menu
                   opener={buttonRef.current}
                   open={menuIsOpen}
@@ -155,11 +158,11 @@ const Header = () => {
                     <MenuItem key={company.id} text={company.name}>
                       {company.Branches &&
                         company.Branches.map((branch) => (
-                          <MenuItem key={branch.id} text={branch.name} />
+                          <MenuItem  key={branch.id} text={branch.name} />
                         ))}
                     </MenuItem>
                   ))}
-                </Menu>
+                </Menu></>}
               </>
             </>
           }

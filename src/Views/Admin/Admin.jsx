@@ -44,7 +44,7 @@ import DashboardPage from "./Dashboard/Default/DashboardPage";
 const Admin = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [collapsed, setCollapsed] = React.useState(true);
+  const [collapsed, setCollapsed] = React.useState(false);
   const handleNavigationChange = (event) => {
     const key = event.detail.item.dataset.key;
     navigate(`/admin/${key}`);
@@ -134,12 +134,12 @@ const Admin = () => {
                 icon="menu2"
                 data-key="MenuMaster"
               />
-              <SideNavigationSubItem
+              {/* <SideNavigationSubItem
                 style={{ marginLeft: "1rem", textAlign: "start" }}
                 text="User Role Menus"
                 icon="role"
                 data-key="UserRoleMenus"
-              />
+              /> */}
             </SideNavigationItem>
             <SideNavigationItem
               style={{ textAlign: "start" }}
@@ -167,12 +167,12 @@ const Admin = () => {
               data-key="dashboard"
             >
              
-              <SideNavigationSubItem
+              {/* <SideNavigationSubItem
                 style={{ marginLeft: "1rem", textAlign: "start" }}
                 text="Assign Form To Company"
                 icon="company-view"
                 data-key="company-forms"
-              />
+              /> */}
               <SideNavigationSubItem
                 style={{ marginLeft: "1rem", textAlign: "start" }}
                 text="Form Field Master"

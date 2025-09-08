@@ -32,7 +32,7 @@ import ItemViewPage from "../SalesOrder/Contents/Item/ItemViewPage";
 import ViewSalesOrder from "./ViewSalesOrder";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchFormFields } from "../../store/slices/FormFieldSlice";
-import { fetchCompanyFormfields, fetchCompanyFormsFieldsById } from "../../store/slices/companyformfieldSlice";
+import { fetchCompanyFormfields } from "../../store/slices/companyformfieldSlice";
 import { fetchcompanyformfielddata } from "../../store/slices/companyformfielddata";
 import { fetchFormById } from "../../store/slices/formmasterSlice";
 
@@ -45,9 +45,8 @@ const ManageSalesOrder = () => {
   const dispatch = useDispatch();
 
   const { companyformfield } = useSelector((state) => state.companyformfield);
-  const { companyformfielddata } = useSelector(
-    (state) => state.companyformfielddata
-  );
+  const {companyformfielddata} = useSelector((state)=>state.companyformfielddata);
+
 
   // const ManageSalesOderHeaderField = companyformfield.filter(
   //   (c) => c.Form?.name === "M_SO"
@@ -71,7 +70,7 @@ const ManageSalesOrder = () => {
   //   };
   //   fetchData();
   // }, [dispatch]);
-  console.log("ManageSalesOderHeaderField", ManageSalesOderHeaderField);
+  console.log("ManageSalesOderHeaderField",ManageSalesOderHeaderField)
   const [tableData, settableData] = useState(ManageSalesOrderTableData);
   const [viewItem, setViewItem] = useState([]);
 
@@ -135,26 +134,7 @@ const ManageSalesOrder = () => {
   const handleChange = (e) => {
     console.log("e", e);
   };
-  const { formId, childId } = useParams();
-  const [formConfig, setFormConfig] = useState(null);
 
-  useEffect(() => {
-    async function fetchForm() {
-      try {
-        const res = await dispatch(fetchFormById(formId)).unwrap();
-        console.log("fetchdata", res);
-                if (res.message === "Please Login!") {
-          navigate("/");
-        }
-        setFormConfig(res);
-      } catch (err) {
-        console.error("Failed to load form", err);
-      }
-    }
-    fetchForm();
-  }, [formId]);
-
-  if (!formConfig) return <div>Loading form...</div>;
   return (
     <div>
       <DynamicPage
@@ -208,14 +188,14 @@ const ManageSalesOrder = () => {
               <Toolbar design="Transparent">
                 <ToolbarButton
                   design="Emphasized"
-                  onClick={() => navigate("/SalesOrder/create/"+formId)}
+                  onClick={() => navigate("/SalesOrder")}
                   text="Create"
                 />
               </Toolbar>
             }
             breadcrumbs={
               <Breadcrumbs>
-                <BreadcrumbsItem>Home</BreadcrumbsItem>
+                <BreadcrumbsItem >Home</BreadcrumbsItem>
                 <BreadcrumbsItem>Manage Sales Order</BreadcrumbsItem>
               </Breadcrumbs>
             }
@@ -223,7 +203,7 @@ const ManageSalesOrder = () => {
               <Title
                 style={{ fontSize: "var(--sapObjectHeader_Title_FontSize)" }}
               >
-                {formConfig.display_name}
+                Manage Sales Order
               </Title>
             }
             navigationBar={
@@ -237,14 +217,14 @@ const ManageSalesOrder = () => {
                   fontSize: "var(--sapObjectHeader_Title_SnappedFontSize)",
                 }}
               >
-                {formConfig.display_name}
+                Manage Sales Order
               </Title>
             }
           ></DynamicPageTitle>
         }
       >
         <div className="tab">
-          
+        
           <div>
             <FlexibleColumnLayout
               // style={{ height: "600px" }}
@@ -252,12 +232,13 @@ const ManageSalesOrder = () => {
               startColumn={
                 <FlexBox direction="Column">
                   <div>
+              
                     <FlexBox direction="Column">
                       <AnalyticalTable
                         columns={columns.length > 0 ? columns : []}
                         data={tableData}
                         header={
-                          formConfig.display_name+"(" +
+                          "Sales Order list(" +
                           ManageSalesOrderTableData.length +
                           ")"
                         }

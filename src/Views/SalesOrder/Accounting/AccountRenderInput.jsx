@@ -98,7 +98,7 @@ export const AccountingRenderInput = (
             onInput={(e) => handleChange(e, field.FieldName)}
             type={field.inputType}
             style={{
-              width: "320px",
+              width: "350px",
             }}
           >
             {productCollection.map((item, idx) => (

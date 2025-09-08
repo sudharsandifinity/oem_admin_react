@@ -84,12 +84,7 @@ const ViewMenuMaster = (props) => {
         </ListItemStandard>
         <ListItemStandard>
           <Text>
-            <strong>Form:</strong> {user.form}
-          </Text>
-        </ListItemStandard>
-        <ListItemStandard>
-          <Text>
-            <strong>OrderNo:</strong> {user.orderno}
+            <strong>OrderNo:</strong> {user.order_number}
           </Text>
         </ListItemStandard>
         <ListItemStandard>

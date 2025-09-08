@@ -80,14 +80,10 @@ const ViewCompany = (props) => {
         </ListItemStandard>
         <ListItemStandard>
           <Text>
-            <strong>City:</strong> {company.city}
+            <strong>CompanyDb Name:</strong> {company.company_db_name}
           </Text>
         </ListItemStandard>
-        <ListItemStandard>
-          <Text>
-            <strong>Address:</strong> {company.address}
-          </Text>
-        </ListItemStandard>
+      
 
         <ListItemStandard>
           <Text>

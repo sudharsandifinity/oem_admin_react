@@ -23,7 +23,7 @@ import {
   Title,
 } from "@ui5/webcomponents-react";
 import { useNavigate } from "react-router-dom";
-import { fetchForm } from "../../../../store/slices/formmasterSlice";
+import { fetchForm, fetchGlobalForms } from "../../../../store/slices/formmasterSlice";
 import { fetchFormSection } from "../../../../store/slices/formsectionSlice";
 
 // Validation schema
@@ -63,7 +63,8 @@ const FormFieldForm = ({
   });
   const formRef = useRef(null);
 
-  const { forms } = useSelector((state) => state.forms);
+  const { forms,globalForms } = useSelector((state) => state.forms);
+
   const dispatch = useDispatch();
   const { formsection } = useSelector((state) => state.formsection);
   const navigate = useNavigate();
@@ -75,7 +76,8 @@ const FormFieldForm = ({
      const fetchData = async () => {
               try {
                 const res = await dispatch(fetchForm()).unwrap();
-                console.log("resusers", res);
+                const res1= await dispatch(fetchGlobalForms()).unwrap();
+                console.log("resusers", res,res1,globalForms);
                 dispatch(fetchFormSection());
                 if (res.message === "Please Login!") {
                   navigate("/");
@@ -168,7 +170,7 @@ const FormFieldForm = ({
           onSubmit(fullData); // you already pass it upward
         })}
       >
-        {console.log("formsectionselecteddata", defaultValues)}
+        {console.log("formsectionselecteddata", defaultValues,globalForms,forms)}
         <FlexBox
           wrap="Wrap" // allow line breaks
           style={{ gap: "1rem", paddingTop: "4rem" }}
@@ -206,6 +208,52 @@ const FormFieldForm = ({
                   style={{ color: "var(--sapNegativeColor)" }}
                 >
                   {errors.formId.message}
+                </span>
+              )}
+            </FlexBox>
+          </FlexBox>
+          <FlexBox direction="Column" style={{ flex: "28%" }}>
+            <Label>TabForm</Label>
+            <FlexBox label={<Label required>TabForm</Label>}>
+              <Controller
+                name="tabforms"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                   style={{width:"80%"}}
+
+                    name="tabforms"
+                    value={field.value ?? ""}
+                    onChange={(e) => field.onChange(e.target.value)}
+                    valueState={errors.tabforms ? "Error" : "None"}
+                  >
+                    <Option>Select</Option>
+                   <Option key="customerDetails" value="customerdetails">
+                          Customer Details</Option>
+                   <Option key="docDetails" value="docDetails">
+                          Document Details</Option>
+                   <Option key="itemPopupFilter" value="itemPopupFilter">
+                          Item Popup FIlter</Option>
+                   <Option key="servivepopupFilter" value="servicepopupFilter">
+                          Service Popup Filter</Option>
+                   <Option key="logistics" value="logistics">
+                          Logistics</Option>
+                   <Option key="accounting" value="accounting">
+                          Accounting</Option>
+                   <Option key="userdefined" value="userdefined">
+                          User Defined</Option>
+                  
+
+                  </Select>
+                )}
+              />
+
+              {errors.tabforms && (
+                <span
+                  slot="valueStateMessage"
+                  style={{ color: "var(--sapNegativeColor)" }}
+                >
+                  {errors.tabforms.message}
                 </span>
               )}
             </FlexBox>
