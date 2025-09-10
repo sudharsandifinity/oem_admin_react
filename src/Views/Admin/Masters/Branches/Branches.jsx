@@ -32,6 +32,8 @@ const Branches = () => {
 
   const { branches, loading, error } = useSelector((state) => state.branches);
   const { companies } = useSelector((state) => state.companies);
+    const {user} = useSelector((state) => state.auth);
+  
   const [search, setSearch] = useState("");
   const [ViewId, setViewId] = useState("");
 
@@ -135,13 +137,17 @@ const Branches = () => {
           const isOverlay = webComponentsReactProperties.showOverlay;
           return (
             <FlexBox alignItems="Center">
+              {user.Roles[0].Permissions.filter((f) => f.name === "branch_update").length > 0 && (
+
               <Button
                 icon="sap-icon://edit"
                 disabled={isOverlay}
                 design="Transparent"
                 //onClick={() => { setLayout("TwoColumnsMidExpanded");setViewItem(row.original)}}
                 onClick={() => handleEdit(row.original)}
-              />
+              />)}
+              {user.Roles[0].Permissions.filter((f) => f.name === "branch_delete").length > 0 && (
+
               <Button
                 icon="sap-icon://delete"
                 disabled={isOverlay}
@@ -149,6 +155,9 @@ const Branches = () => {
                 //onClick={() => { setLayout("TwoColumnsMidExpanded");setViewItem(row.original)}}
                 onClick={() => handleDelete(row.original)}
               />
+              )}
+              {user.Roles[0].Permissions.filter((f) => f.name === "branch_get").length > 0 && (
+
               <Button
                 icon="sap-icon://navigation-right-arrow"
                 disabled={isOverlay}
@@ -157,7 +166,7 @@ const Branches = () => {
                   setLayout("TwoColumnsMidExpanded");
                   handleView(row.original);
                 }}
-              />
+              />)}
             </FlexBox>
           );
         },
@@ -189,13 +198,15 @@ const Branches = () => {
               </Breadcrumbs>
             </div>
           }
-          endContent={
+          endContent=
+              {user.Roles[0].Permissions.filter((f) => f.name === "branch_create").length > 0 && (
+
             <Button
               design="Emphasized"
               onClick={() => navigate("/admin/branches/create")} 
             >
               Add Branch
-            </Button>
+            </Button>)
           }
         >
           <Title level="H4">Branch List</Title>
@@ -233,6 +244,8 @@ const Branches = () => {
               <FlexBox direction="Column">
                 <div>
                   <FlexBox direction="Column">
+              {user.Roles[0].Permissions.filter((f) => f.name === "branch_list").length > 0 && (
+
                     <AnalyticalTable
                       columns={columns}
                       data={filtered || []}
@@ -248,6 +261,7 @@ const Branches = () => {
                       onSort={() => {}}
                       onTableScroll={() => {}}
                     />
+              )}
                   </FlexBox>
                 </div>
               </FlexBox>

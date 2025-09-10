@@ -125,7 +125,7 @@ function App() {
                     element={<ManageSalesOrder />}
                   />
                      <Route path="/form/:formId" element={<ManageSalesOrder />} />
-            <Route path="/form/:formId/:childId" element={<ManageSalesOrder />} />
+            {/* <Route path="/form/:formId/:childId" element={<ManageSalesOrder />} /> */}
                   <Route path="/Admin" element={<Admin />} />
                   <Route path="/admin" element={<Admin />}>
                     <Route path="dashboard" element={<Dashboard />} />

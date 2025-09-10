@@ -210,24 +210,43 @@ const UserDashboard = () => {
             </MenuItem>
           ))}
         </Menu>
-        <SideNavigation>
-          {menuTree.map((parent) => (
-            <SideNavigationItem
-              key={parent.id}
-              text={parent.display_name}
-              onClick={() => navigate(`/form/${parent.formId}`)}
-            >
-              {parent.children.map((child) => (
-                <SideNavigationSubItem
-                  key={child.id}
-                  text={child.display_name}
-                  // href={`/${child.Form?.name || child.name}`} // 👈 dynamic route
-                  onClick={() => navigate(`/form/${child.formId}/${child.id}`)}
-                />
-              ))}
-            </SideNavigationItem>
+       <SideNavigation>
+  {menulist.length > 0 
+    ? menulist.map((menu) => (
+        <SideNavigationItem
+          key={menu.id}
+          text={menu.display_name}
+        >
+          {
+            menu.children?.length > 0 && menu.children.filter((menu) => menu.companyId === selectedCompany && menu.branchId === selectedBranch).map((child) => (
+              <SideNavigationSubItem
+                key={child.id}
+                text={child.display_name}
+                onClick={(e) => {
+                e.preventDefault();
+                navigate(`/form/${child.formId}`);
+              }}
+            />
           ))}
-        </SideNavigation>
+        </SideNavigationItem>
+      ))
+    : usermenus.map((parent) => (
+        <SideNavigationItem key={parent.id} text={parent.display_name}>
+          {parent.children?.length > 0 && parent.children.map((child) => (
+            <SideNavigationSubItem
+              key={child.id}
+              text={child.display_name}
+              onClick={(e) => {
+                e.preventDefault();
+                navigate(`/form/${child.formId}`);
+              }}
+            />
+          ))}
+        </SideNavigationItem>
+      ))
+  }
+</SideNavigation>
+
 
         {/* <SideNavigation>
           {console.log(
