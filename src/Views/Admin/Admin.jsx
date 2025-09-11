@@ -40,11 +40,13 @@ import "@ui5/webcomponents-icons/dist/role.js";
 
 import Dashboard from "./Dashboard/Default/Dashboard";
 import DashboardPage from "./Dashboard/Default/DashboardPage";
+import { useSelector } from "react-redux";
 
 const Admin = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [collapsed, setCollapsed] = React.useState(false);
+  const {user} = useSelector((state) => state.auth);
   const handleNavigationChange = (event) => {
     const key = event.detail.item.dataset.key;
     navigate(`/admin/${key}`);
@@ -55,7 +57,7 @@ const Admin = () => {
   return (
     <FlexBox style={{ height: "90vh" }}>
       <FlexBox style={{ height: "100%" }}>
-        <FlexBox direction="Column" style={{ width:collapsed ? "50px" : "240px", height: "100%" }}>
+        <FlexBox direction="Column" style={{ width:collapsed ? "50px" : "250px", height: "100%" }}>
           <Bar
             design="Header"
             startContent={
@@ -83,43 +85,48 @@ const Admin = () => {
               style={{ textAlign: "start" }}
               icon="master-task-triangle"
               data-key="dashboard"
-            >
+            >{user.Roles[0].Permissions.filter((f) => f.module === "companies").length > 0 && (
               <SideNavigationSubItem
                 style={{ marginLeft: "1rem", textAlign: "start" }}
                 text="Companies"
                 icon="kpi-corporate-performance"
                 data-key="companies"
               />
+            )}
+            {user.Roles[0].Permissions.filter((f) => f.module === "branches").length > 0 && (
               <SideNavigationSubItem
                 style={{ marginLeft: "1rem", textAlign: "start" }}
                 text="Branches"
                 icon="background"
                 data-key="branches"
-              />
+              />)}
+              {user.Roles[0].Permissions.filter((f) => f.module === "roles").length > 0 && (
               <SideNavigationSubItem
                 style={{ marginLeft: "1rem", textAlign: "start" }}
                 text="Roles"
                 icon="end-user-experience-monitoring"
                 data-key="roles"
-              />
+              />)}
               {/* <SideNavigationSubItem
                 style={{ marginLeft: "1rem", textAlign: "start" }}
                 text="Company Role"
                 icon="kpi-managing-my-area"
                 data-key="CompanyRole"
               /> */}
+              {user.Roles[0].Permissions.filter((f) => f.module === "users").length > 0 && (
               <SideNavigationSubItem
                 style={{ marginLeft: "1rem", textAlign: "start" }}
                 text="Users"
                 icon="user-edit"
                 data-key="users"
-              />
+              />)}
+              {user.Roles[0].Permissions.filter((f) => f.module === "FormMaster").length > 0 && (
                <SideNavigationSubItem
                 style={{ marginLeft: "1rem", textAlign: "start" }}
                 text="Form Master"
                 icon="create-form"
                 data-key="FormMaster"
-              />
+              />)}
                
             </SideNavigationItem>
             <SideNavigationItem
@@ -128,12 +135,13 @@ const Admin = () => {
               icon="menu"
               data-key="menu"
             >
+              {user.Roles[0].Permissions.filter((f) => f.module === "MenuMaster").length > 0 && (
               <SideNavigationSubItem
                 style={{ marginLeft: "1rem", textAlign: "start" }}
                 text="Menu Master"
                 icon="menu2"
                 data-key="MenuMaster"
-              />
+              />)}
               {/* <SideNavigationSubItem
                 style={{ marginLeft: "1rem", textAlign: "start" }}
                 text="User Role Menus"
@@ -146,19 +154,20 @@ const Admin = () => {
               text="Setup"
               icon="doc-attachment"
               data-key="dashboard"
-            >
+            >{user.Roles[0].Permissions.filter((f) => f.module === "sales-orders").length > 0 && (
               <SideNavigationSubItem
                 style={{ marginLeft: "1rem", textAlign: "start" }}
                 text="Sales Orders"
                 icon="order-status"
                 data-key="sales-orders"
-              />
+              />)}
+              {user.Roles[0].Permissions.filter((f) => f.module === "sales-invoices").length > 0 && (
               <SideNavigationSubItem
                 style={{ marginLeft: "1rem", textAlign: "start" }}
                 text="Sales Invoices"
                 icon="customer-order-entry"
                 data-key="sales-invoices"
-              />
+              />)}
             </SideNavigationItem>
             <SideNavigationItem
               style={{ textAlign: "start" }}
@@ -173,18 +182,20 @@ const Admin = () => {
                 icon="company-view"
                 data-key="company-forms"
               /> */}
+              {user.Roles[0].Permissions.filter((f) => f.module === "FormFields").length > 0 && (
               <SideNavigationSubItem
                 style={{ marginLeft: "1rem", textAlign: "start" }}
                 text="Form Field Master"
                 icon="download-from-cloud"
                 data-key="FormFields"
-              />
+              />)}
+              {user.Roles[0].Permissions.filter((f) => f.module === "CompanyFormFields").length > 0 && (
               <SideNavigationSubItem
                 style={{ marginLeft: "1rem", textAlign: "start" }}
                 text="Company Form Fields"
                 icon="create-form"
                 data-key="CompanyFormFields"
-              />
+              />)}
             </SideNavigationItem>
           </SideNavigation>
         </FlexBox>

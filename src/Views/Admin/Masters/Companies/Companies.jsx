@@ -28,6 +28,7 @@ const Companies = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { companies } = useSelector((state) => state.companies);
+  const {user} = useSelector((state) => state.auth);
   const [search, setSearch] = useState("");
   const [layout, setLayout] = useState("OneColumn");
   const [ViewId, setViewId] = useState("");
@@ -122,20 +123,22 @@ const Companies = () => {
           const isOverlay = webComponentsReactProperties.showOverlay;
           return (
             <FlexBox alignItems="Center">
-              <Button
+              {user.Roles[0].Permissions.filter((f) => f.name === "company_update").length > 0 && (<Button
                 icon="sap-icon://edit"
                 disabled={isOverlay}
                 design="Transparent"
                 //onClick={() => { setLayout("TwoColumnsMidExpanded");setViewItem(row.original)}}
                 onClick={() => handleEdit(row.original)}
-              />
+              />)}
+              {user.Roles[0].Permissions.filter((f) => f.name === "company_delete").length > 0 && (
               <Button
                 icon="sap-icon://delete"
                 disabled={isOverlay}
                 design="Transparent"
                 //onClick={() => { setLayout("TwoColumnsMidExpanded");setViewItem(row.original)}}
                 onClick={() => handleDelete(row.original)}
-              />
+              />)}
+              {user.Roles[0].Permissions.filter((f) => f.name === "company_get").length > 0 && (
               <Button
                 icon="sap-icon://navigation-right-arrow"
                 disabled={isOverlay}
@@ -144,7 +147,7 @@ const Companies = () => {
                   setLayout("TwoColumnsMidExpanded");
                   handleView(row.original);
                 }}
-              />
+              />)}
             </FlexBox>
           );
         },
@@ -177,12 +180,13 @@ const Companies = () => {
             </div>
           }
           endContent={
+              user.Roles[0].Permissions.filter((f) => f.name === "company_create").length > 0 && (
             <Button
               design="Emphasized"
               onClick={() => navigate("/admin/companies/create")}
             >
               Add Company
-            </Button>
+            </Button>)
           }
         >
           <Title level="H4">Company List</Title>
@@ -220,6 +224,8 @@ const Companies = () => {
               <FlexBox direction="Column">
                 <div>
                   <FlexBox direction="Column">
+              {user.Roles[0].Permissions.filter((f) => f.name === "company_list").length > 0 && (
+
                     <AnalyticalTable
                       columns={columns}
                       data={filteredRows || []}
@@ -235,6 +241,7 @@ const Companies = () => {
                       onSort={() => {}}
                       onTableScroll={() => {}}
                     />
+              )}
                   </FlexBox>
                 </div>
               </FlexBox>

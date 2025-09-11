@@ -68,6 +68,7 @@ const MenuForm = ({
   const { usermenus } = useSelector((state) => state.usermenus);
   const [assignBranchEnabled, setAssignBranchEnabled] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState(null);
+  const [hasParent, setHasParent] = useState("");
   const [selectedBranchIds, setSelectedBranchIds] = useState([]);
   const navigate = useNavigate();
  
@@ -277,6 +278,79 @@ const MenuForm = ({
             />
           </FlexBox>
           <FlexBox direction="Column" style={{ flex: " 28%" }}>
+            <Label>Parent</Label>
+            <FlexBox label={<Label required>Parent</Label>}>
+              <Controller
+                name="parentUserMenuId"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                   style={{width:"80%"}}
+
+                    name="parentUserMenuId"
+                    value={field.value ?? ""}
+                    onChange={(e) => {field.onChange(e.target.value);setHasParent(e.target.value)}}
+                    valueState={errors.parentUserMenuId ? "Error" : "None"}
+                  >
+                    <Option value="">Select</Option>
+                    {usermenus.map((item) => (
+                      <Option key={item.id} value={item.id}>
+                        {item.display_name}
+                      </Option>
+                    ))}
+                  </Select>
+                )}
+              />
+              {errors.parentUserMenuId && (
+                <span
+                  slot="valueStateMessage"
+                  style={{ color: "var(--sapNegativeColor)" }}
+                >
+                  {errors.parentUserMenuId.message}
+                </span>
+              )}
+            </FlexBox>
+          </FlexBox>{console.log("hasParent",hasParent)}
+          <FlexBox direction="Column" style={{ flex: " 28%" }}>
+            <Label>Form</Label>{" "}
+            <FlexBox label={<Label required>Form</Label>}>
+              <Controller
+                name="formId"
+                disabled={hasParent?false:true}
+                control={control}
+                render={({ field }) => (
+                  <Select
+                   style={{width:"80%"}}
+                    disabled={hasParent===""?true:false}
+                    name="formId"
+                    value={field.value ?? ""}
+                    onChange={(e) => field.onChange(e.target.value)}
+                    valueState={errors.formId ? "Error" : "None"}
+                  >
+                    <Option>Select</Option>
+
+                    {forms.length>0&&forms
+                          .filter((r) => r.status) /* active roles only    */
+                          .map((r) => (
+                            <Option key={r.id} value={r.id}>
+                              {r.name}
+                            </Option>
+                          ))}
+                  </Select>
+                )}
+              />
+
+              {errors.formId && (
+                <span
+                  slot="valueStateMessage"
+                  style={{ color: "var(--sapNegativeColor)" }}
+                >
+                  {errors.formId.message}
+                </span>
+              )}
+            </FlexBox>
+            </FlexBox>
+          <FlexBox direction="Column" style={{ flex: " 28%" }}>
             <Label>Scope</Label>{" "}
             <FlexBox label={<Label required>Scope</Label>}>
               <Controller
@@ -301,16 +375,17 @@ const MenuForm = ({
                 )}
               />
 
-              {errors.status && (
+              {errors.scope && (
                 <span
                   slot="valueStateMessage"
                   style={{ color: "var(--sapNegativeColor)" }}
                 >
-                  {errors.status.message}
+                  {errors.scope.message}
                 </span>
               )}
             </FlexBox>
             </FlexBox>
+            
           <FlexBox direction="Column" style={{ flex: "28%" }}>
             <Label>Company</Label>
             <FlexBox label={<Label required>roleId</Label>}>
@@ -386,78 +461,7 @@ const MenuForm = ({
               )}
             </FlexBox>
           </FlexBox>
-          <FlexBox direction="Column" style={{ flex: " 28%" }}>
-            <Label>Parent</Label>
-            <FlexBox label={<Label required>Parent</Label>}>
-              <Controller
-                name="parentUserMenuId"
-                control={control}
-                render={({ field }) => (
-                  <Select
-                   style={{width:"80%"}}
-
-                    name="parentUserMenuId"
-                    value={field.value ?? ""}
-                    onChange={(e) => field.onChange(e.target.value)}
-                    valueState={errors.parentUserMenuId ? "Error" : "None"}
-                  >
-                    <Option value="">Select</Option>
-                    {usermenus.map((item) => (
-                      <Option key={item.id} value={item.id}>
-                        {item.display_name}
-                      </Option>
-                    ))}
-                  </Select>
-                )}
-              />
-              {errors.parentUserMenuId && (
-                <span
-                  slot="valueStateMessage"
-                  style={{ color: "var(--sapNegativeColor)" }}
-                >
-                  {errors.parentUserMenuId.message}
-                </span>
-              )}
-            </FlexBox>
-          </FlexBox>
-          <FlexBox direction="Column" style={{ flex: " 28%" }}>
-            <Label>Form</Label>{" "}
-            <FlexBox label={<Label required>Form</Label>}>
-              <Controller
-                name="formId"
-                control={control}
-                render={({ field }) => (
-                  <Select
-                   style={{width:"80%"}}
-
-                    name="formId"
-                    value={field.value ?? ""}
-                    onChange={(e) => field.onChange(e.target.value)}
-                    valueState={errors.formId ? "Error" : "None"}
-                  >
-                    <Option>Select</Option>
-
-                    {forms.length>0&&forms
-                          .filter((r) => r.status) /* active roles only    */
-                          .map((r) => (
-                            <Option key={r.id} value={r.id}>
-                              {r.name}
-                            </Option>
-                          ))}
-                  </Select>
-                )}
-              />
-
-              {errors.formId && (
-                <span
-                  slot="valueStateMessage"
-                  style={{ color: "var(--sapNegativeColor)" }}
-                >
-                  {errors.formId.message}
-                </span>
-              )}
-            </FlexBox>
-            </FlexBox>
+          
           <FlexBox direction="Column" style={{ flex: " 28%" }}>
             <Label>Status</Label>{" "}
             <FlexBox label={<Label required>Status</Label>}>

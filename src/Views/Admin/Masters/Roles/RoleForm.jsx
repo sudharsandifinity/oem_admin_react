@@ -74,7 +74,7 @@ const RoleForm = ({ onSubmit, defaultValues, permissions,mode = "create", apiErr
   const permissionIds = watch("permissionIds");
   const navigate = useNavigate();
   const formRef = useRef(null);
-  const [currScope,setCurrscope] = useState("global")
+  const [currScope,setCurrscope] = useState("admin")
   const [selectedCompany, setSelectedCompany] = useState("");
 
   const grouped = {};
@@ -404,8 +404,8 @@ console.log("usermenus", usermenus, menulist, selectedCompany);
                   >
                     <Option>Select</Option>
 
-                    <Option value="global">Global</Option>
-                    <Option value="company">Company</Option>
+                    <Option value="user">User</Option>
+                    <Option value="admin">Admin</Option>
                   </Select>
                 )}
               />
@@ -428,7 +428,7 @@ console.log("usermenus", usermenus, menulist, selectedCompany);
                 render={({ field }) => (
                   <Select
                    style={{width:"80%"}}
-                  disabled={currScope ==="global"}
+                  disabled={currScope ==="admin"}
                     name="companyId"
                     value={field.value ?? ""}
                     onChange={(e) => {field.onChange(e.target.value);setSelectedCompany(e.target.value)}}
@@ -527,7 +527,7 @@ console.log("usermenus", usermenus, menulist, selectedCompany);
             <AnalyticalTable
               columns={columns}
               data={
-                currScope ==="global"?data:menuListData
+                currScope ==="admin"?data:menuListData
               }
               selectionMode="None"
               visibleRows={10}

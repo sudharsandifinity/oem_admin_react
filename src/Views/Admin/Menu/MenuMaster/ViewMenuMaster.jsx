@@ -71,29 +71,40 @@ const ViewMenuMaster = (props) => {
 
   return (
     <Card style={{ margin: "1rem", padding: "1rem" }}>
-      <List>
+      <Text style={{ margin: "1rem" }}> 
+          <strong>Parent Menu:</strong> {user.display_name}
+        </Text>
+      
+      <Title level="H4" style={{ marginTop: "1rem" }}>
+        Menu Details
+      </Title>
+      {user.children && user.children.length > 0 && user.children.map((child) => (
+        <><List>
         <ListItemStandard>
           <Text>
-            <strong>Name:</strong> {user.name}
+            <strong>Name:</strong> {child.name}
           </Text>
         </ListItemStandard>
         <ListItemStandard>
           <Text>
-            <strong>Display Name:</strong> {user.display_name}
+            <strong>Display Name:</strong> {child.display_name}
           </Text>
         </ListItemStandard>
         <ListItemStandard>
           <Text>
-            <strong>OrderNo:</strong> {user.order_number}
+            <strong>OrderNo:</strong> {child.order_number}
           </Text>
         </ListItemStandard>
         <ListItemStandard>
           <Text>
             <strong>Status:</strong>{" "}
-            {user.status === "1" || user.status === 1 ? "Active" : "Inactive"}
+            {child.status === "1" || child.status === 1 ? "Active" : "Inactive"}
           </Text>
         </ListItemStandard>
-      </List>
+         <ListItemStandard>
+          ------------------
+        </ListItemStandard>
+      </List></>))}
     </Card>
   );
 };
