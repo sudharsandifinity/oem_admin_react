@@ -27,7 +27,7 @@ const ViewBranch = (props) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        if (!branch) {
+        if (!branch&&id) {
           const res = await dispatch(fetchBranchFormsById(id)).unwrap();
           if (res.message === "Please Login!") {
             navigate("/login");

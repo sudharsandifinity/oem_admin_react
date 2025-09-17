@@ -554,7 +554,7 @@ const FormFieldForm = ({
                 control={control}
                 render={({ field }) => (
                   <Select
-                   style={{width:"26%"}}
+                   style={{width:"80%"}}
 
                     name="status"
                     value={field.value ?? ""}

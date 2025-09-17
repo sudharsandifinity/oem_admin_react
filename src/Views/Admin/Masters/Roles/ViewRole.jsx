@@ -28,7 +28,7 @@ const ViewRole = (props) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        if (!role) {
+        if (!role&&id) {
           const res = await dispatch(fetchRoleById(id)).unwrap();
           if (res.message === "Please Login!") {
             navigate("/login");
@@ -77,11 +77,10 @@ const ViewRole = (props) => {
           description={role.name}
           text="Role Name:"
         ></ListItemStandard>
-        <ListItemStandard text="Permissions :" description="">
-                    {role.Permissions.map((perm) => (
-            <ListItemStandard description={perm.name} />
-          ))} 
-        </ListItemStandard>
+        <ListItemStandard
+          description={role.scope}
+          text="Scope:"
+        ></ListItemStandard>
         {role.status === "1" || role.status === 1 ? (
           <ListItemStandard
             text="Status :"

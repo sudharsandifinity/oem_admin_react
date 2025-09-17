@@ -1,10 +1,4 @@
-import {
- 
-  useRef,
-  useMemo,
-  useEffect,
-  useState,
-} from "react";
+import { useRef, useMemo, useEffect, useState, use } from "react";
 
 import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -34,6 +28,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCompanies } from "../../../../store/slices/companiesSlice";
 import { fetchUserMenus } from "../../../../store/slices/usermenusSlice";
+import { fetchBranch } from "../../../../store/slices/branchesSlice";
 
 // Validation schema
 const schema = yup.object().shape({
@@ -41,7 +36,6 @@ const schema = yup.object().shape({
   status: yup.string().required(),
   permissionIds: yup.array().of(yup.string()),
 });
-
 
 const getOptionKey = (name) => {
   const lower = name.toLowerCase();
@@ -53,28 +47,41 @@ const getOptionKey = (name) => {
   return null;
 };
 
-const RoleForm = ({ onSubmit, defaultValues, permissions,mode = "create", apiError }) => {
+const RoleForm = ({
+  onSubmit,
+  defaultValues,
+  permissions,
+  mode = "create",
+  apiError,
+}) => {
   const {
     control,
     handleSubmit,
     watch,
     setValue,
+    getValues,
     formState: { errors },
   } = useForm({
-    defaultValues,
-        resolver: yupResolver(schema, { context: { mode } }),
-    
+    defaultValues: {
+      ...defaultValues,
+      userMenus: [], // ✅ ensures it's always an array
+    },
+    resolver: yupResolver(schema, { context: { mode } }),
   });
 
   const { companies } = useSelector((state) => state.companies);
+  const { branches } = useSelector((state) => state.branches);
   const { usermenus, loading } = useSelector((state) => state.usermenus);
 
-
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
   const permissionIds = watch("permissionIds");
+  const userMenuPermission = watch("UserMenus");
+  console.log("UserMenuPermission", userMenuPermission);
   const navigate = useNavigate();
   const formRef = useRef(null);
-  const [currScope,setCurrscope] = useState("admin")
+  const [currScope, setCurrscope] = useState(
+    mode === "edit" ? defaultValues.scope : "master"
+  );
   const [selectedCompany, setSelectedCompany] = useState("");
 
   const grouped = {};
@@ -90,7 +97,8 @@ const RoleForm = ({ onSubmit, defaultValues, permissions,mode = "create", apiErr
       try {
         const res = await dispatch(fetchCompanies()).unwrap();
         await dispatch(fetchUserMenus()).unwrap();
-       
+        await dispatch(fetchBranch()).unwrap();
+
         console.log("resusers", res);
         if (res.message === "Please Login!") {
           navigate("/");
@@ -121,44 +129,121 @@ const RoleForm = ({ onSubmit, defaultValues, permissions,mode = "create", apiErr
 
   //   setValue("permissionIds", updated);
   // };
-  const handleChange = (e, permissionName) => {
-    console.log("handleChange", permissionName, permissions);
-    const permission = permissions.find(
-      (per) => per.name === permissionName.toLowerCase()
-    );
+  const handleChange = (e, permissionName, menuId) => {
+    console.log("menuId", menuId);
 
-  if (!permission) return;
+    if (currScope === "master") {
+      // ✅ Master scope → works as is
+      const permission = permissions.find(
+        (per) => per.name === permissionName.toLowerCase()
+      );
+      if (!permission) return;
 
-  const id = permission.id;
-  let updated;
+      const id = permission.id;
+      let updated;
+      if (e.target.checked) {
+        updated = [...new Set([...permissionIds, id])];
+      } else {
+        updated = permissionIds.filter((pid) => pid !== id);
+      }
 
-  if (e.target.checked) {
-    updated = [...new Set([...permissionIds, id])]; // add
-  } else {
-    updated = permissionIds.filter((pid) => pid !== id); // remove
-  }
+      setValue("permissionIds", updated, {
+        shouldValidate: true,
+        shouldDirty: true,
+        shouldTouch: true,
+      });
+    } else {
+      // ✅ User scope → build full permission object
+      const current = getValues("userMenus") || [];
+      const existing = current.find((m) => m.menuId === menuId);
 
-  console.log("Updated Permission IDs:", updated);
+      // default object structure
+      const defaultPerms = {
+        menuId,
+        can_list_view: false,
+        can_create: false,
+        can_edit: false,
+        can_view: false,
+        can_delete: false,
+      };
 
-  // 🔑 Notify RHF so it re-renders
-  setValue("permissionIds", updated, {
-    shouldValidate: true,
-    shouldDirty: true,
-    shouldTouch: true,
-  });
-};
+      let updated;
+      if (existing) {
+        // update the selected field
+        updated = current.map((m) =>
+          m.menuId === menuId ? { ...m, [permissionName]: e.target.checked } : m
+        );
+      } else {
+        // create new entry with defaults + updated field
+        updated = [
+          ...current,
+          {
+            ...defaultPerms,
+            [permissionName]: e.target.checked,
+          },
+        ];
+      }
 
+      setValue("userMenus", updated, {
+        shouldValidate: true,
+        shouldDirty: true,
+        shouldTouch: true,
+      });
+    }
+  };
 
-const menulist = usermenus?.filter((menu) => menu.companyId === selectedCompany);
-const menuListData = menulist.map((menu) => ({
-  Module: menu.name,
-  List: "",
-  View: "",
-  Create: "",
-  Edit: "",
-  Delete: "",
-}));
-console.log("usermenus", usermenus, menulist, selectedCompany);
+  const menulist = selectedCompany
+    ? usermenus
+        .map((menu) =>
+          menu.children.filter(
+            (child) =>
+              child.branchId === selectedCompany && child.scope === "branch"
+          )
+        )
+        .flat()
+    : usermenus.flatMap((menu) =>
+        menu.children.filter((child) => child.scope === "branch")
+      );
+  console.log("menuList", usermenus, menulist, selectedCompany);
+  // const filteredMenus = selectedCompany !
+  //  selectedCompany !== ""
+  //   ? usermenus.map(menu => ({
+  //       ...menu,
+  //       children: menu.children?.filter(child =>
+  //         child.companyId === selectedCompany || child.companyId === ""
+  //       ) || []
+  //     }))
+  //   : usermenus;
+
+  useEffect(() => {
+    if (mode === "edit" && userMenuPermission?.length) {
+      const prefilled = userMenuPermission.map((menu) => ({
+        menuId: menu.id, // id from your API object
+        can_list_view: menu.RoleMenu?.can_list_view ?? false,
+        can_create: menu.RoleMenu?.can_create ?? false,
+        can_edit: menu.RoleMenu?.can_edit ?? false,
+        can_view: menu.RoleMenu?.can_view ?? false,
+        can_delete: menu.RoleMenu?.can_delete ?? false,
+      }));
+
+      setValue("userMenus", prefilled, {
+        shouldValidate: false,
+        shouldDirty: false,
+        shouldTouch: false,
+      });
+    }
+  }, [mode, userMenuPermission, setValue]);
+  const menuListData = menulist.map((menu) => ({
+    Module: menu.name,
+    id: menu.id,
+    List: "",
+    View: "",
+    Create: "",
+    Edit: "",
+    Delete: "",
+  }));
+  console.log("usermenus", usermenus, menulist, selectedCompany);
+
   const columns = useMemo(
     () => [
       {
@@ -170,129 +255,243 @@ console.log("usermenus", usermenus, menulist, selectedCompany);
         Header: "List",
         accessor: "List",
         Cell: ({ row }) => {
-          const permName = (row.original.Module + "_list").toLowerCase();
-          const permission = permissions.find((opt) => opt.name === permName);
-          const isChecked = permission
-            ? permissionIds.includes(permission.id)
-            : false;
+          if (currScope === "master") {
+            const permName = (row.original.Module + "_list").toLowerCase();
+            const permission = permissions.find((opt) => opt.name === permName);
+            const isChecked = permission
+              ? permissionIds.includes(permission.id)
+              : false;
 
-          return (
-            <CheckBox
-              checked={isChecked}
-              onChange={(e) => handleChange(e, permName)}
-            />
-          );
+            return (
+              <CheckBox
+                checked={isChecked}
+                onChange={(e) => {
+                  handleChange(e, permName);
+                  console.log("onchange", permName);
+                }}
+              />
+            );
+          } else {
+            // const current = getValues("userMenus") || [];
+            // const existing = current.find((m) => m.menuId === row.original.id);
+            // const isChecked = existing ? existing["can_list_view"] : false; // default to false if not found
+            // return (
+            //   <CheckBox
+            //     checked={isChecked}
+            //     onChange={(e) =>
+            //       handleChange(e, "can_list_view", row.original.id)
+            //     }
+            //   />
+            // );
+            const current = getValues("userMenus") || [];
+            const existing = current.find((m) => m.menuId === row.original.id);
+            const isChecked = existing ? existing.can_list_view : false;
+
+            return (
+              <CheckBox
+                checked={isChecked}
+                onChange={(e) =>
+                  handleChange(e, "can_list_view", row.original.id)
+                }
+              />
+            );
+          }
         },
       },
       {
         Header: "View",
         accessor: "View",
         Cell: ({ row }) => {
-          const permName = (row.original.Module + "_get").toLowerCase();
-          const permission = permissions.find((opt) => opt.name === permName);
-          const isChecked = permission
-            ? permissionIds.includes(permission.id)
-            : false;
+          if (currScope === "master") {
+            const permName = (row.original.Module + "_get").toLowerCase();
+            const permission = permissions.find((opt) => opt.name === permName);
+            const isChecked = permission
+              ? permissionIds.includes(permission.id)
+              : false;
 
-          return (
-            <CheckBox
-              checked={isChecked}
-              onChange={(e) => handleChange(e, permName)}
-            />
-          );
+            return (
+              <CheckBox
+                checked={isChecked}
+                onChange={(e) => handleChange(e, permName)}
+              />
+            );
+          } else {
+            // ✅ user scope → reflect from userMenus
+            const current = getValues("userMenus") || [];
+            const existing = current.find((m) => m.menuId === row.original.id);
+            const isChecked = existing ? existing[`can_view`] : false; // default to false if not found
+
+            return (
+              <CheckBox
+                checked={isChecked}
+                onChange={(e) => handleChange(e, `can_view`, row.original.id)}
+              />
+            );
+          }
         },
       },
       {
         Header: "Create",
         accessor: "Create",
         Cell: ({ row }) => {
-          const permName = (row.original.Module + "_create").toLowerCase();
-          const permission = permissions.find((opt) => opt.name === permName);
-          const isChecked = permission
-            ? permissionIds.includes(permission.id)
-            : false;
+          if (currScope === "master") {
+            const permName = (row.original.Module + "_create").toLowerCase();
+            const permission = permissions.find((opt) => opt.name === permName);
+            const isChecked = permission
+              ? permissionIds.includes(permission.id)
+              : false;
 
-          return (
-            <CheckBox
-              checked={isChecked}
-              onChange={(e) => handleChange(e, permName)}
-            />
-          );
+            return (
+              <CheckBox
+                checked={isChecked}
+                onChange={(e) => handleChange(e, permName)}
+              />
+            );
+          } else {
+            // ✅ user scope → reflect from userMenus
+            const current = getValues("userMenus") || [];
+            const existing = current.find((m) => m.menuId === row.original.id);
+            const isChecked = existing ? existing[`can_create`] : false; // default to false if not found
+            return (
+              <CheckBox
+                checked={isChecked}
+                onChange={(e) => handleChange(e, `can_create`, row.original.id)}
+              />
+            );
+          }
         },
       },
       {
         Header: "Edit",
         accessor: "Edit",
         Cell: ({ row }) => {
-          const permName = (row.original.Module + "_update").toLowerCase();
-          const permission = permissions.find((opt) => opt.name === permName);
-          const isChecked = permission
-            ? permissionIds.includes(permission.id)
-            : false;
+          if (currScope === "master") {
+            const permName = (row.original.Module + "_update").toLowerCase();
+            const permission = permissions.find((opt) => opt.name === permName);
+            const isChecked = permission
+              ? permissionIds.includes(permission.id)
+              : false;
 
-          return (
-            <CheckBox
-              checked={isChecked}
-              onChange={(e) => handleChange(e, permName)}
-            />
-          );
+            return (
+              <CheckBox
+                checked={isChecked}
+                onChange={(e) => handleChange(e, permName)}
+              />
+            );
+          } else {
+            // ✅ user scope → reflect from userMenus
+            const current = getValues("userMenus") || [];
+            const existing = current.find((m) => m.menuId === row.original.id);
+            const isChecked = existing ? existing[`can_edit`] : false; // default to false if not found
+            return (
+              <CheckBox
+                checked={isChecked}
+                onChange={(e) => handleChange(e, `can_edit`, row.original.id)}
+              />
+            );
+          }
         },
       },
       {
         Header: "Delete",
         accessor: "Delete",
         Cell: ({ row }) => {
-          const permName = (row.original.Module + "_delete").toLowerCase();
-          const permission = permissions.find((opt) => opt.name === permName);
-          const isChecked = permission
-            ? permissionIds.includes(permission.id)
-            : false;
+          if (currScope === "master") {
+            const permName = (row.original.Module + "_delete").toLowerCase();
+            const permission = permissions.find((opt) => opt.name === permName);
+            const isChecked = permission
+              ? permissionIds.includes(permission.id)
+              : false;
 
-          return (
-            <CheckBox
-              checked={isChecked}
-              onChange={(e) => handleChange(e, permName)}
-            />
-          );
+            return (
+              <CheckBox
+                checked={isChecked}
+                onChange={(e) => handleChange(e, permName)}
+              />
+            );
+          } else {
+            // ✅ user scope → reflect from userMenus
+            const current = getValues("userMenus") || [];
+            const existing = current.find((m) => m.menuId === row.original.id);
+            const isChecked = existing ? existing[`can_delete`] : false; // default to false if not found
+            return (
+              <CheckBox
+                checked={isChecked}
+                onChange={(e) => handleChange(e, `can_delete`, row.original.id)}
+              />
+            );
+          }
         },
       },
     ],
-    [permissionIds, permissions]
+    [permissionIds, permissions, currScope, getValues, userMenuPermission]
   );
   const data = [
-                  {
-                    Module: "User",
-                    List: "",
-                    View: "",
-                    Create: "",
-                    Edit: "",
-                    Delete: "",
-                  },
-                  {
-                    Module: "Role",
-                    List: "",
-                    View: "",
-                    Create: "",
-                    Edit: "",
-                    Delete: "",
-                  },
-                  {
-                    Module: "Branch",
-                    List: "",
-                    View: "",
-                    Create: "",
-                    Edit: "",
-                    Delete: "",
-                  },
-                  {
-                    Module: "Company",
-                    List: "",
-                    View: "",
-                    Create: "",
-                    Edit: "",
-                    Delete: "",
-                  },
-                ] 
+    {
+      Module: "Company",
+      List: "",
+      View: "",
+      Create: "",
+      Edit: "",
+      Delete: "",
+    },
+    {
+      Module: "Branch",
+      List: "",
+      View: "",
+      Create: "",
+      Edit: "",
+      Delete: "",
+    },
+    {
+      Module: "Role",
+      List: "",
+      View: "",
+      Create: "",
+      Edit: "",
+      Delete: "",
+    },
+    {
+      Module: "User",
+      List: "",
+      View: "",
+      Create: "",
+      Edit: "",
+      Delete: "",
+    },
+    {
+      Module: "Form",
+      List: "",
+      View: "",
+      Create: "",
+      Edit: "",
+      Delete: "",
+    },
+    {
+      Module: "Form_Section",
+      List: "",
+      View: "",
+      Create: "",
+      Edit: "",
+      Delete: "",
+    },
+    {
+      Module: "Form_Field",
+      List: "",
+      View: "",
+      Create: "",
+      Edit: "",
+      Delete: "",
+    },
+    {
+      Module: "User_Menu",
+      List: "",
+      View: "",
+      Create: "",
+      Edit: "",
+      Delete: "",
+    },
+  ];
   return (
     <Page
       backgroundDesign="Solid"
@@ -349,8 +548,7 @@ console.log("usermenus", usermenus, menulist, selectedCompany);
                   Roles
                 </BreadcrumbsItem>
                 <BreadcrumbsItem data-route="/admin/roles/create">
-                   {mode === "edit" ? "Edit Branch " : "Create Branch"}
-
+                  {mode === "edit" ? "Edit Branch " : "Create Branch"}
                 </BreadcrumbsItem>
               </Breadcrumbs>
             </div>
@@ -392,20 +590,18 @@ console.log("usermenus", usermenus, menulist, selectedCompany);
                 control={control}
                 render={({ field }) => (
                   <Select
-                   style={{width:"80%"}}
-
+                    style={{ width: "80%" }}
                     name="scope"
-                    value={field.value ?? ""}
-
-                    onChange={(e) => {field.onChange(e.target.value);setCurrscope(e.target.value)
-                    }
-                    }
+                    value={field.value ?? "master"}
+                    onChange={(e) => {
+                      field.onChange(e.target.value);
+                      setCurrscope(e.target.value);
+                    }}
                     valueState={errors.scope ? "Error" : "None"}
                   >
-                    <Option>Select</Option>
+                    <Option value="master">master</Option>
 
                     <Option value="user">User</Option>
-                    <Option value="admin">Admin</Option>
                   </Select>
                 )}
               />
@@ -419,7 +615,8 @@ console.log("usermenus", usermenus, menulist, selectedCompany);
                 </span>
               )}
             </FlexBox>
-          </FlexBox><FlexBox direction="Column" style={{ flex: " 28%" }}>
+          </FlexBox>
+          {/* <FlexBox direction="Column" style={{ flex: " 28%" }}>
             <Label>Company</Label>{" "}
             <FlexBox label={<Label required>Company</Label>}>
               <Controller
@@ -427,17 +624,22 @@ console.log("usermenus", usermenus, menulist, selectedCompany);
                 control={control}
                 render={({ field }) => (
                   <Select
-                   style={{width:"80%"}}
-                  disabled={currScope ==="admin"}
+                    style={{ width: "80%" }}
+                    disabled={currScope === "master"}
                     name="companyId"
                     value={field.value ?? ""}
-                    onChange={(e) => {field.onChange(e.target.value);setSelectedCompany(e.target.value)}}
+                    onChange={(e) => {
+                      field.onChange(e.target.value);
+                      setSelectedCompany(e.target.value);
+                    }}
                     valueState={errors.companyId ? "Error" : "None"}
                   >
-                    <Option>Select</Option>
+                    <Option key="select" value="">
+                      Select
+                    </Option>
 
                     {companies
-                      .filter((r) => r.status) /* active roles only    */
+                      .filter((r) => r.status) 
                       .map((r) => (
                         <Option key={r.id} value={r.id}>
                           {r.name}
@@ -456,6 +658,49 @@ console.log("usermenus", usermenus, menulist, selectedCompany);
                 </span>
               )}
             </FlexBox>
+          </FlexBox> */}
+          <FlexBox direction="Column" style={{ flex: " 28%" }}>
+            <Label>Branch</Label>{" "}
+            <FlexBox label={<Label required>Branch</Label>}>
+              <Controller
+                name="branchId"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    style={{ width: "80%" }}
+                    disabled={currScope === "master"}
+                    name="branchId"
+                    value={field.value ?? ""}
+                    onChange={(e) => {
+                      field.onChange(e.target.value);
+                      setSelectedCompany(e.target.value);
+                    }}
+                    valueState={errors.companyId ? "Error" : "None"}
+                  >
+                    <Option key="select" value="">
+                      Select
+                    </Option>
+
+                    {branches
+                      .filter((r) => r.status) /* active roles only    */
+                      .map((r) => (
+                        <Option key={r.id} value={r.id}>
+                          {r.name}
+                        </Option>
+                      ))}
+                  </Select>
+                )}
+              />
+
+              {errors.branchId && (
+                <span
+                  slot="valueStateMessage"
+                  style={{ color: "var(--sapNegativeColor)" }}
+                >
+                  {errors.branchId.message}
+                </span>
+              )}
+            </FlexBox>
           </FlexBox>
           <FlexBox direction="Column" style={{ flex: " 28%" }}>
             <Label>Role Name</Label>
@@ -468,8 +713,7 @@ console.log("usermenus", usermenus, menulist, selectedCompany);
                   style={{ flex: "48%" }}
                 >
                   <Input
-                   style={{width:"80%"}}
-
+                    style={{ width: "80%" }}
                     placeholder="Form Name"
                     name="name"
                     value={field.value ?? ""} // controlled value
@@ -496,8 +740,7 @@ console.log("usermenus", usermenus, menulist, selectedCompany);
                 control={control}
                 render={({ field }) => (
                   <Select
-                   style={{width:"80%"}}
-
+                    style={{ width: "80%" }}
                     name="status"
                     value={field.value ?? ""}
                     onChange={(e) => field.onChange(e.target.value)}
@@ -526,20 +769,9 @@ console.log("usermenus", usermenus, menulist, selectedCompany);
           <FlexBox direction="Column" style={{ marginTop: "1rem" }}>
             <AnalyticalTable
               columns={columns}
-              data={
-                currScope ==="admin"?data:menuListData
-              }
+              data={currScope === "master" ? data : menuListData}
               selectionMode="None"
               visibleRows={10}
-              onAutoResize={() => {}}
-              onColumnsReorder={() => {}}
-              onGroup={() => {}}
-              onLoadMore={() => {}}
-              onRowClick={() => {}}
-              onRowExpandChange={() => {}}
-              onRowSelect={() => {}}
-              onSort={() => {}}
-              onTableScroll={() => {}}
             />
           </FlexBox>
         </div>

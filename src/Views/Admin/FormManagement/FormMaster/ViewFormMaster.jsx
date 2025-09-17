@@ -18,7 +18,7 @@ console.log("form",forms,id,form)
   useEffect(() => {
     const fetchData = async () => {
       try {
-        if (!form) {
+        if (!form&&id) {
           const res= await dispatch(fetchFormById(id)).unwrap();
           if (res.message === "Please Login!") {
           navigate("/login");

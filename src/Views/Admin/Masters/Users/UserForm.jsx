@@ -31,7 +31,6 @@ import { fetchForm } from "../../../../store/slices/formmasterSlice";
 import { fetchBranch } from "../../../../store/slices/branchesSlice";
 import { fetchCompanies } from "../../../../store/slices/companiesSlice";
 import { fetchFormFields } from "../../../../store/slices/FormFieldSlice";
-import { fetchCompanyForms } from "../../../../store/slices/CompanyFormSlice";
 
 // Validation schema
 const schema = yup.object().shape({
@@ -41,7 +40,11 @@ const schema = yup.object().shape({
     .string()
     .email("Invalid email format")
     .required("Email is required"),
-  roleId: yup.string().required("Role is required"),
+  roleIds: yup.array().of(yup.string()).min(1, "At least one role is required"),
+  branchIds: yup
+    .array()
+    .of(yup.string())
+    .min(1, "At least one branch is required"),
   status: yup.string().required("Status is required"),
   password: yup.string().when("$mode", {
     is: "create",
@@ -52,22 +55,7 @@ const schema = yup.object().shape({
 
 const UserForm = ({
   onSubmitCreate,
-  defaultValues = {
-    first_name: "",
-    last_name: "",
-    email: "",
-    roleId: "",
-    status: "1",
-    password: "",
-    assignBranches: false,
-    company: null,
-    companyId: "",
-    is_super_user:"0",
-    //formId: [],
-    branchId: [],
-    branchIds: [],
-    adddetail: [],
-  },
+  defaultValues,
   mode = "create",
   apiError,
 }) => {
@@ -80,10 +68,13 @@ const UserForm = ({
     resolver: yupResolver(schema, { context: { mode } }),
   });
   const formRef = useRef(null);
- 
+
   const dispatch = useDispatch();
   const { roles } = useSelector((state) => state.roles);
+  const [selectedCompanyList, setSelectedCompanyList] = useState([]);
   const [selectedCompany, setSelectedCompany] = useState(null);
+  const [selectedBranch, setSelectedBranch] = useState(null);
+  const [selectedRole, setSelectedRole] = useState(null);
   const [selectedBranchIds, setSelectedBranchIds] = useState([]);
   const [addDetailDialog, setaddDetailDialog] = useState(false);
   const { companies } = useSelector((state) => state.companies);
@@ -94,13 +85,11 @@ const UserForm = ({
   const [roleList, setRoleList] = useState([]);
   const [is_super_user, setIs_super_user] = useState("0");
 
-
   const navigate = useNavigate();
 
   const handleAddDetails = () => {
     setaddDetailDialog(true);
   };
-
 
   useEffect(() => {
     //dispatch(fetchRoles());
@@ -111,7 +100,7 @@ const UserForm = ({
         dispatch(fetchBranch());
         dispatch(fetchCompanies());
         dispatch(fetchFormFields());
-        dispatch(fetchCompanyForms());
+        //dispatch(fetchCompanyForms());
         dispatch(fetchBranch());
         console.log("resusers", res);
 
@@ -125,33 +114,54 @@ const UserForm = ({
     };
     fetchData();
   }, [dispatch]);
-  const handleSelectBranch= (selectedBranch)=>{
-    
-    console.log("selectedbranch",selectedBranch,branches)
-  }
+  const handleSelectBranch = (selectedBranch) => {
+    console.log("selectedbranch", selectedBranch, branches);
+    setSelectedBranchIds((prev) => [...prev, selectedBranch]);
+    roleList.push(
+      ...roles.filter(
+        (r) =>
+          r.status &&
+          selectedBranch.some((id) => id === r.branchId) &&
+          !roleList.find((role) => role.id === r.id)
+      )
+    );
+    console.log("rolelist", roleList);
+    setRoleList(roleList);
+  };
   const handleselectedCompany = (company) => {
-    console.log("handleselectedCompany", companyforms, branches, company);
+    console.log(
+      "handleselectedCompany",
+      companyforms,
+      branches,
+      company,
+      roles
+    );
+    const selectedCompany = [...selectedCompanyList]
+      
+    selectedCompany.push(company)
+    setSelectedCompanyList(selectedCompany);
+    console.log("selectedCompany", selectedCompany);
+
     const companyList = companyforms.filter(
       (r) => r.status && company === r.Company.id
     );
     const uniqueform = Array.from(
       new Map(companyList.map((item) => [item.Form?.id, item])).values()
     );
-
+console.log("selectedCompanyList",selectedCompanyList,selectedCompany.map((c) => c.id))
     const uniquebranch = branches.filter(
-      (r) => r.status && company === r.Company.id
+      (r) => r.status && selectedCompany.includes(r.Company.id)
     );
-    const rolelist = roles.filter( (r) => r.status && company === r.CompanyId);
-    setRoleList(rolelist)
+  
     setFormlist(uniqueform);
     setBranchlist(uniquebranch);
     console.log("uniqueform", companyList, uniqueform, uniquebranch);
   };
   useEffect(() => {
     if (mode === "edit" && defaultValues?.branchIds.length > 0) {
-   
       setSelectedCompany(defaultValues.company || null);
-      setSelectedBranchIds(defaultValues.branchIds || []);
+      setSelectedBranch(defaultValues.branch || []);
+      setSelectedRole(defaultValues.role || null);
     }
   }, [mode, defaultValues]);
 
@@ -231,7 +241,6 @@ const UserForm = ({
         onSubmit={handleSubmit((formData) => {
           const fullData = {
             ...formData,
-            branchIds: selectedBranchIds
           };
           onSubmitCreate(fullData); // you already pass it upward
         })}
@@ -251,8 +260,7 @@ const UserForm = ({
                   style={{ flex: "48%" }}
                 >
                   <Input
-                   style={{width:"80%"}}
-
+                    style={{ width: "80%" }}
                     placeholder="First Name"
                     name="first_name"
                     value={field.value ?? ""} // controlled value
@@ -282,8 +290,7 @@ const UserForm = ({
                   style={{ flex: "48%" }}
                 >
                   <Input
-                   style={{width:"80%"}}
-
+                    style={{ width: "80%" }}
                     placeholder="last Name"
                     name="last_name"
                     value={field.value ?? ""} // controlled value
@@ -314,8 +321,7 @@ const UserForm = ({
                   style={{ flex: "48%" }}
                 >
                   <Input
-                   style={{width:"80%"}}
-
+                    style={{ width: "80%" }}
                     placeholder="Email"
                     name="email"
                     value={field.value ?? ""} // controlled value
@@ -345,8 +351,7 @@ const UserForm = ({
                     style={{ flex: "48%" }}
                   >
                     <Input
-                   style={{width:"80%"}}
-
+                      style={{ width: "80%" }}
                       placeholder="Password"
                       name="password"
                       type="Password" /* hides characters */
@@ -374,11 +379,14 @@ const UserForm = ({
                 control={control}
                 render={({ field }) => (
                   <Select
-                   style={{width:"80%"}}
-
+                    style={{ width: "80%" }}
+                    disabled={mode === "edit"}
                     name="is_super_user"
                     value={field.value ?? ""}
-                    onChange={(e) => {field.onChange(e.target.value);setIs_super_user(e.target.value)}}
+                    onChange={(e) => {
+                      field.onChange(e.target.value);
+                      setIs_super_user(e.target.value);
+                    }}
                     valueState={errors.is_super_user ? "Error" : "None"}
                   >
                     <Option>Select</Option>
@@ -400,145 +408,163 @@ const UserForm = ({
             </FlexBox>
           </FlexBox>
           {is_super_user && is_super_user === "0" && (
-            <><FlexBox direction="Column" style={{ flex: "28%" }}>
-              <label>Company</label>
-              <FlexBox label={<Label required>companyId</Label>}>
-                <Controller
-                  name="companyId"
-                  control={control}
-                render={({ field }) => (
-                  <MultiComboBox
-                   style={{width:"80%"}}
-
+            <>
+              <FlexBox direction="Column" style={{ flex: "28%" }}>
+                <label>Company</label>
+                <FlexBox label={<Label required>companyId</Label>}>
+                  <Controller
                     name="companyId"
-                    value={field.value ?? ""}
-                   
-                     onSelectionChange={(e) => {
-                      console.log("e.detail.selectedItems", e.detail.items);
-                      const selectedItems = e.detail.items.map((item) =>
-                        item.getAttribute("value")
-                      );
-                      selectedItems.map((item)=>handleselectedCompany(item))
-                      
-                      field.onChange(selectedItems);
-                    }}
-                    valueState={errors.companyId ? "Error" : "None"}
-                  >
-                    {companies
-                      .filter((r) => r.status) /* active roles only    */
-                      .map((r) => (
-                       
-                         <MultiComboBoxItem
-                        key={r.id}
-                        value={r.id}
-                        text={r.name}
-                        selected={field.value?.includes(r.id)}
-                      />
-                      ))}
-                  </MultiComboBox>
-                )}
-              />
+                    control={control}
+                    render={({ field }) => (
+                      <MultiComboBox
+                        style={{ width: "80%" }}
+                        name="companyId"
+                        value={field.value ?? ""}
+                        onSelectionChange={(e) => {
+                          console.log("e.detail.selectedItems", e.detail.items);
+                          const selectedItems = e.detail.items.map((item) =>
+                            item.getAttribute("value")
+                          );
+                          selectedItems.map((item) =>
+                            handleselectedCompany(item)
+                          );
 
-              {errors.companyId && (
-                <span
-                  slot="valueStateMessage"
-                  style={{ color: "var(--sapNegativeColor)" }}
-                >
-                  {errors.companyId.message}
-                </span>
-              )}
-            </FlexBox>
-          </FlexBox>
-          <FlexBox direction="Column" style={{ flex: "28%" }}>
-            <label>Branch</label>
-            <FlexBox label={<Label required>branchId</Label>}>
-              <Controller
-                name="branchId"
-                control={control}
-                render={({ field }) => (
-                  
-                  <MultiComboBox
-                   style={{width:"80%"}}
+                          field.onChange(selectedItems);
+                        }}
+                        valueState={errors.companyId ? "Error" : "None"}
+                      >
+                        {companies
+                          .filter((r) => r.status) /* active roles only    */
+                          .map((r) => (
+                            <MultiComboBoxItem
+                              key={r.id}
+                              value={r.id}
+                              text={r.name}
+                              selected={field.value?.includes(r.id)}
+                            />
+                          ))}
+                      </MultiComboBox>
+                    )}
+                  />
 
-                    name="branchId"
-                    disabled={!branchlist || branchlist.length === 0}
-                    value={field.value || []}
-                    onSelectionChange={(e) => {
-                      console.log("e.detail.selectedItems", e.detail.items);
-                      const selectedItems = e.detail.items.map((item) =>
-                        item.getAttribute("value")
-                      );
-                      handleSelectBranch(selectedItems)
-                      field.onChange(selectedItems);
-                    }}
-                    valueState={errors.branchId ? "Error" : "None"}
-                  >
-                    {console.log("branchlist", branchlist)}
-                    {(branchlist ?? []).map((r) => (
-                      <MultiComboBoxItem
-                        key={r.id}
-                        value={r.id}
-                        text={r.name+"-"+(companies.find(c=>c.id===r.companyId)).name}
-                        selected={field.value?.includes(r.id)}
-                      />
-                    ))}
-                  </MultiComboBox>
-                )}
-              />
+                  {errors.companyId && (
+                    <span
+                      slot="valueStateMessage"
+                      style={{ color: "var(--sapNegativeColor)" }}
+                    >
+                      {errors.companyId.message}
+                    </span>
+                  )}
+                </FlexBox>
+              </FlexBox>
+              <FlexBox direction="Column" style={{ flex: "28%" }}>
+                <label>Branch</label>
+                <FlexBox label={<Label required>branchId</Label>}>
+                  <Controller
+                    name="branchIds"
+                    control={control}
+                    render={({ field }) => (
+                      <MultiComboBox
+                        style={{ width: "80%" }}
+                        name="branchIds"
+                        disabled={!branchlist || branchlist.length === 0 && mode !== "edit"}
+                        value={field.value || []}
+                        onSelectionChange={(e) => {
+                          console.log("e.detail.selectedItems", e.detail.items);
+                          const selectedItems = e.detail.items.map((item) =>
+                            item.getAttribute("value")
+                          );
+                          handleSelectBranch(selectedItems);
+                          field.onChange(selectedItems);
+                        }}
+                        valueState={errors.branchIds ? "Error" : "None"}
+                      >
+                        {console.log("branchlist", branchlist)}
+                        {branchlist.map((r) => (
+                          <MultiComboBoxItem
+                            key={r.id}
+                            value={r.id}
+                            text={
+                              r.name +
+                              "-" +
+                              companies.find((c) => c.id === r.companyId).name
+                            }
+                            selected={field.value?.includes(r.id)}
+                          />
+                        ))}
+                      </MultiComboBox>
+                    )}
+                  />
 
-              {errors.branchId && (
-                <span
-                  slot="valueStateMessage"
-                  style={{ color: "var(--sapNegativeColor)" }}
-                >
-                  {errors.branchId.message}
-                </span>
-              )}
-            </FlexBox>
-          </FlexBox></>
+                  {errors.branchIds && (
+                    <span
+                      slot="valueStateMessage"
+                      style={{ color: "var(--sapNegativeColor)" }}
+                    >
+                      {errors.branchIds.message}
+                    </span>
+                  )}
+                </FlexBox>
+              </FlexBox>
+            </>
           )}
           <FlexBox direction="Column" style={{ flex: "28%" }}>
             <Label>Role</Label>
             <FlexBox label={<Label required>roleId</Label>}>
               <Controller
-                name="roleId"
+                name="roleIds"
                 control={control}
                 render={({ field }) => (
                   <MultiComboBox
-                   style={{width:"80%"}}
-
-                    name="roleId"
-                    disabled={is_super_user==="0"?roleList.length === 0:!selectedCompany || roleList.length === 0}
-                    value={field.value ?? ""}
-                     onSelectionChange={(e) => {
-                      console.log("e.detail.selectedItems", e.detail.items);
+                    style={{ width: "80%" }}
+                    name="roleIds"
+                    value={field.value ?? []} // 👈 make sure it's an array, not string
+                    onSelectionChange={(e) => {
                       const selectedItems = e.detail.items.map((item) =>
                         item.getAttribute("value")
                       );
                       field.onChange(selectedItems);
                     }}
-                    valueState={errors.branchId ? "Error" : "None"}
-                  >
-                    {roleList
-                      .filter((r) => r.status) /* active roles only    */
-                      .map((r) => (
-                        <MultiComboBoxItem
-                        key={r.id}
-                        value={r.id}
-                        text={r.name+"-"+(companies.find(c=>c.id===r.companyId)).name}
-                        selected={field.value?.includes(r.id)}
-                      />
-                      ))}
+                    valueState={errors.roleIds ? "Error" : "None"}
+                  >{console.log("roleListinsiderole", roleList,roles,is_super_user)}
+                    {is_super_user === "1"
+                      ? roles
+                          .filter((r) => r.status) // active roles only
+                          .map((r) => (
+                            <MultiComboBoxItem
+                              key={r.id}
+                              value={r.id}
+                              text={
+                                r.name
+                              }
+                              selected={field.value?.includes(r.id)}
+                            />
+                          ))
+                      : (roleList ?? [])
+                          .filter((r) => r.status)
+                          .map((r) => (
+                            <MultiComboBoxItem
+                              key={r.id}
+                              value={r.id}
+                              text={
+                                r.name +
+                                "-" +
+                                (branches.find((c) => c.id === r.branchId)
+                                  ?.name || "")
+                              }
+                              selected={field.value?.includes(r.id)}
+                            />
+                          ))}
                   </MultiComboBox>
                 )}
               />
 
-              {errors.roleId && (
+              {errors.roleIds && (
                 <span
                   slot="valueStateMessage"
                   style={{ color: "var(--sapNegativeColor)" }}
                 >
-                  {errors.roleId.message}
+                  {errors.roleIds.message}
                 </span>
               )}
             </FlexBox>
@@ -594,7 +620,7 @@ const UserForm = ({
               )}
             </FlexBox> 
           </FlexBox> */}
-          
+
           <FlexBox direction="Column" style={{ flex: "28%" }}>
             <Label>Status</Label>
             <FlexBox label={<Label required>Status</Label>}>
@@ -603,8 +629,11 @@ const UserForm = ({
                 control={control}
                 render={({ field }) => (
                   <Select
-                   style={is_super_user==="0"?{width:"80%"}:{width:"26%"}}
-
+                    style={
+                      is_super_user === "0"
+                        ? { width: "80%" }
+                        : { width: "26%" }
+                    }
                     name="status"
                     value={field.value ?? ""}
                     onChange={(e) => field.onChange(e.target.value)}

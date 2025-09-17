@@ -56,8 +56,9 @@ const EditCompany = () => {
         name: company.name,
         company_code: company.company_code,
         company_db_name: company.company_db_name,
-        city: company.city,
-        address: company.address,
+        base_url: company.base_url,
+        sap_username: company.sap_username,
+        secret_key: company.secret_key,
         is_branch: JSON.stringify(company.is_branch),
         status: JSON.stringify(company.status),
       }}

@@ -14,13 +14,12 @@ const CreateRole = () => {
   const [apiError, setApiError] = useState(null);
   const { companies } = useSelector((state) => state.companies);
 
-
   useEffect(() => {
     //dispatch(fetchPermissions());
     const fetchData = async () => {
       try {
         const res = await dispatch(fetchPermissions()).unwrap();
-        dispatch(fetchCompanies())
+        dispatch(fetchCompanies());
         console.log("resusers", res);
 
         if (res.message === "Please Login!") {
@@ -37,7 +36,25 @@ const CreateRole = () => {
   const handleCreate = async (data) => {
     console.log("handlecreate", data);
     try {
-      const res = await dispatch(createRole(data)).unwrap();
+      const roleData = {
+        name: data.name,
+        scope: data.scope,
+        status: data.status,
+        branchId: data.branchId === "null" ? null : data.branchId,
+        ...(data.scope === "master"
+          ? {
+              // master → use permissionIds only
+              permissionIds: (data.permissionIds || []).map((perm) =>
+                typeof perm === "object" ? perm.id : perm
+              ),
+            }
+          : {
+              // user → use userMenus only
+              userMenus: data.userMenus || [],
+            }),
+      };
+      console.log("object", roleData);
+      const res = await dispatch(createRole(roleData)).unwrap();
       if (res.message === "Please Login!") {
         navigate("/login");
       } else {
@@ -51,7 +68,13 @@ const CreateRole = () => {
     <RoleForm
       onSubmit={handleCreate}
       companies={companies}
-      defaultValues={{ name: "", status: "1", permissionIds: [] }}
+      defaultValues={{
+        name: "",
+        scope: "master",
+        status: "1",
+        companyId: "null",
+        permissionIds: [],
+      }}
       permissions={permissions}
       apiError={apiError}
       mode="create"

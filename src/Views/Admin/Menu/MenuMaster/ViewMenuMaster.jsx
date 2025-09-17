@@ -27,7 +27,7 @@ const ViewMenuMaster = (props) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        if (!user) {
+        if (!user&&id) {
           const res = await dispatch(fetchUserMenusById(id)).unwrap();
           if (res.message === "Please Login!") {
             navigate("/login");

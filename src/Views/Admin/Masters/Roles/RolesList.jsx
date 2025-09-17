@@ -25,7 +25,9 @@ const ViewRole = Loadable(lazy(() => import("./ViewRole")));
 const RolesList = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { roles, loading } = useSelector((state) => state.roles);
+  const { roles } = useSelector((state) => state.roles);
+    const { user } = useSelector((state) => state.auth);
+  
   const [search, setSearch] = useState("");
   const [layout, setLayout] = useState("OneColumn");
   const [ViewId, setViewId] = useState("");
@@ -76,43 +78,24 @@ const RolesList = () => {
   const filteredRows = roles?.filter((role) =>
     role.name.toLowerCase().includes(search.toLowerCase())
   );
-  const editRow = (row) => {
-    console.log("Edit Row:", row);
-  };
+
   const columns = useMemo(
     () => [
       {
         Header: "Role Name",
         accessor: "name",
-        width: 250,
+        width: 320,
       },
-      {
-        Header: "Permissions",
-        accessor: "Permissions",
-        width: 600,
-        height: 400,
-        Cell: ({ row }) =>
-          row.original.Permissions ? (
-            <FlexBox
-              style={{
-                overflowX: "auto", // vertical scroll only
-                padding: "1rem", // optional
-                border: "1px solid #ccc", // just for visual debugging
-              }}
-            >
-              {row.original.Permissions.map((perm) => (
-                <Token text={perm.name} />
-              ))}
-            </FlexBox>
-          ) : (
-            "No Permissions"
-          ),
+      
+ {
+        Header: "Scope",
+        accessor: "scope",
+        width: 320,
       },
-
       {
         Header: "Status",
         accessor: "status",
-        width: 250,
+        width: 320,
 
         Cell: ({ row }) =>
           row.original.status === 1 ? (
@@ -132,24 +115,39 @@ const RolesList = () => {
         width: 250,
 
         Cell: (instance) => {
-          const { cell, row, webComponentsReactProperties } = instance;
+          const { row, webComponentsReactProperties } = instance;
           const isOverlay = webComponentsReactProperties.showOverlay;
           return (
             <FlexBox alignItems="Center">
+               {user!==null&&user.Roles.some(
+                (role) =>
+                  role.Permissions.some((f) => f.name === "role_get")
+                    
+              ) && (
               <Button
                 icon="sap-icon://edit"
                 disabled={isOverlay}
                 design="Transparent"
                 //onClick={() => { setLayout("TwoColumnsMidExpanded");setViewItem(row.original)}}
                 onClick={() => handleEdit(row.original)}
-              />
+              />)}
+               {user!==null&&user.Roles.some(
+                (role) =>
+                  role.Permissions.some((f) => f.name === "role_delete")
+                    
+              ) && (
               <Button
                 icon="sap-icon://delete"
                 disabled={isOverlay}
                 design="Transparent"
                 //onClick={() => { setLayout("TwoColumnsMidExpanded");setViewItem(row.original)}}
                 onClick={() => handleDelete(row.original)}
-              />
+              />)}
+               {user!==null&&user.Roles.some(
+                (role) =>
+                  role.Permissions.some((f) => f.name === "role_get")
+                    
+              ) && (
               <Button
                 icon="sap-icon://navigation-right-arrow"
                 disabled={isOverlay}
@@ -159,6 +157,7 @@ const RolesList = () => {
                   handleView(row.original);
                 }}
               />
+              )}
             </FlexBox>
           );
         },
@@ -191,12 +190,16 @@ const RolesList = () => {
             </div>
           }
           endContent={
-            <Button
+             user!==null&&user.Roles.some(
+                (role) =>
+                  role.Permissions.some((f) => f.name === "role_create")
+                    
+              ) && (<Button
               design="Emphasized"
               onClick={() => navigate("/admin/roles/create")}
             >
               Add Role
-            </Button>
+            </Button>)
           }
         >
           <Title level="H4">Role List</Title>
@@ -234,12 +237,17 @@ const RolesList = () => {
               <FlexBox direction="Column">
                 <div>
                   <FlexBox direction="Column">
+                     {user!==null&&user.Roles.some(
+                (role) =>
+                  role.Permissions.some((f) => f.name === "role_list")
+                    
+              ) && (
                     <AnalyticalTable
                       columns={columns}
                       data={filteredRows || []}
                       header={"  Roles list(" + filteredRows.length + ")"}
-                      visibleRows={10}
-                      rowHeight={60}
+                      visibleRows={8}
+                      rowHeight={50}
                       onAutoResize={() => {}}
                       onColumnsReorder={() => {}}
                       onGroup={() => {}}
@@ -249,7 +257,7 @@ const RolesList = () => {
                       onRowSelect={() => {}}
                       onSort={() => {}}
                       onTableScroll={() => {}}
-                    />
+                    />)}
                   </FlexBox>
                 </div>
               </FlexBox>
