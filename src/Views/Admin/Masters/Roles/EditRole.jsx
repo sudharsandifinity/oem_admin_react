@@ -39,10 +39,23 @@ const EditRole = () => {
             id,
             data: {
             name: data.name,
+            scope: data.scope,
             status: parseInt(data.status),
-            permissionIds: data.permissionIds
+            branchId: data.branchId === "null" ? "null" : data.branchId,
+        ...(data.scope === "master"
+          ? {
+              // master → use permissionIds only
+              permissionIds: (data.permissionIds || []).map((perm) =>
+                typeof perm === "object" ? perm.id : perm
+              ),
+            }
+          : {
+              // user → use userMenus only
+              userMenus: data.userMenus || [],
+            }),
             }
         };
+   
       await dispatch(updateRole(payload)).unwrap();
       navigate('/admin/roles');
     } catch (err) {
@@ -53,16 +66,19 @@ const EditRole = () => {
   if (roleLoading || permissionsLoading || !currentRole) {
     return <div>Loading...</div>;
   }
-
+{console.log("currentRole",currentRole  )}
   return <RoleForm 
             onSubmit={handleUpdate} 
             defaultValues={{
                 id: currentRole.id,
                 name: currentRole.name || '',
+                scope:currentRole.scope || 'user',
+                branchId: currentRole.branchId ? String(currentRole.branchId) : 'null',
                 status: String(currentRole.status ?? '1'),
                 permissionIds: Array.isArray(currentRole.Permissions)
                 ? currentRole.Permissions.map(p => p.id)
-                : []
+                : [],
+                 UserMenus: currentRole.UserMenus ? currentRole.UserMenus : []
             }}
             permissions={permissions} 
             apiError={apiError} 

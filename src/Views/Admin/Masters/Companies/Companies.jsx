@@ -28,7 +28,7 @@ const Companies = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { companies } = useSelector((state) => state.companies);
-  const {user} = useSelector((state) => state.auth);
+  const { user } = useSelector((state) => state.auth);
   const [search, setSearch] = useState("");
   const [layout, setLayout] = useState("OneColumn");
   const [ViewId, setViewId] = useState("");
@@ -78,7 +78,7 @@ const Companies = () => {
       company.company_code.toLowerCase().includes(search.toLowerCase()) ||
       company.city.toLowerCase().includes(search.toLowerCase())
   );
-  
+
   const columns = useMemo(
     () => [
       {
@@ -123,31 +123,46 @@ const Companies = () => {
           const isOverlay = webComponentsReactProperties.showOverlay;
           return (
             <FlexBox alignItems="Center">
-              {user.Roles[0].Permissions.filter((f) => f.name === "company_update").length > 0 && (<Button
-                icon="sap-icon://edit"
-                disabled={isOverlay}
-                design="Transparent"
-                //onClick={() => { setLayout("TwoColumnsMidExpanded");setViewItem(row.original)}}
-                onClick={() => handleEdit(row.original)}
-              />)}
-              {user.Roles[0].Permissions.filter((f) => f.name === "company_delete").length > 0 && (
-              <Button
-                icon="sap-icon://delete"
-                disabled={isOverlay}
-                design="Transparent"
-                //onClick={() => { setLayout("TwoColumnsMidExpanded");setViewItem(row.original)}}
-                onClick={() => handleDelete(row.original)}
-              />)}
-              {user.Roles[0].Permissions.filter((f) => f.name === "company_get").length > 0 && (
-              <Button
-                icon="sap-icon://navigation-right-arrow"
-                disabled={isOverlay}
-                design="Transparent"
-                onClick={() => {
-                  setLayout("TwoColumnsMidExpanded");
-                  handleView(row.original);
-                }}
-              />)}
+              {user.Roles.some(
+                (role) =>
+                  role.Permissions.some((f) => f.name === "company_update")
+                    
+              ) && (
+                <Button
+                  icon="sap-icon://edit"
+                  disabled={isOverlay}
+                  design="Transparent"
+                  //onClick={() => { setLayout("TwoColumnsMidExpanded");setViewItem(row.original)}}
+                  onClick={() => handleEdit(row.original)}
+                />
+              )}
+              {user.Roles.some(
+                (role) =>
+                  role.Permissions.some(
+                (f) => f.name === "company_delete"
+              )) && (
+                <Button
+                  icon="sap-icon://delete"
+                  disabled={isOverlay}
+                  design="Transparent"
+                  //onClick={() => { setLayout("TwoColumnsMidExpanded");setViewItem(row.original)}}
+                  onClick={() => handleDelete(row.original)}
+                />
+              )}
+              {user.Roles.some(
+                (role) =>
+                  role.Permissions.some((f) => f.name === "company_get")
+                ) && (
+                <Button
+                  icon="sap-icon://navigation-right-arrow"
+                  disabled={isOverlay}
+                  design="Transparent"
+                  onClick={() => {
+                    setLayout("TwoColumnsMidExpanded");
+                    handleView(row.original);
+                  }}
+                />
+              )}
             </FlexBox>
           );
         },
@@ -180,13 +195,17 @@ const Companies = () => {
             </div>
           }
           endContent={
-              user.Roles[0].Permissions.filter((f) => f.name === "company_create").length > 0 && (
-            <Button
-              design="Emphasized"
-              onClick={() => navigate("/admin/companies/create")}
-            >
-              Add Company
-            </Button>)
+            user.Roles.some(
+                (role) =>
+                  role.Permissions.some((f) => f.name === "company_create")
+               )&& (
+              <Button
+                design="Emphasized"
+                onClick={() => navigate("/admin/companies/create")}
+              >
+                Add Company
+              </Button>
+            )
           }
         >
           <Title level="H4">Company List</Title>
@@ -224,24 +243,27 @@ const Companies = () => {
               <FlexBox direction="Column">
                 <div>
                   <FlexBox direction="Column">
-              {user.Roles[0].Permissions.filter((f) => f.name === "company_list").length > 0 && (
-
-                    <AnalyticalTable
-                      columns={columns}
-                      data={filteredRows || []}
-                      header={"  Company list(" + filteredRows.length + ")"}
-                      visibleRows={10}
-                      onAutoResize={() => {}}
-                      onColumnsReorder={() => {}}
-                      onGroup={() => {}}
-                      onLoadMore={() => {}}
-                      onRowClick={() => {}}
-                      onRowExpandChange={() => {}}
-                      onRowSelect={() => {}}
-                      onSort={() => {}}
-                      onTableScroll={() => {}}
-                    />
-              )}
+                    {user.Roles.some(
+                (role) =>
+                  role.Permissions.some(
+                      (f) => f.name === "company_list"
+                    ) )&& (
+                      <AnalyticalTable
+                        columns={columns}
+                        data={filteredRows || []}
+                        header={"  Company list(" + filteredRows.length + ")"}
+                        visibleRows={10}
+                        onAutoResize={() => {}}
+                        onColumnsReorder={() => {}}
+                        onGroup={() => {}}
+                        onLoadMore={() => {}}
+                        onRowClick={() => {}}
+                        onRowExpandChange={() => {}}
+                        onRowSelect={() => {}}
+                        onSort={() => {}}
+                        onTableScroll={() => {}}
+                      />
+                    )}
                   </FlexBox>
                 </div>
               </FlexBox>

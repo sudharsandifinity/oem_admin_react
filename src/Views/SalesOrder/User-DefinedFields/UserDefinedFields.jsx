@@ -9,7 +9,6 @@ import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FormConfigContext } from "../../../Components/Context/FormConfigContext";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchCompanyFormfields } from "../../../store/slices/companyformfieldSlice";
 import { SalesOrderRenderInput } from "../SalesOrderRenderInput";
 
 const UserDefinedFields = (props) => {
@@ -18,7 +17,6 @@ const UserDefinedFields = (props) => {
   const [inputvalue, setInputValue] = useState([]);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { companyformfield } = useSelector((state) => state.companyformfield);
 
   // const DocumentDetails = companyformfield.filter(
   //   (c) => c.Form?.name === "DocDetail"

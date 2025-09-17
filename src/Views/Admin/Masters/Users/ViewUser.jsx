@@ -22,12 +22,12 @@ const ViewUser = (props) => {
   const [apiError, setApiError] = useState(null);
 
   const { users } = useSelector((state) => state.users);
-  const user = users.find((c) => c.id === id);
+  const user = users.length>0&&users.find((c) => c.id === id);
   console.log("user", users, id, user);
   useEffect(() => {
     const fetchData = async () => {
       try {
-        if (!user) {
+        if (!user&&id) {
           const res = await dispatch(fetchUserById(id)).unwrap();
           if (res.message === "Please Login!") {
             navigate("/login");
@@ -89,7 +89,7 @@ const ViewUser = (props) => {
         </ListItemStandard>
         <ListItemStandard>
           <Text>
-            <strong>Role:</strong> {user.Role?.name}
+            <strong>Role:</strong> {user.Roles.map(role => role.name).join(", ")}
           </Text>
         </ListItemStandard>
         <ListItemStandard>

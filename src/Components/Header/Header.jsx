@@ -20,11 +20,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { ThemingParameters } from "@ui5/webcomponents-react-base";
 
 import { setTheme } from "@ui5/webcomponents-base/dist/config/Theme.js";
-import { fetchCompanies } from "../../store/slices/companiesSlice";
+import { logout } from "../../store/slices/authSlice";
 
 const Header = () => {
-  const [fioriTheme, setFioriTheme] = useState("sap_fiori_3");
-  const { companies } = useSelector((state) => state.companies);
+  const [fioriTheme, setFioriTheme] = useState("");
   const dispatch = useDispatch();
   const menuRef = useRef();
    const location = useLocation();
@@ -46,27 +45,13 @@ const Header = () => {
   const handleLogoClick = () => {
     navigate("/");
   };
-  const logout = () => {
-    navigate("/");
+  const logoutSession =  () => {
+     dispatch(logout());
+     localStorage.removeItem("token");
+    navigate("/", { replace: true });
   };
 
-  useEffect(() => {
-    //dispatch(fetchRoles());
-    const fetchData = async () => {
-      try {
-        const res = await dispatch(fetchCompanies()).unwrap();
-        console.log("resusers", res);
-
-        if (res.message === "Please Login!") {
-          navigate("/");
-        }
-      } catch (err) {
-        console.log("Failed to fetch user", err.message);
-        err.message && navigate("/");
-      }
-    };
-    fetchData();
-  }, [dispatch, navigate]);
+ 
   return (
     <div>
       <div>
@@ -91,7 +76,7 @@ const Header = () => {
           //onLogoClick={handleLogoClick}
           onMenuItemClick={function Xs() {}}
           onNotificationsClick={function Xs() {}}
-          onProfileClick={logout}
+          onProfileClick={() => logoutSession()}
           onSearchButtonClick={function Xs() {}}
           onSearchFieldToggle={function Xs() {}}
           //primaryTitle="Companies"
@@ -108,7 +93,7 @@ const Header = () => {
           }
           //showNotifications
           onProductSwitchClick={handleProductSwitchClick}
-          showProductSwitch
+          //showProductSwitch
           startButton={
             <>
               <img
@@ -131,7 +116,7 @@ const Header = () => {
                   <Option value="sap_fiori_3_hcb">Fiori 3 HCB</Option>
                   <Option value="sap_horizon">Horizon</Option>
                   <Option value="sap_horizon_dark">Horizon Dark</Option>
-                </Select>{console.log("location",location.pathname,location.pathname.includes("/admin"))}
+                </Select>
                 {!location.pathname.includes("/admin")&&<>
                 {/* <Button
                   endIcon="navigation-down-arrow"
@@ -147,22 +132,7 @@ const Header = () => {
                 >
                   Companies
                 </Button> */}
-                <Menu
-                  opener={buttonRef.current}
-                  open={menuIsOpen}
-                  onClose={() => {
-                    setMenuIsOpen(false);
-                  }}
-                >
-                  {companies.map((company) => (
-                    <MenuItem key={company.id} text={company.name}>
-                      {company.Branches &&
-                        company.Branches.map((branch) => (
-                          <MenuItem  key={branch.id} text={branch.name} />
-                        ))}
-                    </MenuItem>
-                  ))}
-                </Menu></>}
+               </>}
               </>
             </>
           }

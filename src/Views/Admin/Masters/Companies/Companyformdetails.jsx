@@ -36,9 +36,9 @@ const Companyformdetails = ({
     name: "",
     company_code: "",
     company_db_name: "",
-    //city: "",
-    //address: "",
-    //is_branch: "",
+    base_url:"",
+    sap_username: "",
+    secret_key: "",
     status: "",
   },
   mode = "create",
@@ -141,7 +141,7 @@ const Companyformdetails = ({
           wrap="Wrap" // allow line breaks
           style={{ gap: "1rem", paddingTop: "4rem" }}
         >
-          <FlexBox direction="Column" style={{ flex: " 48%"}}>
+          <FlexBox direction="Column" style={{ flex: " 28%"}}>
             <Label>Company Name</Label>
             <Controller
               name="name"
@@ -170,7 +170,7 @@ const Companyformdetails = ({
               )}
             />
           </FlexBox>
-          <FlexBox direction="Column" style={{ flex: " 48%" }}>
+          <FlexBox direction="Column" style={{ flex: " 28%" }}>
             <Label>Company Db Name</Label>
             <Controller
               name="company_db_name"
@@ -178,7 +178,7 @@ const Companyformdetails = ({
               render={({ field }) => (
                 <FlexBox
                   label={<Label required>Label Text</Label>}
-                  style={{ flex: "48%" }}
+                  style={{ flex: "28%" }}
                 >
                   <Input
                   style={{width:"80%"}}
@@ -199,7 +199,7 @@ const Companyformdetails = ({
               )}
             />
           </FlexBox>
-          <FlexBox direction="Column" style={{ flex: " 48%" }}>
+          <FlexBox direction="Column" style={{ flex: " 28%" }}>
             <Label>Company Code</Label>
             <Controller
               name="company_code"
@@ -207,7 +207,7 @@ const Companyformdetails = ({
               render={({ field }) => (
                 <FlexBox
                   label={<Label required>Label Text</Label>}
-                  style={{ flex: "48%" }}
+                  style={{ flex: "28%" }}
                 >
                   <Input
                   style={{width:"80%"}}
@@ -228,27 +228,28 @@ const Companyformdetails = ({
               )}
             />
           </FlexBox>
-          {/* <FlexBox direction="Column" style={{ flex: " 28%" }}>
-            <Label>City</Label>
+          <FlexBox direction="Column" style={{ flex: " 28%" }}>
+            <Label>Base URL</Label>
             <Controller
-              name="city"
+              name="base_url"
               control={control}
               render={({ field }) => (
                 <FlexBox
-                  label={<Label required>City</Label>}
-                  style={{ flex: "1 1 48%" }}
+                  label={<Label required>Label Text</Label>}
+                  style={{ flex: "28%" }}
                 >
                   <Input
                   style={{width:"80%"}}
-                    placeholder="City"
-                    name="city"
-                    value={field.value ?? ""}
-                    onInput={(e) => field.onChange(e.target.value)}
-                    valueState={errors.city ? "Error" : "None"}
+                    placeholder="Base URL"
+                    name="base_url"
+                    value={field.value ?? ""} // controlled value
+                    onInput={(e) => field.onChange(e.target.value)} // update RHF
+                    valueState={errors.base_url ? "Error" : "None"} // red border on error
                   >
-                    {errors.city && (
+                    {errors.base_url && (
+                      /* UI5 shows this automatically when valueState="Error" */
                       <span slot="valueStateMessage">
-                        {errors.city.message}
+                        {errors.base_url.message}
                       </span>
                     )}
                   </Input>
@@ -258,35 +259,65 @@ const Companyformdetails = ({
           </FlexBox>
 
           <FlexBox direction="Column" style={{ flex: " 28%" }}>
-            <Label>Address</Label>
+            <Label>SAP UserName</Label>
             <Controller
-              name="address"
+              name="sap_username"
               control={control}
               render={({ field }) => (
                 <FlexBox
-                  label={<Label required>Address</Label>}
-                  style={{ flex: "1 1 48%" }}
+                  label={<Label required>Label Text</Label>}
+                  style={{ flex: "28%" }}
                 >
                   <Input
                   style={{width:"80%"}}
-                    placeholder="address"
-                    name="address"
-                    value={field.value ?? ""}
-                    onInput={(e) => field.onChange(e.target.value)}
-                    valueState={errors.address ? "Error" : "None"}
+                    placeholder="SAP UserName"
+                    name="sap_username"
+                    value={field.value ?? ""} // controlled value
+                    onInput={(e) => field.onChange(e.target.value)} // update RHF
+                    valueState={errors.sap_username ? "Error" : "None"} // red border on error
                   >
-                    {errors.address && (
+                    {errors.sap_username && (
+                      /* UI5 shows this automatically when valueState="Error" */
                       <span slot="valueStateMessage">
-                        {errors.address.message}
+                        {errors.sap_username.message}
                       </span>
                     )}
                   </Input>
                 </FlexBox>
               )}
             />
-          </FlexBox> */}
+          </FlexBox>
+          <FlexBox direction="Column" style={{ flex: " 28%" }}>
+            <Label>Secret Key</Label>
+            <Controller
+              name="secret_key"
+              control={control}
+              render={({ field }) => (
+                <FlexBox
+                  label={<Label required>Label Text</Label>}
+                  style={{ flex: "28%" }}
+                >
+                  <Input
+                  style={{width:"80%"}}
+                    placeholder="Secret Key"
+                    name="secret_key"
+                    value={field.value ?? ""} // controlled value
+                    onInput={(e) => field.onChange(e.target.value)} // update RHF
+                    valueState={errors.secret_key ? "Error" : "None"} // red border on error
+                  >
+                    {errors.secret_key && (
+                      /* UI5 shows this automatically when valueState="Error" */
+                      <span slot="valueStateMessage">
+                        {errors.secret_key.message}
+                      </span>
+                    )}
+                  </Input>
+                </FlexBox>
+              )}
+            />
+          </FlexBox>
 
-          <FlexBox direction="Column" style={{ flex: " 48%" }}>
+          <FlexBox direction="Column" style={{ flex: " 28%" }}>
             <Label>Status</Label>{" "}
             <FlexBox label={<Label required>Status</Label>}>
               <Controller
@@ -294,7 +325,7 @@ const Companyformdetails = ({
                 control={control}
                 render={({ field }) => (
                   <Select
-                  style={{width:"80%"}}
+                  style={{width:"26%"}}
                     name="status"
                     value={field.value ?? ""}
                     onChange={(e) => field.onChange(e.target.value)}

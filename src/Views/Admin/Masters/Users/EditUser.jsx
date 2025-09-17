@@ -4,7 +4,6 @@ import { useParams, useNavigate } from "react-router-dom";
 import UserForm from "./UserForm";
 import {
   fetchUserById,
-  fetchUsers,
   updateUser,
 } from "../../../../store/slices/usersSlice";
 import { BusyIndicator, FlexBox, MessageStrip } from "@ui5/webcomponents-react";
@@ -23,10 +22,23 @@ const EditUser = () => {
   const user = users.find((c) => c.id === id);
 
   const convertedUser = {
-    ...user,
-    company:
-      companies?.find((c) => c.id === user?.Branches[0]?.companyId) || [],
-    branchIds: user?.Branches.map((branch) => branch.id) || [],
+    first_name: user?.first_name || "",
+    last_name: user?.last_name || "",
+    email: user?.email || "",
+    roleIds: user ? user.Roles.map((role) => role.id) : [],
+    role: user ? user.Roles.map((role) => role.name) : [],
+
+    status: String(user?.status ?? '1'),
+    password: user?.password || "",
+    assignBranches: user?.Branches?.map((b) => b.id),
+    company: user?.Branches?.map((b) => b.Company.name) || "",
+    companyId: user?.Branches?.map((b) => b.Company.id) || "",
+    is_super_user: user?.is_super_user?.toString() || "0" ,
+    //formId: [],
+    branchIds: user?.Branches?.map((branch) => branch.id) || [],
+    branch: user?.Branches?.map((branch) => branch.name) || [],
+
+
   };
 
   useEffect(() => {
@@ -48,8 +60,19 @@ const EditUser = () => {
   }, [dispatch, id, user]);
 
   const handleUpdate = async (data) => {
-    try {
-      const res = await dispatch(updateUser({ id, data })).unwrap();
+    
+     try {
+      
+      const payload = {
+        first_name: data.first_name,
+        last_name: data.last_name,
+        email: data.email,
+        is_super_user: data.is_super_user,
+        roleIds: data.roleIds,
+        branchIds: data.branchIds,
+        status: data.status,
+      };
+      const res = await dispatch(updateUser({ id, data: payload })).unwrap();
       if (res.message === "Please Login!") {
         navigate("/login");
       } else {
@@ -90,7 +113,7 @@ const EditUser = () => {
 
   return (
     <UserForm
-      onSubmit={handleUpdate}
+      onSubmitCreate={handleUpdate}
       defaultValues={convertedUser}
       mode="edit"
       apiError={apiError}

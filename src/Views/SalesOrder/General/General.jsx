@@ -9,7 +9,6 @@ import React, { useContext, useEffect, useState } from "react";
 import { FormConfigContext } from "../../../Components/Context/FormConfigContext";
 import { SalesOrderRenderInput } from "../SalesOrderRenderInput";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchCompanyFormfields } from "../../../store/slices/companyformfieldSlice";
 import { useNavigate } from "react-router-dom";
 const General = (props) => {
   const { form } = props;

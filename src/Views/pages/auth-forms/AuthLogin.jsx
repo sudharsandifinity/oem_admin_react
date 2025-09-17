@@ -29,7 +29,6 @@ export default function AuthLogin() {
   const dispatch = useDispatch();
   const { error } = useSelector((state) => state.auth);
 
-  const [checked, setChecked] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [credentials, setCredentials] = useState({
     email: "",
@@ -57,6 +56,9 @@ export default function AuthLogin() {
     try {
       const res = await dispatch(login(credentials));
       console.log(res);
+       if (res.payload.message !== "Login successful") {
+        navigate("/");
+      } 
     } catch (error) {
       console.error(error);
     }
@@ -164,7 +166,7 @@ export default function AuthLogin() {
             style={{
               maxWidth: "400px",
               margin: "auto",
-              marginTop: "4rem",
+              marginTop: "2rem",
               padding: "1rem",
             }}
           >
@@ -173,7 +175,7 @@ export default function AuthLogin() {
               alignItems={FlexBoxAlignItems.Center}
             >
               <Title level="H4">Sign in</Title>
-
+              <br></br>
               <Label for="email">Email Address</Label>
               <Input
                 id="email"
@@ -193,7 +195,7 @@ export default function AuthLogin() {
               <Input
                 id="password"
                 name="password"
-                type="Password"
+                type={showPassword ? "Text" : "Password"}
                 placeholder="Enter your password"
                 required
                 onInput={(e) =>
@@ -201,19 +203,13 @@ export default function AuthLogin() {
                     target: { name: "password", value: e.target.value },
                   })
                 }
-                icon={<Icon name={showPassword ? "hide" : "show"} />}
-                onIconClick={() => setShowPassword(!showPassword)}
+                icon={<Icon name={showPassword ? "hide" : "show"} onClick={()=>setShowPassword(!showPassword)}/>}
+                //onIconClick={() => setShowPassword(!showPassword)}
                 showIcon
                 style={{ width: "100%", marginBottom: "1rem" }}
               />
 
-              <CheckBox
-                name="remember"
-                text="Remember me"
-                checked={checked}
-                onChange={(e) => setChecked(e.target.checked)}
-                style={{ alignSelf: "flex-start", marginBottom: "1rem" }}
-              />
+              
 
               <Button
                 type="Submit"
@@ -240,7 +236,6 @@ export default function AuthLogin() {
                 >
                   Forgot password?
                 </Link>
-                <Link href="#">Don't have an account? Sign Up</Link>
               </FlexBox>
             </FlexBox>
           </form>

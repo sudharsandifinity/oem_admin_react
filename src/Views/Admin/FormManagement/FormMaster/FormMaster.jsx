@@ -218,7 +218,7 @@ const FormMaster = () => {
                       columns={columns}
                       data={filteredRows || []}
                       header={"  FormMaster list(" + filteredRows.length + ")"}
-                      visibleRows={10}
+                      visibleRows={8}
                       onAutoResize={() => {}}
                       onColumnsReorder={() => {}}
                       onGroup={() => {}}

@@ -52,7 +52,7 @@ const Admin = () => {
     navigate(`/admin/${key}`);
   };
 
- 
+
 
   return (
     <FlexBox style={{ height: "90vh" }}>
@@ -85,7 +85,11 @@ const Admin = () => {
               style={{ textAlign: "start" }}
               icon="master-task-triangle"
               data-key="dashboard"
-            >{user.Roles[0].Permissions.filter((f) => f.module === "companies").length > 0 && (
+            >{console.log("user",user)}
+     
+              {user!==null&&user.Roles&&user.Roles.some(
+                (role) =>
+                  role.Permissions.some((f) => f.module === "companies")) && (
               <SideNavigationSubItem
                 style={{ marginLeft: "1rem", textAlign: "start" }}
                 text="Companies"
@@ -93,14 +97,18 @@ const Admin = () => {
                 data-key="companies"
               />
             )}
-            {user.Roles[0].Permissions.filter((f) => f.module === "branches").length > 0 && (
+            {user!==null&&user.Roles&&user.Roles.some(
+                (role) =>
+                  role.Permissions.some((f) => f.module === "branches") )&& (
               <SideNavigationSubItem
                 style={{ marginLeft: "1rem", textAlign: "start" }}
                 text="Branches"
                 icon="background"
                 data-key="branches"
               />)}
-              {user.Roles[0].Permissions.filter((f) => f.module === "roles").length > 0 && (
+              {user!==null&&user.Roles&&user.Roles.some(
+                (role) =>
+                  role.Permissions.some((f) => f.module === "roles") )&& (
               <SideNavigationSubItem
                 style={{ marginLeft: "1rem", textAlign: "start" }}
                 text="Roles"
@@ -113,14 +121,18 @@ const Admin = () => {
                 icon="kpi-managing-my-area"
                 data-key="CompanyRole"
               /> */}
-              {user.Roles[0].Permissions.filter((f) => f.module === "users").length > 0 && (
+              {user!==null&&user.Roles&&user.Roles.some(
+                (role) =>
+                  role.Permissions.some((f) => f.module === "users")) && (
               <SideNavigationSubItem
                 style={{ marginLeft: "1rem", textAlign: "start" }}
                 text="Users"
                 icon="user-edit"
                 data-key="users"
               />)}
-              {user.Roles[0].Permissions.filter((f) => f.module === "FormMaster").length > 0 && (
+              {user!==null&&user.Roles&&user.Roles.some(
+                (role) =>
+                  role.Permissions.some((f) => f.module === "forms") )&& (
                <SideNavigationSubItem
                 style={{ marginLeft: "1rem", textAlign: "start" }}
                 text="Form Master"
@@ -135,7 +147,9 @@ const Admin = () => {
               icon="menu"
               data-key="menu"
             >
-              {user.Roles[0].Permissions.filter((f) => f.module === "MenuMaster").length > 0 && (
+              {user!==null&&user.Roles&&user.Roles.some(
+                (role) =>
+                  role.Permissions.some((f) => f.module === "user_menu")) && (
               <SideNavigationSubItem
                 style={{ marginLeft: "1rem", textAlign: "start" }}
                 text="Menu Master"
@@ -154,14 +168,18 @@ const Admin = () => {
               text="Setup"
               icon="doc-attachment"
               data-key="dashboard"
-            >{user.Roles[0].Permissions.filter((f) => f.module === "sales-orders").length > 0 && (
+            >{user!==null&&user.Roles&&user.Roles.some(
+                (role) =>
+                  role.Permissions.some((f) => f.module === "sales-orders") )&& (
               <SideNavigationSubItem
                 style={{ marginLeft: "1rem", textAlign: "start" }}
                 text="Sales Orders"
                 icon="order-status"
                 data-key="sales-orders"
               />)}
-              {user.Roles[0].Permissions.filter((f) => f.module === "sales-invoices").length > 0 && (
+              {user!==null&&user.Roles&&user.Roles.some(
+                (role) =>
+                  role.Permissions.some((f) => f.module === "sales-invoices")) && (
               <SideNavigationSubItem
                 style={{ marginLeft: "1rem", textAlign: "start" }}
                 text="Sales Invoices"
@@ -182,14 +200,18 @@ const Admin = () => {
                 icon="company-view"
                 data-key="company-forms"
               /> */}
-              {user.Roles[0].Permissions.filter((f) => f.module === "FormFields").length > 0 && (
+              {user!==null&&user.Roles&&user.Roles.some(
+                (role) =>
+                  role.Permissions.some((f) => f.module === "form_fields")) && (
               <SideNavigationSubItem
                 style={{ marginLeft: "1rem", textAlign: "start" }}
                 text="Form Field Master"
                 icon="download-from-cloud"
                 data-key="FormFields"
               />)}
-              {user.Roles[0].Permissions.filter((f) => f.module === "CompanyFormFields").length > 0 && (
+              {user!==null&&user.Roles&&user.Roles.some(
+                (role) =>
+                  role.Permissions.some((f) => f.module === "CompanyFormFields")) && (
               <SideNavigationSubItem
                 style={{ marginLeft: "1rem", textAlign: "start" }}
                 text="Company Form Fields"

@@ -7,8 +7,10 @@ import {
   Card,
   FlexBox,
   FlexibleColumnLayout,
+  Option,
   Page,
   Search,
+  Select,
   Tag,
   Title,
 } from "@ui5/webcomponents-react";
@@ -19,28 +21,32 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchUsers, deleteUser } from "../../../../store/slices/usersSlice";
 import { useNavigate } from "react-router-dom";
 import Admin from "../../Admin";
+import { fetchCompanies } from "../../../../store/slices/companiesSlice";
 const ViewUser = Loadable(lazy(() => import("./ViewUser")));
 
 const Users = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { users, loading } = useSelector((state) => state.users);
+  const { companies } = useSelector((state) => state.companies);
+
   const [search, setSearch] = useState("");
   const [layout, setLayout] = useState("OneColumn");
   const [ViewId, setViewId] = useState("");
+  const [selectedCompany, setSelectedCompany] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const res = await dispatch(fetchUsers()).unwrap();
+        dispatch(fetchCompanies());
         console.log("resusers", res);
         if (res.message === "Please Login!") {
           navigate("/");
         }
       } catch (err) {
         console.log("Failed to fetch user", err.message);
-        err.message&&
-          navigate("/");
+        err.message && navigate("/");
       }
     };
     fetchData();
@@ -71,15 +77,31 @@ const Users = () => {
     //navigate(`/users/${user.id}`);
     setViewId(user.id);
   };
-
-  const filteredRows = users?.filter(
-    (user) =>
-      user.first_name.toLowerCase().includes(search.toLowerCase()) ||
-      user.last_name.toLowerCase().includes(search.toLowerCase()) ||
-      user.email.toLowerCase().includes(search.toLowerCase())
-  );
+console.log("users", users);
+  // const filteredRows = users!==null&&users?.filter(
+  //   (user) =>
+  //     user.first_name.toLowerCase().includes(search.toLowerCase()) ||
+  //     user.last_name.toLowerCase().includes(search.toLowerCase()) ||
+  //     user.email.toLowerCase().includes(search.toLowerCase())
+  // );
+  // const selectedUserList =filteredRows
+  //   selectedCompany !== ""
+  //     ? filteredRows &&
+  //       filteredRows?.filter((user) =>
+  //         selectedCompany ? user.companyId === selectedCompany : true
+  //       )
+  //     : filteredRows;
   const editRow = (row) => {
     console.log("Edit Row:", row);
+  };
+  const multiValueFilter = (rows, id, filterValue) => {
+    return rows.filter((row) => {
+      const companies = row.original.Branches?.map((b) => b.Company.name) || [];
+      const uniqueCompanies = [...new Set(companies)];
+      return uniqueCompanies.some((c) =>
+        c.toLowerCase().includes(filterValue.toLowerCase())
+      );
+    });
   };
   const columns = useMemo(
     () => [
@@ -90,10 +112,22 @@ const Users = () => {
       {
         Header: "Last Name",
         accessor: "last_name",
+        filter: "text",
       },
       {
         Header: "Email",
         accessor: "email",
+      },
+      {
+        Header: "Company",
+        accessor: "Company",
+        Cell: ({ row }) => {
+          const companies =
+            row.original.Branches?.map((b) => b.Company.name) || [];
+          const uniqueCompanies = [...new Set(companies)];
+          return uniqueCompanies.join(", ");
+        },
+        filter: "multiValue", // custom
       },
       {
         Header: "Role",
@@ -214,8 +248,21 @@ const Users = () => {
               onScopeChange={function Xs() {}}
               onSearch={(e) => setSearch(e.target.value)}
             />
+            <Select
+              name="formId"
+              value={selectedCompany ?? ""}
+              onChange={(e) => setSelectedCompany(e.target.value)}
+            >
+              <Option>Select</Option>
+              {companies
+                .filter((r) => r.status) /* active roles only    */
+                .map((r) => (
+                  <Option key={r.id} value={r.id}>
+                    {r.name}
+                  </Option>
+                ))}
+            </Select>
           </FlexBox>
-          {console.log("filteredRows", filteredRows)}
           <FlexibleColumnLayout
             // style={{ height: "600px" }}
             layout={layout}
@@ -225,9 +272,15 @@ const Users = () => {
                   <FlexBox direction="Column">
                     <AnalyticalTable
                       columns={columns}
-                      data={filteredRows || []}
-                      header={"  Users list(" + filteredRows.length + ")"}
-                      visibleRows={10}
+                      data={users || []}
+                      header={"  Users list(" + users.length + ")"}
+                      visibleRows={8}
+                      filterTypes={{
+                        multiValue: multiValueFilter,
+                      }}
+                      filterable
+                      sortable
+                      groupable
                       onAutoResize={() => {}}
                       onColumnsReorder={() => {}}
                       onGroup={() => {}}
