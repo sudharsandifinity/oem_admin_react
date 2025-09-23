@@ -388,7 +388,7 @@ useEffect(() => {
                     onChange={(e) => {field.onChange(e.target.value)}}
                     valueState={errors.companyId ? "Error" : "None"}
                   >
-                    <Option>Select</Option>
+                   <Option key="" value="">Select</Option>
                     {companies
                       .filter((r) => r.status) /* active roles only    */
                       .map((r) => (
@@ -425,7 +425,7 @@ useEffect(() => {
                     onChange={(e) => {field.onChange(e.target.value);handleSelectRole()}}
                     valueState={errors.roleId ? "Error" : "None"}
                   >
-                    <Option>Select</Option>
+                   <Option key="" value="">Select</Option>
                     {roles
                       .filter((r) => r.status) /* active roles only    */
                       .map((r) => (
@@ -462,7 +462,7 @@ useEffect(() => {
                               onChange={(e) => field.onChange(e.target.value)}
                               valueState={errors.status ? "Error" : "None"}
                             >
-                              <Option>Select</Option>
+                             <Option key="" value="">Select</Option>
           
                               <Option value="1">Active</Option>
                               <Option value="0">Inactive</Option>
@@ -497,7 +497,7 @@ useEffect(() => {
                     }}
                     valueState={errors.companyId ? "Error" : "None"}
                   >
-                    <Option>Select</Option>
+                   <Option key="" value="">Select</Option>
                     {companies
                       .filter((r) => r.status) 
                       .map((r) => (
@@ -537,7 +537,7 @@ useEffect(() => {
                     valueState={errors.formId ? "Error" : "None"}
                   >
                     {console.log("field", field)}
-                    <Option>Select</Option>
+                   <Option key="" value="">Select</Option>
                     {console.log("formList", formlist)}
                     {formlist.map((r) => (
                       <Option key={r.Form?.id} value={r.Form?.id}>

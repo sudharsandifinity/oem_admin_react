@@ -22,7 +22,10 @@ import {
   deleteForm,
   fetchForm,
 } from "../../../../store/slices/formmasterSlice";
-import { deleteUserMenus, fetchUserMenus } from "../../../../store/slices/usermenusSlice";
+import {
+  deleteUserMenus,
+  fetchUserMenus,
+} from "../../../../store/slices/usermenusSlice";
 const ViewMenuMaster = Loadable(lazy(() => import("./ViewMenuMaster")));
 
 const MenuMaster = () => {
@@ -32,6 +35,7 @@ const MenuMaster = () => {
   const [search, setSearch] = useState("");
   const [layout, setLayout] = useState("OneColumn");
   const [ViewId, setViewId] = useState("");
+  const [selectedMenu, setSelectedMenu] = useState(null);
 
   useEffect(() => {
     //dispatch(fetchForm());
@@ -70,6 +74,7 @@ const MenuMaster = () => {
   const handleView = (menu) => {
     //navigate(`/MenuMaster/${menu.id}`);
     console.log("menu", menu);
+    setSelectedMenu(menu.name)
     setViewId(menu.id);
   };
 
@@ -79,8 +84,8 @@ const MenuMaster = () => {
       (menu) =>
         menu.name.toLowerCase().includes(search.toLowerCase()) ||
         menu.display_name.toLowerCase().includes(search.toLowerCase()) ||
-        menu.parent.toLowerCase().includes(search.toLowerCase()) ||
-        menu.order_number.toString().includes(search) 
+        menu.order_number.toString().includes(search) ||
+        menu.scope&&menu.scope.toLowerCase().includes(search.toLowerCase())
     );
 
   const columns = useMemo(
@@ -93,14 +98,14 @@ const MenuMaster = () => {
         Header: "Display Name",
         accessor: "display_name",
       },
-      {
-        Header: "Parent",
-        accessor: "parent",
-        Cell: ({ row }) => {
-          const parent = usermenus.find((item) => item.id === row.original.parentUserMenuId);          
-          return parent ? parent.display_name : "";
-        },  
-      },
+      // {
+      //   Header: "Parent",
+      //   accessor: "parent",
+      //   Cell: ({ row }) => {
+      //     const parent = usermenus.find((item) => item.id === row.original.parentUserMenuId);
+      //     return parent ? parent.display_name : "";
+      //   },
+      // },
       {
         Header: "Order No",
         accessor: "order_number",
@@ -109,22 +114,13 @@ const MenuMaster = () => {
         Header: "Scope",
         accessor: "scope",
       },
-      {
-        Header: "Company",
-        accessor: "companyName",
-        Cell: ({ row }) => row.original.company ? row.original.company.name : 'Global',
-      },
-      {
-        Header: "Branch",
-        accessor: "branchName",
-        Cell: ({ row }) => row.original.branch ? row.original.branch.name : 'All Branches',
-      },
      
+
       {
         Header: "Status",
         accessor: "status",
         Cell: ({ row }) =>
-          row.original.status === 1|| row.original.status === "1" ? (
+          row.original.status === 1 || row.original.status === "1" ? (
             <Tag children="Active" design="Positive" size="S" />
           ) : (
             <Tag children="Inactive" design="Negative" size="S" />
@@ -248,7 +244,9 @@ const MenuMaster = () => {
                       columns={columns}
                       data={filteredRows || []}
                       header={"  Menu list(" + filteredRows.length + ")"}
-                      visibleRows={10}
+                      visibleRows={8}
+                      subRowsKey="children" // 👈 enables tree structure
+                      filterable
                       onAutoResize={() => {}}
                       onColumnsReorder={() => {}}
                       onGroup={() => {}}
@@ -274,7 +272,7 @@ const MenuMaster = () => {
                         onClick={() => setLayout("OneColumn")}
                       />
                     }
-                    startContent={<Title level="H5">Preview MenuMaster</Title>}
+                    startContent={<Title level="H5">{selectedMenu+" Menu List"}</Title>}
                   ></Bar>
                 }
               >
@@ -295,6 +293,7 @@ const MenuMaster = () => {
           />
         </FlexBox>
       </Card>
+      
     </Page>
   );
 };

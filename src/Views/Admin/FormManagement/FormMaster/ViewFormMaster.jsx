@@ -14,7 +14,6 @@ const ViewFormMaster = (props) => {
 
   const { forms } = useSelector((state) => state.forms);
   const form = forms.find((c) => c.id === id);
-console.log("form",forms,id,form)
   useEffect(() => {
     const fetchData = async () => {
       try {

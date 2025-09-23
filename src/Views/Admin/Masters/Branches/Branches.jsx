@@ -81,7 +81,10 @@ const Branches = () => {
   const filtered = useMemo(() => {
     if (!search) return branches;
     return branches.filter((b) =>
-      b.name.toLowerCase().includes(search.toLowerCase())
+      b.name.toLowerCase().includes(search.toLowerCase())||
+    b.branch_code.toLowerCase().includes(search.toLowerCase()) ||
+    b.city.toLowerCase().includes(search.toLowerCase()) ||
+    b.address.toLowerCase().includes(search.toLowerCase())
     );
   }, [branches, search]);
 
@@ -251,6 +254,9 @@ const Branches = () => {
                         data={filtered || []}
                         header={"  Branches list(" + filtered.length + ")"}
                         visibleRows={8}
+                        filterable
+                        pagination
+                        // visibleRows={10}
                         onAutoResize={() => {}}
                         onColumnsReorder={() => {}}
                         onGroup={() => {}}

@@ -358,7 +358,7 @@ const CompanyFormFieldForms = ({
                       }}
                       valueState={errors.companyId ? "Error" : "None"}
                     >
-                      <Option>Select</Option>
+                     <Option key="" value="">Select</Option>
                       {companies
                         .filter((r) => r.status) /* active roles only    */
                         .map((r) => (
@@ -402,7 +402,7 @@ const CompanyFormFieldForms = ({
                       valueState={errors.formId ? "Error" : "None"}
                     >
                       {console.log("field", field)}
-                      <Option>Select</Option>
+                     <Option key="" value="">Select</Option>
                       {console.log("formList", formList)}
                       {formList.map((r) => (
                         <Option key={r.Form?.id} value={r.Form?.id}>

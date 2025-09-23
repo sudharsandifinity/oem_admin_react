@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import api from '../../api/axios';
 
 // API Base URL
-const API_URL = '/admin/company-forms';
+const API_URL = '/admin/assign-form';
 
 // Thunks for API calls
 export const fetchCompanyForms = createAsyncThunk('companyforms/fetchCompanyForms', async () => {

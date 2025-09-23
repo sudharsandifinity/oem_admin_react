@@ -47,6 +47,7 @@ const formsSlice = createSlice({
   name: 'forms',
   initialState: {
     forms: [],
+     globalForms: [],
     loading: false,
     error: null
   },

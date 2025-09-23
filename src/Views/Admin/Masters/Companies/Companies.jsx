@@ -33,6 +33,7 @@ const Companies = () => {
   const [layout, setLayout] = useState("OneColumn");
   const [ViewId, setViewId] = useState("");
 
+ 
   useEffect(() => {
     //dispatch(fetchCompanies());
     const fetchData = async () => {
@@ -71,12 +72,10 @@ const Companies = () => {
     //navigate(`/users/${user.id}`);
     setViewId(company.id);
   };
-
   const filteredRows = companies?.filter(
     (company) =>
       company.name.toLowerCase().includes(search.toLowerCase()) ||
-      company.company_code.toLowerCase().includes(search.toLowerCase()) ||
-      company.city.toLowerCase().includes(search.toLowerCase())
+      company.company_code.toLowerCase().includes(search.toLowerCase()) 
   );
 
   const columns = useMemo(
@@ -123,7 +122,7 @@ const Companies = () => {
           const isOverlay = webComponentsReactProperties.showOverlay;
           return (
             <FlexBox alignItems="Center">
-              {user.Roles.some(
+              {user&&user.Roles.some(
                 (role) =>
                   role.Permissions.some((f) => f.name === "company_update")
                     
@@ -136,7 +135,7 @@ const Companies = () => {
                   onClick={() => handleEdit(row.original)}
                 />
               )}
-              {user.Roles.some(
+              {user&&user.Roles.some(
                 (role) =>
                   role.Permissions.some(
                 (f) => f.name === "company_delete"
@@ -149,7 +148,7 @@ const Companies = () => {
                   onClick={() => handleDelete(row.original)}
                 />
               )}
-              {user.Roles.some(
+              {user&&user.Roles.some(
                 (role) =>
                   role.Permissions.some((f) => f.name === "company_get")
                 ) && (
@@ -170,6 +169,11 @@ const Companies = () => {
     ],
     []
   );
+   useEffect(() => {
+    if(user==="null"){
+      navigate("/login");
+    }
+  }, [user])
   return (
     <Page
       backgroundDesign="Solid"
@@ -195,7 +199,7 @@ const Companies = () => {
             </div>
           }
           endContent={
-            user.Roles.some(
+            user&&user.Roles.some(
                 (role) =>
                   role.Permissions.some((f) => f.name === "company_create")
                )&& (
@@ -243,7 +247,7 @@ const Companies = () => {
               <FlexBox direction="Column">
                 <div>
                   <FlexBox direction="Column">
-                    {user.Roles.some(
+                    {user&&user.Roles.some(
                 (role) =>
                   role.Permissions.some(
                       (f) => f.name === "company_list"
@@ -252,7 +256,9 @@ const Companies = () => {
                         columns={columns}
                         data={filteredRows || []}
                         header={"  Company list(" + filteredRows.length + ")"}
-                        visibleRows={10}
+                        visibleRows={8}
+                        filterable
+                        pagination
                         onAutoResize={() => {}}
                         onColumnsReorder={() => {}}
                         onGroup={() => {}}

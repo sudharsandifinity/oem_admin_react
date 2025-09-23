@@ -227,9 +227,14 @@ export default function SalesOrder() {
           breadcrumbs={
             <>
               
-            <Breadcrumbs>
-              <BreadcrumbsItem>Home</BreadcrumbsItem>
-              <BreadcrumbsItem onClick={navigate("/ManageSalesOrder")}>
+            <Breadcrumbs design="Standard"
+                separators="Slash"
+                onItemClick={(e) => {
+                  const route = e.detail.item.dataset.route;
+                  if (route) navigate(route);
+                }}>
+              <BreadcrumbsItem  data-route="/UserDashboard">Home</BreadcrumbsItem>
+              <BreadcrumbsItem data-route="/ManageSalesOrder">
                 Manage Sales Order
               </BreadcrumbsItem>
               <BreadcrumbsItem>Sales Order</BreadcrumbsItem>

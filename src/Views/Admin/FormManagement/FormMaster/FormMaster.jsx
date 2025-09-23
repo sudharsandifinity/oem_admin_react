@@ -219,6 +219,9 @@ const FormMaster = () => {
                       data={filteredRows || []}
                       header={"  FormMaster list(" + filteredRows.length + ")"}
                       visibleRows={8}
+                      filterable
+                      pagination
+                      // visibleRows={10}
                       onAutoResize={() => {}}
                       onColumnsReorder={() => {}}
                       onGroup={() => {}}

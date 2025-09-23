@@ -246,6 +246,7 @@ const RolesList = () => {
                       columns={columns}
                       data={filteredRows || []}
                       header={"  Roles list(" + filteredRows.length + ")"}
+                      filterable
                       visibleRows={8}
                       rowHeight={50}
                       onAutoResize={() => {}}

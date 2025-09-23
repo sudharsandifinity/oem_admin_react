@@ -27,6 +27,18 @@ import { useNavigate } from "react-router-dom";
 const schema = yup.object().shape({
   name: yup.string().required("Form name is required"),
   display_name: yup.string().required("Display name is required"),
+  form_type: yup.string().required("Form type is required"),
+  scope: yup.string().required("Scope is required"),
+  companyId: yup.string().when("scope", {
+    is: "global",
+    then: yup.string().required("Company ID is required"),
+    otherwise: yup.string().nullable(),
+  }),
+  branchId: yup.string().when("scope", {
+    is: "branch",
+    then: yup.string().required("Branch ID is required"),
+    otherwise: yup.string().nullable(),
+  }),
   status: yup.string().required("Status name is required"),
 });
 
@@ -76,7 +88,6 @@ const Form = ({
  
 
   useEffect(() => {
-    console.log("editdefaultValues", defaultValues);
     if (mode === "edit") {
       setAssignBranchEnabled(true);
       setSelectedCompany(defaultValues.company || null);
@@ -182,7 +193,7 @@ const Form = ({
                     onChange={(e) => {field.onChange(e.target.value);setCurrScope(e.target.value)}}
                     valueState={errors.scope ? "Error" : "None"}
                   >
-                    <Option>Select</Option>
+                   <Option key="" value="">Select</Option>
 
                     <Option value="global">Global</Option>
                     <Option value="company">Company</Option>
@@ -192,12 +203,12 @@ const Form = ({
                 )}
               />
 
-              {errors.status && (
+              {errors.scope && (
                 <span
                   slot="valueStateMessage"
                   style={{ color: "var(--sapNegativeColor)" }}
                 >
-                  {errors.status.message}
+                  {errors.scope.message}
                 </span>
               )}
             </FlexBox>
@@ -217,7 +228,7 @@ const Form = ({
                     onChange={(e) => field.onChange(e.target.value)}
                     valueState={errors.companyId ? "Error" : "None"}
                   >
-                    <Option>Select</Option>
+                   <Option key="" value="">Select</Option>
 
                     {companies.map((company) => (
                       <Option key={company.id} value={company.id}>
@@ -253,7 +264,7 @@ const Form = ({
                     onChange={(e) => field.onChange(e.target.value)}
                     valueState={errors.branchId ? "Error" : "None"}
                   >
-                    <Option>Select</Option>
+                   <Option key="" value="">Select</Option>
 
                     {branches.map((branch) => (
                       <Option key={branch.id} value={branch.id}>
@@ -347,13 +358,21 @@ const Form = ({
                     onChange={(e) => field.onChange(e.target.value)}
                     valueState={errors.form_type ? "Error" : "None"}
                   >
-                    <Option>Select</Option>
+                   <Option key="" value="">Select</Option>
                     <Option value={"Item"}>{"Item"}</Option>
                     <Option value={"Service"}>{"Service"}</Option>
                     <Option value={"Both"}>{"Both"}</Option>
                   </Select>
                 )}
               />
+               {errors.form_type && (
+                <span
+                  slot="valueStateMessage"
+                  style={{ color: "var(--sapNegativeColor)" }}
+                >
+                  {errors.form_type.message}
+                </span>
+              )}
           </FlexBox>
           
           <FlexBox direction="Column" style={{ flex: " 28%" }}>
@@ -371,7 +390,7 @@ const Form = ({
                     onChange={(e) => field.onChange(e.target.value)}
                     valueState={errors.status ? "Error" : "None"}
                   >
-                    <Option>Select</Option>
+                   <Option key="" value="">Select</Option>
 
                     <Option value="1">Active</Option>
                     <Option value="0">Inactive</Option>

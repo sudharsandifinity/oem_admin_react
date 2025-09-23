@@ -344,7 +344,7 @@ const handleUserDetails=(data)  => {
                     onChange={(e) => field.onChange(e.target.value)}
                     valueState={errors.roleId ? "Error" : "None"}
                   >
-                    <Option>Select</Option>
+                   <Option key="" value="">Select</Option>
                     {roles
                       .filter((r) => r.status) /* active roles only    */
                       .map((r) => (
@@ -380,7 +380,7 @@ const handleUserDetails=(data)  => {
                     onChange={(e) => field.onChange(e.target.value)}
                     valueState={errors.status ? "Error" : "None"}
                   >
-                    <Option>Select</Option>
+                   <Option key="" value="">Select</Option>
 
                     <Option value="1">Active</Option>
                     <Option value="0">Inactive</Option>

@@ -27,9 +27,13 @@ import { useNavigate } from "react-router-dom";
 
 // Validation schema
 const schema = yup.object().shape({
-  name: yup.string().required("form_name is required"),
-  city: yup.string().required("display_name is required"),
-  address: yup.string().required("display_name is required"),
+  name: yup.string().required("Name is required"),
+  city: yup.string().required("City is required"),
+  address: yup.string().required("Address is required"),
+  branch_code: yup.string().required("Branch Code is required"),
+  companyId: yup.string().required("Company ID is required"),
+  is_main:yup.string().required("is_main is required"),
+  status: yup.string().required("Status is required"),
 });
 
 const BranchForm = ({
@@ -155,7 +159,7 @@ const BranchForm = ({
                     onChange={(e) => field.onChange(e.target.value)}
                     valueState={errors.companyId ? "Error" : "None"}
                   >
-                    <Option>Select</Option>
+                   <Option key="" value="">Select</Option>
                     {companies
                       .filter((r) => r.status) /* active roles only    */
                       .map((r) => (
@@ -293,7 +297,7 @@ const BranchForm = ({
                     onChange={(e) => field.onChange(e.target.value)}
                     valueState={errors.is_main ? "Error" : "None"}
                   >
-                    <Option>Select</Option>
+                   <Option key="" value="">Select</Option>
 
                     <Option value="true">Yes</Option>
                     <Option value="false">No</Option>
@@ -325,7 +329,7 @@ const BranchForm = ({
                     onChange={(e) => field.onChange(e.target.value)}
                     valueState={errors.status ? "Error" : "None"}
                   >
-                    <Option>Select</Option>
+                   <Option key="" value="">Select</Option>
 
                     <Option value="1">Active</Option>
                     <Option value="0">Inactive</Option>

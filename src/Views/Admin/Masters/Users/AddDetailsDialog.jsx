@@ -180,7 +180,7 @@ const AddDetailsDialog = ({
                       }}
                       valueState={errors.companyId ? "Error" : "None"}
                     >
-                      <Option>Select</Option>
+                     <Option key="" value="">Select</Option>
                       {companies
                         .filter((r) => r.status) /* active roles only    */
                         .map((r) => (
@@ -262,7 +262,7 @@ const AddDetailsDialog = ({
                       valueState={errors.branchId ? "Error" : "None"}
                     >
                       {console.log("brachlist", brachlist)}
-                      <Option>Select</Option>
+                     <Option key="" value="">Select</Option>
                       {brachlist.map((r) => (
                         <Option key={r.id} value={r.id}>
                           {r.name}

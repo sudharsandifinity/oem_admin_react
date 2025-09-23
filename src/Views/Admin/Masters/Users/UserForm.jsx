@@ -61,6 +61,7 @@ const UserForm = ({
 }) => {
   const {
     control,
+    watch,
     handleSubmit,
     formState: { errors },
   } = useForm({
@@ -68,10 +69,10 @@ const UserForm = ({
     resolver: yupResolver(schema, { context: { mode } }),
   });
   const formRef = useRef(null);
-
+  const companyidList = watch("companyId");
   const dispatch = useDispatch();
   const { roles } = useSelector((state) => state.roles);
-  const [selectedCompanyList, setSelectedCompanyList] = useState([]);
+  const [selectedCompanyList, setSelectedCompanyList] = useState(companyidList || []);
   const [selectedCompany, setSelectedCompany] = useState(null);
   const [selectedBranch, setSelectedBranch] = useState(null);
   const [selectedRole, setSelectedRole] = useState(null);
@@ -136,9 +137,9 @@ const UserForm = ({
       company,
       roles
     );
-    const selectedCompany = [...selectedCompanyList]
-      
-    selectedCompany.push(company)
+    const selectedCompany = [...selectedCompanyList];
+
+    selectedCompany.push(company);
     setSelectedCompanyList(selectedCompany);
     console.log("selectedCompany", selectedCompany);
 
@@ -148,17 +149,23 @@ const UserForm = ({
     const uniqueform = Array.from(
       new Map(companyList.map((item) => [item.Form?.id, item])).values()
     );
-console.log("selectedCompanyList",selectedCompanyList,selectedCompany.map((c) => c.id))
+    console.log(
+      "selectedCompanyList",
+      selectedCompanyList,
+      selectedCompany.map((c) => c.id)
+    );
     const uniquebranch = branches.filter(
       (r) => r.status && selectedCompany.includes(r.Company.id)
     );
-  
+
     setFormlist(uniqueform);
     setBranchlist(uniquebranch);
     console.log("uniqueform", companyList, uniqueform, uniquebranch);
   };
   useEffect(() => {
     if (mode === "edit" && defaultValues?.branchIds.length > 0) {
+      handleselectedCompany(defaultValues.companyId);
+      handleSelectBranch(defaultValues.branchIds);
       setSelectedCompany(defaultValues.company || null);
       setSelectedBranch(defaultValues.branch || []);
       setSelectedRole(defaultValues.role || null);
@@ -389,7 +396,9 @@ console.log("selectedCompanyList",selectedCompanyList,selectedCompany.map((c) =>
                     }}
                     valueState={errors.is_super_user ? "Error" : "None"}
                   >
-                    <Option>Select</Option>
+                    <Option key="" value="">
+                      Select
+                    </Option>
 
                     <Option value="1">Yes</Option>
                     <Option value="0">No</Option>
@@ -467,7 +476,10 @@ console.log("selectedCompanyList",selectedCompanyList,selectedCompany.map((c) =>
                       <MultiComboBox
                         style={{ width: "80%" }}
                         name="branchIds"
-                        disabled={!branchlist || branchlist.length === 0 && mode !== "edit"}
+                        disabled={
+                          !branchlist ||
+                          (branchlist.length === 0 && mode !== "edit")
+                        }
                         value={field.value || []}
                         onSelectionChange={(e) => {
                           console.log("e.detail.selectedItems", e.detail.items);
@@ -479,8 +491,7 @@ console.log("selectedCompanyList",selectedCompanyList,selectedCompany.map((c) =>
                         }}
                         valueState={errors.branchIds ? "Error" : "None"}
                       >
-                        {console.log("branchlist", branchlist)}
-                        {branchlist.map((r) => (
+                        {branchlist.length>0&&branchlist.map((r) => (
                           <MultiComboBoxItem
                             key={r.id}
                             value={r.id}
@@ -526,17 +537,16 @@ console.log("selectedCompanyList",selectedCompanyList,selectedCompany.map((c) =>
                       field.onChange(selectedItems);
                     }}
                     valueState={errors.roleIds ? "Error" : "None"}
-                  >{console.log("roleListinsiderole", roleList,roles,is_super_user)}
+                  >
+                   
                     {is_super_user === "1"
-                      ? roles
+                      ? roles.length>0&&roles
                           .filter((r) => r.status) // active roles only
                           .map((r) => (
                             <MultiComboBoxItem
                               key={r.id}
                               value={r.id}
-                              text={
-                                r.name
-                              }
+                              text={r.name}
                               selected={field.value?.includes(r.id)}
                             />
                           ))
@@ -639,7 +649,9 @@ console.log("selectedCompanyList",selectedCompanyList,selectedCompany.map((c) =>
                     onChange={(e) => field.onChange(e.target.value)}
                     valueState={errors.status ? "Error" : "None"}
                   >
-                    <Option>Select</Option>
+                    <Option key="" value="">
+                      Select
+                    </Option>
 
                     <Option value="1">Active</Option>
                     <Option value="0">Inactive</Option>

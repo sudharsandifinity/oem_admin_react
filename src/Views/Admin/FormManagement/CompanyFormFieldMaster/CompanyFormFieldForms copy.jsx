@@ -233,7 +233,7 @@ const CompanyFormFieldForms = ({
                     onChange={(e) => field.onChange(e.target.value)}
                     valueState={errors.formId ? "Error" : "None"}
                   >
-                    <Option>Select</Option>
+                    <Option key="" value="">Select</Option>
                     {companies
                       .filter((r) => r.status) /* active roles only    */
                       .map((r) => (
@@ -272,7 +272,7 @@ const CompanyFormFieldForms = ({
                     }}
                     valueState={errors.formfieldId ? "Error" : "None"}
                   >
-                    <Option>Select</Option>
+                 <Option key="" value="">Select</Option>
                     {formField
                       .filter((r) => r.status) /* active roles only    */
                       .map((r) => (
@@ -313,7 +313,7 @@ const CompanyFormFieldForms = ({
                         }}
                         valueState={errors.formId ? "Error" : "None"}
                       >
-                        <Option>Select</Option>
+                      <Option key="" value="">Select</Option>
                         {forms
                           .filter((r) => r.status) /* active roles only    */
                           .map((r) => (
@@ -351,7 +351,7 @@ const CompanyFormFieldForms = ({
                         }}
                         valueState={errors.formSectionId ? "Error" : "None"}
                       >
-                        <Option>Select</Option>
+                       <Option key="" value="">Select</Option>
                         {formsection
                           .filter((r) => r.status) /* active roles only    */
                           .map((r) => (
@@ -451,7 +451,7 @@ const CompanyFormFieldForms = ({
                         }}
                         valueState={errors.input_type ? "Error" : "None"}
                       >
-                        <Option>Select</Option>
+                        <Option key="" value="">Select</Option>
                         <Option key="text" value="text">
                           Text
                         </Option>
@@ -543,7 +543,7 @@ const CompanyFormFieldForms = ({
                         }}
                         valueState={errors.formSectionId ? "Error" : "None"}
                       >
-                        <Option>Select</Option>
+                       <Option key="" value="">Select</Option>
                         <Option key="1" value="1">
                           True
                         </Option>
@@ -582,7 +582,7 @@ const CompanyFormFieldForms = ({
                           errors.is_field_data_bind ? "Error" : "None"
                         }
                       >
-                        <Option>Select</Option>
+                       <Option key="" value="">Select</Option>
                         <Option key="1" value="1">
                           True
                         </Option>
@@ -619,7 +619,7 @@ const CompanyFormFieldForms = ({
                         }}
                         valueState={errors.bind_data_by ? "Error" : "None"}
                       >
-                        <Option>Select</Option>
+                       <Option key="" value="">Select</Option>
 
                         <Option value="dropdown">Dropdown</Option>
                         <Option value="dialog">Dialog</Option>
@@ -644,7 +644,7 @@ const CompanyFormFieldForms = ({
                         }}
                         valueState={errors.status ? "Error" : "None"}
                       >
-                        <Option>Select</Option>
+                       <Option key="" value="">Select</Option>
 
                         <Option value="1">Active</Option>
                         <Option value="0">Inactive</Option>
