@@ -75,14 +75,15 @@ const RoleForm = ({
 
   const dispatch = useDispatch();
   const permissionIds = watch("permissionIds");
-  const userMenuPermission = watch("UserMenus");
-  console.log("UserMenuPermission", userMenuPermission);
+  const userMenus = watch("UserMenus");
+  const branchid = watch("branchId");
+  console.log("userMenus", userMenus);
   const navigate = useNavigate();
   const formRef = useRef(null);
   const [currScope, setCurrscope] = useState(
     mode === "edit" ? defaultValues.scope : "master"
   );
-  const [selectedCompany, setSelectedCompany] = useState("");
+  const [selectedBranch, setSelectedBranch] = useState(branchid ? branchid : "");
 
   const grouped = {};
   permissions.forEach((perm) => {
@@ -192,19 +193,19 @@ const RoleForm = ({
     }
   };
 
-  const menulist = selectedCompany
+  const menulist = selectedBranch
     ? usermenus
         .map((menu) =>
           menu.children.filter(
             (child) =>
-              child.branchId === selectedCompany && child.scope === "branch"
+              child.branchId === selectedBranch 
           )
         )
         .flat()
-    : usermenus.flatMap((menu) =>
-        menu.children.filter((child) => child.scope === "branch")
-      );
-  console.log("menuList", usermenus, menulist, selectedCompany);
+    : usermenus
+        .map((menu) =>
+          menu.children).flat();
+  console.log("menuList", usermenus, menulist, selectedBranch);
   // const filteredMenus = selectedCompany !
   //  selectedCompany !== ""
   //   ? usermenus.map(menu => ({
@@ -216,8 +217,9 @@ const RoleForm = ({
   //   : usermenus;
 
   useEffect(() => {
-    if (mode === "edit" && userMenuPermission?.length) {
-      const prefilled = userMenuPermission.map((menu) => ({
+    console.log("userMenuPermission",userMenus)
+    if (mode === "edit" && userMenus?.length) {
+      const prefilled = userMenus.map((menu) => ({
         menuId: menu.id, // id from your API object
         can_list_view: menu.RoleMenu?.can_list_view ?? false,
         can_create: menu.RoleMenu?.can_create ?? false,
@@ -232,7 +234,7 @@ const RoleForm = ({
         shouldTouch: false,
       });
     }
-  }, [mode, userMenuPermission, setValue]);
+  }, [mode, userMenus, setValue]);
   const menuListData = menulist.map((menu) => ({
     Module: menu.name,
     id: menu.id,
@@ -242,7 +244,7 @@ const RoleForm = ({
     Edit: "",
     Delete: "",
   }));
-  console.log("usermenus", usermenus, menulist, selectedCompany);
+  console.log("usermenus", usermenus, menulist, selectedBranch);
 
   const columns = useMemo(
     () => [
@@ -284,8 +286,9 @@ const RoleForm = ({
             //   />
             // );
             const current = getValues("userMenus") || [];
+            
             const existing = current.find((m) => m.menuId === row.original.id);
-            const isChecked = existing ? existing.can_list_view : false;
+            const isChecked = existing ? existing[`can_list_view`] : false;
 
             return (
               <CheckBox
@@ -316,7 +319,6 @@ const RoleForm = ({
               />
             );
           } else {
-            // ✅ user scope → reflect from userMenus
             const current = getValues("userMenus") || [];
             const existing = current.find((m) => m.menuId === row.original.id);
             const isChecked = existing ? existing[`can_view`] : false; // default to false if not found
@@ -351,7 +353,8 @@ const RoleForm = ({
             // ✅ user scope → reflect from userMenus
             const current = getValues("userMenus") || [];
             const existing = current.find((m) => m.menuId === row.original.id);
-            const isChecked = existing ? existing[`can_create`] : false; // default to false if not found
+            //const isChecked = existing ? existing[`can_create`] : false; // default to false if not found
+           const isChecked = existing ? existing[`can_create`] : false; // default to false if not found
             return (
               <CheckBox
                 checked={isChecked}
@@ -382,6 +385,7 @@ const RoleForm = ({
             // ✅ user scope → reflect from userMenus
             const current = getValues("userMenus") || [];
             const existing = current.find((m) => m.menuId === row.original.id);
+            //const isChecked = existing ? existing[`can_edit`] : false; // default to false if not found
             const isChecked = existing ? existing[`can_edit`] : false; // default to false if not found
             return (
               <CheckBox
@@ -413,6 +417,7 @@ const RoleForm = ({
             // ✅ user scope → reflect from userMenus
             const current = getValues("userMenus") || [];
             const existing = current.find((m) => m.menuId === row.original.id);
+            //const isChecked = existing ? existing[`can_delete`] : false; // default to false if not found
             const isChecked = existing ? existing[`can_delete`] : false; // default to false if not found
             return (
               <CheckBox
@@ -424,7 +429,7 @@ const RoleForm = ({
         },
       },
     ],
-    [permissionIds, permissions, currScope, getValues, userMenuPermission]
+    [permissionIds, permissions, currScope, getValues, userMenus]
   );
   const data = [
     {
@@ -673,9 +678,9 @@ const RoleForm = ({
                     value={field.value ?? ""}
                     onChange={(e) => {
                       field.onChange(e.target.value);
-                      setSelectedCompany(e.target.value);
+                      setSelectedBranch(e.target.value);
                     }}
-                    valueState={errors.companyId ? "Error" : "None"}
+                    valueState={errors.branchId ? "Error" : "None"}
                   >
                     <Option key="select" value="">
                       Select
@@ -746,7 +751,7 @@ const RoleForm = ({
                     onChange={(e) => field.onChange(e.target.value)}
                     valueState={errors.status ? "Error" : "None"}
                   >
-                    <Option>Select</Option>
+                   <Option key="" value="">Select</Option>
 
                     <Option value="1">Active</Option>
                     <Option value="0">Inactive</Option>
@@ -770,6 +775,7 @@ const RoleForm = ({
             <AnalyticalTable
               columns={columns}
               data={currScope === "master" ? data : menuListData}
+              
               selectionMode="None"
               visibleRows={10}
             />

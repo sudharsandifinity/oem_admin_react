@@ -83,8 +83,12 @@ const ViewCompany = (props) => {
             <strong>CompanyDb Name:</strong> {company.company_db_name}
           </Text>
         </ListItemStandard>
-      
-
+     
+<ListItemStandard>
+          <Text>
+            <strong>Company Code:</strong> {company.company_code}
+          </Text>
+        </ListItemStandard>
         <ListItemStandard>
           <Text>
             <strong>Status:</strong>{" "}

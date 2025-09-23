@@ -77,32 +77,50 @@ const Users = () => {
     //navigate(`/users/${user.id}`);
     setViewId(user.id);
   };
-console.log("users", users);
-  // const filteredRows = users!==null&&users?.filter(
-  //   (user) =>
-  //     user.first_name.toLowerCase().includes(search.toLowerCase()) ||
-  //     user.last_name.toLowerCase().includes(search.toLowerCase()) ||
-  //     user.email.toLowerCase().includes(search.toLowerCase())
-  // );
-  // const selectedUserList =filteredRows
-  //   selectedCompany !== ""
-  //     ? filteredRows &&
-  //       filteredRows?.filter((user) =>
-  //         selectedCompany ? user.companyId === selectedCompany : true
-  //       )
-  //     : filteredRows;
+  console.log("users", users);
+  const filteredRows =
+    users !== null &&
+    users.length > 0 &&
+    users?.filter(
+      (user) =>
+        user.first_name.toLowerCase().includes(search.toLowerCase()) ||
+        user.last_name.toLowerCase().includes(search.toLowerCase()) ||
+        user.email.toLowerCase().includes(search.toLowerCase())
+    );
+  const selectedUserList =
+    selectedCompany !== ""
+      ? filteredRows?.filter((user) =>
+          user.Branches?.some((b) => b.Company.id === selectedCompany)
+        )
+      : filteredRows;
+  console.log("selectedUserList", selectedUserList);
   const editRow = (row) => {
     console.log("Edit Row:", row);
   };
-  const multiValueFilter = (rows, id, filterValue) => {
-    return rows.filter((row) => {
-      const companies = row.original.Branches?.map((b) => b.Company.name) || [];
-      const uniqueCompanies = [...new Set(companies)];
-      return uniqueCompanies.some((c) =>
-        c.toLowerCase().includes(filterValue.toLowerCase())
-      );
-    });
+  const CompanyFilter = (rows, id, filterValues) => {
+    console.log("rows", rows);
+    const filteredRows = rows.filter((row) =>
+      row.original.Branches?.some((branch) =>
+        branch.Company?.name?.toLowerCase().includes(filterValues.toLowerCase())
+      )
+    );
+    return filteredRows;
   };
+  const roleFilter = (rows, id, filterValues) => {
+    console.log("rowsrole", rows);
+    const filteredRows = rows.filter((row) =>
+      row.original.Roles?.some((branch) =>
+        branch.name?.toLowerCase().includes(filterValues.toLowerCase())
+      )
+    );
+    return filteredRows;
+  };
+  useEffect(() => {
+    console.log("user",users);
+    if(users==="null"||users.length===0){
+      navigate("/login");
+    }
+  }, [users])
   const columns = useMemo(
     () => [
       {
@@ -119,6 +137,11 @@ console.log("users", users);
         accessor: "email",
       },
       {
+        Header: "User Category",
+        accessor: "is_super_user",
+        Cell:({row})=>row.original.is_super_user===1?"Super User":"User"
+      },
+      {
         Header: "Company",
         accessor: "Company",
         Cell: ({ row }) => {
@@ -127,12 +150,17 @@ console.log("users", users);
           const uniqueCompanies = [...new Set(companies)];
           return uniqueCompanies.join(", ");
         },
-        filter: "multiValue", // custom
+
+        filter: CompanyFilter,
+        filterable: true,
       },
       {
         Header: "Role",
         accessor: "Role",
-        Cell: ({ row }) => row.original.Role?.name || "N/A",
+        Cell: ({ row }) =>
+          row.original.Roles.map((role) => role.name).join(", ") || "N/A",
+        filter: roleFilter,
+        filterable: true,
       },
       {
         Header: "Status",
@@ -253,7 +281,9 @@ console.log("users", users);
               value={selectedCompany ?? ""}
               onChange={(e) => setSelectedCompany(e.target.value)}
             >
-              <Option>Select</Option>
+              <Option key="" value="">
+                Select
+              </Option>
               {companies
                 .filter((r) => r.status) /* active roles only    */
                 .map((r) => (
@@ -272,12 +302,9 @@ console.log("users", users);
                   <FlexBox direction="Column">
                     <AnalyticalTable
                       columns={columns}
-                      data={users || []}
+                      data={selectedUserList || []}
                       header={"  Users list(" + users.length + ")"}
                       visibleRows={8}
-                      filterTypes={{
-                        multiValue: multiValueFilter,
-                      }}
                       filterable
                       sortable
                       groupable

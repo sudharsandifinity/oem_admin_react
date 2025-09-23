@@ -33,6 +33,14 @@ import { fetchBranch } from "../../../../store/slices/branchesSlice";
 const schema = yup.object().shape({
   name: yup.string().required("Menu name is required"),
   display_name: yup.string().required("Display name is required"),
+  order_number: yup
+    .number()
+    .typeError("Order number must be a number")
+    .required("Order number is required"),
+  scope: yup.string().required("Scope is required"),
+ 
+  status: yup.string().required("Status is required"),
+
 });
 
 const MenuForm = ({
@@ -42,7 +50,10 @@ const MenuForm = ({
     display_name: "",
     order_number: "",
     parentUserMenuId:"",
-    form: "",
+    formId: "",
+    branchId: "",
+    companyId: "",
+    scope: "global",
     parent: "",
     status: "1",
   },
@@ -68,11 +79,18 @@ const MenuForm = ({
   const { usermenus } = useSelector((state) => state.usermenus);
   const [assignBranchEnabled, setAssignBranchEnabled] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState(null);
+  const [selectedBranch, setSelectedBranch] = useState(null);
   const [hasParent, setHasParent] = useState("");
   const [selectedBranchIds, setSelectedBranchIds] = useState([]);
   const navigate = useNavigate();
- 
 
+  const branchList = selectedCompany ? branches.filter((branch) =>
+    branch.Company.id === selectedCompany) : branches;
+  const usermenuList = selectedBranch? usermenus.filter((menu)=>
+    menu.branchId===selectedBranch):(selectedBranchIds?usermenus.filter((menu)=>
+    menu.branchId===selectedBranchIds):[])
+  const formList = selectedBranch? forms.filter((form)=>
+    form.branchId===selectedBranch):[];
   useEffect(() => {
     //dispatch(fetchRoles());
     const fetchData = async () => {
@@ -99,7 +117,7 @@ const MenuForm = ({
     if (mode === "edit") {
       setAssignBranchEnabled(true);
       setSelectedCompany(defaultValues.company || null);
-      setSelectedBranchIds(defaultValues.branchIds || []);
+      setSelectedBranchIds(defaultValues.branchId || []);
     }
   }, [mode, defaultValues]);
 
@@ -199,7 +217,7 @@ const MenuForm = ({
                 >
                   <Input
                    style={{width:"80%"}}
-
+                  disabled={mode==="view"?true:false}
                     placeholder="MenuForm Name"
                     name="name"
                     value={field.value ?? ""} // controlled value
@@ -229,7 +247,7 @@ const MenuForm = ({
                 >
                   <Input
                    style={{width:"80%"}}
-
+                  disabled={mode==="view"?true:false}
                     placeholder="Display Name"
                     name="display_name"
                     value={field.value ?? ""}
@@ -247,110 +265,6 @@ const MenuForm = ({
             />
           </FlexBox>
           <FlexBox direction="Column" style={{ flex: " 28%" }}>
-            <Label>Order Number</Label>
-            <Controller
-              name="order_number"
-              control={control}
-              render={({ field }) => (
-                <FlexBox
-                  label={<Label required>Label Text</Label>}
-                  style={{ flex: "48%" }}
-                >
-                  <Input
-                   style={{width:"80%"}}
-
-                    placeholder="Order Number"
-                    type="number"
-                    name="order_number"
-                    value={field.value ?? ""} // controlled value
-                    onInput={(e) => field.onChange(e.target.value)} // update RHF
-                    valueState={errors.order_number ? "Error" : "None"} // red border on error
-                  >
-                    {errors.order_number && (
-                      /* UI5 shows this automatically when valueState="Error" */
-                      <span slot="valueStateMessage">
-                        {errors.order_number.message}
-                      </span>
-                    )}
-                  </Input>
-                </FlexBox>
-              )}
-            />
-          </FlexBox>
-          <FlexBox direction="Column" style={{ flex: " 28%" }}>
-            <Label>Parent</Label>
-            <FlexBox label={<Label required>Parent</Label>}>
-              <Controller
-                name="parentUserMenuId"
-                control={control}
-                render={({ field }) => (
-                  <Select
-                   style={{width:"80%"}}
-
-                    name="parentUserMenuId"
-                    value={field.value ?? ""}
-                    onChange={(e) => {field.onChange(e.target.value);setHasParent(e.target.value)}}
-                    valueState={errors.parentUserMenuId ? "Error" : "None"}
-                  >
-                    <Option value="">Select</Option>
-                    {usermenus.map((item) => (
-                      <Option key={item.id} value={item.id}>
-                        {item.display_name}
-                      </Option>
-                    ))}
-                  </Select>
-                )}
-              />
-              {errors.parentUserMenuId && (
-                <span
-                  slot="valueStateMessage"
-                  style={{ color: "var(--sapNegativeColor)" }}
-                >
-                  {errors.parentUserMenuId.message}
-                </span>
-              )}
-            </FlexBox>
-          </FlexBox>{console.log("hasParent",hasParent)}
-          <FlexBox direction="Column" style={{ flex: " 28%" }}>
-            <Label>Form</Label>{" "}
-            <FlexBox label={<Label required>Form</Label>}>
-              <Controller
-                name="formId"
-                disabled={hasParent?false:true}
-                control={control}
-                render={({ field }) => (
-                  <Select
-                   style={{width:"80%"}}
-                    disabled={hasParent===""?true:false}
-                    name="formId"
-                    value={field.value ?? ""}
-                    onChange={(e) => field.onChange(e.target.value)}
-                    valueState={errors.formId ? "Error" : "None"}
-                  >
-                    <Option>Select</Option>
-
-                    {forms.length>0&&forms
-                          .filter((r) => r.status) /* active roles only    */
-                          .map((r) => (
-                            <Option key={r.id} value={r.id}>
-                              {r.name}
-                            </Option>
-                          ))}
-                  </Select>
-                )}
-              />
-
-              {errors.formId && (
-                <span
-                  slot="valueStateMessage"
-                  style={{ color: "var(--sapNegativeColor)" }}
-                >
-                  {errors.formId.message}
-                </span>
-              )}
-            </FlexBox>
-            </FlexBox>
-          <FlexBox direction="Column" style={{ flex: " 28%" }}>
             <Label>Scope</Label>{" "}
             <FlexBox label={<Label required>Scope</Label>}>
               <Controller
@@ -359,13 +273,13 @@ const MenuForm = ({
                 render={({ field }) => (
                   <Select
                    style={{width:"80%"}}
-
+                    disabled={mode==="view"?true:false}
                     name="scope"
                     value={field.value ?? ""}
                     onChange={(e) => {field.onChange(e.target.value);setCurrScope(e.target.value)}}
                     valueState={errors.scope ? "Error" : "None"}
                   >
-                    <Option>Select</Option>
+                   <Option key="" value="">Select</Option>
 
                     <Option value="global">Global</Option>
                     <Option value="company">Company</Option>
@@ -395,14 +309,14 @@ const MenuForm = ({
                 render={({ field }) => (
                   <Select
                    style={{width:"80%"}}
-                    disabled={currScope==="global"?true:false}
+                    disabled={currScope==="global"||mode==="view"?true:false}
 
                     name="companyId"
                     value={field.value ?? ""}
-                    onChange={(e) => field.onChange(e.target.value)}
+                    onChange={(e) =>{ field.onChange(e.target.value);setSelectedCompany(e.target.value)}}
                     valueState={errors.companyId ? "Error" : "None"}
                   >
-                    <Option>Select</Option>
+                   <Option key="" value="">Select</Option>
                     {companies
                       .filter((r) => r.status) /* active roles only    */
                       .map((r) => (
@@ -433,14 +347,14 @@ const MenuForm = ({
                 render={({ field }) => (
                   <Select
                    style={{width:"80%"}}
-
+                    disabled={mode==="view"?true:false}
                     name="branchId"
                     value={field.value ?? ""}
-                    onChange={(e) => field.onChange(e.target.value)}
+                    onChange={(e) => {field.onChange(e.target.value); setSelectedBranch(e.target.value)}}
                     valueState={errors.branchId ? "Error" : "None"}
                   >
-                    <Option>Select</Option>
-                    {branches
+                   <Option key="" value="">Select</Option>
+                    {branchList
                       .filter((r) => r.status) /* active roles only    */
                       .map((r) => (
                         <Option key={r.id} value={r.id}>
@@ -463,6 +377,111 @@ const MenuForm = ({
           </FlexBox>
           
           <FlexBox direction="Column" style={{ flex: " 28%" }}>
+            <Label>Parent</Label>
+            <FlexBox label={<Label required>Parent</Label>}>
+              <Controller
+                name="parentUserMenuId"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                   style={{width:"80%"}}
+                    disabled={usermenuList.length>0?false:mode==="view"?true:true}
+                    name="parentUserMenuId"
+                    value={field.value ?? ""}
+                    onChange={(e) => {field.onChange(e.target.value);setHasParent(e.target.value)}}
+                    valueState={errors.parentUserMenuId ? "Error" : "None"}
+                  >{console.log("usermenuList",usermenuList)}
+                    <Option value="">Select</Option>
+                    {usermenuList.map((item) => (
+                      <Option key={item.id} value={item.id}>
+                        {item.display_name}
+                      </Option>
+                    ))}
+                  </Select>
+                )}
+              />
+              {errors.parentUserMenuId && (
+                <span
+                  slot="valueStateMessage"
+                  style={{ color: "var(--sapNegativeColor)" }}
+                >
+                  {errors.parentUserMenuId.message}
+                </span>
+              )}
+            </FlexBox>
+          </FlexBox>
+          <FlexBox direction="Column" style={{ flex: " 28%" }}>
+            <Label>Form</Label>{" "}
+            <FlexBox label={<Label required>Form</Label>}>
+              <Controller
+                name="formId"
+                disabled={hasParent||mode==="view"?false:true}
+                control={control}
+                render={({ field }) => (
+                  <Select
+                   style={{width:"80%"}}
+                    disabled={hasParent===""&&formList.length===0?true:false}
+                    name="formId"
+                    value={field.value ?? ""}
+                    onChange={(e) => field.onChange(e.target.value)}
+                    valueState={errors.formId ? "Error" : "None"}
+                  >
+                   <Option key="" value="">Select</Option>
+
+                    {forms.length>0&&forms
+                          .filter((r) => r.status) /* active roles only    */
+                          .map((r) => (
+                            <Option key={r.id} value={r.id}>
+                              {r.name}
+                            </Option>
+                          ))}
+                  </Select>
+                )}
+              />
+
+              {errors.formId && (
+                <span
+                  slot="valueStateMessage"
+                  style={{ color: "var(--sapNegativeColor)" }}
+                >
+                  {errors.formId.message}
+                </span>
+              )}
+            </FlexBox>
+            </FlexBox>
+          <FlexBox direction="Column" style={{ flex: " 28%" }}>
+            <Label>Order Number</Label>
+            <Controller
+              name="order_number"
+              control={control}
+              render={({ field }) => (
+                <FlexBox
+                  label={<Label required>Label Text</Label>}
+                  style={{ flex: "48%" }}
+                >
+                  <Input
+                   style={{width:"80%"}}
+                  disabled={mode==="view"?true:false}
+                    placeholder="Order Number"
+                    type="number"
+                    name="order_number"
+                    value={field.value ?? ""} // controlled value
+                    onInput={(e) => field.onChange(e.target.value)} // update RHF
+                    valueState={errors.order_number ? "Error" : "None"} // red border on error
+                  >
+                    {errors.order_number && (
+                      /* UI5 shows this automatically when valueState="Error" */
+                      <span slot="valueStateMessage">
+                        {errors.order_number.message}
+                      </span>
+                    )}
+                  </Input>
+                </FlexBox>
+              )}
+            />
+          </FlexBox>
+          
+          <FlexBox direction="Column" style={{ flex: " 28%" }}>
             <Label>Status</Label>{" "}
             <FlexBox label={<Label required>Status</Label>}>
               <Controller
@@ -471,13 +490,13 @@ const MenuForm = ({
                 render={({ field }) => (
                   <Select
                    style={{width:"80%"}}
-
+                    disabled={mode==="view"?true:false}
                     name="status"
                     value={field.value ?? ""}
                     onChange={(e) => field.onChange(e.target.value)}
                     valueState={errors.status ? "Error" : "None"}
                   >
-                    <Option>Select</Option>
+                   <Option key="" value="">Select</Option>
 
                     <Option value="1">Active</Option>
                     <Option value="0">Inactive</Option>

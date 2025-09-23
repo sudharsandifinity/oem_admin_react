@@ -190,7 +190,7 @@ const FormFieldForm = ({
                     onChange={(e) => field.onChange(e.target.value)}
                     valueState={errors.formId ? "Error" : "None"}
                   >
-                    <Option>Select</Option>
+                   <Option key="" value="">Select</Option>
                     {forms
                       .filter((r) => r.status) /* active roles only    */
                       .map((r) => (
@@ -227,7 +227,7 @@ const FormFieldForm = ({
                     onChange={(e) => field.onChange(e.target.value)}
                     valueState={errors.tabforms ? "Error" : "None"}
                   >
-                    <Option>Select</Option>
+                   <Option key="" value="">Select</Option>
                    <Option key="customerDetails" value="customerdetails">
                           Customer Details</Option>
                    <Option key="docDetails" value="docDetails">
@@ -273,7 +273,7 @@ const FormFieldForm = ({
                     onChange={(e) => field.onChange(e.target.value)}
                     valueState={errors.formSectionId ? "Error" : "None"}
                   >
-                    <Option>Select</Option>
+                   <Option key="" value="">Select</Option>
                     {formsection
                       .filter((r) => r.status) /* active roles only    */
                       .map((r) => (
@@ -369,7 +369,7 @@ const FormFieldForm = ({
                         onChange={(e) => field.onChange(e.target.value)}
                         valueState={errors.input_type ? "Error" : "None"}
                       >
-                        <Option>Select</Option>
+                       <Option key="" value="">Select</Option>
                         <Option key="text" value="text">
                           Text
                         </Option>
@@ -462,7 +462,7 @@ const FormFieldForm = ({
                     onChange={(e) => field.onChange(e.target.value)}
                     valueState={errors.formSectionId ? "Error" : "None"}
                   >
-                    <Option>Select</Option>
+                   <Option key="" value="">Select</Option>
                     <Option key="1" value="1">
                       True
                     </Option>
@@ -499,7 +499,7 @@ const FormFieldForm = ({
                     valueState={errors.is_field_data_bind ? "Error" : "None"}
                   >
                    
-                        <Option>Select</Option>
+                       <Option key="" value="">Select</Option>
                         <Option key="1" value="1">
                           True
                         </Option>
@@ -561,7 +561,7 @@ const FormFieldForm = ({
                     onChange={(e) => field.onChange(e.target.value)}
                     valueState={errors.status ? "Error" : "None"}
                   >
-                    <Option>Select</Option>
+                   <Option key="" value="">Select</Option>
 
                     <Option value="1">Active</Option>
                     <Option value="0">Inactive</Option>

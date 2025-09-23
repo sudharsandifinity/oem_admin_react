@@ -19,15 +19,22 @@ import {
   Page,
   Select,
   Switch,
+  Text,
   Title,
 } from "@ui5/webcomponents-react";
 import { useNavigate } from "react-router-dom";
 
 // Validation schema
 const schema = yup.object().shape({
-  name: yup.string().required("form_name is required"),
-  //city: yup.string().required("display_name is required"),
-  //address: yup.string().required("display_name is required"),
+  name: yup.string().required("Name is required"),
+  company_code: yup.string().required("Company code is required"),
+  company_db_name: yup.string().required("Company database name is required"),
+  base_url: yup.string().required("Base URL is required"),
+  sap_username: yup.string().required("SAP username is required"),
+  secret_key: yup.string().required("Secret key is required"),
+  status: yup.string().required("Status is required"),
+  // is_branch: yup.string().required("is_branch is required"),1
+ 
 });
 
 const Companyformdetails = ({
@@ -292,6 +299,10 @@ const Companyformdetails = ({
             <Controller
               name="secret_key"
               control={control}
+                rules={{
+            required: "Secret Key is required",
+            minLength: { value: 8, message: "Must be at least 8 characters" },
+          }}
               render={({ field }) => (
                 <FlexBox
                   label={<Label required>Label Text</Label>}
@@ -301,6 +312,7 @@ const Companyformdetails = ({
                   style={{width:"80%"}}
                     placeholder="Secret Key"
                     name="secret_key"
+                    type="password  "
                     value={field.value ?? ""} // controlled value
                     onInput={(e) => field.onChange(e.target.value)} // update RHF
                     valueState={errors.secret_key ? "Error" : "None"} // red border on error
@@ -326,12 +338,13 @@ const Companyformdetails = ({
                 render={({ field }) => (
                   <Select
                   style={{width:"26%"}}
+                  placeholder="Status"
                     name="status"
                     value={field.value ?? ""}
                     onChange={(e) => field.onChange(e.target.value)}
                     valueState={errors.status ? "Error" : "None"}
                   >
-                    <Option>Select</Option>
+                   <Option key="" value="">Select</Option>
 
                     <Option value="1">Active</Option>
                     <Option value="0">Inactive</Option>
@@ -363,7 +376,7 @@ const Companyformdetails = ({
                     onChange={(e) => field.onChange(e.target.value)}
                     valueState={errors.is_branch ? "Error" : "None"}
                   >
-                    <Option>Select</Option>
+                   <Option key="" value="">Select</Option>
                     <Option value="1">Yes</Option>
                     <Option value="0">No</Option>
                   </Select>

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   BusyIndicator,
   Card,
@@ -10,10 +11,9 @@ import {
   Text,
   Title,
 } from "@ui5/webcomponents-react";
-import { fetchBranchFormsById } from "../../../../store/slices/branchesSlice";
-import { useNavigate } from "react-router-dom";
+import { fetchUserMenusById } from "../../../../store/slices/usermenusSlice";
 
-const ViewBranch = (props) => {
+const ViewMenuMaster = (props) => {
   const { id } = props;
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -21,26 +21,26 @@ const ViewBranch = (props) => {
   const [loading, setLoading] = useState(true);
   const [apiError, setApiError] = useState(null);
 
-  const { branches } = useSelector((state) => state.branches);
-  const branch = branches.find((c) => c.id === id);
-  console.log("branch", branches, id, branch);
+  const { usermenus } = useSelector((state) => state.usermenus);
+  const user = usermenus.find((c) => c.id === id);
+  console.log("user", usermenus, id, user);
   useEffect(() => {
     const fetchData = async () => {
       try {
-        if (!branch&&id) {
-          const res = await dispatch(fetchBranchFormsById(id)).unwrap();
+        if (!user&&id) {
+          const res = await dispatch(fetchUserMenusById(id)).unwrap();
           if (res.message === "Please Login!") {
             navigate("/login");
           }
         }
       } catch (err) {
-        setApiError("Failed to fetch branch");
+        setApiError("Failed to fetch user");
       } finally {
         setLoading(false);
       }
     };
     fetchData();
-  }, [dispatch, id, branch]);
+  }, [dispatch, id, user]);
 
   if (loading) {
     return (
@@ -55,7 +55,7 @@ const ViewBranch = (props) => {
     );
   }
 
-  if (!branch) {
+  if (!user) {
     return (
       <FlexBox style={{ marginTop: "2rem" }}>
         <MessageStrip
@@ -63,7 +63,7 @@ const ViewBranch = (props) => {
           hideCloseButton={false}
           hideIcon={false}
         >
-          branch not found
+          Menu not found
         </MessageStrip>
       </FlexBox>
     );
@@ -71,38 +71,42 @@ const ViewBranch = (props) => {
 
   return (
     <Card style={{ margin: "1rem", padding: "1rem" }}>
-      <List>
+      <Text style={{ margin: "1rem" }}> 
+          <strong>Parent Menu:</strong> {user.display_name}
+        </Text>
+      
+      <Title level="H4" style={{ marginTop: "1rem" }}>
+        Menu Details
+      </Title>
+      {user.children && user.children.length > 0 && user.children.map((child) => (
+        <><List>
         <ListItemStandard>
           <Text>
-            <strong>Branch Name:</strong> {branch.name}
+            <strong>Name:</strong> {child.name}
           </Text>
         </ListItemStandard>
         <ListItemStandard>
           <Text>
-            <strong>City:</strong> {branch.city}
+            <strong>Display Name:</strong> {child.display_name}
           </Text>
         </ListItemStandard>
         <ListItemStandard>
           <Text>
-            <strong>Address:</strong> {branch.address}
-          </Text>
-        </ListItemStandard>
-<ListItemStandard>
-          <Text>
-            <strong>Branch Code:</strong> {branch.branch_code}
+            <strong>OrderNo:</strong> {child.order_number}
           </Text>
         </ListItemStandard>
         <ListItemStandard>
           <Text>
             <strong>Status:</strong>{" "}
-            {branch.status === "1" || branch.status === 1
-              ? "Active"
-              : "Inactive"}
+            {child.status === "1" || child.status === 1 ? "Active" : "Inactive"}
           </Text>
         </ListItemStandard>
-      </List>
+         <ListItemStandard>
+          ------------------
+        </ListItemStandard>
+      </List></>))}
     </Card>
   );
 };
 
-export default ViewBranch;
+export default ViewMenuMaster

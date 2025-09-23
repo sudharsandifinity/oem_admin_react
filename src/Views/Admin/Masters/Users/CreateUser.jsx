@@ -2,7 +2,7 @@ import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { createUser } from "../../../../store/slices/usersSlice";
 import UserForm from "./UserForm";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const CreateUser = () => {
   const dispatch = useDispatch();

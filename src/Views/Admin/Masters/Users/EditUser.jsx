@@ -84,6 +84,12 @@ const EditUser = () => {
     }
   };
 
+    useEffect(() => {
+      console.log("user",users);
+      if(users==="null"||users.length===0){
+        navigate("/login");
+      }
+    }, [users])
   if (loading) {
     return (
       <FlexBox
@@ -110,7 +116,7 @@ const EditUser = () => {
       </FlexBox>
     );
   }
-
+{console.log("convertedUser", convertedUser)}
   return (
     <UserForm
       onSubmitCreate={handleUpdate}

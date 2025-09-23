@@ -64,12 +64,14 @@ const EditFormMaster = () => {
       branches={branches} companies={companies} 
       defaultValues={{
         parentFormId:form.parentFormId || "",
-        companyId:form.companyId || "",
+        companyId:form.Branch?.companyId || "",
         branchId:form.branchId || "",
         name: form.name,
         display_name: form.display_name,
         scope: form.scope || "",
-        form_type: form.form_type || "",
+        form_type:  form.form_type
+    ? form.form_type.charAt(0).toUpperCase() + form.form_type.slice(1)
+    : form.form_type,
         status: JSON.stringify(form.status),
       }}
     />

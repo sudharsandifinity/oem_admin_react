@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { createForm } from "../../../../store/slices/formmasterSlice";
 import MenuForm from "./MenuForm";
 import { fetchUserMenusById, updateUserMenus } from "../../../../store/slices/usermenusSlice";
 
-const EditUserMenu = () => {
-  const { id } = useParams();
+const EditUserChildMenu = () => {
+  const { id,action } = useParams();
+const location = useLocation();
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -14,18 +15,19 @@ const EditUserMenu = () => {
     const [loading, setLoading] = useState(true);
   
   const { usermenus } = useSelector((state) => state.usermenus);
-  
-  const usermenu = usermenus.find((c) => c.id === id);
 
-  const editedUserMenu={ 
+  const usermenu = usermenus.flatMap((item) => item.children || []).find((c) => c.id === id);
+console.log("usermenuedituserchild",usermenu)
+  const editedUserMenu={
     name: usermenu.name || "",
     display_name: usermenu.display_name || "",
+    scope: usermenu.scope || "user",
+    parentUserMenuId: usermenu.parentUserMenuId || "",
+    branchId: usermenu.branchId || "",
     formId: usermenu.formId || "",
-    scope: usermenu.scope || "",  
-       
-branchId: usermenu.branchId || "",
     order_number: usermenu.order_number || "",
     status: JSON.stringify(usermenu.status),
+
   }
     useEffect(() => {
       const fetchData = async () => {
@@ -65,9 +67,10 @@ branchId: usermenu.branchId || "",
     } catch (error) {
       console.error(error);
     }
-  };
-  return <MenuForm defaultValues={editedUserMenu} onSubmit={handleUpdate} mode="edit" apiError={apiError} />;
+  };{console.log("action",location.pathname.includes("/view/"))}
+  return <MenuForm defaultValues={editedUserMenu} onSubmit={handleUpdate} mode={location.pathname.includes("/view/")?"view":"edit"} apiError={apiError} />;
 };
 
 
-export default EditUserMenu
+
+export default EditUserChildMenu

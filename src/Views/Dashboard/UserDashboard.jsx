@@ -25,6 +25,8 @@ import {
   UserMenuAccount,
   UserMenuItem,
   Grid,
+  Select,
+  Option,
 } from "@ui5/webcomponents-react";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -52,37 +54,27 @@ import {
 import CustomerSelection from "../SalesOrder/Header/CustomerSelection";
 import { fetchCompanies } from "../../store/slices/companiesSlice";
 
-function buildMenuTree(data) {
-  const map = {};
-  const roots = [];
+function buildMenuTree(menus) {
+  const grouped = {};
 
-  // prepare map
-  data.forEach((item) => {
-    map[item.id] = { ...item, children: [] };
-  });
+  menus.forEach((menu) => {
+    const parentId = menu.parentUserMenuId;
 
-  // assign children
-  data.forEach((item) => {
-    if (item.parentUserMenuId) {
-      map[item.parentUserMenuId]?.children.push(map[item.id]);
-    } else {
-      roots.push(map[item.id]); // top-level
+    if (!grouped[parentId]) {
+      grouped[parentId] = [];
     }
+
+    grouped[parentId].push(menu);
   });
 
-  // sort parents & children
-  const sortFn = (a, b) => a.order_number - b.order_number;
-  roots.sort(sortFn);
-  roots.forEach((r) => r.children.sort(sortFn));
-
-  return roots;
+  return grouped;
 }
 
 const UserDashboard = () => {
   const { Menuitems } = useContext(FormConfigContext);
   const { usermenus } = useSelector((state) => state.usermenus);
-  const { companies } = useSelector((state) => state.companies);
   const { user } = useSelector((state) => state.auth);
+  const companies = user && user.Branches;
   const authUserMenus = user
     ? user.Roles.map((role) => role.UserMenus).flat()
     : [];
@@ -95,14 +87,13 @@ const UserDashboard = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const menulist = selectedCompany
-    ? authUserMenus.filter((menu) => menu.companyId === selectedCompany) &&
-      authUserMenus.filter((menu) => menu.branchId === selectedBranch)
+  const menulist = selectedBranch
+    ? authUserMenus.filter((menu) => menu.branchId === selectedBranch)
     : authUserMenus;
   const menuTree = buildMenuTree(
     menulist.length > 0 ? menulist : authUserMenus
   );
-  console.log("authUserMenus", authUserMenus, menulist, user);
+  console.log("authUserMenus", authUserMenus, menulist, menuTree);
   // const chartData = [
   //   { name: "Product A", users: 30 },
   //   { name: "Product B", users: 45 },
@@ -120,7 +111,7 @@ const UserDashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = "";//await dispatch(fetchCompanies()).unwrap();
+        const res = ""; //await dispatch(fetchauth()).unwrap();
 
         console.log("resusers", res);
 
@@ -180,75 +171,93 @@ const UserDashboard = () => {
       {/* Side Navigation */}
 
       <FlexBox direction="Column" style={{ width: "240px" }}>
-        {user.Roles.some((role) =>
-          role.Permissions.some((f) => f.name === "company_get")
-        ) && (
-          <Button
-            endIcon="navigation-down-arrow"
-            style={{
-              background: "#0688f6",
-              //borderRadius: "20px", // rounded corners
-            }}
-            ref={buttonRef}
-            onClick={() => {
-              setMenuIsOpen(true);
-            }}
-          >
-            <span style={{ color: "black" }}>Companies</span>
-          </Button>
-        )}
-        <Menu
-          opener={buttonRef.current}
-          open={menuIsOpen}
-          onClose={() => {
-            setMenuIsOpen(false);
-          }}
-        >
-          {companies &&
-            companies.map((company) => (
-              <MenuItem
-                key={company.id}
-                text={company.name}
-                onClick={() => handleCompanyClick(company.id)}
-              >
-                {company.Branches &&
-                  company.Branches.map((branch) => (
+        {/* {companies && companies.length > 0 && (
+          <>
+            <Button
+              endIcon="navigation-down-arrow"
+              style={{
+                background: "#0688f6",
+                //borderRadius: "20px", // rounded corners
+              }}
+              ref={buttonRef}
+              onClick={() => {
+                setMenuIsOpen(true);
+              }}
+            >
+              <span style={{ color: "black" }}>Companies</span>
+            </Button>
+
+            <Menu
+              opener={buttonRef.current}
+              open={menuIsOpen}
+              onClose={() => {
+                setMenuIsOpen(false);
+              }}
+            >
+              {companies &&
+                companies.map((branch) => (
+                  <MenuItem
+                    key={branch.Company.id}
+                    text={branch.Company.name}
+                    onClick={() => handleCompanyClick(branch.Company.id)}
+                  >
                     <MenuItem
                       onClick={() => handleBranchClick(branch.id)}
                       key={branch.id}
                       text={branch.name}
                     />
-                  ))}
-              </MenuItem>
-            ))}
-        </Menu>
-        <SideNavigation>
-          {menulist.length > 0
-            ? menulist.map((menu) => (
+                  </MenuItem>
+                ))}
+            </Menu>
+          </>
+        )} */}
+        {console.log("company", companies)}
+        <div style={{ display: "flex", gap: "1rem" }}>
+          <div style={{ width: "250px" }}>
+            <Text>Company</Text>
+            <Select
+              style={{ width: "100%" }}
+              onChange={(e) =>
+                handleCompanyClick(e.detail.selectedOption.value)
+              }
+            >
+              <Option key="" value="">
+                Select
+              </Option>
+              {companies.map((branch) => (
+                <Option key={branch.Company.id} value={branch.Company.id}>
+                  {branch.Company.name}
+                </Option>
+              ))}
+            </Select>
+          </div>
+
+          <div style={{ width: "250px" }}>
+            <Text>Branches</Text>
+            <Select
+              style={{ width: "100%" }}
+              disabled={!selectedCompany}
+              onChange={(e) =>
+                handleCompanyClick(e.detail.selectedOption.value)
+              }
+            >
+              <Option>Select</Option>
+              {companies.map((branch) => (
+                <Option key={branch.id} value={branch.id}>
+                  {branch.name}
+                </Option>
+              ))}
+            </Select>
+          </div>
+        </div>
+        <Text>Menu List</Text>
+        <SideNavigation>{console.log("menulist",menulist)}
+          {menulist.length > 0 &&
+            menulist.map((menu) =>
+              !menu.RoleMenu.can_list_view ? null : (
                 <SideNavigationItem key={menu.id} text={menu.display_name}>
                   {menu.children?.length > 0 &&
-                    menu.children
-                      .filter(
-                        (menu) =>
-                          menu.companyId === selectedCompany &&
-                          menu.branchId === selectedBranch
-                      )
-                      .map((child) => (
-                        <SideNavigationSubItem
-                          key={child.id}
-                          text={child.display_name}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            navigate(`/form/${child.formId}`);
-                          }}
-                        />
-                      ))}
-                </SideNavigationItem>
-              ))
-            : authUserMenus.map((parent) => (
-                <SideNavigationItem key={parent.id} text={parent.display_name}>
-                  {parent.children?.length > 0 &&
-                    parent.children.map((child) => (
+                    menu.children.map((child) => (
                       <SideNavigationSubItem
                         key={child.id}
                         text={child.display_name}
@@ -259,24 +268,18 @@ const UserDashboard = () => {
                       />
                     ))}
                 </SideNavigationItem>
-              ))}
+              )
+            )}
         </SideNavigation>
 
-        {/* <SideNavigation>
-          {console.log(
-            "topLevelItems",
-            topLevelItems,
-            childItems,
-            groupedChildren
-          )}
-
+        {/* 
           {topLevelItems&&topLevelItems
             .sort((a, b) => a.order_number - b.order_number)
             .map((item) => (
               <SideNavigationItem key={item.id} text={item.display_name} />
-            ))}
+            ))} */}
 
-          {Object.entries(groupedChildren).map(([parent, children]) => (
+        {/* {Object.entries(groupedChildren).map(([parent, children]) => (
             <SideNavigationItem key={parent} text={parent}>
               {children
                 .sort((a, b) => a.order_number - b.order_number)
@@ -288,8 +291,7 @@ const UserDashboard = () => {
                   />
                 ))}
             </SideNavigationItem>
-          ))}
-        </SideNavigation> */}
+          ))} */}
         {/* {usermenus
               .filter((item) => item.order_number === 1)
               .map((parent) => {

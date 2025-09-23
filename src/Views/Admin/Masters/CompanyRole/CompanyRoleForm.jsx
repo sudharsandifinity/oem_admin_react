@@ -373,7 +373,7 @@ useEffect(() => {
                     onChange={(e) => field.onChange(e.target.value)}
                     valueState={errors.companyId ? "Error" : "None"}
                   >
-                    <Option>Select</Option>
+                   <Option key="" value="">Select</Option>
                     {companies
                       .filter((r) => r.status) /* active roles only    */
                       .map((r) => (
@@ -431,7 +431,7 @@ useEffect(() => {
                     onChange={(e) => field.onChange(e.target.value)}
                     valueState={errors.status ? "Error" : "None"}
                   >
-                    <Option>Select</Option>
+                   <Option key="" value="">Select</Option>
 
                     <Option value="1">Active</Option>
                     <Option value="0">Inactive</Option>

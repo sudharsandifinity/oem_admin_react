@@ -69,6 +69,9 @@ import CompanyRoleList from "./Views/Admin/Masters/CompanyRole/CompanyRoleList";
 import CreateCompanyROle from "./Views/Admin/Masters/CompanyRole/CreateCompanyROle";
 import CreateCompanyRole from "./Views/Admin/Masters/CompanyRole/CreateCompanyROle";
 import EditCompanyRole from "./Views/Admin/Masters/CompanyRole/EditCompanyRole";
+import EditUserChildMenu from "./Views/Admin/Menu/MenuMaster/EditUserChildMenu";
+import AssignFormMenuMaster from "./Views/Admin/Menu/AssignFormToMenu/AssignFormMenuMaster";
+import CreateAssignFormMenu from "./Views/Admin/Menu/AssignFormToMenu/CreateAssignFormMenu";
 //import { useEffect, useState } from "react";
 
 // const AuthLogin = Loadable(lazy(() => import('Views/pages/auth-forms/AuthLogin')));
@@ -83,7 +86,7 @@ function App() {
     );
   }, [fioriTheme]);
    const location = useLocation();
-  const hideHeaderRoutes = ["/", "/Login", "/forgot-password"];
+  const hideHeaderRoutes = ["/", "/Login","/login", "/forgot-password"];
   const shouldHideHeader = hideHeaderRoutes.includes(location.pathname);
  
   return (
@@ -161,6 +164,9 @@ function App() {
 
                     <Route path="menu" element={<Menu />} />
                     <Route path="MenuMaster" element={<MenuMaster />} />
+                    <Route path="AssignFormToMenu" element={<AssignFormMenuMaster />} />
+                    <Route path="AssignFormToMenu/create" element={<CreateAssignFormMenu />} />
+
                     <Route path="UserRoleMenus" element={<UserRoleMenuMaster />} />
                     <Route
                       path="UserRoleMenus/create"
@@ -171,6 +177,14 @@ function App() {
                     <Route
                       path="MenuMaster/edit/:id"
                       element={<EditUserMenu />}
+                    />
+
+                     <Route
+                      path="MenuMasterChild/:edit/:id"
+                      element={<EditUserChildMenu />}
+                    /> <Route
+                      path="MenuMasterChild/:view/:id"
+                      element={<EditUserChildMenu />}
                     />
 
                     <Route path="sales-orders" element={<SalesOrders />} />

@@ -246,7 +246,10 @@ const FormFields = () => {
                       columns={columns}
                       data={filteredRows || []}
                       header={"  FormFields list(" + filteredRows.length + ")"}
-                      visibleRows={10}
+                      visibleRows={8}
+                      filterable
+                      pagination
+                      // visibleRows={10}
                       onAutoResize={() => {}}
                       onColumnsReorder={() => {}}
                       onGroup={() => {}}

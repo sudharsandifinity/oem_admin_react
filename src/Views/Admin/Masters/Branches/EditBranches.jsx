@@ -22,6 +22,8 @@ const EditBranches = () => {
         name: branche.name,
         city: branche.city,
         address: branche.address,
+        is_main: branche.is_main? "true" : "false",
+
         status: JSON.stringify(branche.status),
   };
 
