@@ -21,6 +21,7 @@ import {
   deleteCompany,
   fetchCompanies,
 } from "../../../../store/slices/companiesSlice";
+import AppBar from "../../../../Components/Module/Appbar";
 
 const ViewCompany = Loadable(lazy(() => import("./ViewCompany")));
 
@@ -33,7 +34,7 @@ const Companies = () => {
   const [layout, setLayout] = useState("OneColumn");
   const [ViewId, setViewId] = useState("");
 
- 
+
   useEffect(() => {
     //dispatch(fetchCompanies());
     const fetchData = async () => {
@@ -75,7 +76,7 @@ const Companies = () => {
   const filteredRows = companies?.filter(
     (company) =>
       company.name.toLowerCase().includes(search.toLowerCase()) ||
-      company.company_code.toLowerCase().includes(search.toLowerCase()) 
+      company.company_code.toLowerCase().includes(search.toLowerCase())
   );
 
   const columns = useMemo(
@@ -122,46 +123,46 @@ const Companies = () => {
           const isOverlay = webComponentsReactProperties.showOverlay;
           return (
             <FlexBox alignItems="Center">
-              {user&&user.Roles.some(
+              {user && user.Roles.some(
                 (role) =>
                   role.Permissions.some((f) => f.name === "company_update")
-                    
+
               ) && (
-                <Button
-                  icon="sap-icon://edit"
-                  disabled={isOverlay}
-                  design="Transparent"
-                  //onClick={() => { setLayout("TwoColumnsMidExpanded");setViewItem(row.original)}}
-                  onClick={() => handleEdit(row.original)}
-                />
-              )}
-              {user&&user.Roles.some(
+                  <Button
+                    icon="sap-icon://edit"
+                    disabled={isOverlay}
+                    design="Transparent"
+                    //onClick={() => { setLayout("TwoColumnsMidExpanded");setViewItem(row.original)}}
+                    onClick={() => handleEdit(row.original)}
+                  />
+                )}
+              {user && user.Roles.some(
                 (role) =>
                   role.Permissions.some(
-                (f) => f.name === "company_delete"
-              )) && (
-                <Button
-                  icon="sap-icon://delete"
-                  disabled={isOverlay}
-                  design="Transparent"
-                  //onClick={() => { setLayout("TwoColumnsMidExpanded");setViewItem(row.original)}}
-                  onClick={() => handleDelete(row.original)}
-                />
-              )}
-              {user&&user.Roles.some(
+                    (f) => f.name === "company_delete"
+                  )) && (
+                  <Button
+                    icon="sap-icon://delete"
+                    disabled={isOverlay}
+                    design="Transparent"
+                    //onClick={() => { setLayout("TwoColumnsMidExpanded");setViewItem(row.original)}}
+                    onClick={() => handleDelete(row.original)}
+                  />
+                )}
+              {user && user.Roles.some(
                 (role) =>
                   role.Permissions.some((f) => f.name === "company_get")
-                ) && (
-                <Button
-                  icon="sap-icon://navigation-right-arrow"
-                  disabled={isOverlay}
-                  design="Transparent"
-                  onClick={() => {
-                    setLayout("TwoColumnsMidExpanded");
-                    handleView(row.original);
-                  }}
-                />
-              )}
+              ) && (
+                  <Button
+                    icon="sap-icon://navigation-right-arrow"
+                    disabled={isOverlay}
+                    design="Transparent"
+                    onClick={() => {
+                      setLayout("TwoColumnsMidExpanded");
+                      handleView(row.original);
+                    }}
+                  />
+                )}
             </FlexBox>
           );
         },
@@ -169,8 +170,8 @@ const Companies = () => {
     ],
     []
   );
-   useEffect(() => {
-    if(user==="null"){
+  useEffect(() => {
+    if (user === "null") {
       navigate("/login");
     }
   }, [user])
@@ -179,49 +180,41 @@ const Companies = () => {
       backgroundDesign="Solid"
       footer={<div></div>}
       header={
-        <Bar
-          design="Header"
+        <AppBar
+          title="Company List"
           startContent={
             <div style={{ width: "150px" }}>
-              <Breadcrumbs
-                design="Standard"
-                separators="Slash"
-                onItemClick={(e) => {
-                  const route = e.detail.item.dataset.route;
-                  if (route) navigate(route);
-                }}
-              >
+              <Breadcrumbs separators="Slash">
                 <BreadcrumbsItem data-route="/admin">Admin</BreadcrumbsItem>
-                <BreadcrumbsItem data-route="/admin/companies">
-                  company
-                </BreadcrumbsItem>
+                <BreadcrumbsItem data-route="/admin/companies">company</BreadcrumbsItem>
               </Breadcrumbs>
             </div>
           }
           endContent={
-            user&&user.Roles.some(
-                (role) =>
-                  role.Permissions.some((f) => f.name === "company_create")
-               )&& (
+            user &&
+            user.Roles.some(role =>
+              role.Permissions.some(f => f.name === "company_create")
+            ) && (
               <Button
-                design="Emphasized"
+                //design="Default"
+                size="Small"
                 onClick={() => navigate("/admin/companies/create")}
               >
                 Add Company
               </Button>
             )
           }
-        >
-          <Title level="H4">Company List</Title>
-        </Bar>
+        >   <Title level="H2">Company List</Title></AppBar>
+
       }
     >
       <Card
+
         style={{
-          height: "100%",
+          height: "90%",
           width: "100%",
-          padding: "0.5rem",
-          paddingTop: "2rem",
+          // padding: "0.5rem",
+           paddingTop: "0.5rem",
         }}
       >
         <FlexBox direction="Column">
@@ -232,10 +225,10 @@ const Companies = () => {
             style={{ margin: "1rem" }}
           >
             <Search
-              onClose={function Xs() {}}
-              onInput={function Xs() {}}
-              onOpen={function Xs() {}}
-              onScopeChange={function Xs() {}}
+              onClose={function Xs() { }}
+              onInput={function Xs() { }}
+              onOpen={function Xs() { }}
+              onScopeChange={function Xs() { }}
               onSearch={(e) => setSearch(e.target.value)}
             />
           </FlexBox>
@@ -247,29 +240,29 @@ const Companies = () => {
               <FlexBox direction="Column">
                 <div>
                   <FlexBox direction="Column">
-                    {user&&user.Roles.some(
-                (role) =>
-                  role.Permissions.some(
-                      (f) => f.name === "company_list"
-                    ) )&& (
-                      <AnalyticalTable
-                        columns={columns}
-                        data={filteredRows || []}
-                        header={"  Company list(" + filteredRows.length + ")"}
-                        visibleRows={8}
-                        filterable
-                        pagination
-                        onAutoResize={() => {}}
-                        onColumnsReorder={() => {}}
-                        onGroup={() => {}}
-                        onLoadMore={() => {}}
-                        onRowClick={() => {}}
-                        onRowExpandChange={() => {}}
-                        onRowSelect={() => {}}
-                        onSort={() => {}}
-                        onTableScroll={() => {}}
-                      />
-                    )}
+                    {user && user.Roles.some(
+                      (role) =>
+                        role.Permissions.some(
+                          (f) => f.name === "company_list"
+                        )) && (
+                        <AnalyticalTable
+                          columns={columns}
+                          data={filteredRows || []}
+                          header={<Title level="H5" style={{ paddingLeft: 5 }}>  {"Company list(" + filteredRows.length + ")"}</Title>}
+                          visibleRows={8}
+                          filterable
+                          pagination
+                          onAutoResize={() => { }}
+                          onColumnsReorder={() => { }}
+                          onGroup={() => { }}
+                          onLoadMore={() => { }}
+                          onRowClick={() => { }}
+                          onRowExpandChange={() => { }}
+                          onRowSelect={() => { }}
+                          onSort={() => { }}
+                          onTableScroll={() => { }}
+                        />
+                      )}
                   </FlexBox>
                 </div>
               </FlexBox>
@@ -295,7 +288,7 @@ const Companies = () => {
                     flexDirection: "row",
                     justifyContent: "center",
                     alignItems: "start",
-                    height: "90%",
+                    //height: "90%",
                     verticalAlign: "middle",
                   }}
                 >

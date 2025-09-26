@@ -20,6 +20,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import Admin from "../../Admin";
 import { deleteRole, fetchRoles } from "../../../../store/slices/roleSlice";
+import AppBar from "../../../../Components/Module/Appbar";
 const ViewRole = Loadable(lazy(() => import("./ViewRole")));
 
 const RolesList = () => {
@@ -170,7 +171,7 @@ const RolesList = () => {
       backgroundDesign="Solid"
       footer={<div></div>}
       header={
-        <Bar
+        <AppBar
           design="Header"
           startContent={
             <div style={{ width: "100px" }}>
@@ -203,15 +204,15 @@ const RolesList = () => {
           }
         >
           <Title level="H4">Role List</Title>
-        </Bar>
+        </AppBar>
       }
     >
       <Card
         style={{
           height: "100%",
           width: "100%",
-          padding: "0.5rem",
-          paddingTop: "2rem",
+          //padding: "0.5rem",
+          paddingTop: "0.5rem",
         }}
       >
         <FlexBox direction="Column">
@@ -245,7 +246,8 @@ const RolesList = () => {
                     <AnalyticalTable
                       columns={columns}
                       data={filteredRows || []}
-                      header={"  Roles list(" + filteredRows.length + ")"}
+                      header={<Title level="H5" style={{ paddingLeft: 5 }}>  {
+                        "Roles list(" + filteredRows.length + ")"}</Title>}
                       filterable
                       visibleRows={8}
                       rowHeight={50}

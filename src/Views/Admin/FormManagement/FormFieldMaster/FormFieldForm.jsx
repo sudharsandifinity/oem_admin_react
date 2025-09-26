@@ -25,6 +25,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { fetchForm, fetchGlobalForms } from "../../../../store/slices/formmasterSlice";
 import { fetchFormSection } from "../../../../store/slices/formsectionSlice";
+import AppBar from "../../../../Components/Module/Appbar";
 
 // Validation schema
 const schema = yup.object().shape({
@@ -94,8 +95,8 @@ const FormFieldForm = ({
     <Page
       backgroundDesign="Solid"
       footer={
-        <div>
           <Bar
+          style={{ padding:0.5 }}
             design="FloatingFooter"
             endContent={
               <>
@@ -109,16 +110,16 @@ const FormFieldForm = ({
               </>
             }
           />
-        </div>
       }
       header={
-        <Bar
+        <AppBar
           design="Header"
           endContent={
             <Button
               accessibleName="Settings"
-              icon="settings"
+              icon="decline"
               title="Go to Settings"
+              onClick={() => navigate(-1)} // Go back to previous page
             />
           }
           startContent={
@@ -146,7 +147,7 @@ const FormFieldForm = ({
           <Title level="h4">
             {mode==="edit" ? "Edit Form Field" : "Create Form Field"}
           </Title>
-        </Bar>
+        </AppBar>
       }
     >
       {apiError && (

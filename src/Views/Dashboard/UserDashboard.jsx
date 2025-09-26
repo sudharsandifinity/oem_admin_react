@@ -212,8 +212,8 @@ const UserDashboard = () => {
           </>
         )} */}
         {console.log("company", companies)}
-        <div style={{ display: "flex", gap: "1rem" }}>
-          <div style={{ width: "250px" }}>
+        <div style={{ display: "flex", gap: "0.5rem",padding: "1rem" }}>
+          <div style={{ width: "270px" }}>
             <Text>Company</Text>
             <Select
               style={{ width: "100%" }}
@@ -232,13 +232,13 @@ const UserDashboard = () => {
             </Select>
           </div>
 
-          <div style={{ width: "250px" }}>
+          <div style={{ width: "270px" }}>
             <Text>Branches</Text>
             <Select
               style={{ width: "100%" }}
               disabled={!selectedCompany}
               onChange={(e) =>
-                handleCompanyClick(e.detail.selectedOption.value)
+                handleBranchClick(e.detail.selectedOption.value)
               }
             >
               <Option>Select</Option>
@@ -250,7 +250,7 @@ const UserDashboard = () => {
             </Select>
           </div>
         </div>
-        <Text>Menu List</Text>
+        <Text style={{ paddingBottom: "1rem" }}>Menu List</Text>
         <SideNavigation>{console.log("menulist",menulist)}
           {menulist.length > 0 &&
             menulist.map((menu) =>
@@ -378,7 +378,7 @@ const UserDashboard = () => {
         </Menu> */}
         {/* Welcome Text */}
         <div style={{ padding: "2rem" }}>
-          <Title level="H2">Welcome, Vidhya</Title>
+          <Title level="H2">{`Welcome, ${user.first_name || "Guest"}`}</Title>
 
           {/* Colored Cards - Single Row */}
           <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>

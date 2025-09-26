@@ -39,6 +39,7 @@ import { fetchFormFields } from "../../../../store/slices/FormFieldSlice";
 import { fetchCompanyForms } from "../../../../store/slices/CompanyFormSlice";
 import AddFormField from "./AddFormField";
 import EditFormfield from "./EditFormfield";
+import AppBar from "../../../../Components/Module/Appbar";
 
 // Validation schema
 const schema = yup.object().shape({
@@ -250,8 +251,8 @@ const CompanyFormFieldForms = ({
       <Page
         backgroundDesign="Solid"
         footer={
-          <div>
-            <Bar
+            <AppBar
+            style={{ padding:0.5 }}
               design="FloatingFooter"
               endContent={
                 <>
@@ -267,10 +268,9 @@ const CompanyFormFieldForms = ({
                 </>
               }
             />
-          </div>
         }
         header={
-          <Bar
+          <AppBar
             design="Header"
             endContent={
               <Button
@@ -303,7 +303,7 @@ const CompanyFormFieldForms = ({
             <Title level="h4">
               {mode === "edit" ? "Edit Form Field" : "Create Form Field"}
             </Title>
-          </Bar>
+          </AppBar>
         }
       >
         {apiError && (

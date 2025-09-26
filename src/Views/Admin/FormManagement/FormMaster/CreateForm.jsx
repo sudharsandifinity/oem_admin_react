@@ -10,8 +10,7 @@ import { fetchBranch } from "../../../../store/slices/branchesSlice";
 const CreateForm = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-    const { branches } = useSelector((state) => state.branches);
-    const { companies } = useSelector((state) => state.companies);
+    
  useEffect(() => {
     //dispatch(fetchRoles());
     const fetchData = async () => {
@@ -54,7 +53,7 @@ var payload = {
    console.error(error);
  }
   };
-  return <Form branches={branches} companies={companies} onSubmit={handleCreate} mode="create" />;
+  return <Form onSubmit={handleCreate} mode="create" />;
 };
 
 export default CreateForm;

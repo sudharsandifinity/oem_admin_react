@@ -132,8 +132,8 @@ const handleUserDetails=(data)  => {
     <Page
       backgroundDesign="Solid"
       footer={
-        <div>
           <Bar
+          style={{ padding:0.5 }}
             design="FloatingFooter"
             endContent={
               <>
@@ -147,7 +147,6 @@ const handleUserDetails=(data)  => {
               </>
             }
           />
-        </div>
       }
       header={
         <Bar

@@ -378,7 +378,7 @@ const Contents = (props) => {
                 )} */}
               </FlexBox>
             </FlexBox>
-            <FlexBox style={{ marginTop: "10px" }}>Details</FlexBox>
+            {/* <FlexBox style={{ marginTop: "10px" }}>Details</FlexBox> */}
           </DynamicPageHeader>
         }
         onPinButtonToggle={function Xs() {}}
@@ -386,25 +386,7 @@ const Contents = (props) => {
         style={{
           height: "600px",
         }}
-        titleArea={
-          <DynamicPageTitle
-            heading={
-              <Title
-                style={{ fontSize: "var(--sapObjectHeader_Title_FontSize)" }}
-              >
-                Contents List
-              </Title>
-            }
-            navigationBar={
-              <Toolbar design="Transparent">
-                <ToolbarButton design="Transparent" icon="decline" />
-              </Toolbar>
-            }
-            subheading={<></>}
-          >
-            {/* <Tag>Status: OK</Tag> */}
-          </DynamicPageTitle>
-        }
+     
       >
         <div className="tab">
           <div>
@@ -502,7 +484,7 @@ const Contents = (props) => {
           </div>
         </div>
       </DynamicPage>
-      <div
+      {/* <div
         style={{ display: "flex", justifyContent: "flex-end", width: "100%" }}
       >
         <FlexBox direction="Column">
@@ -574,7 +556,7 @@ const Contents = (props) => {
             <Text></Text>
           </Grid>
         </FlexBox>
-      </div>
+      </div> */}
       <Additemdialog
         addItemdialogOpen={addItemdialogOpen}
         setAddItemDialogOpen={setAddItemDialogOpen}

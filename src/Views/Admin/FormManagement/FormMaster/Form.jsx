@@ -1,4 +1,4 @@
-import {  useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 
 import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -22,6 +22,8 @@ import {
   Title,
 } from "@ui5/webcomponents-react";
 import { useNavigate } from "react-router-dom";
+import AppBar from "../../../../Components/Module/Appbar";
+import { useSelector } from "react-redux";
 
 // Validation schema
 const schema = yup.object().shape({
@@ -29,26 +31,23 @@ const schema = yup.object().shape({
   display_name: yup.string().required("Display name is required"),
   form_type: yup.string().required("Form type is required"),
   scope: yup.string().required("Scope is required"),
-  companyId: yup.string().when("scope", {
-    is: "global",
-    then: yup.string().required("Company ID is required"),
-    otherwise: yup.string().nullable(),
-  }),
-  branchId: yup.string().when("scope", {
-    is: "branch",
-    then: yup.string().required("Branch ID is required"),
-    otherwise: yup.string().nullable(),
-  }),
+  // companyId: yup.string().when("scope", {
+  //   is: "global",
+  //   then: yup.string().required("Company ID is required"),
+  //   otherwise: yup.string().nullable(),
+  // }),
+  companyId: yup.string().nullable(),
+  branchId: yup.string().required("Branch ID is required"),
   status: yup.string().required("Status name is required"),
 });
 
 const Form = ({
   onSubmit,
-  branches,
-  companies,
+  //branches,
+  //companies,
   defaultValues = {
-    scope:"",
-    companyId:"",
+    scope: "global",
+    companyId: "",
     branchId: "",
     form_type: "",
     name: "",
@@ -67,9 +66,13 @@ const Form = ({
     resolver: yupResolver(schema, { context: { mode } }),
   });
   const formRef = useRef(null);
+  const onFormReady = useCallback((form) => {
+    console.log("form ready", form);
+    formRef.current = form;
+  }, []);
 
- 
-
+  const { branches } = useSelector((state) => state.branches);
+  const { companies } = useSelector((state) => state.companies);
   const [assignBranchEnabled, setAssignBranchEnabled] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState(null);
   const [selectedBranchIds, setSelectedBranchIds] = useState([]);
@@ -77,15 +80,9 @@ const Form = ({
 
   const [selectedBranches, setSelectedBranches] = useState([]);
   const navigate = useNavigate();
-  const handleCheckboxToggle = (branch) => {
-    setSelectedBranches((prev) =>
-      prev.includes(branch)
-        ? prev.filter((b) => b !== branch)
-        : [...prev, branch]
-    );
-  };
+const branchList = branches.filter(b => b.companyId === selectedCompany?.value)
 
- 
+
 
   useEffect(() => {
     if (mode === "edit") {
@@ -99,31 +96,31 @@ const Form = ({
     <Page
       backgroundDesign="Solid"
       footer={
-        <div>
-          <Bar
-            design="FloatingFooter"
-            endContent={
-              <>
-                <Button
-                  design="Emphasized"
-                  form="form" /* ← link button to that form id */
-                  type="Submit"
-                >
-                  {mode === "edit" ? "Update Form" : "Create Form"}
-                </Button>
-              </>
-            }
-          />
-        </div>
+        <Bar
+          style={{ padding: 0.5 }}
+          design="FloatingFooter"
+          endContent={
+            <>
+              <Button
+                design="Emphasized"
+                form="formsubmit" /* ← link button to that form id */
+                type="Submit"
+              >
+                {mode === "edit" ? "Update Form" : "Create Form"}
+              </Button>
+            </>
+          }
+        />
       }
       header={
-        <Bar
+        <AppBar
           design="Header"
           endContent={
             <Button
               accessibleName="Settings"
-              icon="settings"
+              icon="decline"
               title="Go to Settings"
+              onClick={() => navigate(-1)} // Go back to previous page
             />
           }
           startContent={
@@ -150,7 +147,7 @@ const Form = ({
           <Title level="h4">
             {mode === "edit" ? "Edit Form" : "Create New Form"}
           </Title>
-        </Bar>
+        </AppBar>
       }
     >
       {apiError && (
@@ -166,8 +163,10 @@ const Form = ({
 
       <form
         ref={formRef}
-        id="form"
+        id="formsubmit"
+        onFormReady={onFormReady}
         onSubmit={handleSubmit((formData) => {
+          console.log("formDataonsubmit", formData);
           const fullData = {
             ...formData,
           };
@@ -186,14 +185,14 @@ const Form = ({
                 control={control}
                 render={({ field }) => (
                   <Select
-                   style={{width:"80%"}}
+                    style={{ width: "80%" }}
 
                     name="scope"
                     value={field.value ?? ""}
-                    onChange={(e) => {field.onChange(e.target.value);setCurrScope(e.target.value)}}
+                    onChange={(e) => { field.onChange(e.target.value); setCurrScope(e.target.value) }}
                     valueState={errors.scope ? "Error" : "None"}
                   >
-                   <Option key="" value="">Select</Option>
+                    <Option key="" value="">Select</Option>
 
                     <Option value="global">Global</Option>
                     <Option value="company">Company</Option>
@@ -221,14 +220,14 @@ const Form = ({
                 control={control}
                 render={({ field }) => (
                   <Select
-                   style={{width:"80%"}}
-                    disabled={currScope==="global"?true:false}
+                    style={{ width: "80%" }}
+                    disabled={currScope === "global" ? true : false}
                     name="companyId"
                     value={field.value ?? ""}
-                    onChange={(e) => field.onChange(e.target.value)}
+                    onChange={(e) => { field.onChange(e.target.value); setSelectedCompany(e.detail.selectedOption) }}
                     valueState={errors.companyId ? "Error" : "None"}
                   >
-                   <Option key="" value="">Select</Option>
+                    <Option key="" value="">Select</Option>
 
                     {companies.map((company) => (
                       <Option key={company.id} value={company.id}>
@@ -257,21 +256,25 @@ const Form = ({
                 control={control}
                 render={({ field }) => (
                   <Select
-                   style={{width:"80%"}}
-                    disabled={currScope==="global"?true:false}
-                    name="branchId"
+                    style={{ width: "80%" }}
+                    disabled={currScope === "global"}
                     value={field.value ?? ""}
-                    onChange={(e) => field.onChange(e.target.value)}
+                    onChange={(e) => {
+                      const value = e.detail.selectedOption.value;  // ✅ only the id
+                      field.onChange(value);
+                    }}
                     valueState={errors.branchId ? "Error" : "None"}
                   >
-                   <Option key="" value="">Select</Option>
-
-                    {branches.map((branch) => (
-                      <Option key={branch.id} value={branch.id}>
-                        {branch.name}
+                    <Option key="" value="">
+                      Select
+                    </Option>
+                    {branchList?.map((b) => (
+                      <Option key={b.id} value={b.id}>
+                        {b.name}
                       </Option>
                     ))}
                   </Select>
+
                 )}
               />
 
@@ -284,6 +287,7 @@ const Form = ({
                 </span>
               )}
             </FlexBox>
+
           </FlexBox>
           <FlexBox direction="Column" style={{ flex: " 28%" }}>
             <Label>Form Name</Label>
@@ -296,7 +300,7 @@ const Form = ({
                   style={{ flex: "48%" }}
                 >
                   <Input
-                   style={{width:"80%"}}
+                    style={{ width: "80%" }}
 
                     placeholder="Form Name"
                     name="name"
@@ -326,7 +330,7 @@ const Form = ({
                   style={{ flex: "1 1 48%" }}
                 >
                   <Input
-                   style={{width:"80%"}}
+                    style={{ width: "80%" }}
 
                     placeholder="Display Name"
                     name="display_name"
@@ -347,34 +351,34 @@ const Form = ({
           <FlexBox direction="Column" style={{ flex: " 28%" }}>
             <Label>Form Type</Label>
             <Controller
-                name="form_type"
-                control={control}
-                render={({ field }) => (
-                  <Select
-                   style={{width:"80%"}}
+              name="form_type"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  style={{ width: "80%" }}
 
-                    name="form_type"
-                    value={field.value ?? ""}
-                    onChange={(e) => field.onChange(e.target.value)}
-                    valueState={errors.form_type ? "Error" : "None"}
-                  >
-                   <Option key="" value="">Select</Option>
-                    <Option value={"Item"}>{"Item"}</Option>
-                    <Option value={"Service"}>{"Service"}</Option>
-                    <Option value={"Both"}>{"Both"}</Option>
-                  </Select>
-                )}
-              />
-               {errors.form_type && (
-                <span
-                  slot="valueStateMessage"
-                  style={{ color: "var(--sapNegativeColor)" }}
+                  name="form_type"
+                  value={field.value ?? ""}
+                  onChange={(e) => field.onChange(e.target.value)}
+                  valueState={errors.form_type ? "Error" : "None"}
                 >
-                  {errors.form_type.message}
-                </span>
+                  <Option key="" value="">Select</Option>
+                  <Option value={"Item"}>{"Item"}</Option>
+                  <Option value={"Service"}>{"Service"}</Option>
+                  <Option value={"Both"}>{"Both"}</Option>
+                </Select>
               )}
+            />
+            {errors.form_type && (
+              <span
+                slot="valueStateMessage"
+                style={{ color: "var(--sapNegativeColor)" }}
+              >
+                {errors.form_type.message}
+              </span>
+            )}
           </FlexBox>
-          
+
           <FlexBox direction="Column" style={{ flex: " 28%" }}>
             <Label>Status</Label>{" "}
             <FlexBox label={<Label required>Status</Label>}>
@@ -383,14 +387,14 @@ const Form = ({
                 control={control}
                 render={({ field }) => (
                   <Select
-                   style={{width:"26%"}}
+                    style={{ width: "26%" }}
 
                     name="status"
                     value={field.value ?? ""}
                     onChange={(e) => field.onChange(e.target.value)}
                     valueState={errors.status ? "Error" : "None"}
                   >
-                   <Option key="" value="">Select</Option>
+                    <Option key="" value="">Select</Option>
 
                     <Option value="1">Active</Option>
                     <Option value="0">Inactive</Option>

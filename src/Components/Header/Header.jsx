@@ -19,6 +19,9 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { ThemingParameters } from "@ui5/webcomponents-react-base";
 
+import logo from "../../assets/Image/HLB-logo.png";
+
+
 import { setTheme } from "@ui5/webcomponents-base/dist/config/Theme.js";
 import { logout } from "../../store/slices/authSlice";
 
@@ -85,6 +88,7 @@ const Header = () => {
               <img
                 alt="person-placeholder"
                 src="https://thumbs.dreamstime.com/b/logout-glassy-cyan-blue-round-button-isolated-abstract-illustration-97912713.jpg"
+             
               />
             </Avatar>
           }
@@ -101,8 +105,12 @@ const Header = () => {
                 width={30}
                 height={30}
                 alt="SAP Logo"
-                src="https://cdn.vectorstock.com/i/2000v/40/54/oem-original-equipment-manufacturing-vector-45464054.avif"
+                //src="https://cdn.vectorstock.com/i/2000v/40/54/oem-original-equipment-manufacturing-vector-45464054.avif"
+                src={
+                  logo
+                }
               />
+
               <>
                 <Select
                   onChange={(e) => setFioriTheme(e.target.value)}

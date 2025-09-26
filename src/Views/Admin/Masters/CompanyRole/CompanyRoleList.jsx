@@ -21,6 +21,7 @@ import { useNavigate } from "react-router-dom";
 import Admin from "../../Admin";
 import { fetchBranch } from "../../../../store/slices/branchesSlice";
 import { deleteRole } from "../../../../store/slices/roleSlice";
+import AppBar from "../../../../Components/Module/Appbar";
 const ViewCompanyRole = Loadable(lazy(() => import("./ViewCompanyRole")));
 
 const CompanyRoleList = () => {
@@ -170,7 +171,7 @@ const CompanyRoleList = () => {
       backgroundDesign="Solid"
       footer={<div></div>}
       header={
-        <Bar
+        <AppBar
           design="Header"
           startContent={
             <div style={{ width: "100px" }}>
@@ -199,15 +200,16 @@ const CompanyRoleList = () => {
           }
         >
           <Title level="H4">Company Role List</Title>
-        </Bar>
+        </AppBar>
       }
     >
       <Card
         style={{
           height: "100%",
           width: "100%",
-          padding: "0.5rem",
-          paddingTop: "2rem",
+          //padding: "0.5rem",
+                    paddingTop: "0.5rem",
+
         }}
       >
         <FlexBox direction="Column">
@@ -236,7 +238,8 @@ const CompanyRoleList = () => {
                     <AnalyticalTable
                       columns={columns}
                       data={filteredRows || []}
-                      header={"  Company Role List(" + filteredRows.length + ")"}
+                      header={<Title level="H5" style={{ paddingLeft: 5 }}>  {
+                        "Company Role List(" + filteredRows.length + ")"}</Title>}
                       visibleRows={10}
                       rowHeight={60}
                       onAutoResize={() => {}}

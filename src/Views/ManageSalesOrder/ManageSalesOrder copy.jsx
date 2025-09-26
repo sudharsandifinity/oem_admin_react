@@ -140,6 +140,7 @@ const ManageSalesOrder = () => {
       <DynamicPage
         footerArea={
           <Bar
+          style={{ padding:0.5 }}
             design="FloatingFooter"
             endContent={
               <>
@@ -238,9 +239,10 @@ const ManageSalesOrder = () => {
                         columns={columns.length > 0 ? columns : []}
                         data={tableData}
                         header={
+                          <Title level="H5" style={{ paddingLeft: 5 }}>  {
                           "Sales Order list(" +
                           ManageSalesOrderTableData.length +
-                          ")"
+                          ")"}</Title>
                         }
                         //loading={isLoading}
                         //showOverlay={isLoading}

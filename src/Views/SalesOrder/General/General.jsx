@@ -11,17 +11,22 @@ import { SalesOrderRenderInput } from "../SalesOrderRenderInput";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 const General = (props) => {
-  const { form } = props;
+  const { form ,SubForms} = props;
   const {
     fieldConfig,
-    CustomerDetails,
-    DocumentDetails
+    //CustomerDetails,
+    //DocumentDetails
   } = useContext(FormConfigContext);
   const [inputvalue, setInputValue] = useState([]);
   const [formData, setFormData] = useState({});
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedKey, setSelectedKey] = useState("");
-
+const CustomerDetails = SubForms.map(SubFormss => SubFormss.name === "customer-details" && SubFormss.FormFields
+                  ).flat()
+const DocumentDetails = SubForms.map(SubFormss => SubFormss.name === "document-details" && SubFormss.FormFields
+                  ).flat()
+  console.log("CustomerDetails",CustomerDetails);
+  console.log("DocumentDetails",DocumentDetails);
 
 
   const dispatch = useDispatch();
@@ -62,7 +67,8 @@ const General = (props) => {
   useEffect(() => {
     //setInputValue((prev) => ({  ...prev, ...formData }));
     console.log("formDataGeneral", formData);
-  }, [formData]);
+
+  }, []);
   return (
     <div>
       <FlexBox wrap="Wrap" direction="Row" style={{ gap: "2rem" }}>
@@ -74,7 +80,8 @@ const General = (props) => {
               <FlexBox style={{ display: "flex", gap: "2rem" }}>
                 {/* Left Column */}
                 <div style={{ flex: 1 }}>
-                  {console.log("cusdetails", CustomerDetails)}
+                  {console.log("cusdetails", SubForms.map(SubFormss => SubFormss.name === "customer-details" && SubFormss.FormFields
+                  ).flat())}
                   {[...CustomerDetails]
                     .filter((field) => field.is_visible) // ✅ Only visible fields
                     .sort((a, b) => a.field_order - b.field_order) // ✅ Sort by field_order

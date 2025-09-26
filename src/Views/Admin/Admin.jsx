@@ -1,5 +1,5 @@
 // Admin.js
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import {
   SideNavigation,
   SideNavigationItem,
@@ -41,6 +41,7 @@ import "@ui5/webcomponents-icons/dist/role.js";
 import Dashboard from "./Dashboard/Default/Dashboard";
 import DashboardPage from "./Dashboard/Default/DashboardPage";
 import { useSelector } from "react-redux";
+import AppBar from "../../Components/Module/Appbar";
 
 const Admin = () => {
   const navigate = useNavigate();
@@ -49,16 +50,28 @@ const Admin = () => {
   const {user} = useSelector((state) => state.auth);
   const handleNavigationChange = (event) => {
     const key = event.detail.item.dataset.key;
-    navigate(`/admin/${key}`);
+    key&&navigate(`/admin/${key}`);
   };
 
+useEffect(() => {
+  console.log("user",typeof(user));
+  if(user==="null"||user===null){
+    navigate("/login");
+  }
+}, [user])
 
 
   return (
     <FlexBox style={{ height: "90vh" }}>
-      <FlexBox style={{ height: "100%" }}>
-        <FlexBox direction="Column" style={{ width:collapsed ? "50px" : "250px", height: "100%" }}>
-          <Bar
+        <FlexBox direction="Column" style={{ width:collapsed ? "50px" : "250px" }}>
+     <AppBar
+  title="Admin"
+  design="Header"
+  startContent={
+    <Icon name="menu2" onClick={() => setCollapsed(!collapsed)} />
+  }
+> {collapsed ? <></> : <Title level="h2">Admin</Title>}</AppBar>
+          {/* <Bar
             design="Header"
             startContent={
               <Icon
@@ -68,7 +81,7 @@ const Admin = () => {
             }
           >
             {collapsed ? <></> : <Title level="h2">Admin</Title>}
-          </Bar>
+          </Bar> */}
           <SideNavigation
             onSelectionChange={handleNavigationChange}
             collapsed={collapsed}
@@ -84,8 +97,8 @@ const Admin = () => {
               text="Masters"
               style={{ textAlign: "start" }}
               icon="master-task-triangle"
-              data-key="dashboard"
-            >{console.log("user",user)}
+              //data-key="dashboard"
+            >
      
               {user!==null&&user.Roles&&user.Roles.some(
                 (role) =>
@@ -105,6 +118,24 @@ const Admin = () => {
                 text="Branches"
                 icon="background"
                 data-key="branches"
+              />)}
+               {user!==null&&user.Roles&&user.Roles.some(
+                (role) =>
+                  role.Permissions.some((f) => f.module === "forms") )&& (
+               <SideNavigationSubItem
+                style={{ marginLeft: "1rem", textAlign: "start" }}
+                text="Form Master"
+                icon="create-form"
+                data-key="FormMaster"
+              />)}
+              {user!==null&&user.Roles&&user.Roles.some(
+                (role) =>
+                  role.Permissions.some((f) => f.module === "user_menu")) && (
+              <SideNavigationSubItem
+                style={{ marginLeft: "1rem", textAlign: "start" }}
+                text="Menu Master"
+                icon="menu2"
+                data-key="MenuMaster"
               />)}
               {user!==null&&user.Roles&&user.Roles.some(
                 (role) =>
@@ -130,24 +161,16 @@ const Admin = () => {
                 icon="user-edit"
                 data-key="users"
               />)}
-              {user!==null&&user.Roles&&user.Roles.some(
-                (role) =>
-                  role.Permissions.some((f) => f.module === "forms") )&& (
-               <SideNavigationSubItem
-                style={{ marginLeft: "1rem", textAlign: "start" }}
-                text="Form Master"
-                icon="create-form"
-                data-key="FormMaster"
-              />)}
+             
                
             </SideNavigationItem>
-            <SideNavigationItem
+           <SideNavigationItem
               style={{ textAlign: "start" }}
               text="Menu"
               icon="menu"
               data-key="menu"
             >
-              {user!==null&&user.Roles&&user.Roles.some(
+              {/* {user!==null&&user.Roles&&user.Roles.some(
                 (role) =>
                   role.Permissions.some((f) => f.module === "user_menu")) && (
               <SideNavigationSubItem
@@ -155,15 +178,15 @@ const Admin = () => {
                 text="Menu Master"
                 icon="menu2"
                 data-key="MenuMaster"
-              />)}
-              {/* <SideNavigationSubItem
+              />)} */}
+              <SideNavigationSubItem
                 style={{ marginLeft: "1rem", textAlign: "start" }}
-                text="User Role Menus"
+                text="Assign Form"
                 icon="role"
-                data-key="UserRoleMenus"
-              /> */}
-            </SideNavigationItem>
-            <SideNavigationItem
+                data-key="AssignFormToMenu"
+              /> 
+            </SideNavigationItem> 
+            {/* <SideNavigationItem
               style={{ textAlign: "start" }}
               text="Setup"
               icon="doc-attachment"
@@ -186,20 +209,20 @@ const Admin = () => {
                 icon="customer-order-entry"
                 data-key="sales-invoices"
               />)}
-            </SideNavigationItem>
+            </SideNavigationItem> */}
             <SideNavigationItem
               style={{ textAlign: "start" }}
               text="Form Management"
               icon="form"
-              data-key="dashboard"
+              //data-key="dashboard"
             >
              
-              {/* <SideNavigationSubItem
+              <SideNavigationSubItem
                 style={{ marginLeft: "1rem", textAlign: "start" }}
-                text="Assign Form To Company"
+                text="Assign Form"
                 icon="company-view"
                 data-key="company-forms"
-              /> */}
+              />
               {user!==null&&user.Roles&&user.Roles.some(
                 (role) =>
                   role.Permissions.some((f) => f.module === "form_fields")) && (
@@ -221,9 +244,12 @@ const Admin = () => {
             </SideNavigationItem>
           </SideNavigation>
         </FlexBox>
-      </FlexBox>
       {/* Render routed content */}
-      <flexibleColumnLayout
+      <FlexBox style={{ flex: 1, height: "100%" }}>
+        <Outlet />
+        {location.pathname === "/admin" && <DashboardPage />}
+      </FlexBox>
+      {/* <flexibleColumnLayout
         style={{ flex: 1, height: "100%" }}
         layout="TwoColumnsMidExpanded"
         onLayoutChange={(e) => {
@@ -232,7 +258,7 @@ const Admin = () => {
       >
         <Outlet />
         {location.pathname === "/admin" && <DashboardPage />}
-      </flexibleColumnLayout>
+      </flexibleColumnLayout> */}
     </FlexBox>
   );
 };

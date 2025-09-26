@@ -22,6 +22,7 @@ import { fetchUsers, deleteUser } from "../../../../store/slices/usersSlice";
 import { useNavigate } from "react-router-dom";
 import Admin from "../../Admin";
 import { fetchCompanies } from "../../../../store/slices/companiesSlice";
+import AppBar from "../../../../Components/Module/Appbar";
 const ViewUser = Loadable(lazy(() => import("./ViewUser")));
 
 const Users = () => {
@@ -222,7 +223,7 @@ const Users = () => {
       backgroundDesign="Solid"
       footer={<div></div>}
       header={
-        <Bar
+        <AppBar
           design="Header"
           startContent={
             <div style={{ width: "100px" }}>
@@ -251,15 +252,15 @@ const Users = () => {
           }
         >
           <Title level="H4">User List</Title>
-        </Bar>
+        </AppBar>
       }
     >
       <Card
         style={{
           height: "100%",
           width: "100%",
-          padding: "0.5rem",
-          paddingTop: "2rem",
+          //padding: "0.5rem",
+          paddingTop: "0.5rem",
         }}
       >
         <FlexBox direction="Column">
@@ -303,7 +304,8 @@ const Users = () => {
                     <AnalyticalTable
                       columns={columns}
                       data={selectedUserList || []}
-                      header={"  Users list(" + users.length + ")"}
+                      header={<Title level="H5" style={{ paddingLeft: 5 }}>  {
+                        "Users list(" + users.length + ")"}</Title>}
                       visibleRows={8}
                       filterable
                       sortable
