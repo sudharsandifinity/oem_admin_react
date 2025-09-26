@@ -35,7 +35,7 @@ import { fetchFormFields } from "../../store/slices/FormFieldSlice";
 import { fetchCompanyFormfields, fetchCompanyFormsFieldsById } from "../../store/slices/companyformfieldSlice";
 import { fetchcompanyformfielddata } from "../../store/slices/companyformfielddata";
 import { fetchFormById } from "../../store/slices/formmasterSlice";
-import { fetchCustomerDetails } from "../../store/slices/CustomerDetailsSlice";
+import { fetchCustomerDetails, loginToSap } from "../../store/slices/CustomerDetailsSlice";
 
 const ManageSalesOrder = () => {
   const {
@@ -49,7 +49,48 @@ const ManageSalesOrder = () => {
   const { companyformfielddata } = useSelector(
     (state) => state.companyformfielddata
   );
+  const { customerdetails } = useSelector((state) => state.customerdetails);
+  const tableconfig = customerdetails.map((item) => {
+    return {
+      CustomerCode: item.CardCode,  
 
+      CustomerName: item.CardName,
+      DocumentNo: "",
+      PostingDate: "",
+      Status: "",
+    };
+  }
+  );
+ 
+  useEffect(() => {
+    //dispatch(fetchBranch());
+    //dispatch(fetchCompanies());
+    const fetchData = async () => {
+      try {
+        const res = await dispatch(fetchCustomerDetails()).unwrap();
+        console.log("resusers", res);
+        setFormConfig(res);
+        
+
+        // setTableConfig(res);
+        //dispatch(fetchcompanyformfielddata())
+        //
+
+
+        // setTableConfig(res);
+        //dispatch(fetchcompanyformfielddata())
+        //
+
+        if (res.message === "Please Login!") {
+          navigate("/");
+        }
+      } catch (err) {
+        console.log("Failed to fetch user", err.message);
+        err.message && navigate("/");
+      }
+    };
+    fetchData();
+  }, [dispatch]);
   // const ManageSalesOderHeaderField = companyformfield.filter(
   //   (c) => c.Form?.name === "M_SO"
   // );
@@ -73,8 +114,9 @@ const ManageSalesOrder = () => {
   //   fetchData();
   // }, [dispatch]);
   console.log("ManageSalesOderHeaderField", ManageSalesOderHeaderField);
-  const [tableData, settableData] = useState(ManageSalesOrderTableData);
+  const [tableData, settableData] = useState(tableconfig)//ManageSalesOderHeaderField);
   const [viewItem, setViewItem] = useState([]);
+
 
   const navigate = useNavigate();
   const [layout, setLayout] = useState("OneColumn");
@@ -109,22 +151,40 @@ const ManageSalesOrder = () => {
         disableResizing: true,
         disableSortBy: true,
         id: "actions",
-        width: 100,
+        width: 200,
 
         Cell: (instance) => {
           const { cell, row, webComponentsReactProperties } = instance;
           const isOverlay = webComponentsReactProperties.showOverlay;
           return (
-            <FlexBox alignItems="Center">
+            <FlexBox alignItems="Center" direction="Row" justifyContent="Center">
               <Button
-                icon="sap-icon://navigation-right-arrow"
+                icon="edit"
                 disabled={isOverlay}
                 design="Transparent"
                 onClick={() => {
                   setLayout("TwoColumnsMidExpanded");
                   setViewItem(row.original);
                 }}
-                // onClick={() => editRow(row)}
+              // onClick={() => editRow(row)}
+              />
+              <Button
+                icon="delete"
+                disabled={isOverlay}
+                design="Transparent"
+                onClick={() => {
+                  console.log(row.original);
+                }}
+              // onClick={() => editRow(row)}
+              />
+              <Button
+                icon="sap-icon://navigation-right-arrow"
+                disabled={isOverlay}
+                design="Transparent"
+                onClick={() => {
+                  console.log(row.original);
+                }}
+              // onClick={() => editRow(row)}
               />
             </FlexBox>
           );
@@ -139,21 +199,8 @@ const ManageSalesOrder = () => {
   const { formId, childId } = useParams();
   const [formConfig, setFormConfig] = useState(null);
 
-  useEffect(() => {
-    async function fetchForm() {
-      try {
-        const res = await dispatch(fetchCustomerDetails()).unwrap();
-        console.log("fetchdata", res);
-                if (res.message === "Please Login!") {
-          navigate("/");
-        }
-        setFormConfig(res);
-      } catch (err) {
-        console.error("Failed to load form", err);
-      }
-    }
-    fetchForm();
-  }, [formId]);
+
+
 
   // if (!formConfig) return <div>Loading form...</div>;
   return (
@@ -161,7 +208,7 @@ const ManageSalesOrder = () => {
       <DynamicPage
         footerArea={
           <Bar
-          style={{ padding:0.5 }}
+            style={{ padding: 0.5 }}
             design="FloatingFooter"
             endContent={
               <>
@@ -199,8 +246,8 @@ const ManageSalesOrder = () => {
             </Grid>
           </DynamicPageHeader>
         }
-        onPinButtonToggle={function Xs() {}}
-        onTitleToggle={function Xs() {}}
+        onPinButtonToggle={function Xs() { }}
+        onTitleToggle={function Xs() { }}
         style={{
           height: "700px",
         }}
@@ -210,7 +257,7 @@ const ManageSalesOrder = () => {
               <Toolbar design="Transparent">
                 <ToolbarButton
                   design="Emphasized"
-                  onClick={() => navigate("/SalesOrder/create/"+formId)}
+                  onClick={() => navigate("/SalesOrder/create/" + formId)}
                   text="Create"
                 />
               </Toolbar>
@@ -230,12 +277,12 @@ const ManageSalesOrder = () => {
               <Title
                 style={{ fontSize: "var(--sapObjectHeader_Title_FontSize)" }}
               >
-                {formConfig&&formConfig.display_name}
+                {formConfig && formConfig.display_name}
               </Title>
             }
             navigationBar={
               <Toolbar design="Transparent">
-                <ToolbarButton  onClick={() => navigate("/UserDashboard")} design="Transparent" icon="decline" />
+                <ToolbarButton onClick={() => navigate("/UserDashboard")} design="Transparent" icon="decline" />
               </Toolbar>
             }
             snappedHeading={
@@ -244,14 +291,14 @@ const ManageSalesOrder = () => {
                   fontSize: "var(--sapObjectHeader_Title_SnappedFontSize)",
                 }}
               >
-                {formConfig&&formConfig.display_name}
+                {formConfig && formConfig.display_name}
               </Title>
             }
           ></DynamicPageTitle>
         }
       >
         <div className="tab">
-          
+
           <div>
             <FlexibleColumnLayout
               // style={{ height: "600px" }}
@@ -259,12 +306,12 @@ const ManageSalesOrder = () => {
               startColumn={
                 <FlexBox direction="Column">
                   <div>
-                    <FlexBox direction="Column">
+                    <FlexBox direction="Column">{console.log("tableDataanaly", tableData)}
                       <AnalyticalTable
                         columns={columns.length > 0 ? columns : []}
                         data={tableData}
                         header={
-                          formConfig&&formConfig.display_name+"(" +
+                          formConfig && formConfig.display_name + "(" +
                           ManageSalesOrderTableData.length +
                           ")"
                         }
@@ -281,15 +328,15 @@ const ManageSalesOrder = () => {
                         groupable
                         // header="Table Title"
                         infiniteScroll
-                        onGroup={() => {}}
-                        onLoadMore={() => {}}
+                        onGroup={() => { }}
+                        onLoadMore={() => { }}
                         onRowClick={(event) => {
                           console.log("Row::", event.detail.row.original._id);
                           //previewFormInModal(event.detail.row.original._id);
                         }}
-                        onRowExpandChange={() => {}}
-                        onSort={() => {}}
-                        onTableScroll={() => {}}
+                        onRowExpandChange={() => { }}
+                        onSort={() => { }}
+                        onTableScroll={() => { }}
                         // selectedRowIds={{
                         //     3: true,
                         // }}

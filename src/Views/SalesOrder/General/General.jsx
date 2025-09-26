@@ -21,10 +21,10 @@ const General = (props) => {
   const [formData, setFormData] = useState({});
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedKey, setSelectedKey] = useState("");
-const CustomerDetails = SubForms.map(SubFormss => SubFormss.name === "customer-details" && SubFormss.FormFields
-                  ).flat()
-const DocumentDetails = SubForms.map(SubFormss => SubFormss.name === "document-details" && SubFormss.FormFields
-                  ).flat()
+const CustomerDetails = SubForms?SubForms.map(SubFormss => SubFormss.name === "customer-details" && SubFormss.FormFields
+                  ).flat():CustomerDetails
+const DocumentDetails = SubForms?SubForms.map(SubFormss => SubFormss.name === "document-details" && SubFormss.FormFields
+                  ).flat():DocumentDetails
   console.log("CustomerDetails",CustomerDetails);
   console.log("DocumentDetails",DocumentDetails);
 

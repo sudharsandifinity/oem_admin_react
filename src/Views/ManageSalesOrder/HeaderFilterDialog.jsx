@@ -13,7 +13,7 @@ const HeaderFilterDialog = (props) => {
             footer={<Button onClick={() => setFilterDialogOpen(false)}>Close</Button>}
           >
             <List onItemClick={(e)=>handleDialogItemClick(e,fieldName)}>
-              {itempopupData.map((item, idx) => 
+              {itempopupData&&itempopupData.map((item, idx) => 
                 <ListItemStandard key={idx} value={item[fieldName]}>{item[fieldName]}</ListItemStandard>
               )}
             </List>

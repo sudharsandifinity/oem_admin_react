@@ -256,10 +256,10 @@ export default function SalesOrder() {
                 <BreadcrumbsItem data-route="/ManageSalesOrder">
                   Manage Sales Order
                 </BreadcrumbsItem>
-                <BreadcrumbsItem>{formDetails?formDetails[0]?.name:"Sales Order"}</BreadcrumbsItem>
+                <BreadcrumbsItem>{formDetails ? formDetails[0]?.name : "Sales Order"}</BreadcrumbsItem>
               </Breadcrumbs></>
           }
-          header={<Title level="H2">{formDetails?formDetails[0]?.name:"Sales Order"}</Title>}
+          header={<Title level="H2">{formDetails ? formDetails[0]?.name : "Sales Order"}</Title>}
           navigationBar={
             <Toolbar design="Transparent">
               {/* <ToolbarButton design="Transparent" icon="full-screen" />
@@ -283,8 +283,9 @@ export default function SalesOrder() {
           </ObjectStatus>
         </ObjectPageTitle>
       }
-    >
-      {tabList.map((tab) => {
+    >{console.log("tabList", tabList)}
+      {
+      tabList.length > 0 && tabList.map((tab) => {
         console.log("object", tab);
         if (tab.name === "general") {
           return (
@@ -371,7 +372,53 @@ export default function SalesOrder() {
             </ObjectPageSection>
           );
         }
-      })}
+      }) 
+        // <ObjectPageSection
+        //   id="section1"
+        //   style={{ height: "100%" }}
+        //   titleText="General"
+        // >
+        //   <General form={form} SubForms="" handleChange={handleChange} />
+        // </ObjectPageSection><ObjectPageSection
+        //   id="section3"
+        //   style={{
+        //     height: "100%",
+        //   }}
+        //   titleText="Logistics"
+        // >
+        //     <Logistics
+        //       fieldConfig={fieldConfig}
+        //       SalesOrderRenderInput={SalesOrderRenderInput}
+        //       form={form}
+        //       handleChange={handleChange}
+        //     />
+        //   </ObjectPageSection><ObjectPageSection
+        //     id="section4"
+        //     style={{
+        //       height: "100%",
+        //     }}
+        //     titleText="Accounting"
+        //   >
+        //     <Accounting />
+        //   </ObjectPageSection>  <ObjectPageSection
+        //     id="section5"
+        //     style={{
+        //       height: "100%",
+        //     }}
+        //     titleText="Attachments"
+        //   >
+        //     <Attachments />
+        //   </ObjectPageSection><ObjectPageSection
+        //     id="section6"
+        //     style={{
+        //       height: "100%",
+        //     }}
+        //     titleText="User-defined Fields"
+        //   >
+        //     <UserDefinedFields form={form}
+        //       handleChange={handleChange} />
+        //   </ObjectPageSection>
+          }
 
 
 
