@@ -1,26 +1,48 @@
+// customerDetailsSlice.js
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { cusapi } from "../../api/axios";
+import api from "../../api/axios";
 
-// Base URL for BusinessPartners
-const API_URL = `/BusinessPartners?$filter=CardType eq 'C'`;
-
+const API_URL = "/sap/business-partners";
 
 // ✅ Fetch all customers (CardType = 'C')
-export const fetchCustomerDetails = createAsyncThunk(
-  "customerdetails/fetchAll",
+export const loginToSap = createAsyncThunk(
+  "sap/login",
   async (_, thunkApi) => {
     try {
-      const response = await cusapi.get(`${API_URL}?$filter=CardType eq 'C'`, {
-        withCredentials: true,
+      const response = await api.post("/Login", {
+        UserName: "manager",
+        Password: "Sap@12345",
+        CompanyDB: "GLD_Demo",
       });
-      return response.data.value; // SAP SL wraps results in { value: [...] }
+      return response.data; // will contain SessionId etc.
     } catch (error) {
       return thunkApi.rejectWithValue(
-        error.response?.data || "Error fetching customers"
+        error.response?.data || "Login failed"
       );
     }
   }
 );
+export const fetchCustomerDetails = createAsyncThunk(
+  "customerDetails/fetchCustomerDetails",
+  async (_, thunkApi) => {
+    try {
+      const response = await api.get(
+        API_URL,
+        {
+          withCredentials: true,
+        }
+      );
+
+      return response.data.value; // SAP SL usually wraps in { value: [...] }
+    } catch (error) {
+      return thunkApi.rejectWithValue(
+        error.response?.data || "Error fetching CustomerDetails"
+      );
+    }
+  }
+);
+
+
 
 // ✅ Create customer
 export const createCustomerDetails = createAsyncThunk(

@@ -51,7 +51,7 @@ import HeaderFilterDialog from "./HeaderFilterDialog";
   // Handle popup item click
   const handleDialogItemClick = (e, fieldname) => {
     //const selectedItem = e.detail.item.textContent;
-    const filteredList = tableData.filter((item) => {
+    const filteredList = tableData&&tableData.filter((item) => {
       return item[fieldname]
         ?.toString()
         .toLowerCase()
@@ -83,7 +83,7 @@ import HeaderFilterDialog from "./HeaderFilterDialog";
           <Label>{field.DisplayName}</Label>
           <DatePicker
             value={value}
-            style={{ width: "60%" }}
+            //style={{ width: "0%" }}
             onChange={(e) => handleChange(e, field.FieldName)}
           />
         </FlexBox>
@@ -132,11 +132,8 @@ import HeaderFilterDialog from "./HeaderFilterDialog";
             onOpen={function Xs() {}}
             valueState="None"
           >
-            <Option>Option 1</Option>
-            <Option>Option 2</Option>
-            <Option>Option 3</Option>
-            <Option>Option 4</Option>
-            <Option>Option 5</Option>
+            <Option>Open</Option>
+            <Option>Closed</Option>
           </Select>
         </FlexBox>
       );

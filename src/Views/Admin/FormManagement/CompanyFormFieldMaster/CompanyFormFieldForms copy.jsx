@@ -30,6 +30,7 @@ import { fetchFormSection } from "../../../../store/slices/formsectionSlice";
 import Companies from "../../Masters/Companies/Companies";
 import { fetchCompanies } from "../../../../store/slices/companiesSlice";
 import { fetchFormFields } from "../../../../store/slices/FormFieldSlice";
+import AppBar from "../../../../Components/Module/Appbar";
 
 // Validation schema
 const schema = yup.object().shape({
@@ -140,8 +141,8 @@ const CompanyFormFieldForms = ({
     <Page
       backgroundDesign="Solid"
       footer={
-        <div>
-          <Bar
+          <AppBar
+          style={{ padding:0.5 }}
             design="FloatingFooter"
             endContent={
               <>
@@ -155,16 +156,16 @@ const CompanyFormFieldForms = ({
               </>
             }
           />
-        </div>
       }
       header={
-        <Bar
+        <AppBar
           design="Header"
           endContent={
             <Button
               accessibleName="Settings"
-              icon="settings"
+              icon="decline"
               title="Go to Settings"
+              onClick={() => navigate(-1)} // Go back to previous page
             />
           }
           startContent={
@@ -191,7 +192,7 @@ const CompanyFormFieldForms = ({
           <Title level="h4">
             {mode === "edit" ? "Edit Form Field" : "Create Form Field"}
           </Title>
-        </Bar>
+        </App>
       }
     >
       {apiError && (
