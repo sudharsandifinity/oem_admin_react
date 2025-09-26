@@ -1,5 +1,5 @@
 // DynamicForm.jsx
-import React, { useContext, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import {
   Form,
   FormItem,
@@ -41,15 +41,21 @@ import { SalesOrderRenderInput } from "./SalesOrderRenderInput";
 import General from "./General/General";
 import Contents from "./Contents/Contents";
 import Logistics from "./Logistics/Logistics";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import CustomerSelection from "./Header/CustomerSelection";
 import Accounting from "./Accounting/Accounting";
 import Attachments from "./Attachments/Attachments";
 import UserDefinedFields from "./User-DefinedFields/UserDefinedFields";
+import { useSelector } from "react-redux";
 
 export default function SalesOrder() {
   const { fieldConfig, CustomerDetails, DocumentDetails } =
     useContext(FormConfigContext);
+  const { formId } = useParams();
+  const user = useSelector((state) => state.auth.user);
+  const [tabList, setTabList] = useState([]);
+  const [formDetails, setFormDetails] = useState([]);
+
   const navigate = useNavigate();
   const [form, setForm] = useState({
     CardCode: "",
@@ -60,7 +66,7 @@ export default function SalesOrder() {
     Remarks: "",
     DocTotal: 0,
     items: [{ ItemCode: "", ItemName: "", Quantity: 0, Price: 0 }],
-    cusDetail:[],
+    cusDetail: [],
     U_Test1: "",
     U_Test2: "",
   });
@@ -70,23 +76,23 @@ export default function SalesOrder() {
     menuRef.current.open = true;
     menuRef.current.opener = e.currentTarget;
   };
-  const handleChange = (e, name,formName) => {
+  const handleChange = (e, name, formName) => {
     const newValue = e.target.value;
-    if(formName === "cusDetail" || formName === "docDetail") {
-      
+    if (formName === "cusDetail" || formName === "docDetail") {
+
       setForm((prevForm) => ({
         ...prevForm,
-        formName:[{[name]: newValue}],
+        formName: [{ [name]: newValue }],
       }));
       return;
-    } else{
-  setForm({ ...form, [name]: newValue });
+    } else {
+      setForm({ ...form, [name]: newValue });
     }
 
     // If the field is part of the "additional" section
 
     // Top-level fields
-    
+
   };
 
   const handleRowChange = (i, name, key, value) => {
@@ -157,13 +163,26 @@ export default function SalesOrder() {
         return null;
     }
   };
-
+  useEffect(() => {
+    if (formId) {
+      // Fetch form data based on formId
+      const formDetails = user.Roles.flatMap(role =>
+        role.UserMenus.flatMap(menu =>
+          menu.children.filter(submenu => submenu.Form.id === formId)
+        )
+      );
+      setTabList(formDetails[0]?.Form.FormTabs || []);
+      setFormDetails(formDetails);
+      console.log("FormDetails", formDetails, formId, formDetails[0]?.Form.FormTabs);
+    }
+  }, [formId])
   return (
     <ObjectPage
       footerArea={
         <>
           {" "}
           <Bar
+            style={{ padding: 0.5 }}
             design="FloatingFooter"
             endContent={
               <>
@@ -180,7 +199,7 @@ export default function SalesOrder() {
       }
       headerArea={
         <DynamicPageHeader>
-          <FlexBox wrap="Wrap">
+          {/* <FlexBox wrap="Wrap">
             <FlexBox direction="Column">
               <Label>Customer</Label>
             </FlexBox>
@@ -204,19 +223,19 @@ export default function SalesOrder() {
                 //value={value}
                 showTickmarks
                 showTooltip
-                //onInput={handleSliderChange}
+              //onInput={handleSliderChange}
               />
             </FlexBox>
-          </FlexBox>
+          </FlexBox> */}
         </DynamicPageHeader>
       }
       // image="https://sap.github.io/ui5-webcomponents-react/v2/assets/Person-B7wHqdJw.png"
       imageShapeCircle
       mode="IconTabBar"
-      onBeforeNavigate={function Xs() {}}
-      onPinButtonToggle={function Xs() {}}
-      onSelectedSectionChange={function Xs() {}}
-      onToggleHeaderArea={function Xs() {}}
+      onBeforeNavigate={function Xs() { }}
+      onPinButtonToggle={function Xs() { }}
+      onSelectedSectionChange={function Xs() { }}
+      onToggleHeaderArea={function Xs() { }}
       selectedSectionId="section1"
       style={{
         height: "700px",
@@ -226,27 +245,27 @@ export default function SalesOrder() {
         <ObjectPageTitle
           breadcrumbs={
             <>
-              
-            <Breadcrumbs design="Standard"
+
+              <Breadcrumbs design="Standard"
                 separators="Slash"
                 onItemClick={(e) => {
                   const route = e.detail.item.dataset.route;
                   if (route) navigate(route);
                 }}>
-              <BreadcrumbsItem  data-route="/UserDashboard">Home</BreadcrumbsItem>
-              <BreadcrumbsItem data-route="/ManageSalesOrder">
-                Manage Sales Order
-              </BreadcrumbsItem>
-              <BreadcrumbsItem>Sales Order</BreadcrumbsItem>
-            </Breadcrumbs></>
+                <BreadcrumbsItem data-route="/UserDashboard">Home</BreadcrumbsItem>
+                <BreadcrumbsItem data-route="/ManageSalesOrder">
+                  Manage Sales Order
+                </BreadcrumbsItem>
+                <BreadcrumbsItem>{formDetails?formDetails[0]?.name:"Sales Order"}</BreadcrumbsItem>
+              </Breadcrumbs></>
           }
-          header={<Title level="H2">Sales Order</Title>}
+          header={<Title level="H2">{formDetails?formDetails[0]?.name:"Sales Order"}</Title>}
           navigationBar={
             <Toolbar design="Transparent">
-              <ToolbarButton design="Transparent" icon="full-screen" />
-              <ToolbarButton design="Transparent" icon="exit-full-screen" />
-              
-              
+              {/* <ToolbarButton design="Transparent" icon="full-screen" />
+              <ToolbarButton design="Transparent" icon="exit-full-screen" /> */}
+
+
               <ToolbarButton
                 onClick={() => navigate("/ManageSalesOrder")}
                 design="Transparent"
@@ -255,82 +274,113 @@ export default function SalesOrder() {
             </Toolbar>
           }
         >
-          <ObjectStatus>1316
+          <ObjectStatus>
             {/* <Button design="Transparent" icon="navigation-right-arrow"  onClick={openMenu} >
                  Company
               </Button>
             <CustomerSelection menuRef={menuRef}/> */}
-            
-              </ObjectStatus>
+
+          </ObjectStatus>
         </ObjectPageTitle>
       }
     >
-      <ObjectPageSection
-        id="section1"
-        style={{ height: "100%" }}
-        titleText="General"
-      >
-        <General form={form}  handleChange={handleChange} />
-      </ObjectPageSection>
+      {tabList.map((tab) => {
+        console.log("object", tab);
+        if (tab.name === "general") {
+          return (
+            <ObjectPageSection
+              id="section1"
+              style={{ height: "100%" }}
+              titleText="General"
+            >
+              <General form={form} SubForms={tab.SubForms} handleChange={handleChange} />
+            </ObjectPageSection>
+          );
+        } else if (tab.name === "contents") {
+          return (
+            <ObjectPageSection
+              id="section2"
+              style={{
+                height: "100%",
+              }}
+              titleText="Contents"
+            >
+              <Contents
+                form={form}
+                handleRowChange={handleRowChange}
+                deleteRow={deleteRow}
+                addRow={addRow}
+                SalesOrderRenderInput={SalesOrderRenderInput}
+                handleChange={handleChange}
+              />
+            </ObjectPageSection>
+          );
+        } else if (tab.name === "logistics") {
+          return (
+            <ObjectPageSection
+              id="section3"
+              style={{
+                height: "100%",
+              }}
+              titleText="Logistics"
+            >
+              <Logistics
+                fieldConfig={fieldConfig}
+                SalesOrderRenderInput={SalesOrderRenderInput}
+                form={form}
+                handleChange={handleChange}
+              />
+            </ObjectPageSection>
+          );
+        }
+        else if (tab.name === "accounting") {
+          return (
+            <ObjectPageSection
+              id="section4"
+              style={{
+                height: "100%",
+              }}
+              titleText="Accounting"
+            >
+              <Accounting />
+            </ObjectPageSection>
+          );
+        } else if (tab.name === "attachments") {
+          return (
+            <ObjectPageSection
+              id="section5"
+              style={{
+                height: "100%",
+              }}
+              titleText="Attachments"
+            >
+              <Attachments />
+            </ObjectPageSection>
+          );
+        } else if (tab.name === "user-defined-field") {
+          return (
+            <ObjectPageSection
+              id="section6"
+              style={{
+                height: "100%",
+              }}
+              titleText="User-defined Fields"
+            >
+              <UserDefinedFields form={form}
+                handleChange={handleChange} />
+            </ObjectPageSection>
+          );
+        }
+      })}
 
-      <ObjectPageSection
-        id="section2"
-        style={{
-          height: "100%",
-        }}
-        titleText="Contents"
-      >
-        <Contents
-          form={form}
-          handleRowChange={handleRowChange}
-          deleteRow={deleteRow}
-          addRow={addRow}
-          SalesOrderRenderInput={SalesOrderRenderInput}
-          handleChange={handleChange}
-        />
-      </ObjectPageSection>
-      <ObjectPageSection
-        id="section3"
-        style={{
-          height: "100%",
-        }}
-        titleText="Logistics"
-      >
-        <Logistics
-          fieldConfig={fieldConfig}
-          SalesOrderRenderInput={SalesOrderRenderInput}
-          form={form}
-          handleChange={handleChange}
-        />
-      </ObjectPageSection>
-      <ObjectPageSection
-        id="section4"
-        style={{
-          height: "100%",
-        }}
-        titleText="Accounting"
-      >
-        <Accounting />
-      </ObjectPageSection>
-      <ObjectPageSection
-        id="section5"
-        style={{
-          height: "100%",
-        }}
-        titleText="Attachments"
-      >
-        <Attachments />
-      </ObjectPageSection>
-      <ObjectPageSection
-        id="section6"
-        style={{
-          height: "100%",
-        }}
-        titleText="User-defined Fields"
-      >
-        <UserDefinedFields form={form}
-          handleChange={handleChange}/>
-      </ObjectPageSection>
-    </ObjectPage>
+
+
+
+
+
+
+
+
+    </ObjectPage >
   );
 }

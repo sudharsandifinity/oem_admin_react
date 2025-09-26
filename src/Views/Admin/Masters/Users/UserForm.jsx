@@ -31,6 +31,7 @@ import { fetchForm } from "../../../../store/slices/formmasterSlice";
 import { fetchBranch } from "../../../../store/slices/branchesSlice";
 import { fetchCompanies } from "../../../../store/slices/companiesSlice";
 import { fetchFormFields } from "../../../../store/slices/FormFieldSlice";
+import AppBar from "../../../../Components/Module/Appbar";
 
 // Validation schema
 const schema = yup.object().shape({
@@ -176,8 +177,8 @@ const UserForm = ({
     <Page
       backgroundDesign="Solid"
       footer={
-        <div>
           <Bar
+          style={{ padding:0.5 }}
             design="FloatingFooter"
             endContent={
               <>
@@ -191,21 +192,20 @@ const UserForm = ({
               </>
             }
           />
-        </div>
       }
       header={
-        <Bar
+        <AppBar
           design="Header"
           endContent={
-            <Button
+           <Button
               accessibleName="Settings"
-              icon="settings"
+              icon="decline"
               title="Go to Settings"
-              onClick={handleAddDetails}
+              onClick={() => navigate(-1)} // Go back to previous page
             />
           }
           startContent={
-            <div style={{ paddingLeft: "1rem", width: "180px" }}>
+            <div style={{ width: "210px" }}>
               <Breadcrumbs
                 design="Standard"
                 onItemClick={(e) => {
@@ -228,7 +228,7 @@ const UserForm = ({
           <Title level="h4">
             {mode === "edit" ? "Edit User" : "Create New User"}
           </Title>
-        </Bar>
+        </AppBar>
       }
     >
       {apiError && (

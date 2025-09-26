@@ -28,6 +28,7 @@ import { fetchUserMenus } from "../../../../store/slices/usermenusSlice";
 import { fetchCompanies } from "../../../../store/slices/companiesSlice";
 import { fetchForm } from "../../../../store/slices/formmasterSlice";
 import { fetchBranch } from "../../../../store/slices/branchesSlice";
+import AppBar from "../../../../Components/Module/Appbar";
 
 // Validation schema
 const schema = yup.object().shape({
@@ -125,8 +126,8 @@ const MenuForm = ({
     <Page
       backgroundDesign="Solid"
       footer={
-        <div>
           <Bar
+          style={{ padding:0.5 }}
             design="FloatingFooter"
             endContent={
               <>
@@ -140,16 +141,16 @@ const MenuForm = ({
               </>
             }
           />
-        </div>
       }
       header={
-        <Bar
+        <AppBar
           design="Header"
           endContent={
-            <Button
+           <Button
               accessibleName="Settings"
-              icon="settings"
+              icon="decline"
               title="Go to Settings"
+              onClick={() => navigate(-1)} // Go back to previous page
             />
           }
           startContent={
@@ -176,7 +177,7 @@ const MenuForm = ({
           <Title level="h4">
             {mode === "edit" ? "Edit MenuForm" : "Create MenuForm"}
           </Title>
-        </Bar>
+        </AppBar>
       }
     >
       {apiError && (

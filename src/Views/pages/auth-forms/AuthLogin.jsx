@@ -24,6 +24,8 @@ import {
   FlexBoxAlignItems,
   FlexBoxJustifyContent,
 } from "@ui5/webcomponents-react";
+import logo from "../../../assets/Image/HLB-logo.png";
+import outlinelogo from "../../../assets/Image/HLB-Hamt-Logo-outline-01 (1).svg";
 
 export default function AuthLogin() {
   const dispatch = useDispatch();
@@ -69,8 +71,9 @@ export default function AuthLogin() {
       <FlexBox
         style={{
           display: "flex",
-          height: "100vh",
+          height: "97vh",
           fontFamily: "Segoe UI, sans-serif",
+          background: "#005a77",
         }}
       >
 
@@ -78,7 +81,7 @@ export default function AuthLogin() {
         <FlexBox
           style={{
             flex: 1,
-            background: "#f9f9f9",
+            //background: "#080808ff",
             display: "flex",
             flexDirection: "column",
             justifyContent: "center",
@@ -87,18 +90,18 @@ export default function AuthLogin() {
             textAlign: "center",
           }}
         >
-          {/* Illustration - Replace with your own if needed */}
           <img
-            src="https://tonysourcing.com/wp-content/uploads/2021/11/OEM.jpg"
+            //src="https://tonysourcing.com/wp-content/uploads/2021/11/OEM.jpg"
+            src={outlinelogo}
             alt="MFA illustration"
-            style={{ width: "60%", marginBottom: "2rem" }}
+            //style={{ width: "60%", marginBottom: "2rem" }}
           />
-          <Title level="H5">MFA for all accounts</Title>
+          {/* <Title level="H5">MFA for all accounts</Title>
           <FlexBox style={{ maxWidth: "400px", color: "#444", margin: "1rem 0" }}>
             Secure online accounts with OneAuth 2FA. Back up OTP secrets and
             never lose access to your accounts.
           </FlexBox>
-          <Button design="Transparent">Learn more</Button>
+          <Button design="Transparent">Learn more</Button> */}
         </FlexBox>
         <Card
           style={{
@@ -106,12 +109,14 @@ export default function AuthLogin() {
             width: "400px",
             borderRadius: "1rem",
             boxShadow: "0 4px 16px rgba(0,0,0,0.1)",
+            background: "#4d8ba0",
           }}
         >
           <FlexBox
             direction="Column"
             alignItems="Center"
             style={{ marginBottom: "1.5rem" }}
+            backgroundColor="#d9e6eb"
           >
             {/* <Title
               level="H1"
@@ -130,8 +135,10 @@ export default function AuthLogin() {
             </Title> */}
             <img
               width={"50px"}
+              style={{margin:"1rem"}}
               alt="person-placeholder"
-              src="https://cdn.vectorstock.com/i/2000v/40/54/oem-original-equipment-manufacturing-vector-45464054.avif"
+              //src="https://cdn.vectorstock.com/i/2000v/40/54/oem-original-equipment-manufacturing-vector-45464054.avif"
+            src={logo} 
             />
             <Title
               level="H5"

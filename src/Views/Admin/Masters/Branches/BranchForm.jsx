@@ -24,6 +24,7 @@ import {
   Title,
 } from "@ui5/webcomponents-react";
 import { useNavigate } from "react-router-dom";
+import AppBar from "../../../../Components/Module/Appbar";
 
 // Validation schema
 const schema = yup.object().shape({
@@ -66,8 +67,8 @@ const BranchForm = ({
     <Page
       backgroundDesign="Solid"
       footer={
-        <div>
           <Bar
+          style={{ padding:0.5 }}
             design="FloatingFooter"
             endContent={
               <>
@@ -81,16 +82,16 @@ const BranchForm = ({
               </>
             }
           />
-        </div>
       }
       header={
-        <Bar
+        <AppBar
           design="Header"
           endContent={
             <Button
               accessibleName="Settings"
-              icon="settings"
+              icon="decline"
               title="Go to Settings"
+              onClick={() => navigate(-1)} // Go back to previous page
             />
           }
           startContent={
@@ -117,7 +118,7 @@ const BranchForm = ({
           <Title level="h4">
             {mode === "edit" ? "Edit Branch" : "Create New Branch"}
           </Title>
-        </Bar>
+        </AppBar>
       }
     >
       {apiError && (

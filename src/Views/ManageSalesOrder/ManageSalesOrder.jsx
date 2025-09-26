@@ -35,6 +35,7 @@ import { fetchFormFields } from "../../store/slices/FormFieldSlice";
 import { fetchCompanyFormfields, fetchCompanyFormsFieldsById } from "../../store/slices/companyformfieldSlice";
 import { fetchcompanyformfielddata } from "../../store/slices/companyformfielddata";
 import { fetchFormById } from "../../store/slices/formmasterSlice";
+import { fetchCustomerDetails } from "../../store/slices/CustomerDetailsSlice";
 
 const ManageSalesOrder = () => {
   const {
@@ -141,7 +142,7 @@ const ManageSalesOrder = () => {
   useEffect(() => {
     async function fetchForm() {
       try {
-        const res = "";//await dispatch(fetchFormById(formId)).unwrap();
+        const res = await dispatch(fetchCustomerDetails()).unwrap();
         console.log("fetchdata", res);
                 if (res.message === "Please Login!") {
           navigate("/");
@@ -160,6 +161,7 @@ const ManageSalesOrder = () => {
       <DynamicPage
         footerArea={
           <Bar
+          style={{ padding:0.5 }}
             design="FloatingFooter"
             endContent={
               <>
@@ -233,7 +235,7 @@ const ManageSalesOrder = () => {
             }
             navigationBar={
               <Toolbar design="Transparent">
-                <ToolbarButton design="Transparent" icon="decline" />
+                <ToolbarButton  onClick={() => navigate("/UserDashboard")} design="Transparent" icon="decline" />
               </Toolbar>
             }
             snappedHeading={

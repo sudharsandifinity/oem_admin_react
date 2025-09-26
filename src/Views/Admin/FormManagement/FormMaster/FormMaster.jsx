@@ -22,6 +22,7 @@ import {
 } from "../../../../store/slices/formmasterSlice";
 import { useNavigate } from "react-router-dom";
 import Admin from "../../Admin";
+import AppBar from "../../../../Components/Module/Appbar";
 const ViewFormMaster = Loadable(lazy(() => import("./ViewFormMaster")));
 
 const FormMaster = () => {
@@ -150,7 +151,7 @@ const FormMaster = () => {
       backgroundDesign="Solid"
       footer={<div></div>}
       header={
-        <Bar
+        <AppBar
           design="Header"
           startContent={
             <div style={{ width: "150px" }}>
@@ -179,15 +180,15 @@ const FormMaster = () => {
           }
         >
           <Title level="H4">Form List</Title>
-        </Bar>
+        </AppBar>
       }
     >
       <Card
         style={{
           height: "100%",
           width: "100%",
-          padding: "0.5rem",
-          paddingTop: "2rem",
+          //padding: "0.5rem",
+          paddingTop: "0.5rem",
         }}
       >
         <FlexBox direction="Column">
@@ -217,7 +218,8 @@ const FormMaster = () => {
                     <AnalyticalTable
                       columns={columns}
                       data={filteredRows || []}
-                      header={"  FormMaster list(" + filteredRows.length + ")"}
+                      header={<Title level="H5" style={{ paddingLeft: 5 }}>  {
+                        "FormMaster list(" + filteredRows.length + ")"}</Title>}
                       visibleRows={8}
                       filterable
                       pagination

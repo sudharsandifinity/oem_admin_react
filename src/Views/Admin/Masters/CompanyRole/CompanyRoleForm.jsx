@@ -31,6 +31,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCompanies } from "../../../../store/slices/companiesSlice";
+import AppBar from "../../../../Components/Module/Appbar";
 
 // Validation schema
 const schema = yup.object().shape({
@@ -272,8 +273,8 @@ useEffect(() => {
     <Page
       backgroundDesign="Solid"
       footer={
-        <div>
           <Bar
+            style={{ padding: 0.5 }}
             design="FloatingFooter"
             endContent={
               <>
@@ -297,16 +298,16 @@ useEffect(() => {
               </>
             }
           />
-        </div>
       }
       header={
-        <Bar
+        <AppBar
           design="Header"
           endContent={
             <Button
               accessibleName="Settings"
-              icon="settings"
+              icon="decline"
               title="Go to Settings"
+              onClick={() => navigate(-1)} // Go back to previous page
             />
           }
           startContent={
@@ -334,7 +335,7 @@ useEffect(() => {
           <Title level="h4">
             {defaultValues.id ? "Edit Role" : "Create New Role"}
           </Title>
-        </Bar>
+        </AppBar>
       }
     >
       {apiError && (

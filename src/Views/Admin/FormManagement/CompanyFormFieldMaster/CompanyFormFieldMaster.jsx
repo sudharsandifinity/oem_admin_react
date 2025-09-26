@@ -25,6 +25,7 @@ import {
   updateCompanyFormsField,
 } from "../../../../store/slices/companyformfieldSlice";
 import EditFormfield from "./EditFormfield";
+import AppBar from "../../../../Components/Module/Appbar";
 const ViewCompanyFormFieldMaster = Loadable(
   lazy(() => import("./ViewCompanyFormFieldMaster"))
 );
@@ -251,7 +252,7 @@ const CompanyFormFieldMaster = () => {
       backgroundDesign="Solid"
       footer={<div></div>}
       header={
-        <Bar
+        <AppBar
           design="Header"
           startContent={
             <div style={{ width: "200px" }}>
@@ -280,15 +281,15 @@ const CompanyFormFieldMaster = () => {
           }
         >
           <Title level="H4">Company Form Field List</Title>
-        </Bar>
+        </AppBar>
       }
     >
       <Card
         style={{
           height: "100%",
           width: "100%",
-          padding: "0.5rem",
-          paddingTop: "2rem",
+          //padding: "0.5rem",
+          paddingTop: "0.5rem",
         }}
       >
         <FlexBox direction="Column">
@@ -317,10 +318,10 @@ const CompanyFormFieldMaster = () => {
                     <AnalyticalTable
                       columns={columns}
                       data={filteredRows || []}
-                      header={
+                      header={<Title level="H5" style={{ paddingLeft: 5 }}>  {
                         "  Company Forms Field List(" +
                         filteredRows.length +
-                        ")"
+                        ")"}  </Title>
                       }
                       visibleRows={10}
                       onAutoResize={() => {}}

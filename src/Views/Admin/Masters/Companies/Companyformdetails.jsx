@@ -1,4 +1,4 @@
-import {  useRef } from "react";
+import { useRef } from "react";
 
 import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -23,6 +23,7 @@ import {
   Title,
 } from "@ui5/webcomponents-react";
 import { useNavigate } from "react-router-dom";
+import AppBar from "../../../../Components/Module/Appbar";
 
 // Validation schema
 const schema = yup.object().shape({
@@ -34,7 +35,7 @@ const schema = yup.object().shape({
   secret_key: yup.string().required("Secret key is required"),
   status: yup.string().required("Status is required"),
   // is_branch: yup.string().required("is_branch is required"),1
- 
+
 });
 
 const Companyformdetails = ({
@@ -43,7 +44,7 @@ const Companyformdetails = ({
     name: "",
     company_code: "",
     company_db_name: "",
-    base_url:"",
+    base_url: "",
     sap_username: "",
     secret_key: "",
     status: "",
@@ -62,37 +63,37 @@ const Companyformdetails = ({
   const formRef = useRef(null);
 
   const navigate = useNavigate();
-  
+
 
   return (
     <Page
       backgroundDesign="Solid"
       footer={
-        <div>
-          <Bar
-            design="FloatingFooter"
-            endContent={
-              <>
-                <Button
-                  design="Emphasized"
-                  form="form" /* ← link button to that form id */
-                  type="Submit"
-                >
-                  {mode === "edit" ? "Update Company" : "Create Company"}
-                </Button>
-              </>
-            }
-          />
-        </div>
+        <Bar
+          style={{ padding: 0.5 }}
+          design="FloatingFooter"
+          endContent={
+            <>
+              <Button
+                design="Emphasized"
+                form="form" /* ← link button to that form id */
+                type="Submit"
+              >
+                {mode === "edit" ? "Update Company" : "Create Company"}
+              </Button>
+            </>
+          }
+        />
       }
       header={
-        <Bar
+        <AppBar
           design="Header"
           endContent={
             <Button
               accessibleName="Settings"
-              icon="settings"
+              icon="decline"
               title="Go to Settings"
+              onClick={() => navigate(-1)} // Go back to previous page
             />
           }
           startContent={
@@ -110,8 +111,8 @@ const Companyformdetails = ({
                   Companies
                 </BreadcrumbsItem>
                 <BreadcrumbsItem data-route="/admin/companies/create">
-            {mode === "edit" ? "Edit Company" : "Create Company"}
-                  
+                  {mode === "edit" ? "Edit Company" : "Create Company"}
+
                 </BreadcrumbsItem>
               </Breadcrumbs>
             </div>
@@ -120,7 +121,7 @@ const Companyformdetails = ({
           <Title level="h4">
             {mode === "edit" ? "Edit Company" : "Create Company"}
           </Title>
-        </Bar>
+        </AppBar>
       }
     >
       {apiError && (
@@ -148,7 +149,7 @@ const Companyformdetails = ({
           wrap="Wrap" // allow line breaks
           style={{ gap: "1rem", paddingTop: "4rem" }}
         >
-          <FlexBox direction="Column" style={{ flex: " 28%"}}>
+          <FlexBox direction="Column" style={{ flex: " 28%" }}>
             <Label>Company Name</Label>
             <Controller
               name="name"
@@ -156,10 +157,10 @@ const Companyformdetails = ({
               render={({ field }) => (
                 <FlexBox
                   label={<Label required>Label Text</Label>}
-                 style={{ width: "100%" }}
+                  style={{ width: "100%" }}
                 >
                   <Input
-                    style={{width:"80%"}}
+                    style={{ width: "80%" }}
                     placeholder="Company Name"
                     name="name"
                     value={field.value ?? ""} // controlled value
@@ -188,7 +189,7 @@ const Companyformdetails = ({
                   style={{ flex: "28%" }}
                 >
                   <Input
-                  style={{width:"80%"}}
+                    style={{ width: "80%" }}
                     placeholder="Company Db Name"
                     name="company_db_name"
                     value={field.value ?? ""} // controlled value
@@ -217,7 +218,7 @@ const Companyformdetails = ({
                   style={{ flex: "28%" }}
                 >
                   <Input
-                  style={{width:"80%"}}
+                    style={{ width: "80%" }}
                     placeholder="Company Code"
                     name="company_code"
                     value={field.value ?? ""} // controlled value
@@ -246,7 +247,7 @@ const Companyformdetails = ({
                   style={{ flex: "28%" }}
                 >
                   <Input
-                  style={{width:"80%"}}
+                    style={{ width: "80%" }}
                     placeholder="Base URL"
                     name="base_url"
                     value={field.value ?? ""} // controlled value
@@ -276,7 +277,7 @@ const Companyformdetails = ({
                   style={{ flex: "28%" }}
                 >
                   <Input
-                  style={{width:"80%"}}
+                    style={{ width: "80%" }}
                     placeholder="SAP UserName"
                     name="sap_username"
                     value={field.value ?? ""} // controlled value
@@ -299,17 +300,17 @@ const Companyformdetails = ({
             <Controller
               name="secret_key"
               control={control}
-                rules={{
-            required: "Secret Key is required",
-            minLength: { value: 8, message: "Must be at least 8 characters" },
-          }}
+              rules={{
+                required: "Secret Key is required",
+                minLength: { value: 8, message: "Must be at least 8 characters" },
+              }}
               render={({ field }) => (
                 <FlexBox
                   label={<Label required>Label Text</Label>}
                   style={{ flex: "28%" }}
                 >
                   <Input
-                  style={{width:"80%"}}
+                    style={{ width: "80%" }}
                     placeholder="Secret Key"
                     name="secret_key"
                     type="password  "
@@ -337,14 +338,14 @@ const Companyformdetails = ({
                 control={control}
                 render={({ field }) => (
                   <Select
-                  style={{width:"26%"}}
-                  placeholder="Status"
+                    style={{ width: "26%" }}
+                    placeholder="Status"
                     name="status"
                     value={field.value ?? ""}
                     onChange={(e) => field.onChange(e.target.value)}
                     valueState={errors.status ? "Error" : "None"}
                   >
-                   <Option key="" value="">Select</Option>
+                    <Option key="" value="">Select</Option>
 
                     <Option value="1">Active</Option>
                     <Option value="0">Inactive</Option>

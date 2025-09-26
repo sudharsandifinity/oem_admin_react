@@ -22,6 +22,7 @@ import {
   deleteFormFields,
   fetchFormFields,
 } from "../../../../store/slices/FormFieldSlice";
+import AppBar from "../../../../Components/Module/Appbar";
 const ViewFormFields = Loadable(lazy(() => import("./ViewFormFields")));
 
 const FormFields = () => {
@@ -180,7 +181,7 @@ const FormFields = () => {
       backgroundDesign="Solid"
       footer={<div></div>}
       header={
-        <Bar
+        <AppBar
           design="Header"
           startContent={
             <div style={{ width: "150px" }}>
@@ -209,15 +210,15 @@ const FormFields = () => {
           }
         >
           <Title level="H4">Form Field List</Title>
-        </Bar>
+        </AppBar>
       }
     >
       <Card
         style={{
           height: "100%",
           width: "100%",
-          padding: "0.5rem",
-          paddingTop: "2rem",
+          //padding: "0.5rem",
+         paddingTop: "0.5rem",
         }}
       >
         <FlexBox direction="Column">
@@ -245,7 +246,8 @@ const FormFields = () => {
                     <AnalyticalTable
                       columns={columns}
                       data={filteredRows || []}
-                      header={"  FormFields list(" + filteredRows.length + ")"}
+                      header={<Title level="H5" style={{ paddingLeft: 5 }}>  {
+                        "FormFields list(" + filteredRows.length + ")"}</Title>}
                       visibleRows={8}
                       filterable
                       pagination

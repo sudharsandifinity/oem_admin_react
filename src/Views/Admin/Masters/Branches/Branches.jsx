@@ -22,6 +22,7 @@ import {
   fetchBranch,
 } from "../../../../store/slices/branchesSlice";
 import { fetchCompanies } from "../../../../store/slices/companiesSlice";
+import AppBar from "../../../../Components/Module/Appbar";
 
 const ViewBranch = Loadable(lazy(() => import("./ViewBranch")));
 
@@ -179,7 +180,7 @@ const Branches = () => {
       backgroundDesign="Solid"
       footer={<div></div>}
       header={
-        <Bar
+        <AppBar
           design="Header"
           startContent={
             <div style={{ width: "150px" }}>
@@ -212,15 +213,15 @@ const Branches = () => {
           }
         >
           <Title level="H4">Branch List</Title>
-        </Bar>
+        </AppBar>
       }
     >
       <Card
         style={{
           height: "100%",
           width: "100%",
-          padding: "0.5rem",
-          paddingTop: "2rem",
+          //padding: "0.5rem",
+          paddingTop: "0.5rem",
         }}
       >
         <FlexBox direction="Column">
@@ -252,7 +253,8 @@ const Branches = () => {
                       <AnalyticalTable
                         columns={columns}
                         data={filtered || []}
-                        header={"  Branches list(" + filtered.length + ")"}
+                        header={<Title level="H5" style={{ paddingLeft: 5 }}>  {
+                          "Branches list(" + filtered.length + ")"}</Title>}
                         visibleRows={8}
                         filterable
                         pagination

@@ -1,76 +1,190 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 
 import ForgotPasswordForm from '../auth-forms/ForgotPasswordForm'
 
 import AuthFooter from './AuthFooter';
-import { Button, Card, FlexBox, Text, Title } from '@ui5/webcomponents-react';
+import { Button, Card, FlexBox, FlexBoxAlignItems, FlexBoxDirection, Input, Label, Text, Title } from '@ui5/webcomponents-react';
+import logo from "../../../assets/Image/HLB-logo.png";
+import { useDispatch, useSelector } from 'react-redux';
+import { useState } from 'react';
+import { forgotPassword } from '../../../store/slices/authSlice';
 
 // ================================|| AUTH3 - LOGIN ||================================ //
 
 export default function ForgotPassword() {
+    const { error } = useSelector((state) => state.auth);
+      const [email, setEmail] = useState("");
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { forgotStatus, forgotMessage } = useSelector((state) => state.auth);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    dispatch(forgotPassword(email));
+  };
 
   return (
     <FlexBox
+      style={{
+        display: "flex",
+        height: "100vh",
+        fontFamily: "Segoe UI, sans-serif",
+      }}
+    >
+
+      {/* Right Section */}
+      <FlexBox
         style={{
+          flex: 1,
+          background: "#f9f9f9",
           display: "flex",
-          height: "100vh",
-          fontFamily: "Segoe UI, sans-serif",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          padding: "2rem",
+          textAlign: "center",
         }}
       >
-
-        {/* Right Section */}
-        <FlexBox
-          style={{
-            flex: 1,
-            background: "#f9f9f9",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-            alignItems: "center",
-            padding: "2rem",
-            textAlign: "center",
-          }}
-        >
-          {/* Illustration - Replace with your own if needed */}
-          <img
-            src="https://tonysourcing.com/wp-content/uploads/2021/11/OEM.jpg"
-            alt="MFA illustration"
-            style={{ width: "60%", marginBottom: "2rem" }}
-          />
-          <Title level="H5">MFA for all accounts</Title>
-          <FlexBox style={{ maxWidth: "400px", color: "#444", margin: "1rem 0" }}>
-            Secure online accounts with OneAuth 2FA. Back up OTP secrets and
-            never lose access to your accounts.
-          </FlexBox>
-          <Button design="Transparent">Learn more</Button>
+        {/* Illustration - Replace with your own if needed */}
+        <img
+          src="https://tonysourcing.com/wp-content/uploads/2021/11/OEM.jpg"
+          alt="MFA illustration"
+          style={{ width: "60%", marginBottom: "2rem" }}
+        />
+        <Title level="H5">MFA for all accounts</Title>
+        <FlexBox style={{ maxWidth: "400px", color: "#444", margin: "1rem 0" }}>
+          Secure online accounts with OneAuth 2FA. Back up OTP secrets and
+          never lose access to your accounts.
         </FlexBox>
-        <Card
+        <Button design="Transparent">Learn more</Button>
+      </FlexBox>
+      <Card
+        style={{
+          padding: "2rem",
+          width: "400px",
+          borderRadius: "1rem",
+          boxShadow: "0 4px 16px rgba(0,0,0,0.1)",
+        }}
+      >
+        <FlexBox
+          direction="Column"
+          alignItems="Center"
+          style={{ marginBottom: "1.5rem" }}
+        >
+          {/* <Title
+              level="H1"
+              style={{
+                fontSize: "1.2rem",
+                fontWeight: "200",
+                color: "black",
+                letterSpacing: "0.5px",
+                fontFamily: "72, Arial, sans-serif",
+                borderBottom: "3px solid rgb(13, 13, 14)", // Underline
+                display: "inline-block", // Keeps underline to text width
+                margin: "0.6rem",
+              }}
+            >
+              OEM
+            </Title> */}
+          <img
+            width={"50px"}
+            style={{ margin: "1rem" }}
+            alt="person-placeholder"
+            //src="https://cdn.vectorstock.com/i/2000v/40/54/oem-original-equipment-manufacturing-vector-45464054.avif"
+            src={logo}
+          />
+          <Title
+            level="H5"
+            style={{
+              fontSize: "1rem",
+              color: "#7e57c2",
+              marginBottom: "0.25rem",
+              marginTop: "1rem",
+            }}
+          >
+            Forgot password?
+          </Title>
+          <span
+            style={{
+              fontSize: "1rem",
+              color: "#6a6d70",
+              fontFamily: "72, Arial, sans-serif",
+            }}
+          >
+             Enter your email address below,<br/> we'll send you a password reset link.
+          </span>
+        </FlexBox>
+
+        {error && (
+          <MessageStrip design="Negative" style={{ marginBottom: "1rem" }}>
+            {error}
+          </MessageStrip>
+        )}
+{/* <ForgotPasswordForm /> */}
+        <form
+          onSubmit={handleSubmit}
           style={{
-            padding: '2rem',
-            width: '400px',
-            boxShadow: 'var(--sapContent_Shadow1)',
+            maxWidth: "400px",
+            margin: "auto",
+            marginTop: "2rem",
+            padding: "1rem",
           }}
         >
-          <FlexBox direction="Column" style={{ gap: '1.5rem', alignItems: 'center' }}>
-            <img 
-             width={"50px"}
-                alt="person-placeholder"
-                src="https://cdn.vectorstock.com/i/2000v/40/54/oem-original-equipment-manufacturing-vector-45464054.avif"
-              />
+          <FlexBox
+            direction={FlexBoxDirection.Column}
+            alignItems={FlexBoxAlignItems.Center}
+          >
+            
+            <Label for="email">Email Address</Label>
+            <Input
+              id="email"
+              name="email"
+              type="Email"
+              placeholder="Enter your email"
+              required
+             onInput={(e) => setEmail(e.target.value)}
+              style={{ width: "100%", marginBottom: "1rem" }}
+            />
 
-            <FlexBox direction="Column" style={{ alignItems: 'center', textAlign: 'center', gap: '0.5rem' }}>
-              <Title level="H3">Forgot password?</Title>
-              <Text>
-                Enter your email address below and we'll send you a password reset link.
-              </Text>
+            
+
+
+            <Button
+              type="Submit"
+              design="Emphasized"
+              style={{ width: "100%" }}
+              disabled={forgotStatus === "loading"}
+            >
+              {forgotStatus === "loading" ? (
+              <BusyIndicator active size="Small" />
+            ) : (
+              "Sent Mail"
+            )}
+            </Button>
+
+            <FlexBox
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                width: "100%",
+                marginTop: "1rem",
+              }}
+            >
+              <Link
+                href="/forgot-password"
+                onClick={(e) => {
+                e.preventDefault();
+                navigate("/login");
+              }}
+              >
+                Login?
+              </Link>
             </FlexBox>
-
-            {/* Form Block */}
-            <ForgotPasswordForm />
           </FlexBox>
-        </Card>
-      </FlexBox>
-   
+        </form>
+      </Card>
+    </FlexBox>
+
   );
 }

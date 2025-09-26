@@ -12,6 +12,7 @@ import formsectionReducer from './slices/formsectionSlice'
 import companyformfieldReducer from './slices/companyformfieldSlice'
 import usermenusReducer from './slices/usermenusSlice';
 import formfielddataReducer from './slices/companyformfielddata'
+import customerdetailsReducer from './slices/CustomerDetailsSlice';
 const store = configureStore({
   reducer: {
     auth: authReducer,
@@ -26,7 +27,8 @@ const store = configureStore({
     formsection:formsectionReducer,
     companyformfield:companyformfieldReducer,
     usermenus:usermenusReducer,
-    companyformfielddata:formfielddataReducer
+    companyformfielddata:formfielddataReducer,
+    customerdetails:customerdetailsReducer
   },
 });
 
