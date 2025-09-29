@@ -93,6 +93,12 @@ const UserDashboard = () => {
   const menuTree = buildMenuTree(
     menulist.length > 0 ? menulist : authUserMenus
   );
+  useEffect(()=>{
+    if(authUserMenus.length===0){
+      navigate("/")
+    }
+
+  },[authUserMenus])
   console.log("authUserMenus", authUserMenus, menulist, menuTree);
   // const chartData = [
   //   { name: "Product A", users: 30 },
@@ -211,7 +217,6 @@ const UserDashboard = () => {
             </Menu>
           </>
         )} */}
-        {console.log("company", companies)}
         <div style={{ display: "flex", gap: "0.5rem",padding: "1rem" }}>
           <div style={{ width: "270px" }}>
             <Text>Company</Text>
@@ -224,7 +229,7 @@ const UserDashboard = () => {
               <Option key="" value="">
                 Select
               </Option>
-              {companies.map((branch) => (
+              {companies&&companies.map((branch) => (
                 <Option key={branch.Company.id} value={branch.Company.id}>
                   {branch.Company.name}
                 </Option>
@@ -242,7 +247,7 @@ const UserDashboard = () => {
               }
             >
               <Option>Select</Option>
-              {companies.map((branch) => (
+              {companies&&companies.map((branch) => (
                 <Option key={branch.id} value={branch.id}>
                   {branch.name}
                 </Option>
@@ -378,7 +383,7 @@ const UserDashboard = () => {
         </Menu> */}
         {/* Welcome Text */}
         <div style={{ padding: "2rem" }}>
-          <Title level="H2">{`Welcome, ${user.first_name || "Guest"}`}</Title>
+          <Title level="H2">{`Welcome, ${user?.first_name || "Guest"}`}</Title>
 
           {/* Colored Cards - Single Row */}
           <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>

@@ -1,4 +1,4 @@
-import React, { useContext, useMemo, useRef, useState } from "react";
+import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { FormConfigContext } from "../../../Components/Context/FormConfigContext";
 import {
   AnalyticalTable,
@@ -38,9 +38,13 @@ import ItemViewPage from "./Item/ItemViewPage";
 import ServiceViewpage from "./Service/ServiceViewpage";
 import Itemtable from "./Item/Itemtable";
 import ServiceTable from "./Service/ServiceTable";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { fetchOrderItems } from "../../../store/slices/CustomerOrderItemsSlice";
+import { set } from "react-hook-form";
 
 const Contents = (props) => {
-  const { form, handleRowChange, addRow, deleteRow, SalesOrderRenderInput } =
+  const { orderItems, loading, rowSelection, setRowSelection, itemdata, setitemData } =
     props;
   const {
     fieldConfig,
@@ -52,29 +56,52 @@ const Contents = (props) => {
     servicedata,
   } = useContext(FormConfigContext);
   const tableRef = useRef();
-  const [companyCode, setCompanyCode] = useState("");
-  const [customField, setCustomField] = useState("Item");
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const placeholderRows = Array(5).fill({
+    ItemCode: "Loading...",
+    ItemName: "Loading...",
+    quantity: "-",
+    amount: "-",
+  });
+  console.log("orderitem", orderItems);
   const [addItemdialogOpen, setAddItemDialogOpen] = useState(false);
   const [addServiceDialogOpen, setAddServicedialogOpen] = useState(false);
-  const [itemdata, setitemData] = useState(itemData);
+
   const [itemForm, setItemForm] = useState([]);
   const [serviceData, setServiceData] = useState(servicedata);
   const [serviceForm, setserviceForm] = useState([]);
   const [viewItem, setViewItem] = useState([]);
   const [viewService, setViewService] = useState([]);
 
-  const addItem = () => {};
+  const addItem = () => { };
   const [layout, setLayout] = useState("OneColumn");
-  const [rowSelection, setRowSelection] = useState({});
 
-  const handleAdditemClick = () => {
-    setAddItemDialogOpen(true);
-  };
-  const handleAddServiceClick = () => {
-    setAddServicedialogOpen(true);
-  };
-  // Handle popup item click
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await dispatch(fetchOrderItems()).unwrap();
+
+        console.log("resusers", res);
+        if (res.value?.length > 0) {
+          const tableconfig = res.value.map((item) => ({
+            ItemCode: item.ItemCode,
+            ItemName: item.ItemName
+          }));
+          setitemData(tableconfig);
+        }
+        if (res.message === "Please Login!") {
+          navigate("/");
+        }
+      } catch (err) {
+        console.log("Failed to fetch user", err.message);
+        err.message && navigate("/");
+      }
+    };
+    fetchData();
+  }, [dispatch]);
   const onRowSelect = (e) => {
     console.log("onRowSelect", e.detail.row.original);
     //selectionChangeHandler(e.detail.row.original);
@@ -100,27 +127,106 @@ const Contents = (props) => {
       itemTableColumn.length &&
       itemTableColumn
         .filter(
-          (col) =>col.accessor!=="SLNo"&& col.accessor !== "itemCode" && col.accessor !== "itemName"
+          (col) => col.accessor !== "SLNo" && col.accessor !== "itemCode" && col.accessor !== "itemName"
         )
         .map((col) => ({
           Header: col.Header,
           accessor: col.accessor,
         }))),
   ];
-  const dynamcicServiceCols = [
-    ...(serviceTableColumn &&
-      serviceTableColumn.length &&
-      serviceTableColumn
-        .filter((col) => col.accessor !== "serviceCode"&&col.accessor!=="GLAccount"&&col.accessor!=="GLAccountName")
-        .map((col) => ({
-          Header: col.Header,
-          accessor: col.accessor,
-        }))),
-  ];
+
   const itemcolumns = useMemo(
     () => [
-      ...dynamcicItemCols,
+      {
+        Header: "SL No",
+        accessor: "slno", // not used for data, but needed for the column
+        Cell: ({ row }) => Number(row.id) + 1, // ✅ row.id is 0-based
+        width: 80,
+      },
+      {
+        Header: "Item Name",
+        accessor: "ItemName",
+        width: 250
+      },
+      {
+        Header: "Item Code",
+        accessor: "ItemCode",
+        width: 250,
+      },
+      {
+        Header: "Quantity",
+        accessor: "quantity",
+        width: 250,
+        Cell: ({ row, value }) => (
+          <Input
+            type="Number"
+            value={value || ""}
+            // onInput={(e) => {
+            //   const newValue = e.target.value;
+            //   setitemData((prev) =>
+            //     prev.map((r, idx) =>
+            //       idx === Number(row.id) ? { ...r, quantity: newValue } : r
+            //     )
+            //   );
+            // }}
+            onInput={(e) => {
+              const newValue = e.target.value;
+              setitemData((prev) =>
+                prev.map((r, idx) =>
+                  idx === Number(row.id) ? { ...r, Quantity: newValue } : r
+                )
+              );
 
+              // also update rowSelection
+              setRowSelection((prev) => {
+                const updated = { ...prev };
+                if (updated[row.id]) {
+                  updated[row.id] = { ...updated[row.id], Quantity: newValue };
+                }
+                return updated;
+              });
+            }}
+
+          />
+        )
+      },
+      {
+        Header: "Amount",
+        accessor: "amount",
+        width: 250,
+        Cell: ({ row, value }) => (
+          <Input
+            type="Number"
+            value={value || ""}
+            // onInput={(e) => {
+            //   const newValue = e.target.value;
+            //   setitemData((prev) =>
+            //     prev.map((r, idx) =>
+            //       idx === Number(row.id) ? { ...r, amount: newValue } : r
+            //     )
+            //   );
+            // }}
+            onInput={(e) => {
+              const newValue = e.target.value;
+              setitemData((prev) =>
+                prev.map((r, idx) =>
+                  idx === Number(row.id) ? { ...r, UnitPrice: newValue } : r
+                )
+              );
+
+              // also update rowSelection
+              setRowSelection((prev) => {
+                const updated = { ...prev };
+                if (updated[row.id]) {
+                  updated[row.id] = { ...updated[row.id], UnitPrice: newValue };
+                }
+                return updated;
+              });
+            }}
+
+          />
+        )
+      },
       {
         Header: "Actions",
         accessor: ".",
@@ -135,12 +241,12 @@ const Contents = (props) => {
           const isOverlay = webComponentsReactProperties.showOverlay;
           return (
             <FlexBox alignItems="Center">
-              <Button
+              {/* <Button
                 icon="edit"
                 disabled={isOverlay}
                 design="Transparent"
                 onClick={() => setLayout("TwoColumnsMidExpanded")}
-              />
+              /> */}
               <Button
                 icon="sap-icon://navigation-right-arrow"
                 disabled={isOverlay}
@@ -156,137 +262,11 @@ const Contents = (props) => {
         },
       },
     ],
-    [dynamcicItemCols]
+    [setitemData, layout]
   );
-  const servicecolumns = useMemo(
-    () => [
-      ...dynamcicServiceCols,
 
-      {
-        Header: "Actions",
-        accessor: ".",
-        disableFilters: true,
-        disableGroupBy: true,
-        disableResizing: true,
-        disableSortBy: true,
-        id: "actions",
-        width: 100,
-        Cell: (instance) => {
-          const { cell, row, webComponentsReactProperties } = instance;
-          const isOverlay = webComponentsReactProperties.showOverlay;
-          return (
-            <FlexBox alignItems="Center">
-              <Button
-                icon="edit"
-                disabled={isOverlay}
-                design="Transparent"
-                onClick={() => {}}
-              />
-              <Button
-                icon="sap-icon://navigation-right-arrow"
-                disabled={isOverlay}
-                design="Transparent"
-                onClick={() => {
-                  setViewService(row.original);
-                  setViewItem([]);
-                  setLayout("TwoColumnsMidExpanded");
-                }}
-              />
-            </FlexBox>
-          );
-        },
-      },
-    ],
-    [dynamcicServiceCols]
-  );
-  const [inputvalue, setInputValue] = useState("");
-  const productCollection = [
-    { Name: "Laptop" },
-    { Name: "Mouse" },
-    { Name: "Keyboard" },
-    { Name: "Monitor" },
-  ];
-  const renderIteminput = (field, form, handleChange, SelectedType) => {
-    console.log("renderIteminputobject", field, form);
-    //const value = form&&form[field.accessor] || "";
-    switch (field.type) {
-      case "text":
-      case "number":
-        return (
-          <Input
-            value={inputvalue}
-            onInput={(e) => handleChange(e, field.accessor, SelectedType)}
-            type={field.type}
-          ></Input>
-        );
-      case "select":
-        return (
-          <Input
-            value={inputvalue}
-            onInput={(e) => handleChange(e, field.accessor, SelectedType)}
-            type={field.type}
-            style={{
-              width: "470px",
-            }}
-          >
-            {productCollection.map((item, idx) => (
-              <SuggestionItem key={idx} text={item.Name} />
-            ))}
-          </Input>
-        );
-      case "date":
-        return (
-          <DatePicker
-            value={inputvalue}
-            onChange={(e) => handleChange(e, field.accessor, SelectedType)}
-          />
-        );
-      case "checkbox":
-        return (
-          <CheckBox
-            onChange={(e) => handleChange(e, field.FieldName)}
-            text="CheckBox"
-            valueState="None"
-          />
-        );
-      case "selectdropdown":
-        return (
-          <Select
-            onChange={function Xs() {}}
-            onClose={function Xs() {}}
-            onLiveChange={function Xs() {}}
-            onOpen={function Xs() {}}
-            valueState="None"
-          >
-            <Option>Option 1</Option>
-            <Option>Option 2</Option>
-            <Option>Option 3</Option>
-            <Option>Option 4</Option>
-            <Option>Option 5</Option>
-          </Select>
-        );
-      case "textarea":
-        return (
-          <TextArea
-            value={inputvalue}
-            onInput={(e) => handleChange(e, field.accessor, SelectedType)}
-          />
-        );
-      default:
-        return null;
-    }
-  };
-  // const saveItem = (item,index) => {
-  //   console.log("itemForm", itemForm, item);
-  //   setitemData((prev) => {
-  //     const updated = [...prev];
-  //     console.log("updated", updated);
-  //     updated[updated.length - 1].itemCode === ""
-  //       ? updated.pop()
-  //       : updated.push(); // Remove last item
-  //     return [...updated, ...(item ? Object.values(item) : itemForm)];
-  //   });
-  // };
+
+
   const saveItem = (item, index) => {
     console.log("itemForm", itemForm, item);
     setitemData((prev) => {
@@ -312,81 +292,21 @@ const Contents = (props) => {
   const handleitemRowChange = (item) => {
     console.log("handleitemRowChange", item);
   };
-  const saveService = (service, index) => {
-    //setServiceData((prev) => [...prev, serviceForm]);
-    console.log("serviceform", serviceForm, service);
-    setServiceData((prev) => {
-      const updated = [...prev];
 
-      // Remove the last row if it's an empty placeholder
-      if (updated[updated.length - 1]?.serviceCode === "") {
-        updated.pop();
-      }
-
-      // Convert to array if item is in object form like {0: {...}, 1: {...}}
-      const newServices = Array.isArray(service)
-        ? service
-        : Object.values(service);
-
-      // Replace the item at the given index
-      newServices.forEach((newItem, i) => {
-        updated[index + i] = newItem; // replaces existing or extends
-      });
-
-      return updated;
-    });
-  };
   return (
     <div>
       <DynamicPage
         headerArea={
           <DynamicPageHeader>
-            <FlexBox direction="Row" style={{ gap: "20rem" }}>
-              {/* Custom Filter Field */}
-              <div>
-                <Label>Currency: </Label>
-
-                <Select
-                //value={customField}
-                //onChange={(e) => setCustomField(e.target.value)}
-                >
-                  <Option value="1">Local Currency</Option>
-                  <Option value="2">$</Option>
-                </Select>
-              </div>
-              <div>
-                <Label>Item/Service Type: </Label>
-
-                <Select
-                  value={customField}
-                  onChange={(e) => setCustomField(e.target.value)}
-                >
-                  <Option value="Item">Item</Option>
-                  <Option value="Service">Service</Option>
-                </Select>
-              </div>
-
-              {/* Basic Company Code Search */}
-
-              {/* Basic Company Code Search */}
-              <FlexBox direction="Row" gap={10}>
-                {/* {customField === "Item" ? (
-                   <Button onClick={handleAdditemClick}>Add Item</Button>
-                  <></>
-                ) : (
-                  <Button onClick={handleAddServiceClick}>Add Service</Button>
-                )} */}
-              </FlexBox>
-            </FlexBox>
-            {/* <FlexBox style={{ marginTop: "10px" }}>Details</FlexBox> */}
+            <Title level="H4">Type - Items</Title>
           </DynamicPageHeader>
         }
-        onPinButtonToggle={function Xs() {}}
-        onTitleToggle={function Xs() {}}
+        onPinButtonToggle={function Xs() { }}
+        onTitleToggle={function Xs() { }}
         style={{
           height: "600px",
         }}
-     
+
       >
         <div className="tab">
           <div>
@@ -395,17 +315,20 @@ const Contents = (props) => {
               layout={layout}
               startColumn={
                 <FlexBox direction="Column">
-                  {customField === "Item" ? (
-                    <div>
-                      {/* <AnalyticalTable
-                        data={itemdata}
-                        columns={itemcolumns}
-                        groupBy={[]} // Optional: group by columns
-                        scaleWidthMode="Smart"
-                        visibleRows={5}
-                        selectionMode="SingleSelect"
-                      /> */}
-                      <Itemtable
+                  <div>
+                    <AnalyticalTable
+                      data={loading ? placeholderRows : itemdata ? itemdata : []}
+                      columns={itemcolumns}
+                      groupBy={[]}
+                      scaleWidthMode="Smart"
+                      visibleRows={5}
+                      selectionMode="MultiSelect"
+                      selectedRowIds={rowSelection&&Object.keys(rowSelection)}  // 👈 ensures rows are preselected
+                      onRowSelect={(e) => onRowSelect(e)}
+                      rowHeight={44}
+                      headerRowHeight={48}
+                    />
+                    {/* <Itemtable
                         addItemdialogOpen={addItemdialogOpen}
                         setAddItemDialogOpen={setAddItemDialogOpen}
                         itemTableColumn={itemTableColumn}
@@ -416,31 +339,9 @@ const Contents = (props) => {
                         itemdata={itemdata}
                         setitemData={setitemData}
                         dynamcicItemCols={dynamcicItemCols}
-                      />
-                    </div>
-                  ) : (
-                    <>
-                      <div>
-                        {/* <AnalyticalTable
-                          data={serviceData}
-                          columns={servicecolumns}
-                          groupBy={[]} // Optional: group by columns
-                          scaleWidthMode="Smart"
-                          visibleRows={5}
-                          selectionMode="SingleSelect"
-                        /> */}
-                        <ServiceTable
-                          dynamcicServiceCols={dynamcicServiceCols}
-                          serviceTableColumn={serviceTableColumn}
-                          renderIteminput={renderIteminput}
-                          serviceData={serviceData}
-                          setServiceData={setServiceData}
-                          handleChange={handleChange}
-                          saveService={saveService}
-                        />
-                      </div>
-                    </>
-                  )}
+                      /> */}
+                  </div>
+
                 </FlexBox>
               }
               midColumn={
@@ -469,14 +370,7 @@ const Contents = (props) => {
                     }}
                   >
                     <ItemViewPage viewItem={viewItem} />
-                    <ServiceViewpage viewService={viewService} />
-                    {/* <BusyIndicator active={formPreviewLoading}>
-                      <PreviewForm
-                        //open={openPreviewFormModal}
-                        formDefinition={formDefinition}
-                        // handleClose={handleClose}
-                      />
-                    </BusyIndicator> */}
+
                   </div>
                 </Page>
               }
@@ -484,98 +378,8 @@ const Contents = (props) => {
           </div>
         </div>
       </DynamicPage>
-      {/* <div
-        style={{ display: "flex", justifyContent: "flex-end", width: "100%" }}
-      >
-        <FlexBox direction="Column">
-          <label
-            style={{
-              fontWeight: "bold", // makes text bold
-              textAlign: "left", // ensures it can align right
-              display: "block", // needed for textAlign to work
-            }}
-          >
-            Total Summary
-          </label>
-          <br></br>
-          <Grid
-            defaultIndent="XL0 L0 M0 S0"
-            defaultSpan="XL3 L3 M6 S12"
-            hSpacing="2rem"
-            vSpacing="2rem"
-          >
-            <label
-              style={{
-                // makes text bold
-                textAlign: "center", // ensures it can align right
-                display: "block", // needed for textAlign to work
-              }}
-            >
-              Total Before Discount:
-            </label>
-            <Text>GBP 0.00</Text>
-          </Grid>
-          <Grid
-            defaultIndent="XL0 L0 M0 S0"
-            defaultSpan="XL3 L3 M6 S12"
-            hSpacing="2rem"
-            vSpacing="2rem"
-          >
-            <label>Discount:</label>
-            <Input type="text"></Input>
-          </Grid>
-          <FlexBox direction="Row">
-            <label>Freight:</label>
-            <Text>GBP 0.00</Text>
-          </FlexBox>
-          <Grid
-            defaultIndent="XL0 L0 M0 S0"
-            defaultSpan="XL3 L3 M6 S12"
-            hSpacing="2rem"
-            vSpacing="2rem"
-          >
-            <label>Rounding:</label>
-            <CheckBox></CheckBox>
-          </Grid>
-          <Grid
-            defaultIndent="XL0 L0 M0 S0"
-            defaultSpan="XL3 L3 M6 S12"
-            hSpacing="1rem"
-            vSpacing="1rem"
-          >
-            <label>Tax:</label>
-            <Text></Text>
-          </Grid>
-          <Grid
-            defaultIndent="XL0 L0 M0 S0"
-            defaultSpan="XL3 L3 M6 S12"
-            hSpacing="1rem"
-            vSpacing="1rem"
-          >
-            <label>Total:</label>
-            <Text></Text>
-          </Grid>
-        </FlexBox>
-      </div> */}
-      <Additemdialog
-        addItemdialogOpen={addItemdialogOpen}
-        setAddItemDialogOpen={setAddItemDialogOpen}
-        itemTableColumn={itemTableColumn}
-        renderIteminput={renderIteminput}
-        form={form}
-        handleChange={handleChange}
-        saveItem={saveItem}
-        setitemData={setitemData}
-        handleitemRowChange={handleitemRowChange}
-      />
-      <AddServiceDialog
-        addServiceDialogOpen={addServiceDialogOpen}
-        setAddServicedialogOpen={setAddServicedialogOpen}
-        serviceTableColumn={serviceTableColumn}
-        renderIteminput={renderIteminput}
-        form={form}
-        handleChange={handleChange}
-      />
+
+
     </div>
   );
 };
