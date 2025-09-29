@@ -193,28 +193,27 @@ const EditSalesOrder = () => {
     const handleSubmit = async (form) => {
         console.log("Form submitted:", form, formData, rowSelection);
         try {
-            
-            const payload = {
-                "CardCode": formData.CardCode,
-                "DocDueDate": formData.DocDueDate
-                    ? new Date(formData.DocDueDate)
-                        .toISOString()
-                        .split("T")[0]
-                        .replace(/-/g, "")
-                    : new Date().toISOString().split("T")[0].replace(/-/g, ""),
-                "DocumentLines": Object.values(rowSelection).map(line => ({
-                    ItemCode: line.ItemCode,
-                    ItemDescription: line.ItemName, // ✅ rename to ItemDescription
-                    Quantity: line.Quantity ? line.Quantity : "",
-                    UnitPrice: line.UnitPrice ? line.UnitPrice : "",
-                })),
-            };
-             console.log("payload", payload)
-            const res = await dispatch(updateCustomerOrder({ id, payload })).unwrap();
+                  const payload = {
+      CardCode: formData.CardCode,
+      DocDueDate: formData.DocDueDate
+        ? new Date(formData.DocDueDate)
+            .toISOString()
+            .split("T")[0]
+            .replace(/-/g, "")
+        : new Date().toISOString().split("T")[0].replace(/-/g, ""),
+      DocumentLines: Object.values(rowSelection).map((line) => ({
+        ItemCode: line.ItemCode,
+        ItemDescription: line.ItemName, // ✅ rename to ItemDescription
+        Quantity: line.Quantity,
+        UnitPrice: line.UnitPrice,
+      })),
+    };
+            console.log("payload", payload)
+            const res = await dispatch(updateCustomerOrder({ id, data: payload })).unwrap();
             if (res.message === "Please Login!") {
                 navigate("/login");
             }
-            navigate("/ManageSalesOrder");
+            navigate(`/form/${formId}`);
         } catch (err) {
             setApiError(err?.message || "Failed to create branch");
         }
@@ -235,7 +234,21 @@ const EditSalesOrder = () => {
     }, [formId])
     return (
         <>{loading ? (
-            <BusyIndicator active size="M" />
+            <div
+                style={{
+                    display: "flex",
+                    flexDirection: "column",   // stack indicator + message vertically
+                    alignItems: "center",      // center horizontally
+                    justifyContent: "center",  // center vertically
+                    height: "90vh",           // take full viewport height
+                    width: "100%",             // take full width
+                }}
+            >
+                <BusyIndicator active size="M" />
+                <span style={{ marginTop: "1rem", fontSize: "1rem", color: "#555" }}>
+                    Loading, please wait...
+                </span>
+            </div>
         ) : (<ObjectPage
             footerArea={
                 <>
@@ -246,9 +259,9 @@ const EditSalesOrder = () => {
                         endContent={
                             <>
                                 <Button design="Positive" onClick={() => handleSubmit()}>
-                                    Submit
+                                    Update
                                 </Button>
-                                <Button design="Positive" onClick={() => navigate("/ManageSalesOrder")}>
+                                <Button design="Positive" onClick={() => navigate(`/form/${formId}`)}>
                                     Cancel
                                 </Button>
                             </>
@@ -312,7 +325,7 @@ const EditSalesOrder = () => {
                                     if (route) navigate(route);
                                 }}>
                                 <BreadcrumbsItem data-route="/UserDashboard">Home</BreadcrumbsItem>
-                                <BreadcrumbsItem data-route="/ManageSalesOrder">
+                                <BreadcrumbsItem data-route={`/form/${formId}`}>
                                     Manage Sales Order
                                 </BreadcrumbsItem>
                                 <BreadcrumbsItem>{formDetails ? formDetails[0]?.name : "Sales Order"}</BreadcrumbsItem>
@@ -326,7 +339,7 @@ const EditSalesOrder = () => {
 
 
                             <ToolbarButton
-                                onClick={() => navigate("/ManageSalesOrder")}
+                                onClick={() => navigate(`/form/${formId}`)}
                                 design="Transparent"
                                 icon="decline"
                             />
@@ -342,12 +355,13 @@ const EditSalesOrder = () => {
                     </ObjectStatus>
                 </ObjectPageTitle>
             }
-        >{console.log("tabList", tabList, orderItems, generaleditdata)}
+        >
+            {/* {console.log("tabList", tabList, orderItems, generaleditdata)}
             {
                 tabList.length > 0 && tabList.map((tab) => {
                     console.log("object", tab);
                     if (tab.name === "general") {
-                        return (
+                        return ( */}
                             <ObjectPageSection
                                 id="section1"
                                 style={{ height: "100%" }}
@@ -374,9 +388,9 @@ const EditSalesOrder = () => {
                                     /> */}
 
                             </ObjectPageSection>
-                        );
+                        {/* );
                     } else if (tab.name === "contents") {
-                        return (
+                        return ( */}
                             <ObjectPageSection
                                 id="section2"
                                 style={{
@@ -399,9 +413,9 @@ const EditSalesOrder = () => {
                                     handleChange={handleChange}
                                 />
                             </ObjectPageSection>
-                        );
+                        {/* );
                     } else if (tab.name === "logistics") {
-                        return (
+                        return ( */}
                             <ObjectPageSection
                                 id="section3"
                                 style={{
@@ -416,10 +430,10 @@ const EditSalesOrder = () => {
                                     handleChange={handleChange}
                                 />
                             </ObjectPageSection>
-                        );
+                        {/* );
                     }
                     else if (tab.name === "accounting") {
-                        return (
+                        return ( */}
                             <ObjectPageSection
                                 id="section4"
                                 style={{
@@ -429,9 +443,9 @@ const EditSalesOrder = () => {
                             >
                                 <Accounting />
                             </ObjectPageSection>
-                        );
+                        {/* );
                     } else if (tab.name === "attachments") {
-                        return (
+                        return ( */}
                             <ObjectPageSection
                                 id="section5"
                                 style={{
@@ -441,9 +455,9 @@ const EditSalesOrder = () => {
                             >
                                 <Attachments />
                             </ObjectPageSection>
-                        );
+                        {/* );
                     } else if (tab.name === "user-defined-field") {
-                        return (
+                        return ( */}
                             <ObjectPageSection
                                 id="section6"
                                 style={{
@@ -454,55 +468,11 @@ const EditSalesOrder = () => {
                                 <UserDefinedFields form={form}
                                     handleChange={handleChange} />
                             </ObjectPageSection>
-                        );
+                        {/* );
                     }
                 })
-                // <ObjectPageSection
-                //   id="section1"
-                //   style={{ height: "100%" }}
-                //   titleText="General"
-                // >
-                //   <General form={form} SubForms="" handleChange={handleChange} />
-                // </ObjectPageSection><ObjectPageSection
-                //   id="section3"
-                //   style={{
-                //     height: "100%",
-                //   }}
-                //   titleText="Logistics"
-                // >
-                //     <Logistics
-                //       fieldConfig={fieldConfig}
-                //       SalesOrderRenderInput={SalesOrderRenderInput}
-                //       form={form}
-                //       handleChange={handleChange}
-                //     />
-                //   </ObjectPageSection><ObjectPageSection
-                //     id="section4"
-                //     style={{
-                //       height: "100%",
-                //     }}
-                //     titleText="Accounting"
-                //   >
-                //     <Accounting />
-                //   </ObjectPageSection>  <ObjectPageSection
-                //     id="section5"
-                //     style={{
-                //       height: "100%",
-                //     }}
-                //     titleText="Attachments"
-                //   >
-                //     <Attachments />
-                //   </ObjectPageSection><ObjectPageSection
-                //     id="section6"
-                //     style={{
-                //       height: "100%",
-                //     }}
-                //     titleText="User-defined Fields"
-                //   >
-                //     <UserDefinedFields form={form}
-                //       handleChange={handleChange} />
-                //   </ObjectPageSection>
-            }
+             
+            } */}
 
 
 
