@@ -9,7 +9,6 @@ export default function AppBar({
 }) {
   return (
     <Bar
-      style={{marginTop: "1rem"}}
       design={design}
       startContent={startContent}
       endContent={endContent}

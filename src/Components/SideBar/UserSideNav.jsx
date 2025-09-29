@@ -1,0 +1,172 @@
+import { FlexBox, Option, Select, SideNavigation, SideNavigationItem, SideNavigationSubItem, Text } from "@ui5/webcomponents-react";
+import React, { useContext, useEffect, useRef, useState } from 'react'
+import { useDispatch, useSelector } from "react-redux";
+import { Outlet, useNavigate } from "react-router-dom";
+import UserDashboard from "../../Components/Dashboard/UserDashboard";
+import Dashboard from "../../Views/Admin/Dashboard/Default/Dashboard";
+// import { FormConfigContext } from "../../Components/Context/FormConfigContext";
+
+function buildMenuTree(menus) {
+  const grouped = {};
+
+  menus.forEach((menu) => {
+    const parentId = menu.parentUserMenuId;
+
+    if (!grouped[parentId]) {
+      grouped[parentId] = [];
+    }
+
+    grouped[parentId].push(menu);
+  });
+
+  return grouped;
+}
+
+const UserSideNav = ({ collapsed, setCollapsed }) => {
+    // const { Menuitems } = useContext(FormConfigContext);
+  const { usermenus } = useSelector((state) => state.usermenus);
+  const { user } = useSelector((state) => state.auth);
+  const companies = user && user.Branches;
+  const authUserMenus = user
+    ? user.Roles.map((role) => role.UserMenus).flat()
+    : [];
+
+  const buttonRef = useRef(null);
+  const [menuIsOpen, setMenuIsOpen] = useState(false);
+  const [selectedCompany, setSelectedCompany] = useState(null);
+  const [selectedBranch, setSelectedBranch] = useState(null);
+
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const menulist = selectedBranch
+    ? authUserMenus.filter((menu) => menu.branchId === selectedBranch)
+    : authUserMenus;
+  const menuTree = buildMenuTree(
+    menulist.length > 0 ? menulist : authUserMenus
+  );
+  const handleCompanyClick = (companyName) => {
+    console.log("Selected company:", companyName);
+    setSelectedCompany(companyName);
+  };
+  const handleBranchClick = (branchname) => {
+    console.log("Selected branch:", branchname);
+    setSelectedBranch(branchname);
+  };
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = ""; //await dispatch(fetchauth()).unwrap();
+
+        console.log("resusers", res);
+
+        if (res.message === "Please Login!") {
+          navigate("/");
+        }
+      } catch (err) {
+        console.log("Failed to fetch user", err.message);
+        err.message && navigate("/");
+      }
+    };
+    fetchData();
+  }, [dispatch, navigate]);
+
+  const userdata =
+    authUserMenus.length > 0 &&
+    authUserMenus.map((menu) => ({
+      id: menu.id,
+      name: menu.name,
+      display_name: menu.display_name,
+      parent:
+        authUserMenus.find((item) => item.id === menu.parentUserMenuId)
+          ?.display_name || null,
+
+      order_number: menu.order_number,
+    }));
+
+  const topLevelItems =
+    userdata && userdata.filter((item) => item.parentUserMenuId === null);
+  const childItems =
+    userdata && userdata.filter((item) => item.parentUserMenuId !== null);
+
+  // Group children by parent
+  const groupedChildren =
+    childItems &&
+    childItems.reduce((acc, item) => {
+      if (!acc[item.parentUserMenuId]) acc[item.parentUserMenuId] = [];
+      acc[item.parentUserMenuId].push(item);
+      return acc;
+    }, {});
+  return (
+    <FlexBox style={{ height: "100vh" }}>
+        <FlexBox direction="Column" style={{ width:collapsed ? "66px" : "260px" }}>
+            <div style={{ display: "flex", gap: "0.5rem",padding: "1rem" }}>
+                <div style={{ width: "270px" }}>
+                <Text>Company</Text>
+                <Select
+                    style={{ width: "100%" }}
+                    onChange={(e) =>
+                    handleCompanyClick(e.detail.selectedOption.value)
+                    }
+                >
+                    <Option key="" value="">
+                    Select
+                    </Option>
+                    {companies.map((branch) => (
+                    <Option key={branch.Company.id} value={branch.Company.id}>
+                        {branch.Company.name}
+                    </Option>
+                    ))}
+                </Select>
+            </div>
+
+            <div style={{ width: "270px" }}>
+                <Text>Branches</Text>
+                <Select
+                    style={{ width: "100%" }}
+                    disabled={!selectedCompany}
+                    onChange={(e) =>
+                    handleBranchClick(e.detail.selectedOption.value)
+                    }
+                >
+                    <Option>Select</Option>
+                    {companies.map((branch) => (
+                    <Option key={branch.id} value={branch.id}>
+                        {branch.name}
+                    </Option>
+                    ))}
+                </Select>
+                </div>
+            </div>
+            <Text style={{ paddingLeft: '16px', paddingBottom: '20px' }}>Menu List</Text>
+            <SideNavigation>
+                {menulist.length > 0 &&
+                menulist.map((menu) =>
+                    !menu.RoleMenu.can_list_view ? null : (
+                    <SideNavigationItem key={menu.id} text={menu.display_name}>
+                        {menu.children?.length > 0 &&
+                        menu.children.map((child) => (
+                            <SideNavigationSubItem
+                            key={child.id}
+                            text={child.display_name}
+                            onClick={(e) => {
+                                e.preventDefault();
+                                navigate(`/form/${child.formId}`);
+                            }}
+                            />
+                        ))}
+                    </SideNavigationItem>
+                    )
+                )}
+            </SideNavigation>
+        </FlexBox>
+        <FlexBox style={{ flex: 1, height: "100%" }}>
+            <Outlet />
+            {/* {location.pathname === "/UserDashboard" && <UserDashboard />} */}
+            <UserDashboard />
+        </FlexBox>
+    </FlexBox>
+  )
+}
+
+export default UserSideNav

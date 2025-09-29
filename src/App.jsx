@@ -7,7 +7,6 @@ import {
   Option,
   ThemeProvider,
 } from "@ui5/webcomponents-react";
-import Header from "./Components/Header/Header";
 // import {
 //   getTheme,
 //   setTheme,
@@ -70,9 +69,11 @@ import CreateCompanyROle from "./Views/Admin/Masters/CompanyRole/CreateCompanyRO
 import CreateCompanyRole from "./Views/Admin/Masters/CompanyRole/CreateCompanyROle";
 import EditCompanyRole from "./Views/Admin/Masters/CompanyRole/EditCompanyRole";
 import EditUserChildMenu from "./Views/Admin/Menu/MenuMaster/EditUserChildMenu";
-import AssignFormMenuMaster from "./Views/Admin/Menu/AssignFormToMenu/AssignFormMenuMaster";
-import CreateAssignFormMenu from "./Views/Admin/Menu/AssignFormToMenu/CreateAssignFormMenu";
 import EditSalesOrder from "./Views/SalesOrder/editSalesOrder";
+import SideNavWrapper from "./Components/SideBar/SideNavWrapper";
+import UserSideNavWrapper from "./Components/SideBar/UserSideNavWrapper";
+// import AssignFormMenuMaster from "./Views/Admin/Menu/AssignFormToMenu/AssignFormMenuMaster";
+// import CreateAssignFormMenu from "./Views/Admin/Menu/AssignFormToMenu/CreateAssignFormMenu";
 //import { useEffect, useState } from "react";
 
 // const AuthLogin = Loadable(lazy(() => import('Views/pages/auth-forms/AuthLogin')));
@@ -87,14 +88,11 @@ function App() {
     );
   }, [fioriTheme]);
    const location = useLocation();
-  const hideHeaderRoutes = ["/", "/Login","/login", "/forgot-password"];
-  const shouldHideHeader = hideHeaderRoutes.includes(location.pathname);
  
   return (
     <Provider store={store}>
       <ThemeProvider>
         <div className="App">
-          {!shouldHideHeader && <Header />}
           <main >
             <div >
               <FormConfigProvider>
@@ -121,7 +119,7 @@ function App() {
                       </PublicRoute>} />
                   {/* <Route path="/register" element={<Register />} /> */}
 
-                  <Route path="/UserDashboard" element={<UserDashboard />} />
+                  <Route path="/UserDashboard" element={<UserSideNavWrapper />} />
 
                   <Route path="/SalesOrder/create/:formId" element={<SalesOrder />} />
                   <Route path="/SalesOrder/edit/:formId/:id" element={<EditSalesOrder />} />
@@ -131,8 +129,8 @@ function App() {
                   />
                      <Route path="/form/:formId" element={<ManageSalesOrder />} />
             {/* <Route path="/form/:formId/:childId" element={<ManageSalesOrder />} /> */}
-                  <Route path="/Admin" element={<Admin />} />
-                  <Route path="/admin" element={<Admin />}>
+                  <Route path="/Admin" element={<SideNavWrapper />} />
+                  <Route path="/admin" element={<SideNavWrapper />}>
                     <Route path="dashboard" element={<Dashboard />} />
 
                     <Route path="users" element={<Users />} />
@@ -166,8 +164,8 @@ function App() {
 
                     <Route path="menu" element={<Menu />} />
                     <Route path="MenuMaster" element={<MenuMaster />} />
-                    <Route path="AssignFormToMenu" element={<AssignFormMenuMaster />} />
-                    <Route path="AssignFormToMenu/create" element={<CreateAssignFormMenu />} />
+                    {/* <Route path="AssignFormToMenu" element={<AssignFormMenuMaster />} /> */}
+                    {/* <Route path="AssignFormToMenu/create" element={<CreateAssignFormMenu />} /> */}
 
                     <Route path="UserRoleMenus" element={<UserRoleMenuMaster />} />
                     <Route

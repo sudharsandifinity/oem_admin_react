@@ -6,7 +6,9 @@ const API_URL = '/auth/login';
 export const login = createAsyncThunk('auth/login', async (credentials, thunkAPI) => {
   try {
     const response = await api.post(API_URL, credentials, { withCredentials: true });
-    return response.data&&response.data;
+    console.log('data', response.data);
+    
+    return response.data;
   } catch (error) {
     return thunkAPI.rejectWithValue(error.response?.data || 'Login failed'); 
   }
