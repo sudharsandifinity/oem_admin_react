@@ -13,8 +13,8 @@ const CreateCompanyForm = () => {
     try {
       const payload = {
         companyId: data.companyId,
-        formId: data.formId,
-        form_type: data.form_type,
+        branchId: data.branchId || null,
+        formIds: data.formId || [],
         status: data.status,
       };
       console.log("payload", payload);

@@ -31,11 +31,9 @@ import { HeaderFilterBar } from "./HeaderFilterBar";
 import ItemViewPage from "../SalesOrder/Contents/Item/ItemViewPage";
 import ViewSalesOrder from "./ViewSalesOrder";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchFormFields } from "../../store/slices/FormFieldSlice";
-import { fetchCompanyFormfields, fetchCompanyFormsFieldsById } from "../../store/slices/companyformfieldSlice";
-import { fetchcompanyformfielddata } from "../../store/slices/companyformfielddata";
-import { fetchFormById } from "../../store/slices/formmasterSlice";
-import { fetchCustomerDetails, loginToSap } from "../../store/slices/CustomerDetailsSlice";
+import { deleteCustomerOrder, fetchBusinessPartner, fetchCustomerOrder } from "../../store/slices/CustomerOrderSlice";
+
+
 
 const ManageSalesOrder = () => {
   const {
@@ -49,28 +47,45 @@ const ManageSalesOrder = () => {
   const { companyformfielddata } = useSelector(
     (state) => state.companyformfielddata
   );
-  const { customerdetails } = useSelector((state) => state.customerdetails);
-  const tableconfig = customerdetails.map((item) => {
-    return {
-      CustomerCode: item.CardCode,  
-
-      CustomerName: item.CardName,
-      DocumentNo: "",
-      PostingDate: "",
-      Status: "",
-    };
-  }
+  const { customerorder, businessPartner, loading, error } = useSelector(
+    (state) => state.customerorder
   );
- 
+  const [tableData, settableData] = useState([]);
+  const placeholderRows = Array(5).fill({
+    CustomerCode: "Loading...",
+    CustomerName: "Loading...",
+    DocumentNo: "-",
+    PostingDate: "-",
+    Status: "-",
+  });
+  const settabledata = (customerorder) => {
+    if (customerorder?.length > 0) {
+      const tableconfig = customerorder.map((item) => ({
+        DocEntry:item.DocEntry,
+        CustomerCode: item.CardCode,
+        CustomerName: item.CardName,
+        DocumentNo: item.DocNum,
+        PostingDate: item.CreationDate,
+        Status: item.DocumentStatus,
+      }));
+      settableData(tableconfig);
+    }
+  };
+  useEffect(() => {
+    settabledata(customerorder);
+  }, [customerorder]);
+  console.log("fetchCustomerOrder", customerorder);
   useEffect(() => {
     //dispatch(fetchBranch());
     //dispatch(fetchCompanies());
     const fetchData = async () => {
       try {
-        const res = await dispatch(fetchCustomerDetails()).unwrap();
+        const res = await dispatch(fetchCustomerOrder()).unwrap();
+        dispatch(fetchBusinessPartner()).unwrap();
+
         console.log("resusers", res);
         setFormConfig(res);
-        
+
 
         // setTableConfig(res);
         //dispatch(fetchcompanyformfielddata())
@@ -113,8 +128,8 @@ const ManageSalesOrder = () => {
   //   };
   //   fetchData();
   // }, [dispatch]);
-  console.log("ManageSalesOderHeaderField", ManageSalesOderHeaderField);
-  const [tableData, settableData] = useState(tableconfig)//ManageSalesOderHeaderField);
+  // console.log("ManageSalesOderHeaderField", ManageSalesOderHeaderField);
+  // const [tableData, settableData] = useState(ManageSalesOderHeaderField);
   const [viewItem, setViewItem] = useState([]);
 
 
@@ -140,6 +155,13 @@ const ManageSalesOrder = () => {
         };
       })),
   ];
+  const editRow = async (rowData) => {
+    console.log("rowData", rowData)
+    navigate("/SalesOrder/edit/" + formId+"/"+rowData.DocEntry
+    );
+  }
+
+  
   const columns = useMemo(
     () => [
       ...ManageSalesOrderTableCols,
@@ -162,27 +184,21 @@ const ManageSalesOrder = () => {
                 icon="edit"
                 disabled={isOverlay}
                 design="Transparent"
+
                 onClick={() => {
-                  setLayout("TwoColumnsMidExpanded");
-                  setViewItem(row.original);
+                  editRow(row.original);
                 }}
               // onClick={() => editRow(row)}
               />
-              <Button
-                icon="delete"
-                disabled={isOverlay}
-                design="Transparent"
-                onClick={() => {
-                  console.log(row.original);
-                }}
-              // onClick={() => editRow(row)}
-              />
+             
               <Button
                 icon="sap-icon://navigation-right-arrow"
                 disabled={isOverlay}
                 design="Transparent"
+
                 onClick={() => {
-                  console.log(row.original);
+                  setLayout("TwoColumnsMidExpanded");
+                  setViewItem(row.original);
                 }}
               // onClick={() => editRow(row)}
               />
@@ -220,30 +236,33 @@ const ManageSalesOrder = () => {
         }
         headerArea={
           <DynamicPageHeader>
-            <Grid
-              defaultIndent="XL0 L0 M1 S0"
-              defaultSpan="XL3 L2 M6 S12"
-              hSpacing="1rem"
-              vSpacing="1rem"
-            >
-              {ManageSalesOderHeaderField.map((field) => {
-                const filteredData = {
-                  inputType: field.input_type,
-                  DisplayName: field.display_name,
-                  FieldName: field.field_name,
-                };
+            <FlexBox direction="Row">
+              <Grid
+                defaultIndent="XL0 L0 M1 S0"
+                defaultSpan="XL3 L2 M6 S12"
+                hSpacing="1rem"
+                vSpacing="1rem"
+              >
+                {ManageSalesOderHeaderField.map((field) => {
+                  const filteredData = {
+                    inputType: field.input_type,
+                    DisplayName: field.display_name,
+                    FieldName: field.field_name,
+                  };
 
-                return (
-                  <HeaderFilterBar
-                    key={field.field_name}
-                    field={filteredData}
-                    tableData={tableData}
-                    settableData={settableData}
-                    handleChange={handleChange}
-                  />
-                );
-              })}
-            </Grid>
+                  return (
+                    <HeaderFilterBar
+                      key={field.field_name}
+                      field={filteredData}
+                      tableData={tableData}
+                      settableData={settableData}
+                      handleChange={handleChange}
+                    />
+                  );
+                })}
+
+              </Grid>
+              <Button icon="decline" onClick={() => settabledata(customerorder)} ></Button></FlexBox>
           </DynamicPageHeader>
         }
         onPinButtonToggle={function Xs() { }}
@@ -309,15 +328,11 @@ const ManageSalesOrder = () => {
                     <FlexBox direction="Column">{console.log("tableDataanaly", tableData)}
                       <AnalyticalTable
                         columns={columns.length > 0 ? columns : []}
-                        data={tableData}
-                        header={
-                          formConfig && formConfig.display_name + "(" +
-                          ManageSalesOrderTableData.length +
-                          ")"
-                        }
-                        //loading={isLoading}
-                        //showOverlay={isLoading}
-                        noDataText={"You have not created any sales order yet"}
+                        data={loading ? placeholderRows : tableData}
+                        header={`(Sales Order - ${tableData.length})`}
+                        loading={loading}
+                        showOverlay={loading}
+                        noDataText={loading ? "Loading sales orders..." : "No sales orders found"}
                         sortable
                         filterable
                         visibleRows={10}

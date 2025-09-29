@@ -28,7 +28,7 @@ const ViewCompanyMaster = (props) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        if (!companyform) {
+        if (!companyform&&id) {
           const res = await dispatch(fetchCompanyFormsById(id)).unwrap();
           if (res.message === "Please Login!") {
             navigate("/login");

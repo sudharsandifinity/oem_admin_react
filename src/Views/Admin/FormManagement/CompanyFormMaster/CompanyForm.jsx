@@ -25,13 +25,16 @@ import {
 } from "@ui5/webcomponents-react";
 import { useNavigate } from "react-router-dom";
 import { fetchCompanies } from "../../../../store/slices/companiesSlice";
-import { fetchForm } from "../../../../store/slices/formmasterSlice";
+import { fetchForm, fetchGlobalForms } from "../../../../store/slices/formmasterSlice";
+import { fetchBranch } from "../../../../store/slices/branchesSlice";
+import AppBar from "../../../../Components/Module/Appbar";
+
 
 // Validation schema
 const schema = yup.object().shape({
-  companyId: yup.string().required("CompanyId name is required"),
-  formId: yup.string().required("formId name is required"),
-  form_type: yup.string().required("TypeId name is required"),
+  companyId: yup.string().required("Company name is required"),
+  formIds: yup.string().required("form  name is required"),
+  branchId: yup.string().required("Branch name is required"),
   status: yup.string().required("status name is required"),
 });
 
@@ -39,8 +42,8 @@ const CompanyForm = ({
   onSubmit,
   defaultValues = {
     companyId: "",
-    formId: "",
-    form_type: "",
+    branchId: "",
+    formIds: "",
     status: "",
   },
   mode = "create",
@@ -62,11 +65,18 @@ const CompanyForm = ({
 
   const dispatch = useDispatch();
   const { companies } = useSelector((state) => state.companies);
+  const { branches } = useSelector((state) => state.branches);
   const { forms } = useSelector((state) => state.forms);
+  
+  const { globalForms } = useSelector((state) => state.forms)
+
   const { roles } = useSelector((state) => state.roles);
+  const [selectedCompany, setSelectedCompany] = useState(null);
+ const branchlist = branches.filter((b) => b.Company.id === selectedCompany);
+  console.log("branchlist", branchlist, branches,selectedCompany, globalForms);
 
   const [assignBranchEnabled, setAssignBranchEnabled] = useState(false);
-  const [selectedCompany, setSelectedCompany] = useState(null);
+  
   const [selectedBranchIds, setSelectedBranchIds] = useState([]);
   const [assignBranches, setAssignBranches] = useState(true);
   const [company, setCompany] = useState("");
@@ -89,6 +99,8 @@ const CompanyForm = ({
         const res = await dispatch(fetchCompanies()).unwrap();
         dispatch(fetchForm());
         dispatch(fetchRoles());
+        dispatch(fetchGlobalForms());
+         dispatch(fetchBranch()).unwrap();
         console.log("resusers", res);
 
         if (res.message === "Please Login!") {
@@ -114,8 +126,8 @@ const CompanyForm = ({
     <Page
       backgroundDesign="Solid"
       footer={
-        <div>
           <Bar
+          style={{ padding:0.5 }}
             design="FloatingFooter"
             endContent={
               <>
@@ -129,20 +141,21 @@ const CompanyForm = ({
               </>
             }
           />
-        </div>
+          
       }
       header={
-        <Bar
+        <AppBar
           design="Header"
           endContent={
             <Button
               accessibleName="Settings"
-              icon="settings"
+              icon="decline"
               title="Go to Settings"
+              onClick={() => navigate(-1)} // Go back to previous page
             />
           }
           startContent={
-            <div style={{ width: "250px" }}>
+            <div style={{ width: "280px" }}>
               <Breadcrumbs
                 design="Standard"
                 onItemClick={(e) => {
@@ -166,7 +179,7 @@ const CompanyForm = ({
           <Title level="h4">
             {mode === "edit" ? "Edit Company" : "Create New Company"}
           </Title>
-        </Bar>
+        </AppBar>
       }
     >
       {apiError && (
@@ -208,10 +221,10 @@ const CompanyForm = ({
 
                     name="companyId"
                     value={field.value ?? ""}
-                    onChange={(e) => field.onChange(e.target.value)}
+                    onChange={(e) => {field.onChange(e.target.value);setSelectedCompany(e.target.value)}}
                     valueState={errors.companyId ? "Error" : "None"}
                   >
-                    <Option>Select</Option>
+                   <Option key="" value="">Select</Option>
                     {companies
                       .filter((r) => r.status) /* active roles only    */
                       .map((r) => (
@@ -234,23 +247,58 @@ const CompanyForm = ({
             </FlexBox>
           </FlexBox>
           <FlexBox direction="Column" style={{ flex: "48%" }}>
+            <Label>Branch</Label>
+            <FlexBox label={<Label required>BranchId</Label>}>
+              <Controller
+                name="branchId"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                   style={{width:"70%"}}
+                  disabled={!selectedCompany}
+                    name="branchId"
+                    value={field.value ?? ""}
+                    onChange={(e) => field.onChange(e.target.value)}
+                    valueState={errors.branchId ? "Error" : "None"}
+                  >
+                   <Option key="" value="">Select</Option>
+                   {branchlist&&branchlist.map((branch) => (
+                     <Option key={branch.id} value={branch.id}>
+                       {branch.name}
+                     </Option>
+                   ))}
+                  </Select>
+                )}
+              />
+
+              {errors.branchId && (
+                <span
+                  slot="valueStateMessage"
+                  style={{ color: "var(--sapNegativeColor)" }}
+                >
+                  {errors.branchId.message}
+                </span>
+              )}
+            </FlexBox>
+          </FlexBox>
+          <FlexBox direction="Column" style={{ flex: "48%" }}>
             <Label>Form</Label>
             <FlexBox label={<Label required>formId</Label>}>
               <Controller
-                name="formId"
+                name="formIds"
                 control={control}
                 render={({ field }) => (
                   <Select
                    style={{width:"70%"}}
 
-                    name="formId"
+                    name="formIds"
                     value={field.value ?? ""}
                     onChange={(e) => field.onChange(e.target.value)}
-                    valueState={errors.formId ? "Error" : "None"}
+                    valueState={errors.formIds ? "Error" : "None"}
                   >
                     {console.log("formId", field)}
-                    <Option>Select</Option>
-                    {forms
+                   <Option key="" value="">Select</Option>
+                    {globalForms
                       .filter((r) => r.status) /* active roles only    */
                       .map((r) => (
                         <Option key={r.id} value={r.id}>
@@ -261,49 +309,17 @@ const CompanyForm = ({
                 )}
               />
 
-              {errors.formId && (
+              {errors.formIds && (
                 <span
                   slot="valueStateMessage"
                   style={{ color: "var(--sapNegativeColor)" }}
                 >
-                  {errors.formId.message}
+                  {errors.formIds.message}
                 </span>
               )}
             </FlexBox>
           </FlexBox>
-          <FlexBox direction="Column" style={{ flex: "48%" }}>
-            <Label>Form Type</Label>
-            <FlexBox label={<Label required>TypeId</Label>}>
-              <Controller
-                name="form_type"
-                control={control}
-                render={({ field }) => (
-                  <Select
-                   style={{width:"70%"}}
-
-                    name="form_type"
-                    value={field.value ?? ""}
-                    onChange={(e) => field.onChange(e.target.value)}
-                    valueState={errors.form_type ? "Error" : "None"}
-                  >
-                    <Option>Select</Option>
-                    <Option value={"Item"}>{"Item"}</Option>
-                    <Option value={"Service"}>{"Service"}</Option>
-                    <Option value={"Both"}>{"Both"}</Option>
-                  </Select>
-                )}
-              />
-
-              {errors.form_type && (
-                <span
-                  slot="valueStateMessage"
-                  style={{ color: "var(--sapNegativeColor)" }}
-                >
-                  {errors.form_type.message}
-                </span>
-              )}
-            </FlexBox>
-          </FlexBox>
+          
           <FlexBox direction="Column" style={{ flex: " 48%" }}>
             <Label>Status</Label>
             <FlexBox label={<Label required>Status</Label>}>
@@ -319,7 +335,7 @@ const CompanyForm = ({
                     onChange={(e) => field.onChange(e.target.value)}
                     valueState={errors.status ? "Error" : "None"}
                   >
-                    <Option>Select</Option>
+                   <Option key="" value="">Select</Option>
 
                     <Option value="1">Active</Option>
                     <Option value="0">Inactive</Option>

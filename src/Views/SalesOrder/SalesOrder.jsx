@@ -46,17 +46,27 @@ import CustomerSelection from "./Header/CustomerSelection";
 import Accounting from "./Accounting/Accounting";
 import Attachments from "./Attachments/Attachments";
 import UserDefinedFields from "./User-DefinedFields/UserDefinedFields";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchOrderItems } from "../../store/slices/CustomerOrderItemsSlice";
+import { createCustomerOrder, fetchBusinessPartner } from "../../store/slices/CustomerOrderSlice";
 
 export default function SalesOrder() {
   const { fieldConfig, CustomerDetails, DocumentDetails } =
     useContext(FormConfigContext);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { orderItems, loading } = useSelector((state) => state.orderItems);
+  const [apiError, setApiError] = useState(null);
   const { formId } = useParams();
   const user = useSelector((state) => state.auth.user);
   const [tabList, setTabList] = useState([]);
   const [formDetails, setFormDetails] = useState([]);
+  const [formData, setFormData] = useState({});
+  const [rowSelection, setRowSelection] = useState({});
+  const [itemdata, setitemData] = useState([
+    { slno: 1, ItemCode: "", ItemName: "", quantity: "", amount: "" },
+  ]);
 
-  const navigate = useNavigate();
   const [form, setForm] = useState({
     CardCode: "",
     CardName: "",
@@ -113,15 +123,32 @@ export default function SalesOrder() {
     const newRows = form[key].filter((_, idx) => idx !== i);
     setForm({ ...form, [key]: newRows });
   };
-  const handleSubmit = async () => {
-    console.log("Form submitted:", form);
-    // Post to backend here
+  const handleSubmit = async (form) => {
+    console.log("Form submitted:", form, formData, rowSelection);
     try {
-      await axios.post("http://localhost:5000/api/save-form", form);
-      alert("Form saved successfully!");
+     const payload = {
+  CardCode: formData.CardCode,
+  DocDueDate: formData.DocDueDate
+    ? new Date(formData.DocDueDate)
+        .toISOString()
+        .split("T")[0]
+        .replace(/-/g, "")
+    : new Date().toISOString().split("T")[0].replace(/-/g, ""),
+  DocumentLines: Object.values(rowSelection).map(line => ({
+    ItemCode: line.ItemCode,
+    ItemDescription: line.ItemName, // ✅ rename to ItemDescription
+    Quantity: line.Quantity,
+    UnitPrice: line.UnitPrice,
+  })),
+}; 
+      console.log("payload", payload)
+      const res = await dispatch(createCustomerOrder(payload)).unwrap();
+      if (res.message === "Please Login!") {
+        navigate("/login");
+      }
+      navigate("/ManageSalesOrder");
     } catch (err) {
-      console.error(err);
-      alert("Server error.");
+      setApiError(err?.message || "Failed to create branch");
     }
   };
   const renderInput = (field) => {
@@ -166,14 +193,15 @@ export default function SalesOrder() {
   useEffect(() => {
     if (formId) {
       // Fetch form data based on formId
-      const formDetails = user.Roles.flatMap(role =>
+      const formDetails = user?.Roles?.flatMap(role =>
         role.UserMenus.flatMap(menu =>
           menu.children.filter(submenu => submenu.Form.id === formId)
         )
       );
-      setTabList(formDetails[0]?.Form.FormTabs || []);
+      setTabList(formDetails && formDetails[0]?.Form.FormTabs || []);
       setFormDetails(formDetails);
-      console.log("FormDetails", formDetails, formId, formDetails[0]?.Form.FormTabs);
+    } else {
+      navigate("/")
     }
   }, [formId])
   return (
@@ -283,96 +311,111 @@ export default function SalesOrder() {
           </ObjectStatus>
         </ObjectPageTitle>
       }
-    >{console.log("tabList", tabList)}
+    >
       {
-      tabList.length > 0 && tabList.map((tab) => {
-        console.log("object", tab);
-        if (tab.name === "general") {
-          return (
-            <ObjectPageSection
-              id="section1"
-              style={{ height: "100%" }}
-              titleText="General"
-            >
-              <General form={form} SubForms={tab.SubForms} handleChange={handleChange} />
-            </ObjectPageSection>
-          );
-        } else if (tab.name === "contents") {
-          return (
-            <ObjectPageSection
-              id="section2"
-              style={{
-                height: "100%",
-              }}
-              titleText="Contents"
-            >
-              <Contents
-                form={form}
-                handleRowChange={handleRowChange}
-                deleteRow={deleteRow}
-                addRow={addRow}
-                SalesOrderRenderInput={SalesOrderRenderInput}
-                handleChange={handleChange}
-              />
-            </ObjectPageSection>
-          );
-        } else if (tab.name === "logistics") {
-          return (
-            <ObjectPageSection
-              id="section3"
-              style={{
-                height: "100%",
-              }}
-              titleText="Logistics"
-            >
-              <Logistics
-                fieldConfig={fieldConfig}
-                SalesOrderRenderInput={SalesOrderRenderInput}
-                form={form}
-                handleChange={handleChange}
-              />
-            </ObjectPageSection>
-          );
-        }
-        else if (tab.name === "accounting") {
-          return (
-            <ObjectPageSection
-              id="section4"
-              style={{
-                height: "100%",
-              }}
-              titleText="Accounting"
-            >
-              <Accounting />
-            </ObjectPageSection>
-          );
-        } else if (tab.name === "attachments") {
-          return (
-            <ObjectPageSection
-              id="section5"
-              style={{
-                height: "100%",
-              }}
-              titleText="Attachments"
-            >
-              <Attachments />
-            </ObjectPageSection>
-          );
-        } else if (tab.name === "user-defined-field") {
-          return (
-            <ObjectPageSection
-              id="section6"
-              style={{
-                height: "100%",
-              }}
-              titleText="User-defined Fields"
-            >
-              <UserDefinedFields form={form}
-                handleChange={handleChange} />
-            </ObjectPageSection>
-          );
-        }
-      }) 
+        tabList.length > 0 && tabList.map((tab) => {
+          console.log("object", tab);
+          if (tab.name === "general") {
+            return (
+              <ObjectPageSection
+                id="section1"
+                style={{ height: "100%" }}
+                titleText="General"
+              >
+                {/* <General form={form} SubForms={tab.SubForms} handleChange={handleChange} /> */}
+                <General onSubmit={handleSubmit}
+                  setFormData={setFormData}
+                  formData={formData}
+                  defaultValues={{
+                    CardCode: "",
+                    DocDueDate: "1",
+                    DocumentLines: [],
+                  }}
+                  apiError={apiError} />
+              </ObjectPageSection>
+            );
+          } else if (tab.name === "contents") {
+            return (
+              <ObjectPageSection
+                id="section2"
+                style={{
+                  height: "100%",
+                }}
+                titleText="Contents"
+              >
+                <Contents
+                  rowSelection={rowSelection}
+                  setRowSelection={setRowSelection}
+                  itemdata={itemdata}
+                  setitemData={setitemData}
+                  orderItems={orderItems}
+                  loading={loading}
+                  form={form}
+                  handleRowChange={handleRowChange}
+                  deleteRow={deleteRow}
+                  addRow={addRow}
+                  SalesOrderRenderInput={SalesOrderRenderInput}
+                  handleChange={handleChange}
+                />
+              </ObjectPageSection>
+            );
+          } else if (tab.name === "logistics") {
+            return (
+              <ObjectPageSection
+                id="section3"
+                style={{
+                  height: "100%",
+                }}
+                titleText="Logistics"
+              >
+                <Logistics
+                  fieldConfig={fieldConfig}
+                  SalesOrderRenderInput={SalesOrderRenderInput}
+                  form={form}
+                  handleChange={handleChange}
+                />
+              </ObjectPageSection>
+            );
+          }
+          else if (tab.name === "accounting") {
+            return (
+              <ObjectPageSection
+                id="section4"
+                style={{
+                  height: "100%",
+                }}
+                titleText="Accounting"
+              >
+                <Accounting />
+              </ObjectPageSection>
+            );
+          } else if (tab.name === "attachments") {
+            return (
+              <ObjectPageSection
+                id="section5"
+                style={{
+                  height: "100%",
+                }}
+                titleText="Attachments"
+              >
+                <Attachments />
+              </ObjectPageSection>
+            );
+          } else if (tab.name === "user-defined-field") {
+            return (
+              <ObjectPageSection
+                id="section6"
+                style={{
+                  height: "100%",
+                }}
+                titleText="User-defined Fields"
+              >
+                <UserDefinedFields form={form}
+                  handleChange={handleChange} />
+              </ObjectPageSection>
+            );
+          }
+        })
         // <ObjectPageSection
         //   id="section1"
         //   style={{ height: "100%" }}
@@ -418,7 +461,7 @@ export default function SalesOrder() {
         //     <UserDefinedFields form={form}
         //       handleChange={handleChange} />
         //   </ObjectPageSection>
-          }
+      }
 
 
 

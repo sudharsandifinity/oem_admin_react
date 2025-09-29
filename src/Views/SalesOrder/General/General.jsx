@@ -1,69 +1,99 @@
+import { useEffect, useRef } from "react";
+
+import { Controller, useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
 import {
   FlexBox,
   Form,
   FormGroup,
   FormItem,
+  Input,
   Label,
+  Option,
+  Select,
 } from "@ui5/webcomponents-react";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 import { FormConfigContext } from "../../../Components/Context/FormConfigContext";
 import { SalesOrderRenderInput } from "../SalesOrderRenderInput";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-const General = (props) => {
-  const { form ,SubForms} = props;
+import { fetchBusinessPartner } from "../../../store/slices/CustomerOrderSlice";
+const schema = yup.object().shape({
+  name: yup.string().required("Name is required"),
+  city: yup.string().required("City is required"),
+  address: yup.string().required("Address is required"),
+  branch_code: yup.string().required("Branch Code is required"),
+  companyId: yup.string().required("Company ID is required"),
+  is_main: yup.string().required("is_main is required"),
+  status: yup.string().required("Status is required"),
+});
+const General = ({
+  onSubmit,
+  setFormData,
+  formData,
+  defaultValues,
+  mode = "create",
+  apiError,
+}) => {
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm({
+    defaultValues,
+    resolver: yupResolver(schema, { context: { mode } }),
+  });
+  const formRef = useRef(null);
   const {
     fieldConfig,
     //CustomerDetails,
     //DocumentDetails
   } = useContext(FormConfigContext);
-  const [inputvalue, setInputValue] = useState([]);
-  const [formData, setFormData] = useState({});
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [selectedKey, setSelectedKey] = useState("");
-const CustomerDetails = SubForms?SubForms.map(SubFormss => SubFormss.name === "customer-details" && SubFormss.FormFields
-                  ).flat():CustomerDetails
-const DocumentDetails = SubForms?SubForms.map(SubFormss => SubFormss.name === "document-details" && SubFormss.FormFields
-                  ).flat():DocumentDetails
-  console.log("CustomerDetails",CustomerDetails);
-  console.log("DocumentDetails",DocumentDetails);
+
+
+
+  const [generalData, setgeneralData] = useState([]);
+
+  const [selectedcardcode, setSelectedCardCode] = useState("");
 
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { companyformfield } = useSelector((state) => state.companyformfield);
-  // const CustomerDetails = companyformfield.filter(
-  //   (c) => c.Form?.name === "CusDetail"
-  // );
-  // const DocumentDetails = companyformfield.filter(
-  //   (c) => c.Form?.name === "DocDetail"
-  // );
 
-  // useEffect(() => {
-  //   //dispatch(fetchCompanyFormfields());
-  //   const fetchData = async () => {
-  //     try {
-  //       const res = await dispatch(fetchCompanyFormfields()).unwrap();
-  //       console.log("resusers", res);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await dispatch(fetchBusinessPartner()).unwrap();
+        console.log("resusersbusinesspartner", res);
 
-  //       if (res.message === "Please Login!") {
-  //         navigate("/");
-  //       }
-  //     } catch (err) {
-  //       console.log("Failed to fetch user", err.message);
-  //       err.message && navigate("/");
-  //     }
-  //   };
-  //   fetchData();
-  // }, [dispatch]);
-  const handleChange = (e, formName) => {
-    console.log("handlechangevalue", formName);
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
+        if (res?.length > 0) {
+          const dataconfig = res.map((item) => ({
+            CardCode: item.CardCode,
+            CardName: item.CardName,
+          }));
+          setgeneralData(dataconfig);
+        }
+
+        if (res.message === "Please Login!") {
+          navigate("/");
+        }
+      } catch (err) {
+        console.log("Failed to fetch user", err.message);
+        err.message && navigate("/");
+      }
+    };
+
+    fetchData();
+  }, [dispatch]);
+const handleChange = (e) => {
+  const { name, value } = e.target;
+  setFormData((prev) => ({
+    ...prev,
+    [name]: value,
+  }));
+};
   useEffect(() => {
     //setInputValue((prev) => ({  ...prev, ...formData }));
     console.log("formDataGeneral", formData);
@@ -71,42 +101,89 @@ const DocumentDetails = SubForms?SubForms.map(SubFormss => SubFormss.name === "d
   }, []);
   return (
     <div>
-      <FlexBox wrap="Wrap" direction="Row" style={{ gap: "2rem" }}>
-        {/* === Customer Details === */}
-        <FlexBox direction="Column" style={{ flex: 1 }}>
-          <Label style={{ marginBottom: "1rem" }}>Customer Details</Label>
-          <Form labelSpan="S12 M3 L6 XL6" layout="S1 M1 L2 XL2">
-            <FormGroup>
-              <FlexBox style={{ display: "flex", gap: "2rem" }}>
-                {/* Left Column */}
-                <div style={{ flex: 1 }}>
-                  {console.log("cusdetails", SubForms.map(SubFormss => SubFormss.name === "customer-details" && SubFormss.FormFields
-                  ).flat())}
-                  {[...CustomerDetails]
-                    .filter((field) => field.is_visible) // ✅ Only visible fields
-                    .sort((a, b) => a.field_order - b.field_order) // ✅ Sort by field_order
-                    .map((field) => (
-                      <FormItem
-                        tabIndex={field.field_order}
-                        key={field.field_name}
-                        label={field.display_name}
-                        labelContent={<Label>{field.display_name}</Label>}
-                      >
-                        {SalesOrderRenderInput(
-                          "cusDetail",
-                          field,
-                          form,
-                          handleChange,
-                          inputvalue,
-                          setInputValue,dialogOpen, setDialogOpen,
-                          selectedKey, setSelectedKey
-                        )}
-                      </FormItem>
-                    ))}
-                </div>
+      <form
+        ref={formRef}
+        id="form"
+        onSubmit={handleSubmit((formData) => {
+          const fullData = {
+            ...formData,
+          };
+          onSubmit(fullData); // you already pass it upward
+        })}
+      >
+        <FlexBox wrap="Wrap" direction="Row" style={{ gap: "2rem", padding: "5rem" }}>
+          {/* === Customer Details === */}
+          <FlexBox direction="Column" style={{ flex: 1 }}>
 
-                {/* Right Column */}
-                {/* <div style={{ flex: 1 }}>
+            <FlexBox style={{ display: "flex", gap: "2rem" }}>
+              {/* Left Column */}
+              <div style={{ flex: 1 }}>
+                <FlexBox direction="Column" style={{ flex: "28%", paddingBottom: "2rem" }}>
+                  <Label>Card Code</Label>
+                  <FlexBox label={<Label required>CardCode</Label>}>
+                    <Controller
+                      name="CardCode"
+                      control={control}
+                      render={({ field }) => (<Select
+                        style={{ width: "80%" }}
+                        name="CardCode"
+                        value={field.value ?? ""}
+                        onChange={(e) => { field.onChange(e.target.value); handleChange(e); setSelectedCardCode(e.target.value) }}
+                        valueState={errors.CardCode ? "Error" : "None"}
+                      >
+                        <Option key="" value="">Select</Option>
+                        {console.log("generalData", generalData)}
+                        {generalData?.map((r) => (
+                          <Option key={r.CardCode} value={r.CardCode}>
+                            {r.CardCode}
+                          </Option>
+                        ))}
+                      </Select>)
+                      }
+                    />
+
+
+                    {errors.CardCode && (
+                      <span
+                        slot="valueStateMessage"
+                        style={{ color: "var(--sapNegativeColor)" }}
+                      >
+                        {errors.CardCode.message}
+                      </span>
+                    )}
+                  </FlexBox>
+                </FlexBox>
+                <FlexBox direction="Column" style={{ flex: " 28%" }}>
+                  <Label>Card Name</Label>
+                  <Controller
+                    name="CardName"
+                    control={control}
+                    render={({ field }) => (
+                      <FlexBox label={<Label required>Label Text</Label>}>
+                        <Input
+                          style={{ width: "80%" }}
+                          placeholder="Card Name"
+                          name="CardName"
+                          value={selectedcardcode ? generalData.find((r) => r.CardCode === selectedcardcode)?.CardName : field.value} // controlled value
+                          onInput={(e) => field.onChange(e.target.value)} // update RHF
+                          onChange={handleChange}
+                          valueState={errors.CardName ? "Error" : "None"} // red border on error
+                        >
+                          {errors.CardName && (
+                            /* UI5 shows this automatically when valueState="Error" */
+                            <span slot="valueStateMessage">
+                              {errors.CardName.message}
+                            </span>
+                          )}
+                        </Input>
+                      </FlexBox>
+                    )}
+                  />
+                </FlexBox>
+              </div>
+
+              {/* Right Column */}
+              {/* <div style={{ flex: 1 }}>
                     {CustomerDetails.filter(
                       (field) =>
                         field.Position === "Header" &&
@@ -121,19 +198,15 @@ const DocumentDetails = SubForms?SubForms.map(SubFormss => SubFormss.name === "d
                       </FormItem>
                     ))}
                   </div> */}
-              </FlexBox>
-            </FormGroup>
-          </Form>
-        </FlexBox>
+            </FlexBox>
+          </FlexBox>
 
-        {/* === Document Details === */}
-        <FlexBox direction="Column" style={{ flex: 1 }}>
-          <Label style={{ marginBottom: "1rem" }}>Document Details</Label>
-          <Form labelSpan="S12 M3 L6 XL6" layout="S1 M1 L4 XL4">
-            <FormGroup>
-              <FlexBox style={{ display: "flex", gap: "2rem" }}>
-                {/* Left Column */}
-                {/* <div style={{ flex: 1 }}>
+          {/* === Document Details === */}
+          <FlexBox direction="Column" style={{ flex: 1 }}>
+
+            <FlexBox style={{ display: "flex", gap: "2rem" }}>
+              {/* Left Column */}
+              {/* <div style={{ flex: 1 }}>
                     {DocumentDetails.filter(
                       (field) =>
                         field.Position === "Header" &&
@@ -149,37 +222,46 @@ const DocumentDetails = SubForms?SubForms.map(SubFormss => SubFormss.name === "d
                     ))}
                   </div> */}
 
-                {/* Right Column */}
-                <div style={{ flex: 1 }}>
-                  {console.log("DocumentDetailsrender", DocumentDetails)}
-                  {[...DocumentDetails]
-                    .filter((field) => field.is_visible) // ✅ Only visible fields
-                    .sort((a, b) => a.field_order - b.field_order) // ✅ Sort by field_order
-                    .map((field) => (
-                      <FormItem
-                        tabIndex={field.field_order}
-                        key={field.field_name}
-                        label={field.display_name}
-                        labelContent={<Label>{field.display_name}</Label>}
-                      >
-                        {SalesOrderRenderInput(
-                          "docDetail",
-                          field,
-                          form,
-                          handleChange,
-                          inputvalue,
-                          setInputValue,dialogOpen, setDialogOpen,
-                          selectedKey, setSelectedKey
-                        )}
-                      </FormItem>
-                    ))}
-                </div>
-              </FlexBox>
-            </FormGroup>
-          </Form>
+              {/* Right Column */}
+              <div style={{ flex: 1 }}>
+                <FlexBox direction="Column" style={{ flex: " 28%" }}>
+                  <Label>Current Date</Label>
+                  <Controller
+                    name="DocDueDate"
+                    control={control}
+                    render={({ field }) => (
+                      <FlexBox label={<Label required>Label Text</Label>}>
+                        <Input
+                          style={{ width: "80%" }}
+                          placeholder="Current Date"
+                          name="DocDueDate"
+                          type="date"
+                          min="2020-01-01"
+                          value={
+                            field.value
+                              ? new Date(field.value).toISOString().split("T")[0] // ✅ format to YYYY-MM-DD
+                              : new Date().toISOString().split("T")[0]
+                          }
+                          onInput={(e) => field.onChange(e.target.value)}
+                          onChange={handleChange}
+                          valueState={errors.DocDueDate ? "Error" : "None"}
+                        >
+                          {errors.DocDueDate && (
+                            <span slot="valueStateMessage">{errors.DocDueDate.message}</span>
+                          )}
+                        </Input>
+
+                      </FlexBox>
+                    )}
+                  />
+                </FlexBox>
+              </div>
+            </FlexBox>
+
+          </FlexBox>
         </FlexBox>
-      </FlexBox>
-    </div>
+      </form>
+    </div >
   );
 };
 

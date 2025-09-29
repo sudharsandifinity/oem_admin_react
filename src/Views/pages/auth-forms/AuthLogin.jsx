@@ -144,7 +144,7 @@ export default function AuthLogin() {
               level="H5"
               style={{
                 fontSize: "1rem",
-                color: "#7e57c2",
+                color: "#4d8ba0",
                 marginBottom: "0.25rem",
                 marginTop: "1rem",
               }}
@@ -221,7 +221,8 @@ export default function AuthLogin() {
               <Button
                 type="Submit"
                 design="Emphasized"
-                style={{ width: "100%" }}
+                
+                style={{ width: "100%",color:"white", backgroundColor:"#4d8ba0" }}
               >
                 Sign In
               </Button>

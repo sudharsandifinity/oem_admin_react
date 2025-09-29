@@ -72,6 +72,7 @@ import EditCompanyRole from "./Views/Admin/Masters/CompanyRole/EditCompanyRole";
 import EditUserChildMenu from "./Views/Admin/Menu/MenuMaster/EditUserChildMenu";
 import AssignFormMenuMaster from "./Views/Admin/Menu/AssignFormToMenu/AssignFormMenuMaster";
 import CreateAssignFormMenu from "./Views/Admin/Menu/AssignFormToMenu/CreateAssignFormMenu";
+import EditSalesOrder from "./Views/SalesOrder/editSalesOrder";
 //import { useEffect, useState } from "react";
 
 // const AuthLogin = Loadable(lazy(() => import('Views/pages/auth-forms/AuthLogin')));
@@ -123,6 +124,7 @@ function App() {
                   <Route path="/UserDashboard" element={<UserDashboard />} />
 
                   <Route path="/SalesOrder/create/:formId" element={<SalesOrder />} />
+                  <Route path="/SalesOrder/edit/:formId/:id" element={<EditSalesOrder />} />
                   <Route
                     path="/ManageSalesOrder"
                     element={<ManageSalesOrder />}
