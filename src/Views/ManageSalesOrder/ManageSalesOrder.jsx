@@ -32,6 +32,7 @@ import ItemViewPage from "../SalesOrder/Contents/Item/ItemViewPage";
 import ViewSalesOrder from "./ViewSalesOrder";
 import { useDispatch, useSelector } from "react-redux";
 import { deleteCustomerOrder, fetchBusinessPartner, fetchCustomerOrder } from "../../store/slices/CustomerOrderSlice";
+import TopNav from "../../Components/Header/TopNav";
 
 
 
@@ -221,6 +222,7 @@ const ManageSalesOrder = () => {
   // if (!formConfig) return <div>Loading form...</div>;
   return (
     <div>
+      <TopNav />
       <DynamicPage
         footerArea={
           <Bar
