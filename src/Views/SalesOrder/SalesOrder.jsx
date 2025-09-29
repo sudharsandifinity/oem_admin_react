@@ -125,109 +125,113 @@ export default function SalesOrder() {
   };
   const handleSubmit = async (form) => {
     console.log("Form submitted:", form, formData, rowSelection);
-    try {
-     const payload = {
-  CardCode: formData.CardCode,
-  DocDueDate: formData.DocDueDate
-    ? new Date(formData.DocDueDate)
-        .toISOString()
-        .split("T")[0]
-        .replace(/-/g, "")
-    : new Date().toISOString().split("T")[0].replace(/-/g, ""),
-  DocumentLines: Object.values(rowSelection).map(line => ({
-    ItemCode: line.ItemCode,
-    ItemDescription: line.ItemName, // ✅ rename to ItemDescription
-    Quantity: line.Quantity,
-    UnitPrice: line.UnitPrice,
-  })),
-}; 
-      console.log("payload", payload)
-      const res = await dispatch(createCustomerOrder(payload)).unwrap();
-      if (res.message === "Please Login!") {
-        navigate("/login");
-      }
-      navigate("/ManageSalesOrder");
-    } catch (err) {
-      setApiError(err?.message || "Failed to create branch");
-    }
-  };
-  const renderInput = (field) => {
-    const value = form[field.FieldName] || "";
+   
+  try {
+         const payload = {
+      CardCode: formData.CardCode,
+      DocDueDate: formData.DocDueDate
+        ? new Date(formData.DocDueDate)
+            .toISOString()
+            .split("T")[0]
+            .replace(/-/g, "")
+        : new Date().toISOString().split("T")[0].replace(/-/g, ""),
+      DocumentLines: Object.values(rowSelection).map(line => ({
+        ItemCode: line.ItemCode,
+        ItemDescription: line.ItemName, // ✅ rename to ItemDescription
+        Quantity: line.Quantity,
+        UnitPrice: line.UnitPrice,
+      })),
+    }; 
 
-    switch (field.inputType) {
-      case "text":
-      case "number":
-        return (
-          <Input
-            type={field.inputType}
-            value={value}
-            onInput={(e) => handleChange(e, field.FieldName)}
-          />
-        );
-      case "date":
-        return (
-          <DatePicker
-            value={value}
-            onChange={(e) => handleChange(e, field.FieldName)}
-          />
-        );
-      case "checkbox":
-        return (
-          <CheckBox
-            onChange={(e) => handleChange(e, field.FieldName)}
-            text="CheckBox"
-            valueState="None"
-          />
-        );
-      case "textarea":
-        return (
-          <TextArea
-            value={value}
-            onInput={(e) => handleChange(e, field.FieldName)}
-          />
-        );
-      default:
-        return null;
+
+
+    console.log("payload", payload)
+    const res = await dispatch(createCustomerOrder(payload)).unwrap();
+    if (res.message === "Please Login!") {
+      navigate("/login");
     }
-  };
-  useEffect(() => {
-    if (formId) {
-      // Fetch form data based on formId
-      const formDetails = user?.Roles?.flatMap(role =>
-        role.UserMenus.flatMap(menu =>
-          menu.children.filter(submenu => submenu.Form.id === formId)
-        )
+    navigate(`/form/${formId}`);
+  } catch (err) {
+    setApiError(err?.message || "Failed to create branch");
+  }
+};
+const renderInput = (field) => {
+  const value = form[field.FieldName] || "";
+
+  switch (field.inputType) {
+    case "text":
+    case "number":
+      return (
+        <Input
+          type={field.inputType}
+          value={value}
+          onInput={(e) => handleChange(e, field.FieldName)}
+        />
       );
-      setTabList(formDetails && formDetails[0]?.Form.FormTabs || []);
-      setFormDetails(formDetails);
-    } else {
-      navigate("/")
+    case "date":
+      return (
+        <DatePicker
+          value={value}
+          onChange={(e) => handleChange(e, field.FieldName)}
+        />
+      );
+    case "checkbox":
+      return (
+        <CheckBox
+          onChange={(e) => handleChange(e, field.FieldName)}
+          text="CheckBox"
+          valueState="None"
+        />
+      );
+    case "textarea":
+      return (
+        <TextArea
+          value={value}
+          onInput={(e) => handleChange(e, field.FieldName)}
+        />
+      );
+    default:
+      return null;
+  }
+};
+useEffect(() => {
+  if (formId) {
+    // Fetch form data based on formId
+    const formDetails = user?.Roles?.flatMap(role =>
+      role.UserMenus.flatMap(menu =>
+        menu.children.filter(submenu => submenu.Form.id === formId)
+      )
+    );
+    setTabList(formDetails && formDetails[0]?.Form.FormTabs || []);
+    setFormDetails(formDetails);
+  } else {
+    navigate("/")
+  }
+}, [formId])
+return (
+  <ObjectPage
+    footerArea={
+      <>
+        {" "}
+        <Bar
+          style={{ padding: 0.5 }}
+          design="FloatingFooter"
+          endContent={
+            <>
+              <Button design="Positive" onClick={() => handleSubmit()}>
+                Submit
+              </Button>
+              <Button design="Positive" onClick={() => navigate(`/form/${formId}`)}>
+                Cancel
+              </Button>
+            </>
+          }
+        />
+      </>
     }
-  }, [formId])
-  return (
-    <ObjectPage
-      footerArea={
-        <>
-          {" "}
-          <Bar
-            style={{ padding: 0.5 }}
-            design="FloatingFooter"
-            endContent={
-              <>
-                <Button design="Positive" onClick={() => handleSubmit()}>
-                  Submit
-                </Button>
-                <Button design="Positive" onClick={() => navigate("/ManageSalesOrder")}>
-                  Cancel
-                </Button>
-              </>
-            }
-          />
-        </>
-      }
-      headerArea={
-        <DynamicPageHeader>
-          {/* <FlexBox wrap="Wrap">
+    headerArea={
+      <DynamicPageHeader>
+        {/* <FlexBox wrap="Wrap">
             <FlexBox direction="Column">
               <Label>Customer</Label>
             </FlexBox>
@@ -255,213 +259,170 @@ export default function SalesOrder() {
               />
             </FlexBox>
           </FlexBox> */}
-        </DynamicPageHeader>
-      }
-      // image="https://sap.github.io/ui5-webcomponents-react/v2/assets/Person-B7wHqdJw.png"
-      imageShapeCircle
-      mode="IconTabBar"
-      onBeforeNavigate={function Xs() { }}
-      onPinButtonToggle={function Xs() { }}
-      onSelectedSectionChange={function Xs() { }}
-      onToggleHeaderArea={function Xs() { }}
-      selectedSectionId="section1"
-      style={{
-        height: "700px",
-        maxHeight: "90vh",
-      }}
-      titleArea={
-        <ObjectPageTitle
-          breadcrumbs={
-            <>
+      </DynamicPageHeader>
+    }
+    // image="https://sap.github.io/ui5-webcomponents-react/v2/assets/Person-B7wHqdJw.png"
+    imageShapeCircle
+    mode="IconTabBar"
+    onBeforeNavigate={function Xs() { }}
+    onPinButtonToggle={function Xs() { }}
+    onSelectedSectionChange={function Xs() { }}
+    onToggleHeaderArea={function Xs() { }}
+    selectedSectionId="section1"
+    style={{
+      height: "700px",
+      maxHeight: "90vh",
+    }}
+    titleArea={
+      <ObjectPageTitle
+        breadcrumbs={
+          <>
 
-              <Breadcrumbs design="Standard"
-                separators="Slash"
-                onItemClick={(e) => {
-                  const route = e.detail.item.dataset.route;
-                  if (route) navigate(route);
-                }}>
-                <BreadcrumbsItem data-route="/UserDashboard">Home</BreadcrumbsItem>
-                <BreadcrumbsItem data-route="/ManageSalesOrder">
-                  Manage Sales Order
-                </BreadcrumbsItem>
-                <BreadcrumbsItem>{formDetails ? formDetails[0]?.name : "Sales Order"}</BreadcrumbsItem>
-              </Breadcrumbs></>
-          }
-          header={<Title level="H2">{formDetails ? formDetails[0]?.name : "Sales Order"}</Title>}
-          navigationBar={
-            <Toolbar design="Transparent">
-              {/* <ToolbarButton design="Transparent" icon="full-screen" />
+            <Breadcrumbs design="Standard"
+              separators="Slash"
+              onItemClick={(e) => {
+                const route = e.detail.item.dataset.route;
+                if (route) navigate(route);
+              }}>
+              <BreadcrumbsItem data-route="/UserDashboard">Home</BreadcrumbsItem>
+              <BreadcrumbsItem data-route={`/form/${formId}`}>
+                Manage Sales Order
+              </BreadcrumbsItem>
+              <BreadcrumbsItem>{formDetails ? formDetails[0]?.name : "Sales Order"}</BreadcrumbsItem>
+            </Breadcrumbs></>
+        }
+        header={<Title level="H2">{formDetails ? formDetails[0]?.name : "Sales Order"}</Title>}
+        navigationBar={
+          <Toolbar design="Transparent">
+            {/* <ToolbarButton design="Transparent" icon="full-screen" />
               <ToolbarButton design="Transparent" icon="exit-full-screen" /> */}
 
 
-              <ToolbarButton
-                onClick={() => navigate("/ManageSalesOrder")}
-                design="Transparent"
-                icon="decline"
-              />
-            </Toolbar>
-          }
-        >
-          <ObjectStatus>
-            {/* <Button design="Transparent" icon="navigation-right-arrow"  onClick={openMenu} >
+            <ToolbarButton
+              onClick={() => navigate(`/form/${formId}`)}
+              design="Transparent"
+              icon="decline"
+            />
+          </Toolbar>
+        }
+      >
+        <ObjectStatus>
+          {/* <Button design="Transparent" icon="navigation-right-arrow"  onClick={openMenu} >
                  Company
               </Button>
             <CustomerSelection menuRef={menuRef}/> */}
 
-          </ObjectStatus>
-        </ObjectPageTitle>
-      }
-    >
-      {
-        tabList.length > 0 && tabList.map((tab) => {
-          console.log("object", tab);
-          if (tab.name === "general") {
-            return (
-              <ObjectPageSection
-                id="section1"
-                style={{ height: "100%" }}
-                titleText="General"
-              >
-                {/* <General form={form} SubForms={tab.SubForms} handleChange={handleChange} /> */}
-                <General onSubmit={handleSubmit}
-                  setFormData={setFormData}
-                  formData={formData}
-                  defaultValues={{
-                    CardCode: "",
-                    DocDueDate: "1",
-                    DocumentLines: [],
-                  }}
-                  apiError={apiError} />
-              </ObjectPageSection>
-            );
-          } else if (tab.name === "contents") {
-            return (
-              <ObjectPageSection
-                id="section2"
-                style={{
-                  height: "100%",
+        </ObjectStatus>
+      </ObjectPageTitle>
+    }
+  >
+    {/* {
+      tabList.length > 0 && tabList.map((tab) => {
+        console.log("object", tab);
+        if (tab.name === "general") {
+          return ( */}
+            <ObjectPageSection
+              id="section1"
+              style={{ height: "100%" }}
+              titleText="General"
+            >
+              {/* <General form={form} SubForms={tab.SubForms} handleChange={handleChange} /> */}
+              <General onSubmit={handleSubmit}
+                setFormData={setFormData}
+                formData={formData}
+                defaultValues={{
+                  CardCode: "",
+                  DocDueDate: "1",
+                  DocumentLines: [],
                 }}
-                titleText="Contents"
-              >
-                <Contents
-                  rowSelection={rowSelection}
-                  setRowSelection={setRowSelection}
-                  itemdata={itemdata}
-                  setitemData={setitemData}
-                  orderItems={orderItems}
-                  loading={loading}
-                  form={form}
-                  handleRowChange={handleRowChange}
-                  deleteRow={deleteRow}
-                  addRow={addRow}
-                  SalesOrderRenderInput={SalesOrderRenderInput}
-                  handleChange={handleChange}
-                />
-              </ObjectPageSection>
-            );
-          } else if (tab.name === "logistics") {
-            return (
-              <ObjectPageSection
-                id="section3"
-                style={{
-                  height: "100%",
-                }}
-                titleText="Logistics"
-              >
-                <Logistics
-                  fieldConfig={fieldConfig}
-                  SalesOrderRenderInput={SalesOrderRenderInput}
-                  form={form}
-                  handleChange={handleChange}
-                />
-              </ObjectPageSection>
-            );
-          }
-          else if (tab.name === "accounting") {
-            return (
-              <ObjectPageSection
-                id="section4"
-                style={{
-                  height: "100%",
-                }}
-                titleText="Accounting"
-              >
-                <Accounting />
-              </ObjectPageSection>
-            );
-          } else if (tab.name === "attachments") {
-            return (
-              <ObjectPageSection
-                id="section5"
-                style={{
-                  height: "100%",
-                }}
-                titleText="Attachments"
-              >
-                <Attachments />
-              </ObjectPageSection>
-            );
-          } else if (tab.name === "user-defined-field") {
-            return (
-              <ObjectPageSection
-                id="section6"
-                style={{
-                  height: "100%",
-                }}
-                titleText="User-defined Fields"
-              >
-                <UserDefinedFields form={form}
-                  handleChange={handleChange} />
-              </ObjectPageSection>
-            );
-          }
-        })
-        // <ObjectPageSection
-        //   id="section1"
-        //   style={{ height: "100%" }}
-        //   titleText="General"
-        // >
-        //   <General form={form} SubForms="" handleChange={handleChange} />
-        // </ObjectPageSection><ObjectPageSection
-        //   id="section3"
-        //   style={{
-        //     height: "100%",
-        //   }}
-        //   titleText="Logistics"
-        // >
-        //     <Logistics
-        //       fieldConfig={fieldConfig}
-        //       SalesOrderRenderInput={SalesOrderRenderInput}
-        //       form={form}
-        //       handleChange={handleChange}
-        //     />
-        //   </ObjectPageSection><ObjectPageSection
-        //     id="section4"
-        //     style={{
-        //       height: "100%",
-        //     }}
-        //     titleText="Accounting"
-        //   >
-        //     <Accounting />
-        //   </ObjectPageSection>  <ObjectPageSection
-        //     id="section5"
-        //     style={{
-        //       height: "100%",
-        //     }}
-        //     titleText="Attachments"
-        //   >
-        //     <Attachments />
-        //   </ObjectPageSection><ObjectPageSection
-        //     id="section6"
-        //     style={{
-        //       height: "100%",
-        //     }}
-        //     titleText="User-defined Fields"
-        //   >
-        //     <UserDefinedFields form={form}
-        //       handleChange={handleChange} />
-        //   </ObjectPageSection>
-      }
+                apiError={apiError} />
+            </ObjectPageSection>
+          {/* );
+        } else if (tab.name === "contents") {
+          return ( */}
+            <ObjectPageSection
+              id="section2"
+              style={{
+                height: "100%",
+              }}
+              titleText="Contents"
+            >
+              <Contents
+                rowSelection={rowSelection}
+                setRowSelection={setRowSelection}
+                itemdata={itemdata}
+                setitemData={setitemData}
+                orderItems={orderItems}
+                loading={loading}
+                form={form}
+                handleRowChange={handleRowChange}
+                deleteRow={deleteRow}
+                addRow={addRow}
+                SalesOrderRenderInput={SalesOrderRenderInput}
+                handleChange={handleChange}
+              />
+            </ObjectPageSection>
+          {/* );
+        } else if (tab.name === "logistics") {
+          return ( */}
+            <ObjectPageSection
+              id="section3"
+              style={{
+                height: "100%",
+              }}
+              titleText="Logistics"
+            >
+              <Logistics
+                fieldConfig={fieldConfig}
+                SalesOrderRenderInput={SalesOrderRenderInput}
+                form={form}
+                handleChange={handleChange}
+              />
+            </ObjectPageSection>
+          {/* );
+        }
+        else if (tab.name === "accounting") {
+          return ( */}
+            <ObjectPageSection
+              id="section4"
+              style={{
+                height: "100%",
+              }}
+              titleText="Accounting"
+            >
+              <Accounting />
+            </ObjectPageSection>
+          {/* );
+        } else if (tab.name === "attachments") {
+          return ( */}
+            <ObjectPageSection
+              id="section5"
+              style={{
+                height: "100%",
+              }}
+              titleText="Attachments"
+            >
+              <Attachments />
+            </ObjectPageSection>
+          {/* );
+        } else if (tab.name === "user-defined-field") {
+          return ( */}
+            <ObjectPageSection
+              id="section6"
+              style={{
+                height: "100%",
+              }}
+              titleText="User-defined Fields"
+            >
+              <UserDefinedFields form={form}
+                handleChange={handleChange} />
+            </ObjectPageSection>
+          {/* );
+        }
+      }) */}
+
+
+   
 
 
 
@@ -471,6 +432,6 @@ export default function SalesOrder() {
 
 
 
-    </ObjectPage >
-  );
+  </ObjectPage >
+);
 }

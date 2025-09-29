@@ -46,29 +46,35 @@ export const fetchCustomerOrderById = createAsyncThunk(
 
 // ✅ Create Order
 export const createCustomerOrder = createAsyncThunk(
-  'customerorder/create',
+  "customerorder/create",
   async (customerOrderData, thunkApi) => {
     try {
-      const response = await api.post(API_URL, customerOrderData, { withCredentials: true });
+      console.log("🚀 Sending order to API:", customerOrderData);
+      const response = await api.post(API_URL, customerOrderData, { withCredentials: true, timeout: 30000 });
       return response.data;
     } catch (error) {
-      return thunkApi.rejectWithValue(error.response?.data || 'Error creating order');
+      console.error("❌ API error:", error.response?.data || error.message);
+      return thunkApi.rejectWithValue(error.response?.data || "Error creating order");
     }
   }
 );
+
 
 // ✅ Update Order
 export const updateCustomerOrder = createAsyncThunk(
   'customerorder/update',
   async ({ id, data }, thunkApi) => {
     try {
-      const response = await api.patch(`${API_URL}/${id}`, data, { withCredentials: true });
+      console.log("🚀 Sending order to API:", data);
+      const response = await api.patch(`${API_URL}/${id}`, data, { withCredentials: true, timeout: 60000 });
       return response.data;
     } catch (error) {
+      console.error("❌ API error:", error.response?.data || error.message);
       return thunkApi.rejectWithValue(error.response?.data || 'Error updating order');
     }
   }
 );
+
 
 // ✅ Delete Order
 export const deleteCustomerOrder = createAsyncThunk(
