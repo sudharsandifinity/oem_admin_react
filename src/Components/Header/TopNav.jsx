@@ -27,7 +27,7 @@ export default function TopNav({ collapsed, setCollapsed, ...rest }) {
       setUserMenuOpen(true);
     }
   };
-   const showStartButton = location.pathname.startsWith("/admin");
+   const showStartButton = location.pathname.startsWith("/admin") || location.pathname.startsWith("/UserDashboard");
 
   return (
     <>
