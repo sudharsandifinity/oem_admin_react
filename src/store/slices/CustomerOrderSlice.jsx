@@ -3,7 +3,7 @@ import api from '../../api/axios';
 
 // API Base URL
 const API_URL = '/sap/orders';
-const BUSINESS_PARTNER_API = '/sap/business-partners';
+const BUSINESS_PARTNER_API = '/sap/business-partners/customers';
 
 // ✅ Fetch Business Partners
 export const fetchBusinessPartner = createAsyncThunk(

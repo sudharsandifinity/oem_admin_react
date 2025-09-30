@@ -3,7 +3,7 @@ import React from 'react'
 
 const ItemPopupFilterDialog = (props) => {
     const {setFilterDialogOpen,filterdialogOpen,itempopupData,handleDialogItemClick,fieldName}=props
-
+console.log("itempopupData",itempopupData)
     return (
     <Dialog
             headerText={"Select " + fieldName + "" }

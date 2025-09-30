@@ -63,10 +63,12 @@ export default function SalesOrder() {
   const [formDetails, setFormDetails] = useState([]);
   const [formData, setFormData] = useState({});
   const [rowSelection, setRowSelection] = useState({});
-  const [itemdata, setitemData] = useState([
+  const [itemTabledata, setitemTableData] = useState([
     { slno: 1, ItemCode: "", ItemName: "", quantity: "", amount: "" },
   ]);
-
+const [itemdata, setitemData] = useState([
+    { slno: 1, ItemCode: "", ItemName: "", quantity: "", amount: "" },
+  ]);
   const [form, setForm] = useState({
     CardCode: "",
     CardName: "",
@@ -126,7 +128,7 @@ export default function SalesOrder() {
   const handleSubmit = async (form) => {
     console.log("Form submitted:", form, formData, rowSelection);
    
-  try {
+   try {
          const payload = {
       CardCode: formData.CardCode,
       DocDueDate: formData.DocDueDate
@@ -352,6 +354,8 @@ return (
                 setRowSelection={setRowSelection}
                 itemdata={itemdata}
                 setitemData={setitemData}
+                setitemTableData={setitemTableData}
+                itemTabledata={itemTabledata}
                 orderItems={orderItems}
                 loading={loading}
                 form={form}
