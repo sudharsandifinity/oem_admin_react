@@ -1,4 +1,4 @@
-import { FlexBox, Option, Select, SideNavigation, SideNavigationItem, SideNavigationSubItem, Text } from "@ui5/webcomponents-react";
+import { Bar, FlexBox, Option, Select, SideNavigation, SideNavigationGroup, SideNavigationItem, SideNavigationSubItem, Text, Title } from "@ui5/webcomponents-react";
 import React, { useContext, useEffect, useRef, useState } from 'react'
 import { useDispatch, useSelector } from "react-redux";
 import { Outlet, useNavigate } from "react-router-dom";
@@ -99,10 +99,13 @@ const UserSideNav = ({ collapsed, setCollapsed }) => {
     }, {});
   return (
     <FlexBox style={{ height: "100vh" }}>
-        <FlexBox direction="Column" style={{ width:collapsed ? "66px" : "260px" }}>
-            <div style={{ display: "flex", gap: "0.5rem",padding: "1rem" }}>
-                <div style={{ width: "270px" }}>
-                <Text>Company</Text>
+        <FlexBox direction="Column" style={{ width:collapsed ? "0px" : "260px" }}>
+          <Bar
+            design="Header"
+            style={{width: '256px', height: '180px' }}
+          >
+            <div style={{ display: "flex", flexDirection: 'column', gap: "0.5rem",padding: "1rem" }}>
+                <div style={{ width: "220px" }}>
                 <Select
                     style={{ width: "100%" }}
                     onChange={(e) =>
@@ -110,7 +113,7 @@ const UserSideNav = ({ collapsed, setCollapsed }) => {
                     }
                 >
                     <Option key="" value="">
-                    Select
+                    Company
                     </Option>
                     {companies.map((branch) => (
                     <Option key={branch.Company.id} value={branch.Company.id}>
@@ -119,9 +122,7 @@ const UserSideNav = ({ collapsed, setCollapsed }) => {
                     ))}
                 </Select>
             </div>
-
-            <div style={{ width: "270px" }}>
-                <Text>Branches</Text>
+            <div style={{ width: "220px" }}>
                 <Select
                     style={{ width: "100%" }}
                     disabled={!selectedCompany}
@@ -129,7 +130,7 @@ const UserSideNav = ({ collapsed, setCollapsed }) => {
                     handleBranchClick(e.detail.selectedOption.value)
                     }
                 >
-                    <Option>Select</Option>
+                    <Option>Branch</Option>
                     {companies.map((branch) => (
                     <Option key={branch.id} value={branch.id}>
                         {branch.name}
@@ -138,26 +139,31 @@ const UserSideNav = ({ collapsed, setCollapsed }) => {
                 </Select>
                 </div>
             </div>
-            <Text style={{ paddingLeft: '16px', paddingBottom: '20px' }}>Menu List</Text>
+          </Bar>
+            
+            {/* <Text style={{ paddingLeft: '16px', paddingBottom: '20px' }}>Menu List</Text> */}
             <SideNavigation>
-                {menulist.length > 0 &&
-                menulist.map((menu) =>
-                    !menu.RoleMenu.can_list_view ? null : (
-                    <SideNavigationItem key={menu.id} text={menu.display_name}>
-                        {menu.children?.length > 0 &&
-                        menu.children.map((child) => (
-                            <SideNavigationSubItem
-                            key={child.id}
-                            text={child.display_name}
-                            onClick={(e) => {
-                                e.preventDefault();
-                                navigate(`/form/${child.formId}`);
-                            }}
-                            />
-                        ))}
-                    </SideNavigationItem>
-                    )
-                )}
+              {/* <SideNavigationItem text="Dashboard" icon="bbyd-dashboard" /> */}
+                <SideNavigationGroup text="User Menus" expanded>
+                    {menulist.length > 0 &&
+                    menulist.map((menu) =>
+                        !menu.RoleMenu.can_list_view ? null : (
+                        <SideNavigationItem key={menu.id} text={menu.display_name} unselectable>
+                            {menu.children?.length > 0 &&
+                            menu.children.map((child) => (
+                                <SideNavigationSubItem
+                                key={child.id}
+                                text={child.display_name}
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    navigate(`/form/${child.formId}`);
+                                }}
+                                />
+                            ))}
+                        </SideNavigationItem>
+                        )
+                    )}
+                </SideNavigationGroup>
             </SideNavigation>
         </FlexBox>
         <FlexBox style={{ flex: 1, height: "100%" }}>
