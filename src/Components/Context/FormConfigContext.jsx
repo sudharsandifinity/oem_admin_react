@@ -330,18 +330,18 @@ const FormConfigProvider = ({ children }) => {
     },
   ];
   const ItemPopupFilterList = [
-    // {
-    //   FieldName: "Search",
-    //   DisplayName: "Search",
-    //   DataType: "nvarchar(50)",
-    //   inputType: "search",
-    //   Position: "Header",
-    //   DisplayType: "Left",
-    //   field_order: "1",
-    //   is_visible: "1",
-    // },
     {
-      FieldName: "ItemCode",
+      FieldName: "Search",
+      DisplayName: "Search",
+      DataType: "nvarchar(50)",
+      inputType: "search",
+      Position: "Header",
+      DisplayType: "Left",
+      field_order: "1",
+      is_visible: "1",
+    },
+    {
+      FieldName: "itemCode",
       DisplayName: "Item Code",
       DataType: "nvarchar(50)",
       inputType: "select",
@@ -351,7 +351,7 @@ const FormConfigProvider = ({ children }) => {
       is_visible: "1",
     },
     {
-      FieldName: "ItemName",
+      FieldName: "itemName",
       DisplayName: "Item Name",
       DataType: "nvarchar(50)",
       inputType: "select",
@@ -360,36 +360,36 @@ const FormConfigProvider = ({ children }) => {
       field_order: "1",
       is_visible: "1",
     },
-    // {
-    //   FieldName: "quantity",
-    //   DisplayName: "Quantity",
-    //   DataType: "nvarchar(50)",
-    //   inputType: "select",
-    //   Position: "Header",
-    //   DisplayType: "Left",
-    //   field_order: "1",
-    //   is_visible: "1",
-    // },
-    // {
-    //   FieldName: "price",
-    //   DisplayName: "Price",
-    //   DataType: "nvarchar(50)",
-    //   inputType: "select",
-    //   Position: "Header",
-    //   DisplayType: "Left",
-    //   field_order: "1",
-    //   is_visible: "1",
-    // },
-    // {
-    //   FieldName: "amount",
-    //   DisplayName: "Amount",
-    //   DataType: "nvarchar(50)",
-    //   inputType: "select",
-    //   Position: "Header",
-    //   DisplayType: "Left",
-    //   field_order: "1",
-    //   is_visible: "1",
-    // },
+    {
+      FieldName: "quantity",
+      DisplayName: "Quantity",
+      DataType: "nvarchar(50)",
+      inputType: "select",
+      Position: "Header",
+      DisplayType: "Left",
+      field_order: "1",
+      is_visible: "1",
+    },
+    {
+      FieldName: "price",
+      DisplayName: "Price",
+      DataType: "nvarchar(50)",
+      inputType: "select",
+      Position: "Header",
+      DisplayType: "Left",
+      field_order: "1",
+      is_visible: "1",
+    },
+    {
+      FieldName: "amount",
+      DisplayName: "Amount",
+      DataType: "nvarchar(50)",
+      inputType: "select",
+      Position: "Header",
+      DisplayType: "Left",
+      field_order: "1",
+      is_visible: "1",
+    },
   ];
   const customerpopupFilter = [
     {
@@ -455,11 +455,12 @@ const FormConfigProvider = ({ children }) => {
   ];
   const itemTableColumn = [
     { Header: "SL No", accessor: "SLNo", type: "text" },
-    { Header: "ItemCode", accessor: "ItemCode", type: "text" },
+    { Header: "ItemCode", accessor: "itemCode", type: "text" },
 
-    { Header: "Item Name", accessor: "ItemName", type: "text" },
+    { Header: "Item Name", accessor: "itemName", type: "text" },
     { Header: "Quantity", accessor: "quantity", type: "number" },
-    { Header: "Amount", accessor: "amount", type: "number" },
+    { Header: "price", accessor: "price", type: "number" },
+    { Header: "amount", accessor: "amont", type: "number" },
   ];
   const itemPopupTableColumn = [
     { Header: "Item Number", accessor: "itemnumber", type: "text" },

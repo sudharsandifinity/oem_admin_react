@@ -1,40 +1,40 @@
 // DynamicForm.jsx
 import React, { useContext, useEffect, useRef, useState } from "react";
 import {
-  Form,
-  FormItem,
-  Input,
-  DatePicker,
-  TextArea,
-  Button,
-  ObjectPage,
-  Bar,
-  ObjectPageHeader,
-  FlexBox,
-  Link,
-  ObjectPageTitle,
-  Toolbar,
-  ToolbarButton,
-  ObjectPageSection,
-  Breadcrumbs,
-  BreadcrumbsItem,
-  Label,
-  MessageStrip,
-  Title,
-  ObjectStatus,
-  FormGroup,
-  DynamicPageHeader,
-  Slider,
-  SuggestionItem,
-  Dialog,
-  List,
-  ListItemStandard,
-  Icon,
-  CheckBox,
-  Menu,
-  MenuItem,
-  MenuSeparator,
-  BusyIndicator,
+    Form,
+    FormItem,
+    Input,
+    DatePicker,
+    TextArea,
+    Button,
+    ObjectPage,
+    Bar,
+    ObjectPageHeader,
+    FlexBox,
+    Link,
+    ObjectPageTitle,
+    Toolbar,
+    ToolbarButton,
+    ObjectPageSection,
+    Breadcrumbs,
+    BreadcrumbsItem,
+    Label,
+    MessageStrip,
+    Title,
+    ObjectStatus,
+    FormGroup,
+    DynamicPageHeader,
+    Slider,
+    SuggestionItem,
+    Dialog,
+    List,
+    ListItemStandard,
+    Icon,
+    CheckBox,
+    Menu,
+    MenuItem,
+    MenuSeparator,
+    BusyIndicator,
 } from "@ui5/webcomponents-react";
 import { FormConfigContext } from "../../Components/Context/FormConfigContext";
 
@@ -48,264 +48,230 @@ import Accounting from "./Accounting/Accounting";
 import Attachments from "./Attachments/Attachments";
 import UserDefinedFields from "./User-DefinedFields/UserDefinedFields";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  fetchCustomerOrderById,
-  updateCustomerOrder,
-} from "../../store/slices/CustomerOrderSlice";
+import { fetchCustomerOrderById, updateCustomerOrder } from "../../store/slices/CustomerOrderSlice";
 import { fetchOrderItems } from "../../store/slices/CustomerOrderItemsSlice";
 
+
 const EditSalesOrder = () => {
-  const { id, formId } = useParams();
-  const { fieldConfig, CustomerDetails, DocumentDetails } =
-    useContext(FormConfigContext);
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const { orderItems } = useSelector((state) => state.orderItems);
-  const [apiError, setApiError] = useState(null);
-  const user = useSelector((state) => state.auth.user);
-  const [tabList, setTabList] = useState([]);
-  const [formDetails, setFormDetails] = useState([]);
-  const [formData, setFormData] = useState({});
-  const [rowSelection, setRowSelection] = useState({});
-  const [generaleditdata, setgeneraleditdata] = useState([]);
-  const [itemdata, setitemData] = useState([
-    { slno: 1, ItemCode: "", ItemName: "", quantity: "", amount: "" },
-  ]);
-  const [itemTabledata, setitemTableData] = useState([
-    { slno: 1, ItemCode: "", ItemName: "", quantity: "", amount: "" },
-  ]);
-  const [form, setForm] = useState({
-    CardCode: "",
-    CardName: "",
-    RefNo: "",
-    DocNo: "",
-    DocDate: "",
-    Remarks: "",
-    DocTotal: 0,
-    items: [{ ItemCode: "", ItemName: "", Quantity: 0, Price: 0 }],
-    cusDetail: [],
-    U_Test1: "",
-    U_Test2: "",
-  });
-  const menuRef = useRef();
-  const [loading, setLoading] = useState(true);
+    const { id, formId } = useParams();
+    const { fieldConfig, CustomerDetails, DocumentDetails } =
+        useContext(FormConfigContext);
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const { orderItems } = useSelector((state) => state.orderItems);
+    const [apiError, setApiError] = useState(null);
+    const user = useSelector((state) => state.auth.user);
+    const [tabList, setTabList] = useState([]);
+    const [formDetails, setFormDetails] = useState([]);
+    const [formData, setFormData] = useState({});
+    const [rowSelection, setRowSelection] = useState({});
+    const [generaleditdata, setgeneraleditdata] = useState([]);
+    const [itemdata, setitemData] = useState([
+        { slno: 1, ItemCode: "", ItemName: "", quantity: "", amount: "" },
+    ]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await dispatch(fetchCustomerOrderById(id)).unwrap();
-        const res1 = await dispatch(fetchOrderItems()).unwrap();
-        console.log("res,res1", res, res1);
-        if (res) {
-          // 1. Store order header info
-          setFormData({
-            CardCode: res.CardCode,
-            CardName: res.CardName,
-            DocDueDate: res.CreationDate
-              ? new Date(res.CreationDate).toISOString().split("T")[0]
-              : new Date().toISOString().split("T")[0],
-            DocumentLines: res.DocumentLines || [],
-          });
+    const [form, setForm] = useState({
+        CardCode: "",
+        CardName: "",
+        RefNo: "",
+        DocNo: "",
+        DocDate: "",
+        Remarks: "",
+        DocTotal: 0,
+        items: [{ ItemCode: "", ItemName: "", Quantity: 0, Price: 0 }],
+        cusDetail: [],
+        U_Test1: "",
+        U_Test2: "",
+    });
+    const menuRef = useRef();
+    const [loading, setLoading] = useState(true);
 
-          // 2. Merge document lines into orderItems
-          if (res.DocumentLines?.length > 0) {
-            setitemData((prev) =>
-              prev.map((item) => {
-                const matched = res.DocumentLines.find(
-                  (line) => line.ItemCode === item.ItemCode
-                );
-                return matched
-                  ? {
-                      ...item,
-                      quantity: matched.Quantity,
-                      amount: matched.Amount,
-                    }
-                  : item;
-              })
-            );
-            console.log(
-              "itemTabledata:->",
-              itemTabledata,
-              itemdata,
-              res.DocumentLines
-            );
-            setitemTableData(
-              () =>
-                res1.value
-                  .map((item) => {
-                    const matched = res.DocumentLines.find(
-                      (line) => line.ItemCode === item.ItemCode
-                    );
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const res = await dispatch(fetchCustomerOrderById(id)).unwrap();
+                const res1 = await dispatch(fetchOrderItems()).unwrap();
+                if (res) {
+                    // 1. Store order header info
+                    setFormData({
+                        CardCode: res.CardCode,
+                        CardName: res.CardName,
+                        DocDueDate: res.CreationDate
+                            ? new Date(res.CreationDate).toISOString().split("T")[0]
+                            : new Date().toISOString().split("T")[0],
+                        DocumentLines: res.DocumentLines || [],
+                    });
 
-                    return matched
-                      ? {
-                          slno: matched.LineNum + 1, // usually LineNum is 0-based
-                          ItemCode: matched.ItemCode,
-                          ItemName: matched.ItemDescription,
-                          quantity: matched.Quantity,
-                          amount: matched.Amount,
+                    // 2. Merge document lines into orderItems
+                    if (res.DocumentLines?.length > 0) {
+                        setitemData((prev) =>
+                            prev.map((item) => {
+                                const matched = res.DocumentLines.find(
+                                    (line) => line.ItemCode === item.ItemCode
+                                );
+                                return matched
+                                    ? {
+                                        ...item,
+                                        quantity: matched.Quantity,
+                                        amount: matched.Amount,
+                                    }
+                                    : item;
+                            })
+                        );
+
+                        // 3. Preselect rows
+                        if (res1.value?.length > 0) {
+                            const preselected = {};
+                            res.DocumentLines.forEach((line) => {
+                                const idx = res1.value.findIndex(
+                                    (o) => o.ItemCode === line.ItemCode
+                                );
+                                if (idx !== -1) {
+                                    preselected[idx] = res1.value[idx];
+                                }
+                            });
+                            setRowSelection(preselected);
                         }
-                      : null; // no placeholder
-                  })
-                  .filter(Boolean) // remove nulls
-            );
+                    }
 
-            // 3. Preselect rows
-            if (res1.value?.length > 0) {
-              const preselected = {};
-              res.DocumentLines.forEach((line) => {
-                const idx = res1.value.findIndex(
-                  (o) => o.ItemCode === line.ItemCode
-                );
-                if (idx !== -1) {
-                  preselected[idx] = res1.value[idx];
+                    // set general header edit data
+                    setgeneraleditdata({
+                        CardCode: res.CardCode,
+                        CardName: res.CardName,
+                        CreationDate: res.CreationDate,
+                    });
                 }
-              });
-              setRowSelection(preselected);
+            } catch (err) {
+                console.error("Failed to fetch order:", err);
+            } finally {
+                setLoading(false);
             }
-          }
+        };
 
-          // set general header edit data
-          setgeneraleditdata({
-            CardCode: res.CardCode,
-            CardName: res.CardName,
-            CreationDate: res.CreationDate,
-          });
+        fetchData();
+    }, [dispatch, id, orderItems]);
+
+
+
+    const handleChange = (e, name, formName) => {
+        const newValue = e.target.value;
+        if (formName === "cusDetail" || formName === "docDetail") {
+
+            setForm((prevForm) => ({
+                ...prevForm,
+                formName: [{ [name]: newValue }],
+            }));
+            return;
+        } else {
+            setForm({ ...form, [name]: newValue });
         }
-      } catch (err) {
-        console.error("Failed to fetch order:", err);
-      } finally {
-        setLoading(false);
-      }
+
+        // If the field is part of the "additional" section
+
+        // Top-level fields
+
     };
 
-    fetchData();
-  }, [dispatch, id, orderItems]);
+    const handleRowChange = (i, name, key, value) => {
+        //const key = tab === "Items" ? "items" : "additional";
+        const newRows = [...form[key]];
+        newRows[i][name] = value;
+        setForm({ ...form, [key]: newRows });
+    };
 
-  const handleChange = (e, name, formName) => {
-    const newValue = e.target.value;
-    if (formName === "cusDetail" || formName === "docDetail") {
-      setForm((prevForm) => ({
-        ...prevForm,
-        formName: [{ [name]: newValue }],
-      }));
-      return;
-    } else {
-      setForm({ ...form, [name]: newValue });
-    }
+    const addRow = (key) => {
+        //const key = tab === "Items" ? "items" : "additional";
+        const newRow = { ItemCode: "", ItemName: "", Quantity: 0, Price: 0 };
+        setForm({ ...form, [key]: [...form[key], newRow] });
+    };
 
-    // If the field is part of the "additional" section
-
-    // Top-level fields
-  };
-
-  const handleRowChange = (i, name, key, value) => {
-    //const key = tab === "Items" ? "items" : "additional";
-    const newRows = [...form[key]];
-    newRows[i][name] = value;
-    setForm({ ...form, [key]: newRows });
-  };
-
-  const addRow = (key) => {
-    //const key = tab === "Items" ? "items" : "additional";
-    const newRow = { ItemCode: "", ItemName: "", Quantity: 0, Price: 0 };
-    setForm({ ...form, [key]: [...form[key], newRow] });
-  };
-
-  const deleteRow = (i, key) => {
-    //const key = tab === "Items" ? "items" : "additional";
-    const newRows = form[key].filter((_, idx) => idx !== i);
-    setForm({ ...form, [key]: newRows });
-  };
-  const handleSubmit = async (form) => {
-    console.log("Form submitted:", form, formData, rowSelection);
-    try {
-      const payload = {
-        CardCode: formData.CardCode,
-        DocDueDate: formData.DocDueDate
-          ? new Date(formData.DocDueDate)
-              .toISOString()
-              .split("T")[0]
-              .replace(/-/g, "")
-          : new Date().toISOString().split("T")[0].replace(/-/g, ""),
-        DocumentLines: Object.values(rowSelection).map((line) => ({
-          ItemCode: line.ItemCode,
-          ItemDescription: line.ItemName, // ✅ rename to ItemDescription
-          Quantity: line.Quantity,
-          UnitPrice: line.UnitPrice,
-        })),
-      };
-      console.log("payload", payload);
-      const res = await dispatch(
-        updateCustomerOrder({ id, data: payload })
-      ).unwrap();
-      if (res.message === "Please Login!") {
-        navigate("/login");
-      }
-      navigate(`/form/${formId}`);
-    } catch (err) {
-      setApiError(err?.message || "Failed to create branch");
-    }
-  };
-  useEffect(() => {
-    if (formId !== undefined) {
-      // Fetch form data based on formId
-      const formDetails = user?.Roles?.flatMap((role) =>
-        role.UserMenus.flatMap((menu) =>
-          menu.children.filter((submenu) => submenu.Form.id === formId)
-        )
-      );
-      setTabList((formDetails && formDetails[0]?.Form.FormTabs) || []);
-      setFormDetails(formDetails);
-    } else {
-      navigate("/");
-    }
-  }, [formId]);
-  return (
-    <>
-      {loading ? (
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column", // stack indicator + message vertically
-            alignItems: "center", // center horizontally
-            justifyContent: "center", // center vertically
-            height: "90vh", // take full viewport height
-            width: "100%", // take full width
-          }}
-        >
-          <BusyIndicator active size="M" />
-          <span style={{ marginTop: "1rem", fontSize: "1rem", color: "#555" }}>
-            Loading, please wait...
-          </span>
-        </div>
-      ) : (
-        <ObjectPage
-          footerArea={
-            <>
-              {" "}
-              <Bar
-                style={{ padding: 0.5 }}
-                design="FloatingFooter"
-                endContent={
-                  <>
-                    <Button design="Positive" onClick={() => handleSubmit()}>
-                      Update
-                    </Button>
-                    <Button
-                      design="Positive"
-                      onClick={() => navigate(`/form/${formId}`)}
-                    >
-                      Cancel
-                    </Button>
-                  </>
-                }
-              />
-            </>
-          }
-          headerArea={
-            <DynamicPageHeader>
-              {/* <FlexBox wrap="Wrap">
+    const deleteRow = (i, key) => {
+        //const key = tab === "Items" ? "items" : "additional";
+        const newRows = form[key].filter((_, idx) => idx !== i);
+        setForm({ ...form, [key]: newRows });
+    };
+    const handleSubmit = async (form) => {
+        console.log("Form submitted:", form, formData, rowSelection);
+        try {
+                  const payload = {
+      CardCode: formData.CardCode,
+      DocDueDate: formData.DocDueDate
+        ? new Date(formData.DocDueDate)
+            .toISOString()
+            .split("T")[0]
+            .replace(/-/g, "")
+        : new Date().toISOString().split("T")[0].replace(/-/g, ""),
+      DocumentLines: Object.values(rowSelection).map((line) => ({
+        ItemCode: line.ItemCode,
+        ItemDescription: line.ItemName, // ✅ rename to ItemDescription
+        Quantity: line.Quantity,
+        UnitPrice: line.UnitPrice,
+      })),
+    };
+            console.log("payload", payload)
+            const res = await dispatch(updateCustomerOrder({ id, data: payload })).unwrap();
+            if (res.message === "Please Login!") {
+                navigate("/login");
+            }
+            navigate(`/form/${formId}`);
+        } catch (err) {
+            setApiError(err?.message || "Failed to create branch");
+        }
+    };
+    useEffect(() => {
+        if (formId !== undefined) {
+            // Fetch form data based on formId
+            const formDetails = user?.Roles?.flatMap(role =>
+                role.UserMenus.flatMap(menu =>
+                    menu.children.filter(submenu => submenu.Form.id === formId)
+                )
+            );
+            setTabList(formDetails && formDetails[0]?.Form.FormTabs || []);
+            setFormDetails(formDetails);
+        } else {
+            navigate("/")
+        }
+    }, [formId])
+    return (
+        <>{loading ? (
+            <div
+                style={{
+                    display: "flex",
+                    flexDirection: "column",   // stack indicator + message vertically
+                    alignItems: "center",      // center horizontally
+                    justifyContent: "center",  // center vertically
+                    height: "90vh",           // take full viewport height
+                    width: "100%",             // take full width
+                }}
+            >
+                <BusyIndicator active size="M" />
+                <span style={{ marginTop: "1rem", fontSize: "1rem", color: "#555" }}>
+                    Loading, please wait...
+                </span>
+            </div>
+        ) : (<ObjectPage
+            footerArea={
+                <>
+                    {" "}
+                    <Bar
+                        style={{ padding: 0.5 }}
+                        design="FloatingFooter"
+                        endContent={
+                            <>
+                                <Button design="Positive" onClick={() => handleSubmit()}>
+                                    Update
+                                </Button>
+                                <Button design="Positive" onClick={() => navigate(`/form/${formId}`)}>
+                                    Cancel
+                                </Button>
+                            </>
+                        }
+                    />
+                </>
+            }
+            headerArea={
+                <DynamicPageHeader>
+                    {/* <FlexBox wrap="Wrap">
             <FlexBox direction="Column">
               <Label>Customer</Label>
             </FlexBox>
@@ -333,90 +299,82 @@ const EditSalesOrder = () => {
               />
             </FlexBox>
           </FlexBox> */}
-            </DynamicPageHeader>
-          }
-          // image="https://sap.github.io/ui5-webcomponents-react/v2/assets/Person-B7wHqdJw.png"
-          imageShapeCircle
-          mode="IconTabBar"
-          onBeforeNavigate={function Xs() {}}
-          onPinButtonToggle={function Xs() {}}
-          onSelectedSectionChange={function Xs() {}}
-          onToggleHeaderArea={function Xs() {}}
-          selectedSectionId="section1"
-          style={{
-            height: "700px",
-            maxHeight: "90vh",
-          }}
-          titleArea={
-            <ObjectPageTitle
-              breadcrumbs={
-                <>
-                  <Breadcrumbs
-                    design="Standard"
-                    separators="Slash"
-                    onItemClick={(e) => {
-                      const route = e.detail.item.dataset.route;
-                      if (route) navigate(route);
-                    }}
-                  >
-                    <BreadcrumbsItem data-route="/UserDashboard">
-                      Home
-                    </BreadcrumbsItem>
-                    <BreadcrumbsItem data-route={`/form/${formId}`}>
-                      Manage Sales Order
-                    </BreadcrumbsItem>
-                    <BreadcrumbsItem>
-                      {formDetails ? formDetails[0]?.name : "Sales Order"}
-                    </BreadcrumbsItem>
-                  </Breadcrumbs>
-                </>
-              }
-              header={
-                <Title level="H2">
-                  {formDetails ? formDetails[0]?.name : "Sales Order"}
-                </Title>
-              }
-              navigationBar={
-                <Toolbar design="Transparent">
-                  {/* <ToolbarButton design="Transparent" icon="full-screen" />
+                </DynamicPageHeader>
+            }
+            // image="https://sap.github.io/ui5-webcomponents-react/v2/assets/Person-B7wHqdJw.png"
+            imageShapeCircle
+            mode="IconTabBar"
+            onBeforeNavigate={function Xs() { }}
+            onPinButtonToggle={function Xs() { }}
+            onSelectedSectionChange={function Xs() { }}
+            onToggleHeaderArea={function Xs() { }}
+            selectedSectionId="section1"
+            style={{
+                height: "700px",
+                maxHeight: "90vh",
+            }}
+            titleArea={
+                <ObjectPageTitle
+                    breadcrumbs={
+                        <>
+
+                            <Breadcrumbs design="Standard"
+                                separators="Slash"
+                                onItemClick={(e) => {
+                                    const route = e.detail.item.dataset.route;
+                                    if (route) navigate(route);
+                                }}>
+                                <BreadcrumbsItem data-route="/UserDashboard">Home</BreadcrumbsItem>
+                                <BreadcrumbsItem data-route={`/form/${formId}`}>
+                                    Manage Sales Order
+                                </BreadcrumbsItem>
+                                <BreadcrumbsItem>{formDetails ? formDetails[0]?.name : "Sales Order"}</BreadcrumbsItem>
+                            </Breadcrumbs></>
+                    }
+                    header={<Title level="H2">{formDetails ? formDetails[0]?.name : "Sales Order"}</Title>}
+                    navigationBar={
+                        <Toolbar design="Transparent">
+                            {/* <ToolbarButton design="Transparent" icon="full-screen" />
               <ToolbarButton design="Transparent" icon="exit-full-screen" /> */}
 
-                  <ToolbarButton
-                    onClick={() => navigate(`/form/${formId}`)}
-                    design="Transparent"
-                    icon="decline"
-                  />
-                </Toolbar>
-              }
-            >
-              <ObjectStatus>
-                {/* <Button design="Transparent" icon="navigation-right-arrow"  onClick={openMenu} >
+
+                            <ToolbarButton
+                                onClick={() => navigate(`/form/${formId}`)}
+                                design="Transparent"
+                                icon="decline"
+                            />
+                        </Toolbar>
+                    }
+                >
+                    <ObjectStatus>
+                        {/* <Button design="Transparent" icon="navigation-right-arrow"  onClick={openMenu} >
                  Company
               </Button>
             <CustomerSelection menuRef={menuRef}/> */}
-              </ObjectStatus>
-            </ObjectPageTitle>
-          }
+
+                    </ObjectStatus>
+                </ObjectPageTitle>
+            }
         >
-          {/* {console.log("tabList", tabList, orderItems, generaleditdata)}
+            {/* {console.log("tabList", tabList, orderItems, generaleditdata)}
             {
                 tabList.length > 0 && tabList.map((tab) => {
                     console.log("object", tab);
                     if (tab.name === "general") {
                         return ( */}
-          <ObjectPageSection
-            id="section1"
-            style={{ height: "100%" }}
-            titleText="General"
-          >
-            <General
-              onSubmit={handleSubmit}
-              setFormData={setFormData}
-              formData={formData}
-              defaultValues={formData} // ✅ now passes edit data properly
-              apiError={apiError}
-            />
-            {/* <General
+                            <ObjectPageSection
+                                id="section1"
+                                style={{ height: "100%" }}
+                                titleText="General"
+                            >
+                                <General
+                                    onSubmit={handleSubmit}
+                                    setFormData={setFormData}
+                                    formData={formData}
+                                    defaultValues={formData}  // ✅ now passes edit data properly
+                                    apiError={apiError}
+                                />
+                                {/* <General
                                         onSubmit={handleSubmit}
                                         setFormData={setFormData}
                                         formData={formData}
@@ -428,97 +386,104 @@ const EditSalesOrder = () => {
                                         }}
                                         apiError={apiError}
                                     /> */}
-          </ObjectPageSection>
-          {/* );
+
+                            </ObjectPageSection>
+                        {/* );
                     } else if (tab.name === "contents") {
                         return ( */}
-          <ObjectPageSection
-            id="section2"
-            style={{
-              height: "100%",
-            }}
-            titleText="Contents"
-          >
-            <Contents
-              rowSelection={rowSelection}
-              setRowSelection={setRowSelection}
-              itemdata={itemdata}
-              setitemData={setitemData}
-              setitemTableData={setitemTableData}
-              itemTabledata={itemTabledata}
-              orderItems={orderItems}
-              loading={loading}
-              form={form}
-              handleRowChange={handleRowChange}
-              deleteRow={deleteRow}
-              addRow={addRow}
-              SalesOrderRenderInput={SalesOrderRenderInput}
-              handleChange={handleChange}
-            />
-          </ObjectPageSection>
-          {/* );
+                            <ObjectPageSection
+                                id="section2"
+                                style={{
+                                    height: "100%",
+                                }}
+                                titleText="Contents"
+                            >
+                                <Contents
+                                    rowSelection={rowSelection}
+                                    setRowSelection={setRowSelection}
+                                    itemdata={itemdata}
+                                    setitemData={setitemData}
+                                    orderItems={orderItems}
+                                    loading={loading}
+                                    form={form}
+                                    handleRowChange={handleRowChange}
+                                    deleteRow={deleteRow}
+                                    addRow={addRow}
+                                    SalesOrderRenderInput={SalesOrderRenderInput}
+                                    handleChange={handleChange}
+                                />
+                            </ObjectPageSection>
+                        {/* );
                     } else if (tab.name === "logistics") {
                         return ( */}
-          <ObjectPageSection
-            id="section3"
-            style={{
-              height: "100%",
-            }}
-            titleText="Logistics"
-          >
-            <Logistics
-              fieldConfig={fieldConfig}
-              SalesOrderRenderInput={SalesOrderRenderInput}
-              form={form}
-              handleChange={handleChange}
-            />
-          </ObjectPageSection>
-          {/* );
+                            <ObjectPageSection
+                                id="section3"
+                                style={{
+                                    height: "100%",
+                                }}
+                                titleText="Logistics"
+                            >
+                                <Logistics
+                                    fieldConfig={fieldConfig}
+                                    SalesOrderRenderInput={SalesOrderRenderInput}
+                                    form={form}
+                                    handleChange={handleChange}
+                                />
+                            </ObjectPageSection>
+                        {/* );
                     }
                     else if (tab.name === "accounting") {
                         return ( */}
-          <ObjectPageSection
-            id="section4"
-            style={{
-              height: "100%",
-            }}
-            titleText="Accounting"
-          >
-            <Accounting />
-          </ObjectPageSection>
-          {/* );
+                            <ObjectPageSection
+                                id="section4"
+                                style={{
+                                    height: "100%",
+                                }}
+                                titleText="Accounting"
+                            >
+                                <Accounting />
+                            </ObjectPageSection>
+                        {/* );
                     } else if (tab.name === "attachments") {
                         return ( */}
-          <ObjectPageSection
-            id="section5"
-            style={{
-              height: "100%",
-            }}
-            titleText="Attachments"
-          >
-            <Attachments />
-          </ObjectPageSection>
-          {/* );
+                            <ObjectPageSection
+                                id="section5"
+                                style={{
+                                    height: "100%",
+                                }}
+                                titleText="Attachments"
+                            >
+                                <Attachments />
+                            </ObjectPageSection>
+                        {/* );
                     } else if (tab.name === "user-defined-field") {
                         return ( */}
-          <ObjectPageSection
-            id="section6"
-            style={{
-              height: "100%",
-            }}
-            titleText="User-defined Fields"
-          >
-            <UserDefinedFields form={form} handleChange={handleChange} />
-          </ObjectPageSection>
-          {/* );
+                            <ObjectPageSection
+                                id="section6"
+                                style={{
+                                    height: "100%",
+                                }}
+                                titleText="User-defined Fields"
+                            >
+                                <UserDefinedFields form={form}
+                                    handleChange={handleChange} />
+                            </ObjectPageSection>
+                        {/* );
                     }
                 })
              
             } */}
-        </ObjectPage>
-      )}
-    </>
-  );
-};
+
+
+
+
+
+
+
+
+
+        </ObjectPage >)}</>
+    );
+}
 
 export default EditSalesOrder;

@@ -4,7 +4,6 @@ import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import {
-  Button,
   FlexBox,
   Form,
   FormGroup,
@@ -20,7 +19,6 @@ import { SalesOrderRenderInput } from "../SalesOrderRenderInput";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { fetchBusinessPartner } from "../../../store/slices/CustomerOrderSlice";
-import CardDialog from "./CardCodeDialog/CardDialog";
 const schema = yup.object().shape({
   name: yup.string().required("Name is required"),
   city: yup.string().required("City is required"),
@@ -40,7 +38,7 @@ const General = ({
 }) => {
   const {
     control,
-    handleSubmit,setValue,
+    handleSubmit,
     reset,
     formState: { errors },
   } = useForm({
@@ -64,11 +62,6 @@ const General = ({
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [selectedCard, setSelectedCard] = useState(null);
-
-  const handleCardDialogOpen = () => setDialogOpen(true);
-  const handleCardDialogClose = () => setDialogOpen(false);
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -79,8 +72,6 @@ const General = ({
           const dataconfig = res.map((item) => ({
             CardCode: item.CardCode,
             CardName: item.CardName,
-            ContactPerson: item.ContactPerson,
-            Series: item.Series,
           }));
           setgeneralData(dataconfig);
         }
@@ -97,15 +88,11 @@ const General = ({
     fetchData();
   }, [dispatch]);
 const handleChange = (e) => {
-
-    const { name, value } =e.target;
+  const { name, value } = e.target;
   setFormData((prev) => ({
     ...prev,
     [name]: value,
   }));
-
-
- 
 };
   useEffect(() => {
     //setInputValue((prev) => ({  ...prev, ...formData }));
@@ -124,40 +111,48 @@ const handleChange = (e) => {
           onSubmit(fullData); // you already pass it upward
         })}
       >
-        <FlexBox wrap="Wrap" direction="Row" style={{ gap: "1rem", }}>
+        <FlexBox wrap="Wrap" direction="Row" style={{ gap: "2rem", padding: "5rem" }}>
           {/* === Customer Details === */}
           <FlexBox direction="Column" style={{ flex: 1 }}>
 
-            <FlexBox style={{ display: "flex", gap: "1rem" }}>
+            <FlexBox style={{ display: "flex", gap: "2rem" }}>
               {/* Left Column */}
               <div style={{ flex: 1 }}>
-                <FlexBox direction="Column" style={{ paddingBottom: "0.5rem" }}>
-        <Label>Card Code</Label>
-        <FlexBox>
-          <Controller
-            name="CardCode"
-            control={control}
-            render={({ field }) => (
-              <Input
-                style={{ width: "30%" }}
-                placeholder="Select Card"
-                name="CardCode"
-                value={selectedcardcode ? generalData.find((r) => r.CardCode === selectedcardcode)?.CardCode : field.value}
-                onInput={(e) => field.onChange(e.target.value)} // RHF sync
-                onChange={handleChange}
-                valueState={errors.CardCode ? "Error" : "None"}
-                icon={
-                  <Button icon="person-placeholder" onClick={handleCardDialogOpen} />
-                }
-              >
-                {errors.CardCode && (
-                  <span slot="valueStateMessage">{errors.CardCode.message}</span>
-                )}
-              </Input>
-            )}
-          />
-        </FlexBox>
-      </FlexBox>
+                <FlexBox direction="Column" style={{ flex: "28%", paddingBottom: "2rem" }}>
+                  <Label>Card Code</Label>
+                  <FlexBox label={<Label required>CardCode</Label>}>
+                    <Controller
+                      name="CardCode"
+                      control={control}
+                      render={({ field }) => (<Select
+                        style={{ width: "80%" }}
+                        name="CardCode"
+                        value={field.value ?? ""}
+                        onChange={(e) => { field.onChange(e.target.value); handleChange(e); setSelectedCardCode(e.target.value) }}
+                        valueState={errors.CardCode ? "Error" : "None"}
+                      >
+                        <Option key="" value="">Select</Option>
+                        {console.log("generalData", generalData)}
+                        {generalData?.map((r) => (
+                          <Option key={r.CardCode} value={r.CardCode}>
+                            {r.CardCode}
+                          </Option>
+                        ))}
+                      </Select>)
+                      }
+                    />
+
+
+                    {errors.CardCode && (
+                      <span
+                        slot="valueStateMessage"
+                        style={{ color: "var(--sapNegativeColor)" }}
+                      >
+                        {errors.CardCode.message}
+                      </span>
+                    )}
+                  </FlexBox>
+                </FlexBox>
                 <FlexBox direction="Column" style={{ flex: " 28%" }}>
                   <Label>Card Name</Label>
                   <Controller
@@ -166,7 +161,7 @@ const handleChange = (e) => {
                     render={({ field }) => (
                       <FlexBox label={<Label required>Label Text</Label>}>
                         <Input
-                          style={{ width: "30%" }}
+                          style={{ width: "80%" }}
                           placeholder="Card Name"
                           name="CardName"
                           value={selectedcardcode ? generalData.find((r) => r.CardCode === selectedcardcode)?.CardName : field.value} // controlled value
@@ -181,91 +176,6 @@ const handleChange = (e) => {
                             </span>
                           )}
                         </Input>
-                      </FlexBox>
-                    )}
-                  />
-                </FlexBox>
-                <FlexBox direction="Column" style={{ flex: " 28%" }}>
-                  <Label>Contact Person</Label>
-                  <Controller
-                    name="ContactPerson"
-                    control={control}
-                    render={({ field }) => (
-                      <FlexBox label={<Label required>Label Text</Label>}>
-                        <Input
-                          style={{ width: "30%" }}
-                          placeholder="Contact Person"
-                          name="ContactPerson"
-                          value={selectedcardcode ? generalData.find((r) => r.CardCode === selectedcardcode)?.ContactPerson : field.value} // controlled value
-                          onInput={(e) => field.onChange(e.target.value)} // update RHF
-                          onChange={handleChange}
-                          valueState={errors.ContactPerson ? "Error" : "None"} // red border on error
-                        >
-                          {errors.ContactPerson && (
-                            /* UI5 shows this automatically when valueState="Error" */
-                            <span slot="valueStateMessage">
-                              {errors.ContactPerson.message}
-                            </span>
-                          )}
-                        </Input>
-                      </FlexBox>
-                    )}
-                  />
-                </FlexBox>
-                <FlexBox direction="Column" style={{ flex: " 28%" }}>
-                  <Label>Series</Label>
-                  <Controller
-                    name="Series"
-                    control={control}
-                    render={({ field }) => (
-                      <FlexBox label={<Label required>Label Text</Label>}>
-                        <Input
-                          style={{ width: "30%" }}
-                          placeholder="Series"
-                          name="Series"
-                          value={selectedcardcode ? generalData.find((r) => r.CardCode === selectedcardcode)?.Series : field.value} // controlled value
-                          onInput={(e) => field.onChange(e.target.value)} // update RHF
-                          onChange={handleChange}
-                          valueState={errors.Series ? "Error" : "None"} // red border on error
-                        >
-                          {errors.Series && (
-                            /* UI5 shows this automatically when valueState="Error" */
-                            <span slot="valueStateMessage">
-                              {errors.Series.message}
-                            </span>
-                          )}
-                        </Input>
-                      </FlexBox>
-                    )}
-                  />
-                </FlexBox>
-                 <FlexBox direction="Column" style={{ flex: " 28%" }}>
-                  <Label>Posting Date</Label>
-                  <Controller
-                    name="DocDueDate"
-                    control={control}
-                    render={({ field }) => (
-                      <FlexBox label={<Label required>Label Text</Label>}>
-                        <Input
-                          style={{ width: "30%" }}
-                          placeholder="Current Date"
-                          name="DocDueDate"
-                          type="date"
-                          min="2020-01-01"
-                          value={
-                            field.value
-                              ? new Date(field.value).toISOString().split("T")[0] // ✅ format to YYYY-MM-DD
-                              : new Date().toISOString().split("T")[0]
-                          }
-                          onInput={(e) => field.onChange(e.target.value)}
-                          onChange={handleChange}
-                          valueState={errors.DocDueDate ? "Error" : "None"}
-                        >
-                          {errors.DocDueDate && (
-                            <span slot="valueStateMessage">{errors.DocDueDate.message}</span>
-                          )}
-                        </Input>
-
                       </FlexBox>
                     )}
                   />
@@ -291,23 +201,67 @@ const handleChange = (e) => {
             </FlexBox>
           </FlexBox>
 
+          {/* === Document Details === */}
+          <FlexBox direction="Column" style={{ flex: 1 }}>
+
+            <FlexBox style={{ display: "flex", gap: "2rem" }}>
+              {/* Left Column */}
+              {/* <div style={{ flex: 1 }}>
+                    {DocumentDetails.filter(
+                      (field) =>
+                        field.Position === "Header" &&
+                        field.DisplayType === "Left"
+                    ).map((field) => (
+                      <FormItem
+                        key={field.FieldName}
+                        label={field.DisplayName}
+                        labelContent={<Label>{field.DisplayName}</Label>}
+                      >
+                        {SalesOrderRenderInput(field, form, handleChange)}
+                      </FormItem>
+                    ))}
+                  </div> */}
+
+              {/* Right Column */}
+              <div style={{ flex: 1 }}>
+                <FlexBox direction="Column" style={{ flex: " 28%" }}>
+                  <Label>Current Date</Label>
+                  <Controller
+                    name="DocDueDate"
+                    control={control}
+                    render={({ field }) => (
+                      <FlexBox label={<Label required>Label Text</Label>}>
+                        <Input
+                          style={{ width: "80%" }}
+                          placeholder="Current Date"
+                          name="DocDueDate"
+                          type="date"
+                          min="2020-01-01"
+                          value={
+                            field.value
+                              ? new Date(field.value).toISOString().split("T")[0] // ✅ format to YYYY-MM-DD
+                              : new Date().toISOString().split("T")[0]
+                          }
+                          onInput={(e) => field.onChange(e.target.value)}
+                          onChange={handleChange}
+                          valueState={errors.DocDueDate ? "Error" : "None"}
+                        >
+                          {errors.DocDueDate && (
+                            <span slot="valueStateMessage">{errors.DocDueDate.message}</span>
+                          )}
+                        </Input>
+
+                      </FlexBox>
+                    )}
+                  />
+                </FlexBox>
+              </div>
+            </FlexBox>
+
           </FlexBox>
+        </FlexBox>
       </form>
-         <CardDialog
-        open={dialogOpen}
-        handleCardDialogClose={handleCardDialogClose}
-        generalData={generalData}
-        setSelectedCardCode={setSelectedCardCode}
-        setFormData={setFormData}
-        setSelectedCard={(card) => {
-          setSelectedCard(card);
-          setValue("CardCode", card.CardCode); // update RHF field
-          setValue("CardName", card.CardName); // fill another field automatically
-          setValue("ContactPerson", card.ContactPerson);
-          setValue("Series", card.Series);
-        }}
-      />
-       </div >
+    </div >
   );
 };
 

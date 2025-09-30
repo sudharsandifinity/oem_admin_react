@@ -36,7 +36,6 @@ const Itemtable = (props) => {
     saveItem,
     itemdata,
     setitemData,
-    setitemTableData,itemTabledata,setRowSelection,rowSelection,
     setItemForm,
     itemForm,
     dynamcicItemCols,
@@ -89,12 +88,6 @@ const Itemtable = (props) => {
     const index = e.detail.row.index;
     setSelectedRowIndex(index);
     setSelectedRowIds(e.detail.selectedRowIds);
-     console.log("onRowSelect", e.detail.row.original);
-    //selectionChangeHandler(e.detail.row.original);
-    setRowSelection((prev) => ({
-      ...prev,
-      [e.detail.row.id]: e.detail.row.original,
-    }));
   };
   const markNavigatedRow = useCallback(
     (row) => {
@@ -116,45 +109,45 @@ const Itemtable = (props) => {
     setSelectedRowIndex(selectedRowIndex + 1);
   };
   const addNewRow = () => {
-    setitemTableData([
-      ...itemTabledata,
-      { ItemCode: "", ItemName: "", quantity: 0, amount: 0 },
+    setitemData([
+      ...itemdata,
+      { itemCode: "", itemName: "", quantity: 0, price: 0 },
     ]);
   };
   const duplicateRow = () => {
     console.log("selectedRow", selectedRow.original);
-    setitemTableData([...itemTabledata, selectedRow.original]);
+    setitemData([...itemdata, selectedRow.original]);
   };
   const copyRow = () => {
     setCopySelectedRow(selectedRow.original);
   };
   const pasteRow = () => {
-    setitemTableData([...itemTabledata, copySelectedRow]);
+    setitemData([...itemdata, copySelectedRow]);
   };
 
   const deleteRow = (itemCodeToRemove) => {
-    setitemTableData((prev) =>
-      prev.filter((item) => item.ItemCode !== selectedRow.original.ItemCode&& item.ItemName !== selectedRow.original.ItemName)
+    setitemData((prev) =>
+      prev.filter((item) => item.itemCode !== selectedRow.original.itemCode)
     );
   };
   const addRowAfter = () => {
-    const newRow ={ ItemCode: "", ItemName: "", quantity: 0, amount: 0 };
-    const updated = [...itemTabledata];
+    const newRow = { itemCode: "", itemName: "", quantity: 0, price: 0 };
+    const updated = [...itemdata];
     const insertIndex = selectedRowIndex + 1;
 
     updated.splice(insertIndex, 0, newRow); // insert at calculated position
 
-    setitemTableData(updated);
+    setitemData(updated);
   };
   const addRowBefore = () => {
     console.log("selectedRowIndex", selectedRowIndex);
-    const newRow = { ItemCode: "", ItemName: "", quantity: 0, amount: 0 };
-    const updated = [...itemTabledata];
+    const newRow = { itemCode: "", itemName: "", quantity: 0, price: 0 };
+    const updated = [...itemdata];
     const insertIndex = selectedRowIndex;
 
     updated.splice(insertIndex, 0, newRow); // insert at calculated position
 
-    setitemTableData(updated);
+    setitemData(updated);
   };
   const openDialog = (rowIndex, field) => {
     setSelectedRowIndex(rowIndex);
@@ -169,14 +162,14 @@ const Itemtable = (props) => {
   };
   const handleItemSelect = (e) => {
     const selectedItem = itemOptions.find(
-      (item) => item.ItemCode === e.detail.item.dataset.code
+      (item) => item.itemCode === e.detail.item.dataset.code
     );
 
     const updatedRows = [...itemdata];
     updatedRows[selectedRowIndex] = {
       ...updatedRows[selectedRowIndex],
-      ItemCode: selectedItem.ItemCode,
-      ItemName: selectedItem.ItemName,
+      itemCode: selectedItem.itemCode,
+      itemName: selectedItem.itemName,
     };
     setitemData(updatedRows);
     setDialogOpen(false);
@@ -185,16 +178,15 @@ const Itemtable = (props) => {
     () => [
       {
         Header: "#",
-        accessor: "slno",
-        Cell: ({ row }) => row.index + 1,
+        accessor: "SLNo",
       
       },
       {
         Header: "Item No",
-        accessor: "ItemCode",
+        accessor: "itemCode",
         Cell: ({ row }) => (
           <Input
-            value={row.original.ItemCode}
+            value={row.original.itemCode}
             readonly
             type="Text"
             style={{
@@ -209,17 +201,17 @@ const Itemtable = (props) => {
             onFocus={(e) => (e.target.style.borderBottom = "1px solid #007aff")}
             onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
             onClick={() =>
-              !row.original.ItemCode && openitemDialog(row.index, "ItemCode")
+              !row.original.itemCode && openitemDialog(row.index, "itemCode")
             } //openDialog(row.index, "itemCode")}
           />
         ),
       },
       {
         Header: "Item Description",
-        accessor: "ItemName",
+        accessor: "itemName",
         Cell: ({ row }) => (
           <Input
-            value={row.original.ItemName}
+            value={row.original.itemName}
             readonly
             style={{
               border: "none",
@@ -233,87 +225,14 @@ const Itemtable = (props) => {
             onFocus={(e) => (e.target.style.borderBottom = "1px solid #007aff")}
             onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
             onClick={() =>
-              !row.original.ItemName && openitemDialog(row.index, "ItemName")
+              !row.original.itemName && openitemDialog(row.index, "itemName")
             }
           />
         ),
       },
-      {
-              Header: "Quantity",
-              accessor: "quantity",
-              width: 250,
-              Cell: ({ row, value }) => (
-                <Input
-                  type="Number"
-                  value={value || ""}
-                  // onInput={(e) => {
-                  //   const newValue = e.target.value;
-                  //   setitemData((prev) =>
-                  //     prev.map((r, idx) =>
-                  //       idx === Number(row.id) ? { ...r, quantity: newValue } : r
-                  //     )
-                  //   );
-                  // }}
-                  onInput={(e) => {
-                    const newValue = e.target.value;
-                    setitemData((prev) =>
-                      prev.map((r, idx) =>
-                        idx === Number(row.id) ? { ...r, Quantity: newValue } : r
-                      )
-                    );
-      
-                    // also update rowSelection
-                    setRowSelection((prev) => {
-                      const updated = { ...prev };
-                      if (updated[row.id]) {
-                        updated[row.id] = { ...updated[row.id], Quantity: newValue };
-                      }
-                      return updated;
-                    });
-                  }}
-      
-                />
-              )
-            },
-            {
-              Header: "Amount",
-              accessor: "amount",
-              width: 250,
-              Cell: ({ row, value }) => (
-                <Input
-                  type="Number"
-                  value={value || ""}
-                  // onInput={(e) => {
-                  //   const newValue = e.target.value;
-                  //   setitemData((prev) =>
-                  //     prev.map((r, idx) =>
-                  //       idx === Number(row.id) ? { ...r, amount: newValue } : r
-                  //     )
-                  //   );
-                  // }}
-                  onInput={(e) => {
-                    const newValue = e.target.value;
-                    setitemData((prev) =>
-                      prev.map((r, idx) =>
-                        idx === Number(row.id) ? { ...r, UnitPrice: newValue } : r
-                      )
-                    );
-      
-                    // also update rowSelection
-                    setRowSelection((prev) => {
-                      const updated = { ...prev };
-                      if (updated[row.id]) {
-                        updated[row.id] = { ...updated[row.id], UnitPrice: newValue };
-                      }
-                      return updated;
-                    });
-                  }}
-      
-                />
-              )
-            },
+      ...dynamicItemColumnslist,
     ],
-    [itemTabledata]
+    [itemdata, dynamicItemColumnslist]
   );
   return (
     <>
@@ -371,17 +290,15 @@ const Itemtable = (props) => {
           <Icon design="Information" name="settings"></Icon>
         </Button>
       </FlexBox>
-{console.log("itemTabledata",itemTabledata)}
+
       <AnalyticalTable
-        data={itemTabledata}
+        data={itemdata}
         columns={columns}
         withNavigationHighlight
-        selectionMode="MultiSelect"
-                      selectedRowIds={rowSelection&&Object.keys(rowSelection)}  // 👈 ensures rows are preselected
-                      onRowSelect={(e) => onRowSelect(e)}
-        
-       
+        selectionMode="Multiple"
+        selectedRowIds={selectedRowIds}
         markNavigatedRow={markNavigatedRow}
+        onRowSelect={onRowSelect}
         visibleRows={5}
       />
 
@@ -434,8 +351,6 @@ const Itemtable = (props) => {
         setItemForm={setItemForm}
         itemForm={itemForm}
         selectedRowIndex={selectedRowIndex}
-        itemdata={itemdata}
-        setitemData={setitemData}
       />
       <SettingsDialog
         settingsDialogOpen={settingsDialogOpen}

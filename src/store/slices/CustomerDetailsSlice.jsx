@@ -2,7 +2,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import api from "../../api/axios";
 
-const API_URL = "/sap/business-partners/customers";
+const API_URL = "/sap/business-partners";
 
 // ✅ Fetch all customers (CardType = 'C')
 export const loginToSap = createAsyncThunk(

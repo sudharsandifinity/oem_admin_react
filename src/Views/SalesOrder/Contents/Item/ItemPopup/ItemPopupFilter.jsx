@@ -18,7 +18,7 @@ import React, { useEffect, useState } from "react";
 import "@ui5/webcomponents-icons/dist/value-help.js";
 import ItemPopupFilterDialog from "./ItemPopupFilterDialog";
 
-export const ItemPopupFilter = (field, itemData,setitemData, handleChange) => {
+export const ItemPopupFilter = (field, tableData,settableData, handleChange) => {
   //const value = form[field.FieldName] || "";
   const [value, setvalue] = useState("");
   const [fieldName, setfieldName] = useState("");
@@ -50,15 +50,15 @@ export const ItemPopupFilter = (field, itemData,setitemData, handleChange) => {
   // Handle popup item click
   const handleDialogItemClick = (e,fieldname) => {
     //const selectedItem = e.detail.item.textContent;
-    const filteredList = itemData.filter((item) => {
+    const filteredList = tableData.filter((item) => {
   return item[fieldname]
     ?.toString()
     .toLowerCase()
     .includes(e.detail.item.innerHTML.toLowerCase());
 });
 console.log("filteredList",filteredList)
-    console.log("selectedItem", e.detail.item.innerHTML,itemData,fieldname);
-    setitemData(filteredList)
+    console.log("selectedItem", e.detail.item.innerHTML,tableData,fieldname);
+    settableData(filteredList)
     setInputValue(e.detail.item.innerHTML);
     setFilterDialogOpen(false);
   };
@@ -157,11 +157,11 @@ console.log("filteredList",filteredList)
               <SuggestionItem key={idx} text={item.Name} />
             ))}
           </Input>
-{console.log("fieldName",fieldName,itemData)}
+
           <ItemPopupFilterDialog
             filterdialogOpen={filterdialogOpen}
             setFilterDialogOpen={setFilterDialogOpen}
-            itempopupData={itemData}
+            itempopupData={tableData}
             handleDialogItemClick={handleDialogItemClick}
             fieldName={field.FieldName}
           />
