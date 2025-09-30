@@ -1,17 +1,11 @@
-// Admin.js
-import React, { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import {
   SideNavigation,
   SideNavigationItem,
   SideNavigationSubItem,
   FlexBox,
-  Button,
   Icon,
-  Menu,
-  MenuItem,
-  MenuSeparator,
-  Title,
-  Bar,
+  Title
 } from "@ui5/webcomponents-react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import "@ui5/webcomponents/dist/SegmentedButtonItemTemplate.js";
@@ -37,16 +31,14 @@ import "@ui5/webcomponents-icons/dist/company-view.js";
 import "@ui5/webcomponents-icons/dist/menu.js";
 import "@ui5/webcomponents-icons/dist/menu2.js";
 import "@ui5/webcomponents-icons/dist/role.js";
-
-import Dashboard from "./Dashboard/Default/Dashboard";
-import DashboardPage from "./Dashboard/Default/DashboardPage";
+import DashboardPage from "../../Views/Admin/Dashboard/Default/Dashboard";
 import { useSelector } from "react-redux";
 import AppBar from "../../Components/Module/Appbar";
-import TopNav from '../../Components/Header/TopNav';
 
-const Admin = ({ collapsed, setCollapsed }) => {
+const AdminSideNav = ({ collapsed, setCollapsed }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  // const [collapsed, setCollapsed] = React.useState(false);
   const {user} = useSelector((state) => state.auth);
   const handleNavigationChange = (event) => {
     const key = event.detail.item.dataset.key;
@@ -54,6 +46,7 @@ const Admin = ({ collapsed, setCollapsed }) => {
   };
 
 useEffect(() => {
+  console.log("user",typeof(user));
   if(user==="null"||user===null){
     navigate("/login");
   }
@@ -61,22 +54,15 @@ useEffect(() => {
 
 
   return (
-    <FlexBox style={{ height: "100vh" }}>
-        <FlexBox direction="Column" style={{ width:collapsed ? "66px" : "260px" }}>
-     {/* <AppBar
+    <FlexBox style={{ height: "90vh" }}>
+        <FlexBox direction="Column" style={{ width:collapsed ? "50px" : "250px" }}>
+     <AppBar
   title="Admin"
   design="Header"
   startContent={
     <Icon name="menu2" onClick={() => setCollapsed(!collapsed)} />
   }
-> {collapsed ? <></> : <Title level="h2">Admin</Title>}</AppBar> */}
-          {!collapsed &&
-            <Bar
-            design="Header"
-            style={{width: '256px', boxShadow: 'none'}}
-          >
-            <Title level="h2">Admin</Title>
-          </Bar>}
+> {collapsed ? <></> : <Title level="h2">Admin</Title>}</AppBar>
           <SideNavigation
             onSelectionChange={handleNavigationChange}
             collapsed={collapsed}
@@ -143,12 +129,6 @@ useEffect(() => {
                 icon="end-user-experience-monitoring"
                 data-key="roles"
               />)}
-              {/* <SideNavigationSubItem
-                style={{ marginLeft: "1rem", textAlign: "start" }}
-                text="Company Role"
-                icon="kpi-managing-my-area"
-                data-key="CompanyRole"
-              /> */}
               {user!==null&&user.Roles&&user.Roles.some(
                 (role) =>
                   role.Permissions.some((f) => f.module === "users")) && (
@@ -167,16 +147,8 @@ useEffect(() => {
               icon="menu"
               data-key="menu"
               unselectable
+              expanded
             >
-              {/* {user!==null&&user.Roles&&user.Roles.some(
-                (role) =>
-                  role.Permissions.some((f) => f.module === "user_menu")) && (
-              <SideNavigationSubItem
-                style={{ marginLeft: "1rem", textAlign: "start" }}
-                text="Menu Master"
-                icon="menu2"
-                data-key="MenuMaster"
-              />)} */}
               <SideNavigationSubItem
                 style={{ marginLeft: "1rem", textAlign: "start" }}
                 text="Assign Form"
@@ -184,36 +156,12 @@ useEffect(() => {
                 data-key="AssignFormToMenu"
               /> 
             </SideNavigationItem> 
-            {/* <SideNavigationItem
-              style={{ textAlign: "start" }}
-              text="Setup"
-              icon="doc-attachment"
-              data-key="dashboard"
-            >{user!==null&&user.Roles&&user.Roles.some(
-                (role) =>
-                  role.Permissions.some((f) => f.module === "sales-orders") )&& (
-              <SideNavigationSubItem
-                style={{ marginLeft: "1rem", textAlign: "start" }}
-                text="Sales Orders"
-                icon="order-status"
-                data-key="sales-orders"
-              />)}
-              {user!==null&&user.Roles&&user.Roles.some(
-                (role) =>
-                  role.Permissions.some((f) => f.module === "sales-invoices")) && (
-              <SideNavigationSubItem
-                style={{ marginLeft: "1rem", textAlign: "start" }}
-                text="Sales Invoices"
-                icon="customer-order-entry"
-                data-key="sales-invoices"
-              />)}
-            </SideNavigationItem> */}
             <SideNavigationItem
               style={{ textAlign: "start" }}
               text="Form Management"
               icon="form"
               unselectable
-              //data-key="dashboard"
+              expanded
             >
              
               <SideNavigationSubItem
@@ -248,18 +196,8 @@ useEffect(() => {
         <Outlet />
         {location.pathname === "/admin" && <DashboardPage />}
       </FlexBox>
-      {/* <flexibleColumnLayout
-        style={{ flex: 1, height: "100%" }}
-        layout="TwoColumnsMidExpanded"
-        onLayoutChange={(e) => {
-          console.log("Layout changed:", e);
-        }}
-      >
-        <Outlet />
-        {location.pathname === "/admin" && <DashboardPage />}
-      </flexibleColumnLayout> */}
     </FlexBox>
   );
 };
 
-export default Admin;
+export default AdminSideNav;

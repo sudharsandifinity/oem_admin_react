@@ -22,7 +22,7 @@ import {
 import React from "react";
 import { BulletChart } from "@ui5/webcomponents-react-charts";
 
-const DashboardPage = () => {
+const UserDashboard = () => {
   const cardData = [
     { title: "Masters", color: "#5b2c58ff" },
     { title: "Menu", color: "#e35305ff" },
@@ -222,4 +222,4 @@ const DashboardPage = () => {
   );
 };
 
-export default DashboardPage;
+export default UserDashboard;
