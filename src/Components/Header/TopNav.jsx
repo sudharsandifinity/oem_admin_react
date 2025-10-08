@@ -10,7 +10,7 @@ import {
 
 import { useRef, useState } from 'react';
 import avatarPng from '../../assets/Image/no-profile.png';
-import SapLogoSvg from '../../assets/Image/HLB-Hamt-Logo.svg';
+import SapLogoSvg from '../../assets/Image/hamtinfotech-logo.webp';
 import ManageUser from '../ManageUser/ManageUser';
 
 export default function TopNav({ collapsed, setCollapsed, ...rest }) {

@@ -175,50 +175,59 @@ const Companies = () => {
       navigate("/login");
     }
   }, [user])
+
   return (
-    <FlexBox direction="Column">
+    <>
+    <style>
+        {`
+          ui5-page::part(content) {
+            padding: 15px;
+          }
+        `}
+      </style>
+    <FlexBox direction="Column" style={{width: '100%'}}>
       <AppBar
-        title="Company List"
-        startContent={
-          <div style={{ width: "150px" }}>
-            <Breadcrumbs separators="Slash">
-              <BreadcrumbsItem data-route="/admin">Admin</BreadcrumbsItem>
-              <BreadcrumbsItem data-route="/admin/companies">company</BreadcrumbsItem>
-            </Breadcrumbs>
-          </div>
-        }
-        endContent={
-          user &&
-          user.Roles.some(role =>
-            role.Permissions.some(f => f.name === "company_create")
-          ) && (
-            <Button
-              //design="Default"
-              size="Small"
-              onClick={() => navigate("/admin/companies/create")}
-            >
-              Add Company
-            </Button>
-          )
-        }
-      > 
-      <Title level="H2">Company List</Title></AppBar>
-
-      <Card
-
+            title={"Company List ("+filteredRows.length+")"}
+            startContent={
+              <div style={{ width: "150px" }}>
+                <Breadcrumbs separators="Slash">
+                  <BreadcrumbsItem data-route="/admin">Admin</BreadcrumbsItem>
+                  <BreadcrumbsItem data-route="/admin/companies">company</BreadcrumbsItem>
+                </Breadcrumbs>
+              </div>
+            }
+            endContent={
+              user &&
+              user.Roles.some(role =>
+                role.Permissions.some(f => f.name === "company_create")
+              ) && (
+                <Button
+                  //design="Default"
+                  size="Small"
+                  onClick={() => navigate("/admin/companies/create")}
+                >
+                  Add Company
+                </Button>
+              )
+            }
+          >
+          </AppBar>
+      <Page
+        backgroundDesign="Solid"
+        footer={<div></div>}
+      >
+        <Card
           style={{
-            height: "90%",
+            height: "auto",
             width: "100%",
-            // padding: "0.5rem",
-            paddingTop: "0.5rem",
+            maxHeight: '560px'
           }}
         >
-          <FlexBox direction="Column">
+          <FlexBox direction="Column" style={{padding: 0}}>
             <FlexBox
-              justifyContent="SpaceBetween"
-              direction="Row"
+              justifyContent="End"
               alignItems="Center"
-              style={{ margin: "1rem" }}
+              style={{ margin: "10px" }}
             >
               <Search
                 onClose={function Xs() { }}
@@ -243,8 +252,9 @@ const Companies = () => {
                           )) && (
                           <AnalyticalTable
                             columns={columns}
+                            style={{padding: '10px'}}
                             data={filteredRows || []}
-                            header={<Title level="H5" style={{ paddingLeft: 5 }}>  {"Company list(" + filteredRows.length + ")"}</Title>}
+                            // header={<Title level="H5" style={{ paddingLeft: 5 }}>  {"Company list(" + filteredRows.length + ")"}</Title>}
                             visibleRows={8}
                             filterable
                             pagination
@@ -294,18 +304,11 @@ const Companies = () => {
               }
             />
           </FlexBox>
-        </Card>  
-      {/* <Page
-        backgroundDesign="Solid"
-        footer={<div></div>}
-        header={
-          
+        </Card>
+      </Page>
 
-        }
-      >
-        
-      </Page> */}
     </FlexBox>
+    </>
   );
 };
 

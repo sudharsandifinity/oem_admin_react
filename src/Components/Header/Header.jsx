@@ -19,7 +19,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { ThemingParameters } from "@ui5/webcomponents-react-base";
 
-import logo from "../../assets/Image/HLB-logo.png";
+import logo from "../../assets/Image/hamtinfotech-logo.webp";
 
 
 import { setTheme } from "@ui5/webcomponents-base/dist/config/Theme.js";
