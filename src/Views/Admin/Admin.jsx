@@ -244,7 +244,7 @@ useEffect(() => {
           </SideNavigation>
         </FlexBox>
       {/* Render routed content */}
-      <FlexBox style={{ flex: 1, height: "100%" }}>
+      <FlexBox style={{ flex: 1, height: "90%" }}>
         <Outlet />
         {location.pathname === "/admin" && <DashboardPage />}
       </FlexBox>
