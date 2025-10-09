@@ -45,6 +45,12 @@ const UserSideNav = ({ collapsed, setCollapsed }) => {
   const menuTree = buildMenuTree(
     menulist.length > 0 ? menulist : authUserMenus
   );
+    useEffect(()=>{
+      if(authUserMenus.length===0){
+        navigate("/")
+      }
+  
+    },[authUserMenus])
   const handleCompanyClick = (companyName) => {
     console.log("Selected company:", companyName);
     setSelectedCompany(companyName);
@@ -115,7 +121,7 @@ const UserSideNav = ({ collapsed, setCollapsed }) => {
                     <Option key="" value="">
                     Company
                     </Option>
-                    {companies.map((branch) => (
+                    {companies&&companies.map((branch) => (
                     <Option key={branch.Company.id} value={branch.Company.id}>
                         {branch.Company.name}
                     </Option>
@@ -131,7 +137,7 @@ const UserSideNav = ({ collapsed, setCollapsed }) => {
                     }
                 >
                     <Option>Branch</Option>
-                    {companies.map((branch) => (
+                    {companies&&companies.map((branch) => (
                     <Option key={branch.id} value={branch.id}>
                         {branch.name}
                     </Option>
@@ -156,7 +162,7 @@ const UserSideNav = ({ collapsed, setCollapsed }) => {
                                 text={child.display_name}
                                 onClick={(e) => {
                                     e.preventDefault();
-                                    navigate(`/form/${child.formId}`);
+                                    navigate(`/${menu.display_name}/${child.formId}`);
                                 }}
                                 />
                             ))}

@@ -72,6 +72,11 @@ import EditUserChildMenu from "./Views/Admin/Menu/MenuMaster/EditUserChildMenu";
 import EditSalesOrder from "./Views/SalesOrder/editSalesOrder";
 import SideNavWrapper from "./Components/SideBar/SideNavWrapper";
 import UserSideNavWrapper from "./Components/SideBar/UserSideNavWrapper";
+import ManagePurchaseOrder from "./Views/ManagePurchaseOrder/ManagePurchaseOrder";
+import PurchaseOrder from "./Views/PurchaseOrder/PurchaseOrder";
+import EditPurchaseOrder from "./Views/PurchaseOrder/EditPurchaseOrder";
+import ViewSalesOrder from "./Views/SalesOrder/ViewSalesOrder";
+import ViewPurchaseOrder from "./Views/PurchaseOrder/ViewPurchaseOrder";
 // import AssignFormMenuMaster from "./Views/Admin/Menu/AssignFormToMenu/AssignFormMenuMaster";
 // import CreateAssignFormMenu from "./Views/Admin/Menu/AssignFormToMenu/CreateAssignFormMenu";
 //import { useEffect, useState } from "react";
@@ -123,11 +128,19 @@ function App() {
 
                   <Route path="/SalesOrder/create/:formId" element={<SalesOrder />} />
                   <Route path="/SalesOrder/edit/:formId/:id" element={<EditSalesOrder />} />
+                  <Route path="/SalesOrder/view/:formId/:id" element={<ViewSalesOrder/>}/>
+
+                  <Route path="/PurchaseOrder/create/:formId" element={<PurchaseOrder />} />
+                  <Route path="/PurchaseOrder/edit/:formId/:id" element={<EditPurchaseOrder />} />
+                  <Route path="/PurchaseOrder/view/:formId/:id" element={<ViewPurchaseOrder/>}/>
+
                   <Route
                     path="/ManageSalesOrder"
                     element={<ManageSalesOrder />}
                   />
-                     <Route path="/form/:formId" element={<ManageSalesOrder />} />
+                     <Route path="/Sales/:formId" element={<ManageSalesOrder />} />
+                     <Route path="/Purchase/:formId" element={<ManagePurchaseOrder />} />
+
             {/* <Route path="/form/:formId/:childId" element={<ManageSalesOrder />} /> */}
                   <Route path="/Admin" element={<SideNavWrapper />} />
                   <Route path="/admin" element={<SideNavWrapper />}>

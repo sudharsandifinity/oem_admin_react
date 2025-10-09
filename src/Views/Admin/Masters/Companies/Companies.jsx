@@ -177,6 +177,7 @@ const Companies = () => {
   }, [user])
 
   return (
+
     <>
     <style>
         {`
