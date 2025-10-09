@@ -268,7 +268,7 @@ const UserDashboard = () => {
                         text={child.display_name}
                         onClick={(e) => {
                           e.preventDefault();
-                          navigate(`/form/${child.formId}`);
+                          navigate(`/${menu.display_name}/${child.formId}`);
                         }}
                       />
                     ))}

@@ -1,4 +1,10 @@
-import React, { useContext, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import {
   AnalyticalTable,
   Bar,
@@ -31,7 +37,7 @@ const Additemdialog = (props) => {
     DocumentDetails,
     itemPopupTableColumn,
     ItemPopupFilterList,
-    itemData,
+    //itemData,
     itempopupData,
   } = useContext(FormConfigContext);
   const {
@@ -43,18 +49,42 @@ const Additemdialog = (props) => {
     handleChange,
     saveItem,
     itemForm,
-    setitemData,handleitemRowChange,selectedRowIndex
+    itemdata,
+    setitemData,
+    handleitemRowChange,
+    selectedRowIndex,
+    itemTabledata,
+    mode,
+    itempopupdata,
   } = props;
-  const [rowSelection, setRowSelection] = useState({});
-  const [tableData,settableData]=useState(itempopupData);
-  const onRowSelect = (e) => {
-    console.log("onRowSelect", e.detail.row.original);
+  const [itemchildrowSelection, setitemChildRowSelection] = useState([]);
+  const [rowSelection, setRowSelection] = useState([]);
+  const [tableData, settableData] = useState(itempopupData);
+  const onitemchildRowSelect = (e) => {
+    console.log(
+      "onRowSelect",
+      itemdata,
+      e.detail.row,
+      e.detail.selected,
+      e.detail.row.original
+    );
     //selectionChangeHandler(e.detail.row.original);
     setRowSelection((prev) => ({
       ...prev,
-      [e.detail.row.id]: e.detail.row.original,
+      [e.detail.row.original.slno]: e.detail.row.original,
     }));
   };
+
+  // useEffect(() => {
+  //   if (mode === "edit" && itemTabledata && itemTabledata.length > 0) {
+  //     const selected = {};
+  //     itemTabledata.forEach((row) => {
+  //       selected[row.id] = true; // use "id" field as key
+  //     });
+  //     setRowSelection(selected);
+  //   }
+  // }, [itemTabledata]);
+
   const dynamcicItemCols = [
     ...(itemTableColumn &&
       itemTableColumn.length &&
@@ -65,30 +95,135 @@ const Additemdialog = (props) => {
         };
       })),
   ];
-  const columns = useMemo(
-    () => [
-      ...dynamcicItemCols,
 
-      
+  const itemcolumns = useMemo(
+    () => [
+      {
+        Header: "SL No",
+        accessor: "id", // not used for data, but needed for the column
+        //Cell: ({ row }) => Number(row.id) + 1, // ✅ row.id is 0-based
+        width: 80,
+      },
+      {
+        Header: "Item Name",
+        accessor: "ItemName",
+      },
+      {
+        Header: "Item Code",
+        accessor: "ItemCode",
+      },
+      {
+        Header: "Foriegn Name",
+        accessor: "ForeignName",
+      },
+      // {
+      //   Header: "Quantity",
+      //   accessor: "quantity",
+      //   Cell: ({ row, value }) => (
+      //     <Input
+      //       type="Number"
+      //       value={value || ""}
+
+      //       onInput={(e) => {
+      //         const newValue = e.target.value;
+      //         setitemData((prev) =>
+      //           prev.map((r, idx) =>
+      //             idx === Number(row.id) ? { ...r, Quantity: newValue } : r
+      //           )
+      //         );
+
+      //         setRowSelection((prev) => {
+      //           const updated = { ...prev };
+      //           if (updated[row.id]) {
+      //             updated[row.id] = { ...updated[row.id], Quantity: newValue };
+      //           }
+      //           return updated;
+      //         });
+      //       }}
+
+      //     />
+      //   )
+      // },
+      // {
+      //   Header: "Amount",
+      //   accessor: "amount",
+      //   Cell: ({ row, value }) => (
+      //     <Input
+      //       type="Number"
+      //       value={value || ""}
+
+      //       onInput={(e) => {
+      //         const newValue = e.target.value;
+      //         setitemData((prev) =>
+      //           prev.map((r, idx) =>
+      //             idx === Number(row.id) ? { ...r, UnitPrice: newValue } : r
+      //           )
+      //         );
+
+      //         // also update rowSelection
+      //         setRowSelection((prev) => {
+      //           const updated = { ...prev };
+      //           if (updated[row.id]) {
+      //             updated[row.id] = { ...updated[row.id], UnitPrice: newValue };
+      //           }
+      //           return updated;
+      //         });
+      //       }}
+
+      //     />
+      //   )
+      // },
     ],
-    [dynamcicItemCols]
+    []
   );
+  const data = [
+    { ItemCode: "A001", ItemName: "Pen", Qty: 10 },
+    { ItemCode: "A002", ItemName: "Pencil", Qty: 20 },
+    { ItemCode: "A003", ItemName: "Book", Qty: 15 },
+  ];
+
+  const columns = [
+    { Header: "Item Code", accessor: "ItemCode" },
+    { Header: "Item Name", accessor: "ItemName" },
+    { Header: "Quantity", accessor: "Qty" },
+  ];
+
+  // 🔹 Preselect specific rows (e.g., index 0 and 2)
+  useEffect(() => {
+    if (itemdata?.length && itemTabledata?.length) {
+      const preselected = {};
+
+      itemdata.forEach((row) => {
+        const found = itemTabledata.find(
+          (it) => it.ItemCode === row.ItemCode && it.ItemName === row.ItemName
+        );
+        if (found) {
+          preselected[row.slno] = row;
+        }
+      });
+
+      setRowSelection(preselected);
+    }
+  }, [itemdata, itemTabledata]);
+  const clearFilter = () => {
+    console.log("itemdataafterclearfilter",itemdata)
+  };
   return (
     <Dialog
       headerText="Item Details"
       open={addItemdialogOpen}
       onAfterClose={() => setAddItemDialogOpen(false)}
       footer={
-        <FlexBox direction="Row">
+        <FlexBox direction="Row" gap={2}>
           <Button onClick={() => setAddItemDialogOpen(false)}>Close</Button>
-       
+
           <Button
             onClick={() => {
               setAddItemDialogOpen(false);
-              saveItem(rowSelection,selectedRowIndex)
+              saveItem(rowSelection, selectedRowIndex);
             }}
           >
-            Save
+            Choose
           </Button>
         </FlexBox>
       }
@@ -97,23 +232,31 @@ const Additemdialog = (props) => {
       <DynamicPage
         headerArea={
           <DynamicPageHeader>
-            <Grid
-              defaultIndent="XL0 L0 M0 S0"
-              defaultSpan="XL3 L3 M6 S12"
-              hSpacing="1rem"
-              vSpacing="1rem"
-            >
-              {/* Custom Filter Field */}
-              {ItemPopupFilterList.map((field) => ItemPopupFilter(field,tableData,settableData))}
+            <FlexBox direction="Row">
+              <Grid
+                defaultIndent="XL0 L0 M0 S0"
+                defaultSpan="XL4 L4 M6 S12"
+                hSpacing="1rem"
+                vSpacing="1rem"
+              >
+                {/* Custom Filter Field */}
+                {ItemPopupFilterList.map((field) =>
+                  ItemPopupFilter(field, itemdata, setitemData)
+                )}
 
-              {/* <FlexBox justifyContent="end">
+                {/* <FlexBox justifyContent="end">
                 <Button
-                //onClick={handleSearch}
+                onClick={clearFilter}
                 >
-                  Go
+                  Clear Filter
                 </Button>
               </FlexBox> */}
-            </Grid>
+              </Grid>
+              <Button style={{ width: "100px" }} onClick={clearFilter}>
+                Clear Filter
+              </Button>
+            </FlexBox>
+
             {/* Basic Company Code Search */}
           </DynamicPageHeader>
         }
@@ -126,12 +269,39 @@ const Additemdialog = (props) => {
         <div className="tab">
           <FlexBox direction="Column">
             <div>
+              {console.log(
+                "itemTabledataadditemdialog",
+                itemTabledata,
+                itemdata
+              )}
+              {/* <AnalyticalTable
+                columns={itemcolumns.length > 0 ? itemcolumns : []}
+                data={itemdata}
+                header={"Items(" + itemdata.length + ")"}
+                selectionMode="Multiple"
+                onRowSelect={onitemchildRowSelect}
+ 
+              /> */}
+              {console.log("itemdatadialog", itemdata, rowSelection)}
+              {/* <AnalyticalTable
+                columns={itemcolumns}
+                data={itemdata}
+                header={`Items (${itemdata.length})`}
+                selectionMode="Multiple"
+                selectedRowIds={setRowSelection&&itemdata.find(i=>i.quantity!=="undefined")}
+                rowSelection={onitemchildRowSelect} // pass selected rows
+              /> */}
               <AnalyticalTable
-                columns={columns.length > 0 ? columns : []}
-                data={tableData}
-                header={"Business Partners(" + fieldConfig.length + ")"}
+                data={itemdata}
+                columns={itemcolumns}
+                header={`Items (${itemdata.length})`}
                 selectionMode="MultiSelect"
-                onRowSelect={onRowSelect}
+                selectedRowIds={rowSelection}
+                onRowSelect={onitemchildRowSelect}
+                // onRowSelectionChange={(e) =>
+                //   setRowSelection(e.detail.selectedRowIds)
+
+                // }
               />
             </div>
           </FlexBox>

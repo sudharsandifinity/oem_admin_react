@@ -3,7 +3,7 @@ import React from 'react'
 
 const ItemPopupFilterDialog = (props) => {
     const {setFilterDialogOpen,filterdialogOpen,itempopupData,handleDialogItemClick,fieldName}=props
-
+console.log("itempopupData",itempopupData)
     return (
     <Dialog
             headerText={"Select " + fieldName + "" }
@@ -13,7 +13,7 @@ const ItemPopupFilterDialog = (props) => {
             footer={<Button onClick={() => setFilterDialogOpen(false)}>Close</Button>}
           >
             <List onItemClick={(e)=>handleDialogItemClick(e,fieldName)}>
-              {itempopupData.map((item, idx) => 
+              {itempopupData.length>0&&itempopupData.map((item, idx) => 
                 <ListItemStandard key={idx} value={item[fieldName]}>{item[fieldName]}</ListItemStandard>
               )}
             </List>

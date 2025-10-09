@@ -36,6 +36,11 @@ const Itemtable = (props) => {
     saveItem,
     itemdata,
     setitemData,
+    setitemTableData,
+    itemTabledata,
+    setRowSelection,
+    mode,
+    rowSelection,
     setItemForm,
     itemForm,
     dynamcicItemCols,
@@ -88,6 +93,12 @@ const Itemtable = (props) => {
     const index = e.detail.row.index;
     setSelectedRowIndex(index);
     setSelectedRowIds(e.detail.selectedRowIds);
+    console.log("onRowSelect", e.detail.row.original);
+    //selectionChangeHandler(e.detail.row.original);
+    setRowSelection((prev) => ({
+      ...prev,
+      [e.detail.row.id]: e.detail.row.original,
+    }));
   };
   const markNavigatedRow = useCallback(
     (row) => {
@@ -109,45 +120,49 @@ const Itemtable = (props) => {
     setSelectedRowIndex(selectedRowIndex + 1);
   };
   const addNewRow = () => {
-    setitemData([
-      ...itemdata,
-      { itemCode: "", itemName: "", quantity: 0, price: 0 },
+    setitemTableData([
+      ...itemTabledata,
+      { ItemCode: "", ItemName: "", quantity: 0, amount: 0 },
     ]);
   };
   const duplicateRow = () => {
     console.log("selectedRow", selectedRow.original);
-    setitemData([...itemdata, selectedRow.original]);
+    setitemTableData([...itemTabledata, selectedRow.original]);
   };
   const copyRow = () => {
     setCopySelectedRow(selectedRow.original);
   };
   const pasteRow = () => {
-    setitemData([...itemdata, copySelectedRow]);
+    setitemTableData([...itemTabledata, copySelectedRow]);
   };
 
   const deleteRow = (itemCodeToRemove) => {
-    setitemData((prev) =>
-      prev.filter((item) => item.itemCode !== selectedRow.original.itemCode)
+    setitemTableData((prev) =>
+      prev.filter(
+        (item) =>
+          item.ItemCode !== selectedRow.original.ItemCode &&
+          item.ItemName !== selectedRow.original.ItemName
+      )
     );
   };
   const addRowAfter = () => {
-    const newRow = { itemCode: "", itemName: "", quantity: 0, price: 0 };
-    const updated = [...itemdata];
+    const newRow = { ItemCode: "", ItemName: "", quantity: 0, amount: 0 };
+    const updated = [...itemTabledata];
     const insertIndex = selectedRowIndex + 1;
 
     updated.splice(insertIndex, 0, newRow); // insert at calculated position
 
-    setitemData(updated);
+    setitemTableData(updated);
   };
   const addRowBefore = () => {
     console.log("selectedRowIndex", selectedRowIndex);
-    const newRow = { itemCode: "", itemName: "", quantity: 0, price: 0 };
-    const updated = [...itemdata];
+    const newRow = { ItemCode: "", ItemName: "", quantity: 0, amount: 0 };
+    const updated = [...itemTabledata];
     const insertIndex = selectedRowIndex;
 
     updated.splice(insertIndex, 0, newRow); // insert at calculated position
 
-    setitemData(updated);
+    setitemTableData(updated);
   };
   const openDialog = (rowIndex, field) => {
     setSelectedRowIndex(rowIndex);
@@ -160,16 +175,19 @@ const Itemtable = (props) => {
     setCurrentField(field);
     setitemDialogOpen(true);
   };
+    const clearFilter=()=>{
+      setitemData(itemdata)
+    }
   const handleItemSelect = (e) => {
     const selectedItem = itemOptions.find(
-      (item) => item.itemCode === e.detail.item.dataset.code
+      (item) => item.ItemCode === e.detail.item.dataset.code
     );
 
     const updatedRows = [...itemdata];
     updatedRows[selectedRowIndex] = {
       ...updatedRows[selectedRowIndex],
-      itemCode: selectedItem.itemCode,
-      itemName: selectedItem.itemName,
+      ItemCode: selectedItem.ItemCode,
+      ItemName: selectedItem.ItemName,
     };
     setitemData(updatedRows);
     setDialogOpen(false);
@@ -178,17 +196,18 @@ const Itemtable = (props) => {
     () => [
       {
         Header: "#",
-        accessor: "SLNo",
-      
+        accessor: "slno",
+        Cell: ({ row }) =><div disabled={mode==="view"}> {row.index + 1}</div>,
       },
       {
         Header: "Item No",
-        accessor: "itemCode",
+        accessor: "ItemCode",
         Cell: ({ row }) => (
           <Input
-            value={row.original.itemCode}
+            value={row.original.ItemCode}
             readonly
             type="Text"
+            disabled={mode==="view"}
             style={{
               border: "none",
               borderBottom: "1px solid #ccc",
@@ -201,18 +220,19 @@ const Itemtable = (props) => {
             onFocus={(e) => (e.target.style.borderBottom = "1px solid #007aff")}
             onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
             onClick={() =>
-              !row.original.itemCode && openitemDialog(row.index, "itemCode")
+              !row.original.ItemCode && openitemDialog(row.index, "ItemCode")
             } //openDialog(row.index, "itemCode")}
           />
         ),
       },
       {
         Header: "Item Description",
-        accessor: "itemName",
+        accessor: "ItemName",
         Cell: ({ row }) => (
           <Input
-            value={row.original.itemName}
+            value={row.original.ItemName}
             readonly
+            disabled={mode==="view"}
             style={{
               border: "none",
               borderBottom: "1px solid #ccc",
@@ -225,19 +245,109 @@ const Itemtable = (props) => {
             onFocus={(e) => (e.target.style.borderBottom = "1px solid #007aff")}
             onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
             onClick={() =>
-              !row.original.itemName && openitemDialog(row.index, "itemName")
+              !row.original.ItemName && openitemDialog(row.index, "ItemName")
             }
           />
         ),
       },
-      ...dynamicItemColumnslist,
+      {
+        Header: "Quantity",
+        accessor: "quantity",
+        width: 250,
+        Cell: ({ row, value }) => (
+          <Input
+            type="Number"
+            disabled={mode==="view"}
+            value={value || ""}
+            // onInput={(e) => {
+            //   const newValue = e.target.value;
+            //   setitemData((prev) =>
+            //     prev.map((r, idx) =>
+            //       idx === Number(row.id) ? { ...r, quantity: newValue } : r
+            //     )
+            //   );
+            // }}
+            onInput={(e) => {
+              const newValue = e.target.value;
+              const rowId = row.original.id; // stable id
+
+              // update itemData
+              setitemData((prev) => {
+                const updated = [...prev];
+                const idx = updated.findIndex((r) => r.id === rowId);
+                if (idx > -1) {
+                  updated[idx] = { ...updated[idx], quantity: newValue };
+                }
+                return updated;
+              });
+
+              // update itemTableData
+              // setitemTableData((prev) => {
+              //   const updated = [...prev];
+              //   const idx = updated.findIndex((r) => r.id === rowId);
+              //   if (idx > -1) {
+              //     updated[idx] = { ...updated[idx], quantity: newValue };
+              //   }
+              //   return updated;
+              // });
+
+              // update rowSelection
+              setRowSelection((prev) => ({
+                ...prev,
+                [rowId]: { ...(prev[rowId] || {}), quantity: newValue },
+              }));
+            }}
+          />
+        ),
+      },
+      {
+        Header: "Amount",
+        accessor: "amount",
+        width: 250,
+        Cell: ({ row, value }) => (
+          <Input
+            type="Number"
+            disabled={mode==="view"}
+            value={value || ""}
+            // onInput={(e) => {
+            //   const newValue = e.target.value;
+            //   setitemData((prev) =>
+            //     prev.map((r, idx) =>
+            //       idx === Number(row.id) ? { ...r, amount: newValue } : r
+            //     )
+            //   );
+            // }}
+            onInput={(e) => {
+              const newValue = e.target.value;
+              setitemData((prev) =>
+                prev.map((r, idx) =>
+                  idx === Number(row.id) ? { ...r, amount: newValue } : r
+                )
+              );
+              // setitemTableData((prev) =>
+              //   prev.map((r, idx) =>
+              //     idx === Number(row.id) ? { ...r, amount: newValue } : r
+              //   )
+              // );
+              // also update rowSelection
+              setRowSelection((prev) => {
+                const updated = { ...prev };
+                if (updated[row.id]) {
+                  updated[row.id] = { ...updated[row.id], amount: newValue };
+                }
+                return updated;
+              });
+            }}
+          />
+        ),
+      },
     ],
-    [itemdata, dynamicItemColumnslist]
+    [itemTabledata]
   );
   return (
     <>
       <FlexBox style={{ justifyContent: "end" }}>
-        <Button disabled={disable} design="Transparent" onClick={duplicateRow}>
+        {/* <Button disabled={disable} design="Transparent" onClick={duplicateRow}>
           Duplicate
         </Button>
         <Button disabled={disable} design="Transparent" onClick={copyRow}>
@@ -253,7 +363,7 @@ const Itemtable = (props) => {
             design="Transparent"
             onClick={handleOpenMenu}
           >
-            Add 
+            Add
           </Button>
 
           <Menu ref={menuRef} onItemClick={handleMenuItemClick}>
@@ -269,11 +379,11 @@ const Itemtable = (props) => {
               onClick={addRowAfter}
             />
           </Menu>
-        </>
-        {/* <Button design="Transparent" onClick={addNewRow}>
-            Add
-          </Button> */}
-        <Button disabled={disable} design="Transparent" onClick={selectTopRow}>
+        </> */}
+        <Button disabled={mode==="view"} design="Transparent" onClick={addNewRow}>
+            Add Row
+          </Button>
+        {/* <Button disabled={disable} design="Transparent" onClick={selectTopRow}>
           <Icon design="Information" name="arrow-top"></Icon>
         </Button>
         <Button
@@ -285,20 +395,22 @@ const Itemtable = (props) => {
         </Button>
         <Button disabled={disable} design="Transparent" onClick={deleteRow}>
           <Icon design="Information" name="delete"></Icon>
-        </Button>
-        <Button design="Transparent" onClick={handleSettingsDialogOpen}>
+        </Button> */}
+                
+        <Button disabled={mode==="view"}  design="Transparent" onClick={handleSettingsDialogOpen}>
           <Icon design="Information" name="settings"></Icon>
         </Button>
       </FlexBox>
-
+      {console.log("itemTabledata", itemTabledata)}
       <AnalyticalTable
-        data={itemdata}
+        data={itemTabledata}
         columns={columns}
         withNavigationHighlight
-        selectionMode="Multiple"
-        selectedRowIds={selectedRowIds}
-        markNavigatedRow={markNavigatedRow}
-        onRowSelect={onRowSelect}
+        getRowId={(row) => row.original.id.toString()}
+        //selectionMode="Single"
+        // selectedRowIds={rowSelection && Object.keys(rowSelection)} // 👈 ensures rows are preselected
+        // onRowSelect={(e) => onRowSelect(e)}
+        // markNavigatedRow={markNavigatedRow}
         visibleRows={5}
       />
 
@@ -351,6 +463,10 @@ const Itemtable = (props) => {
         setItemForm={setItemForm}
         itemForm={itemForm}
         selectedRowIndex={selectedRowIndex}
+        itemdata={itemdata}
+        setitemData={setitemData}
+        itemTabledata={itemTabledata}
+        mode={mode}
       />
       <SettingsDialog
         settingsDialogOpen={settingsDialogOpen}

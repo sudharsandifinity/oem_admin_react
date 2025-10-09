@@ -150,6 +150,7 @@ import HeaderFilterDialog from "./HeaderFilterDialog";
             }
             name={field.FieldName}
             value={inputvalue}
+            style={{width:"180px"}}
             onInput={(e) => {
               console.log("selectVal", e.target.value);
               handleChange(e, field.FieldName);

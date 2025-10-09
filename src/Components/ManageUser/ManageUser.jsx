@@ -82,9 +82,9 @@ const ManageUser = forwardRef((props, ref) => {
             <UserMenuAccount
               loading={accountsLoading}
               avatarSrc={avatarPng}
-              titleText={user.first_name+' '+user.last_name}
-              subtitleText={user.email}
-              description={user.Roles[0].name}
+              titleText={user?.first_name+' '+user?.last_name}
+              subtitleText={user?.email}
+              description={user?.Roles[0].name}
               data-key="0"
               selected={selectedAccount === '0'}
             />

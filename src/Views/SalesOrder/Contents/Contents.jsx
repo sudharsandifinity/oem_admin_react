@@ -44,7 +44,7 @@ import { fetchOrderItems } from "../../../store/slices/CustomerOrderItemsSlice";
 import { set } from "react-hook-form";
 
 const Contents = (props) => {
-  const { orderItems, loading, rowSelection, setRowSelection, itemdata, setitemData } =
+  const { form,orderItems, loading, rowSelection, setRowSelection,mode, itemdata, setitemData,setitemTableData,itemTabledata } =
     props;
   const {
     fieldConfig,
@@ -74,6 +74,13 @@ const Contents = (props) => {
   const [serviceForm, setserviceForm] = useState([]);
   const [viewItem, setViewItem] = useState([]);
   const [viewService, setViewService] = useState([]);
+    const [inputvalue, setInputValue] = useState("");
+      const productCollection = [
+    { Name: "Laptop" },
+    { Name: "Mouse" },
+    { Name: "Keyboard" },
+    { Name: "Monitor" },
+  ];
 
   const addItem = () => { };
   const [layout, setLayout] = useState("OneColumn");
@@ -84,13 +91,15 @@ const Contents = (props) => {
       try {
         const res = await dispatch(fetchOrderItems()).unwrap();
 
-        console.log("resusers", res);
+        console.log("resusersfetchitems", res,itemdata);
         if (res.value?.length > 0) {
-          const tableconfig = res.value.map((item) => ({
+          const tableconfig = res.value.map((item,index) => ({
+            slno:index,
             ItemCode: item.ItemCode,
-            ItemName: item.ItemName
+            ItemName: item.ItemName,
+            
           }));
-          setitemData(tableconfig);
+          mode==="create"&&setitemData(tableconfig);
         }
         if (res.message === "Please Login!") {
           navigate("/");
@@ -127,7 +136,7 @@ const Contents = (props) => {
       itemTableColumn.length &&
       itemTableColumn
         .filter(
-          (col) => col.accessor !== "SLNo" && col.accessor !== "itemCode" && col.accessor !== "itemName"
+          (col) => col.accessor !== "slno" && col.accessor !== "ItemCode" && col.accessor !== "ItemName"
         )
         .map((col) => ({
           Header: col.Header,
@@ -264,16 +273,32 @@ const Contents = (props) => {
     ],
     [setitemData, layout]
   );
+const [selectedRowIndex, setSelectedRowIndex] = useState(null);
 
-
-
+const [selectedItems, setSelectedItems] = useState({});
   const saveItem = (item, index) => {
+    setSelectedItems(rowSelection);
     console.log("itemForm", itemForm, item);
-    setitemData((prev) => {
+    // setitemData((prev) => {
+    //   const updated = [...prev];
+
+    //   if (updated[updated.length - 1]?.ItemCode === "") {
+    //     updated.pop();
+    //   }
+
+    //   const newItems = Array.isArray(item) ? item : Object.values(item);
+
+    //   newItems.forEach((newItem, i) => {
+    //     updated[index + i] = newItem; 
+    //   });
+
+    //   return updated;
+    // });
+    setitemTableData((prev) => {
       const updated = [...prev];
 
       // Remove the last row if it's an empty placeholder
-      if (updated[updated.length - 1]?.itemCode === "") {
+      if (updated[updated.length - 1]?.ItemCode === "") {
         updated.pop();
       }
 
@@ -285,13 +310,84 @@ const Contents = (props) => {
         updated[index + i] = newItem; // replaces existing or extends
       });
 
-      return updated;
+      return newItems;
+      //return newItems;
     });
   };
 
   const handleitemRowChange = (item) => {
     console.log("handleitemRowChange", item);
   };
+  const renderIteminput = (field, form, handleChange, SelectedType) => {
+      console.log("renderIteminputobject", field, form);
+      //const value = form&&form[field.accessor] || "";
+      switch (field.type) {
+        case "text":
+        case "number":
+          return (
+            <Input
+              value={inputvalue}
+              onInput={(e) => handleChange(e, field.accessor, SelectedType)}
+              type={field.type}
+            ></Input>
+          );
+        case "select":
+          return (
+            <Input
+              value={inputvalue}
+              onInput={(e) => handleChange(e, field.accessor, SelectedType)}
+              type={field.type}
+              style={{
+                width: "470px",
+              }}
+            >
+              {productCollection.map((item, idx) => (
+                <SuggestionItem key={idx} text={item.Name} />
+              ))}
+            </Input>
+          );
+        case "date":
+          return (
+            <DatePicker
+              value={inputvalue}
+              onChange={(e) => handleChange(e, field.accessor, SelectedType)}
+            />
+          );
+        case "checkbox":
+          return (
+            <CheckBox
+              onChange={(e) => handleChange(e, field.FieldName)}
+              text="CheckBox"
+              valueState="None"
+            />
+          );
+        case "selectdropdown":
+          return (
+            <Select
+              onChange={function Xs() {}}
+              onClose={function Xs() {}}
+              onLiveChange={function Xs() {}}
+              onOpen={function Xs() {}}
+              valueState="None"
+            >
+              <Option>Option 1</Option>
+              <Option>Option 2</Option>
+              <Option>Option 3</Option>
+              <Option>Option 4</Option>
+              <Option>Option 5</Option>
+            </Select>
+          );
+        case "textarea":
+          return (
+            <TextArea
+              value={inputvalue}
+              onInput={(e) => handleChange(e, field.accessor, SelectedType)}
+            />
+          );
+        default:
+          return null;
+      }
+    };
 
   return (
     <div>
@@ -316,7 +412,7 @@ const Contents = (props) => {
               startColumn={
                 <FlexBox direction="Column">
                   <div>
-                    <AnalyticalTable
+                    {/* <AnalyticalTable
                       data={loading ? placeholderRows : itemdata ? itemdata : []}
                       columns={itemcolumns}
                       groupBy={[]}
@@ -327,19 +423,28 @@ const Contents = (props) => {
                       onRowSelect={(e) => onRowSelect(e)}
                       rowHeight={44}
                       headerRowHeight={48}
-                    />
-                    {/* <Itemtable
+                    /> */}
+                    {console.log("itemTabledata",itemTabledata,itemdata)}
+                     <Itemtable
                         addItemdialogOpen={addItemdialogOpen}
                         setAddItemDialogOpen={setAddItemDialogOpen}
                         itemTableColumn={itemTableColumn}
                         renderIteminput={renderIteminput}
                         form={form}
                         handleChange={handleChange}
+                        setRowSelection={setRowSelection}
+                        rowSelection={rowSelection}
                         saveItem={saveItem}
                         itemdata={itemdata}
                         setitemData={setitemData}
+                        setitemTableData={setitemTableData}
+                        itemTabledata={itemTabledata}
                         dynamcicItemCols={dynamcicItemCols}
-                      /> */}
+                        selectedRowIndex={selectedRowIndex}
+                         setSelectedRowIndex={setSelectedRowIndex}
+                         mode={mode}
+  selectedItems={selectedItems}
+                      /> 
                   </div>
 
                 </FlexBox>

@@ -24,10 +24,8 @@ import { BulletChart } from "@ui5/webcomponents-react-charts";
 
 const UserDashboard = () => {
   const cardData = [
-    { title: "Masters", color: "#5b2c58ff" },
-    { title: "Menu", color: "#e35305ff" },
-    { title: "Setup", color: "#6fb689ff" },
-    { title: "Form", color: "#6f5fa2ff" },
+    { title: "Sales", color: "#5b2c58ff" },
+    { title: "Purchase", color: "#e35305ff" },
   ];
   const data = [
     { name: "Jan", value: 30 },

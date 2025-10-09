@@ -161,7 +161,23 @@ const ManageSalesOrder = () => {
     navigate("/SalesOrder/edit/" + formId+"/"+rowData.DocEntry
     );
   }
-
+  const viewRow =async(rowData)=>{
+     console.log("rowData", rowData)
+    navigate("/SalesOrder/view/" + formId+"/"+rowData.DocEntry
+    );
+  }
+  const handleDelete = async (company) => {
+    if (window.confirm(`Are you sure to delete user: ${company.name}?`)) {
+      try {
+        const res = await dispatch(deleteCustomerOrder(company.id)).unwrap();
+        if (res.message === "Please Login!") {
+          navigate("/login");
+        }
+      } catch (error) {
+        console.error("Error deleting company:", error);
+      }
+    }
+  };
   
   const columns = useMemo(
     () => [
@@ -191,7 +207,27 @@ const ManageSalesOrder = () => {
                 }}
               // onClick={() => editRow(row)}
               />
-             
+             {/* <Button
+                icon="sap-icon://delete"
+                disabled={isOverlay}
+                design="Transparent"
+
+                onClick={() => {
+                  handleDelete(row.original)
+                }}
+              /> */}
+              <Button
+                icon="sap-icon://show"
+                disabled={isOverlay}
+                design="Transparent"
+
+                onClick={() => {
+                  //setLayout("TwoColumnsMidExpanded");
+                  viewRow(row.original)
+                  //setViewItem(row.original);
+                }}
+              // onClick={() => editRow(row)}
+              />
               <Button
                 icon="sap-icon://navigation-right-arrow"
                 disabled={isOverlay}
@@ -199,6 +235,7 @@ const ManageSalesOrder = () => {
 
                 onClick={() => {
                   setLayout("TwoColumnsMidExpanded");
+                  //viewRow(row.original)
                   setViewItem(row.original);
                 }}
               // onClick={() => editRow(row)}
@@ -264,7 +301,7 @@ const ManageSalesOrder = () => {
                 })}
 
               </Grid>
-              <Button icon="decline" onClick={() => settabledata(customerorder)} ></Button></FlexBox>
+              <Button style={{width:"100px"}}  onClick={() => settabledata(customerorder)} >Clear Filter</Button></FlexBox>
           </DynamicPageHeader>
         }
         onPinButtonToggle={function Xs() { }}
@@ -297,8 +334,8 @@ const ManageSalesOrder = () => {
             heading={
               <Title
                 style={{ fontSize: "var(--sapObjectHeader_Title_FontSize)" }}
-              >
-                {formConfig && formConfig.display_name}
+              >Manage Sales Order
+                {/* {formConfig && formConfig.display_name} */}
               </Title>
             }
             navigationBar={
@@ -312,7 +349,8 @@ const ManageSalesOrder = () => {
                   fontSize: "var(--sapObjectHeader_Title_SnappedFontSize)",
                 }}
               >
-                {formConfig && formConfig.display_name}
+                {/* {formConfig && formConfig.display_name} */}
+                Manage Sales Order
               </Title>
             }
           ></DynamicPageTitle>

@@ -175,131 +175,141 @@ const Companies = () => {
       navigate("/login");
     }
   }, [user])
+
   return (
-    <Page
-      backgroundDesign="Solid"
-      footer={<div></div>}
-      header={
-        <AppBar
-          title="Company List"
-          startContent={
-            <div style={{ width: "150px" }}>
-              <Breadcrumbs separators="Slash">
-                <BreadcrumbsItem data-route="/admin">Admin</BreadcrumbsItem>
-                <BreadcrumbsItem data-route="/admin/companies">company</BreadcrumbsItem>
-              </Breadcrumbs>
-            </div>
-          }
-          endContent={
-            user &&
-            user.Roles.some(role =>
-              role.Permissions.some(f => f.name === "company_create")
-            ) && (
-              <Button
-                //design="Default"
-                size="Small"
-                onClick={() => navigate("/admin/companies/create")}
-              >
-                Add Company
-              </Button>
-            )
-          }
-        >   <Title level="H2">Company List</Title></AppBar>
 
-      }
-    >
-      <Card
-
-        style={{
-          height: "90%",
-          width: "100%",
-          // padding: "0.5rem",
-           paddingTop: "0.5rem",
-        }}
-      >
-        <FlexBox direction="Column">
-          <FlexBox
-            justifyContent="SpaceBetween"
-            direction="Row"
-            alignItems="Center"
-            style={{ margin: "1rem" }}
+    <>
+    <style>
+        {`
+          ui5-page::part(content) {
+            padding: 15px;
+          }
+        `}
+      </style>
+    <FlexBox direction="Column" style={{width: '100%'}}>
+      <AppBar
+            title={"Company List ("+filteredRows.length+")"}
+            startContent={
+              <div style={{ width: "150px" }}>
+                <Breadcrumbs separators="Slash">
+                  <BreadcrumbsItem data-route="/admin">Admin</BreadcrumbsItem>
+                  <BreadcrumbsItem data-route="/admin/companies">company</BreadcrumbsItem>
+                </Breadcrumbs>
+              </div>
+            }
+            endContent={
+              user &&
+              user.Roles.some(role =>
+                role.Permissions.some(f => f.name === "company_create")
+              ) && (
+                <Button
+                  //design="Default"
+                  size="Small"
+                  onClick={() => navigate("/admin/companies/create")}
+                >
+                  Add Company
+                </Button>
+              )
+            }
           >
-            <Search
-              onClose={function Xs() { }}
-              onInput={function Xs() { }}
-              onOpen={function Xs() { }}
-              onScopeChange={function Xs() { }}
-              onSearch={(e) => setSearch(e.target.value)}
+          </AppBar>
+      <Page
+        backgroundDesign="Solid"
+        footer={<div></div>}
+      >
+        <Card
+          style={{
+            height: "auto",
+            width: "100%",
+            maxHeight: '560px'
+          }}
+        >
+          <FlexBox direction="Column" style={{padding: 0}}>
+            <FlexBox
+              justifyContent="End"
+              alignItems="Center"
+              style={{ margin: "10px" }}
+            >
+              <Search
+                onClose={function Xs() { }}
+                onInput={function Xs() { }}
+                onOpen={function Xs() { }}
+                onScopeChange={function Xs() { }}
+                onSearch={(e) => setSearch(e.target.value)}
+              />
+            </FlexBox>
+            {console.log("filteredRows", filteredRows)}
+            <FlexibleColumnLayout
+              // style={{ height: "600px" }}
+              layout={layout}
+              startColumn={
+                <FlexBox direction="Column">
+                  <div>
+                    <FlexBox direction="Column">
+                      {user && user.Roles.some(
+                        (role) =>
+                          role.Permissions.some(
+                            (f) => f.name === "company_list"
+                          )) && (
+                          <AnalyticalTable
+                            columns={columns}
+                            style={{padding: '10px'}}
+                            data={filteredRows || []}
+                            // header={<Title level="H5" style={{ paddingLeft: 5 }}>  {"Company list(" + filteredRows.length + ")"}</Title>}
+                            visibleRows={8}
+                            filterable
+                            pagination
+                            onAutoResize={() => { }}
+                            onColumnsReorder={() => { }}
+                            onGroup={() => { }}
+                            onLoadMore={() => { }}
+                            onRowClick={() => { }}
+                            onRowExpandChange={() => { }}
+                            onRowSelect={() => { }}
+                            onSort={() => { }}
+                            onTableScroll={() => { }}
+                          />
+                        )}
+                    </FlexBox>
+                  </div>
+                </FlexBox>
+              }
+              midColumn={
+                <Page
+                  header={
+                    <Bar
+                      endContent={
+                        <Button
+                          icon="sap-icon://decline"
+                          title="close"
+                          onClick={() => setLayout("OneColumn")}
+                        />
+                      }
+                      startContent={<Title level="H5">Preview Company</Title>}
+                    ></Bar>
+                  }
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "row",
+                      justifyContent: "center",
+                      alignItems: "start",
+                      //height: "90%",
+                      verticalAlign: "middle",
+                    }}
+                  >
+                    <ViewCompany id={ViewId} />
+                  </div>
+                </Page>
+              }
             />
           </FlexBox>
-          {console.log("filteredRows", filteredRows)}
-          <FlexibleColumnLayout
-            // style={{ height: "600px" }}
-            layout={layout}
-            startColumn={
-              <FlexBox direction="Column">
-                <div>
-                  <FlexBox direction="Column">
-                    {user && user.Roles.some(
-                      (role) =>
-                        role.Permissions.some(
-                          (f) => f.name === "company_list"
-                        )) && (
-                        <AnalyticalTable
-                          columns={columns}
-                          data={filteredRows || []}
-                          header={<Title level="H5" style={{ paddingLeft: 5 }}>  {"Company list(" + filteredRows.length + ")"}</Title>}
-                          visibleRows={8}
-                          filterable
-                          pagination
-                          onAutoResize={() => { }}
-                          onColumnsReorder={() => { }}
-                          onGroup={() => { }}
-                          onLoadMore={() => { }}
-                          onRowClick={() => { }}
-                          onRowExpandChange={() => { }}
-                          onRowSelect={() => { }}
-                          onSort={() => { }}
-                          onTableScroll={() => { }}
-                        />
-                      )}
-                  </FlexBox>
-                </div>
-              </FlexBox>
-            }
-            midColumn={
-              <Page
-                header={
-                  <Bar
-                    endContent={
-                      <Button
-                        icon="sap-icon://decline"
-                        title="close"
-                        onClick={() => setLayout("OneColumn")}
-                      />
-                    }
-                    startContent={<Title level="H5">Preview Company</Title>}
-                  ></Bar>
-                }
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "row",
-                    justifyContent: "center",
-                    alignItems: "start",
-                    //height: "90%",
-                    verticalAlign: "middle",
-                  }}
-                >
-                  <ViewCompany id={ViewId} />
-                </div>
-              </Page>
-            }
-          />
-        </FlexBox>
-      </Card>
-    </Page>
+        </Card>
+      </Page>
+
+    </FlexBox>
+    </>
   );
 };
 

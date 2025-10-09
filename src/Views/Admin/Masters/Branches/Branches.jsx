@@ -176,137 +176,141 @@ const Branches = () => {
     []
   );
   return (
-    <Page
-      backgroundDesign="Solid"
-      footer={<div></div>}
-      header={
+    <>
+      <style>
+        {`
+          ui5-page::part(content) {
+            padding: 15px;
+          }
+        `}
+      </style>
+      <FlexBox direction="Column" style={{width: '100%'}}>
         <AppBar
-          design="Header"
-          startContent={
-            <div style={{ width: "150px" }}>
-              <Breadcrumbs
-                design="Standard"
-                separators="Slash"
-                onItemClick={(e) => {
-                  const route = e.detail.item.dataset.route;
-                  if (route) navigate(route);
-                }}
-              >
-                <BreadcrumbsItem data-route="/admin">Admin</BreadcrumbsItem>
-                <BreadcrumbsItem data-route="/admin/branches">
-                  Branch
-                </BreadcrumbsItem>
-              </Breadcrumbs>
-            </div>
-          }
-          endContent={
-            user?.Roles?.some((role) =>
-              role.Permissions.some((f) => f.name === "branch_create")
-            ) && (
-              <Button
-                design="Emphasized"
-                onClick={() => navigate("/admin/branches/create")}
-              >
-                Add Branch
-              </Button>
-            )
-          }
+              design="Header"
+              title={"Branches List ("+filtered.length+")"}
+              startContent={
+                <div style={{ width: "150px" }}>
+                  <Breadcrumbs
+                    design="Standard"
+                    separators="Slash"
+                    onItemClick={(e) => {
+                      const route = e.detail.item.dataset.route;
+                      if (route) navigate(route);
+                    }}
+                  >
+                    <BreadcrumbsItem data-route="/admin">Admin</BreadcrumbsItem>
+                    <BreadcrumbsItem data-route="/admin/branches">
+                      Branch
+                    </BreadcrumbsItem>
+                  </Breadcrumbs>
+                </div>
+              }
+              endContent={
+                user?.Roles?.some((role) =>
+                  role.Permissions.some((f) => f.name === "branch_create")
+                ) && (
+                  <Button
+                    design="Emphasized"
+                    onClick={() => navigate("/admin/branches/create")}
+                  >
+                    Add Branch
+                  </Button>
+                )
+              }
+            >
+          </AppBar>
+        <Page
+          backgroundDesign="Solid"
         >
-          <Title level="H4">Branch List</Title>
-        </AppBar>
-      }
-    >
-      <Card
-        style={{
-          height: "100%",
-          width: "100%",
-          //padding: "0.5rem",
-          paddingTop: "0.5rem",
-        }}
-      >
-        <FlexBox direction="Column">
-          <FlexBox
-            justifyContent="SpaceBetween"
-            direction="Row"
-            alignItems="Center"
-            style={{ margin: "1rem" }}
+          <Card
+            style={{
+              height: "auto",
+              width: "100%",
+              maxHeight: '560px'
+            }}
           >
-            <Search
-              onClose={function Xs() {}}
-              onInput={function Xs() {}}
-              onOpen={function Xs() {}}
-              onScopeChange={function Xs() {}}
-              onSearch={(e) => setSearch(e.target.value)}
-            />
-          </FlexBox>
-          {console.log("filteredRows", filtered)}
-          <FlexibleColumnLayout
-            // style={{ height: "600px" }}
-            layout={layout}
-            startColumn={
-              <FlexBox direction="Column">
-                <div>
-                  <FlexBox direction="Column">
-                    {user?.Roles?.some((role) =>
-                      role.Permissions.some((f) => f.name === "branch_list")
-                    ) && (
-                      <AnalyticalTable
-                        columns={columns}
-                        data={filtered || []}
-                        header={<Title level="H5" style={{ paddingLeft: 5 }}>  {
-                          "Branches list(" + filtered.length + ")"}</Title>}
-                        visibleRows={8}
-                        filterable
-                        pagination
-                        // visibleRows={10}
-                        onAutoResize={() => {}}
-                        onColumnsReorder={() => {}}
-                        onGroup={() => {}}
-                        onLoadMore={() => {}}
-                        onRowClick={() => {}}
-                        onRowExpandChange={() => {}}
-                        onRowSelect={() => {}}
-                        onSort={() => {}}
-                        onTableScroll={() => {}}
-                      />
-                    )}
-                  </FlexBox>
-                </div>
-              </FlexBox>
-            }
-            midColumn={
-              <Page
-                header={
-                  <Bar
-                    endContent={
-                      <Button
-                        icon="sap-icon://decline"
-                        title="close"
-                        onClick={() => setLayout("OneColumn")}
-                      />
-                    }
-                    startContent={<Title level="H5">Preview Branch</Title>}
-                  ></Bar>
-                }
+            <FlexBox direction="Column" style={{padding: 0}}>
+              <FlexBox
+                justifyContent="End"
+                alignItems="Center"
+                style={{ margin: "10px" }}
               >
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "row",
-                    justifyContent: "center",
-                    alignItems: "start",
-                    height: "90%",
-                    verticalAlign: "middle",
-                  }}
-                >
-                  <ViewBranch id={ViewId} />
-                </div>
-              </Page>
-            }
-          />
-        </FlexBox>
-      </Card>
-    </Page>
+                <Search
+                  onClose={function Xs() {}}
+                  onInput={function Xs() {}}
+                  onOpen={function Xs() {}}
+                  onScopeChange={function Xs() {}}
+                  onSearch={(e) => setSearch(e.target.value)}
+                />
+              </FlexBox>
+              <FlexibleColumnLayout
+                // style={{ height: "600px" }}
+                layout={layout}
+                startColumn={
+                  <FlexBox direction="Column">
+                    <div>
+                      <FlexBox direction="Column">
+                        {user?.Roles?.some((role) =>
+                          role.Permissions.some((f) => f.name === "branch_list")
+                        ) && (
+                          <AnalyticalTable
+                            columns={columns}
+                            data={filtered || []}
+                            style={{padding: '10px'}}
+                            visibleRows={10}
+                            filterable
+                            pagination
+                            // visibleRows={10}
+                            onAutoResize={() => {}}
+                            onColumnsReorder={() => {}}
+                            onGroup={() => {}}
+                            onLoadMore={() => {}}
+                            onRowClick={() => {}}
+                            onRowExpandChange={() => {}}
+                            onRowSelect={() => {}}
+                            onSort={() => {}}
+                            onTableScroll={() => {}}
+                          />
+                        )}
+                      </FlexBox>
+                    </div>
+                  </FlexBox>
+                }
+                midColumn={
+                  <Page
+                    header={
+                      <Bar
+                        endContent={
+                          <Button
+                            icon="sap-icon://decline"
+                            title="close"
+                            onClick={() => setLayout("OneColumn")}
+                          />
+                        }
+                        startContent={<Title level="H5">Preview Branch</Title>}
+                      ></Bar>
+                    }
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "row",
+                        justifyContent: "center",
+                        alignItems: "start",
+                        height: "90%",
+                        verticalAlign: "middle",
+                      }}
+                    >
+                      <ViewBranch id={ViewId} />
+                    </div>
+                  </Page>
+                }
+              />
+            </FlexBox>
+          </Card>
+        </Page>
+      </FlexBox>
+    </>
   );
 };
 
