@@ -192,158 +192,135 @@ const Itemtable = (props) => {
     setitemData(updatedRows);
     setDialogOpen(false);
   };
-  const columns = useMemo(
-    () => [
-      {
-        Header: "#",
-        accessor: "slno",
-        Cell: ({ row }) =><div disabled={mode==="view"}> {row.index + 1}</div>,
-      },
-      {
-        Header: "Item No",
-        accessor: "ItemCode",
-        Cell: ({ row }) => (
-          <Input
-            value={row.original.ItemCode}
-            readonly
-            type="Text"
-            disabled={mode==="view"}
-            style={{
-              border: "none",
-              borderBottom: "1px solid #ccc",
-              backgroundColor: "transparent",
-              outline: "none",
-              padding: "4px 0",
-              fontSize: "14px",
-              transition: "border-color 0.2s",
-            }}
-            onFocus={(e) => (e.target.style.borderBottom = "1px solid #007aff")}
-            onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
-            onClick={() =>
-              !row.original.ItemCode && openitemDialog(row.index, "ItemCode")
-            } //openDialog(row.index, "itemCode")}
-          />
-        ),
-      },
-      {
-        Header: "Item Description",
-        accessor: "ItemName",
-        Cell: ({ row }) => (
-          <Input
-            value={row.original.ItemName}
-            readonly
-            disabled={mode==="view"}
-            style={{
-              border: "none",
-              borderBottom: "1px solid #ccc",
-              backgroundColor: "transparent",
-              outline: "none",
-              padding: "4px 0",
-              fontSize: "14px",
-              transition: "border-color 0.2s",
-            }}
-            onFocus={(e) => (e.target.style.borderBottom = "1px solid #007aff")}
-            onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
-            onClick={() =>
-              !row.original.ItemName && openitemDialog(row.index, "ItemName")
-            }
-          />
-        ),
-      },
-      {
-        Header: "Quantity",
-        accessor: "quantity",
-        width: 250,
-        Cell: ({ row, value }) => (
-          <Input
-            type="Number"
-            disabled={mode==="view"}
-            value={value || ""}
-            // onInput={(e) => {
-            //   const newValue = e.target.value;
-            //   setitemData((prev) =>
-            //     prev.map((r, idx) =>
-            //       idx === Number(row.id) ? { ...r, quantity: newValue } : r
-            //     )
-            //   );
-            // }}
-            onInput={(e) => {
-              const newValue = e.target.value;
-              const rowId = row.original.id; // stable id
+ const columns = useMemo(() => {
+  // Define all possible columns
+  const allColumns = [
+    {
+      Header: "#",
+      accessor: "slno",
+      Cell: ({ row }) => <div disabled={mode === "view"}>{row.index + 1}</div>,
+    },
+    {
+      Header: "Item No",
+      accessor: "ItemCode",
+      Cell: ({ row }) => (
+        <Input
+          value={row.original.ItemCode}
+          readonly
+          type="Text"
+          disabled={mode === "view"}
+          style={{
+            border: "none",
+            borderBottom: "1px solid #ccc",
+            backgroundColor: "transparent",
+            outline: "none",
+            padding: "4px 0",
+            fontSize: "14px",
+            transition: "border-color 0.2s",
+          }}
+          onFocus={(e) => (e.target.style.borderBottom = "1px solid #007aff")}
+          onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
+          onClick={() =>
+            !row.original.ItemCode && openitemDialog(row.index, "ItemCode")
+          }
+        />
+      ),
+    },
+    {
+      Header: "Item Description",
+      accessor: "ItemName",
+      Cell: ({ row }) => (
+        <Input
+          value={row.original.ItemName}
+          readonly
+          disabled={mode === "view"}
+          style={{
+            border: "none",
+            borderBottom: "1px solid #ccc",
+            backgroundColor: "transparent",
+            outline: "none",
+            padding: "4px 0",
+            fontSize: "14px",
+            transition: "border-color 0.2s",
+          }}
+          onFocus={(e) => (e.target.style.borderBottom = "1px solid #007aff")}
+          onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
+          onClick={() =>
+            !row.original.ItemName && openitemDialog(row.index, "ItemName")
+          }
+        />
+      ),
+    },
+    {
+      Header: "Quantity",
+      accessor: "quantity",
+      width: 250,
+      Cell: ({ row, value }) => (
+        <Input
+          type="Number"
+          disabled={mode === "view"}
+          value={value || ""}
+          onInput={(e) => {
+            const newValue = e.target.value;
+            const rowId = row.original.id;
 
-              // update itemData
-              setitemData((prev) => {
-                const updated = [...prev];
-                const idx = updated.findIndex((r) => r.id === rowId);
-                if (idx > -1) {
-                  updated[idx] = { ...updated[idx], quantity: newValue };
-                }
-                return updated;
-              });
+            // update itemData
+            setitemData((prev) => {
+              const updated = [...prev];
+              const idx = updated.findIndex((r) => r.id === rowId);
+              if (idx > -1) updated[idx] = { ...updated[idx], quantity: newValue };
+              return updated;
+            });
 
-              // update itemTableData
-              // setitemTableData((prev) => {
-              //   const updated = [...prev];
-              //   const idx = updated.findIndex((r) => r.id === rowId);
-              //   if (idx > -1) {
-              //     updated[idx] = { ...updated[idx], quantity: newValue };
-              //   }
-              //   return updated;
-              // });
+            // update rowSelection
+            setRowSelection((prev) => ({
+              ...prev,
+              [rowId]: { ...(prev[rowId] || {}), quantity: newValue },
+            }));
+          }}
+        />
+      ),
+    },
+    {
+      Header: "Amount",
+      accessor: "amount",
+      width: 250,
+      Cell: ({ row, value }) => (
+        <Input
+          type="Number"
+          disabled={mode === "view"}
+          value={value || ""}
+          onInput={(e) => {
+            const newValue = e.target.value;
+            setitemData((prev) =>
+              prev.map((r, idx) =>
+                idx === Number(row.id) ? { ...r, amount: newValue } : r
+              )
+            );
+            setRowSelection((prev) => {
+              const updated = { ...prev };
+              if (updated[row.id]) {
+                updated[row.id] = { ...updated[row.id], amount: newValue };
+              }
+              return updated;
+            });
+          }}
+        />
+      ),
+    },
+  ];
 
-              // update rowSelection
-              setRowSelection((prev) => ({
-                ...prev,
-                [rowId]: { ...(prev[rowId] || {}), quantity: newValue },
-              }));
-            }}
-          />
-        ),
-      },
-      {
-        Header: "Amount",
-        accessor: "amount",
-        width: 250,
-        Cell: ({ row, value }) => (
-          <Input
-            type="Number"
-            disabled={mode==="view"}
-            value={value || ""}
-            // onInput={(e) => {
-            //   const newValue = e.target.value;
-            //   setitemData((prev) =>
-            //     prev.map((r, idx) =>
-            //       idx === Number(row.id) ? { ...r, amount: newValue } : r
-            //     )
-            //   );
-            // }}
-            onInput={(e) => {
-              const newValue = e.target.value;
-              setitemData((prev) =>
-                prev.map((r, idx) =>
-                  idx === Number(row.id) ? { ...r, amount: newValue } : r
-                )
-              );
-              // setitemTableData((prev) =>
-              //   prev.map((r, idx) =>
-              //     idx === Number(row.id) ? { ...r, amount: newValue } : r
-              //   )
-              // );
-              // also update rowSelection
-              setRowSelection((prev) => {
-                const updated = { ...prev };
-                if (updated[row.id]) {
-                  updated[row.id] = { ...updated[row.id], amount: newValue };
-                }
-                return updated;
-              });
-            }}
-          />
-        ),
-      },
-    ],
-    [itemTabledata]
+  // Create an array of accessors that should be visible
+  const visibleAccessors = dynamicItemColumnslist?.map((col) => col.accessor) || [];
+
+  // Filter columns based on dynamic list
+  const visibleColumns = allColumns.filter((col) =>
+    visibleAccessors.includes(col.accessor)
   );
+
+  return visibleColumns;
+}, [itemTabledata, mode, dynamicItemColumnslist]);
+
   return (
     <>
       <FlexBox style={{ justifyContent: "end" }}>
@@ -401,7 +378,7 @@ const Itemtable = (props) => {
           <Icon design="Information" name="settings"></Icon>
         </Button>
       </FlexBox>
-      {console.log("itemTabledata", itemTabledata)}
+      {console.log("itemTabledata", itemTabledata,dynamicItemColumnslist)}
       <AnalyticalTable
         data={itemTabledata}
         columns={columns}

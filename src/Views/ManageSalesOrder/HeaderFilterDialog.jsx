@@ -13,9 +13,18 @@ const HeaderFilterDialog = (props) => {
             footer={<Button onClick={() => setFilterDialogOpen(false)}>Close</Button>}
           >
             <List onItemClick={(e)=>handleDialogItemClick(e,fieldName)}>
-              {itempopupData&&itempopupData.map((item, idx) => 
-                <ListItemStandard key={idx} value={item[fieldName]}>{item[fieldName]}</ListItemStandard>
-              )}
+              
+             {itempopupData &&
+  itempopupData
+    .filter(
+      (item, index, self) =>
+        index === self.findIndex((t) => t[fieldName] === item[fieldName])
+    )
+    .map((item, idx) => (
+      <ListItemStandard key={idx} value={item[fieldName]}>
+        {item[fieldName]}
+      </ListItemStandard>
+    ))}
             </List>
           </Dialog>
     </div>

@@ -18,15 +18,18 @@ import React, { useEffect, useState } from "react";
 import "@ui5/webcomponents-icons/dist/value-help.js";
 import HeaderFilterDialog from "./HeaderFilterDialog";
 
-
-
-
-  export const HeaderFilterBar = ({ field, tableData, settableData,handleChange }) => {
+export const HeaderFilterBar = ({
+  field,
+  tableData,
+  settableData,
+  handleChange,
+  setFilters,
+  filters,settabledata,customerorder,isClearFilter,setisClearFilter
+}) => {
   const [value, setvalue] = useState("");
   const [fieldName, setfieldName] = useState("");
-  const [inputvalue, setInputValue] = useState([]);
   const [filterdialogOpen, setFilterDialogOpen] = useState(false);
-
+ const [inputvalue, setInputValue] = useState([]);
   // Suggestion and dialog items
   const productCollection = [
     { Name: "Person1" },
@@ -40,7 +43,12 @@ import HeaderFilterDialog from "./HeaderFilterDialog";
     const selectedItem = e.detail.item.textContent;
     setInputValue(selectedItem);
   };
-
+useEffect(()=>{
+  if(isClearFilter===true){
+    setisClearFilter(false)
+      setInputValue([])
+  }
+},[isClearFilter])
   // Handle value help button click
   const handleValueHelpRequest = (fieldname) => {
     console.log("handleValueHelpRequest", fieldname);
@@ -51,19 +59,21 @@ import HeaderFilterDialog from "./HeaderFilterDialog";
   // Handle popup item click
   const handleDialogItemClick = (e, fieldname) => {
     //const selectedItem = e.detail.item.textContent;
-    const filteredList = tableData&&tableData.filter((item) => {
-      return item[fieldname]
-        ?.toString()
-        .toLowerCase()
-        .includes(e.detail.item.innerHTML.toLowerCase());
-    });
+    const filteredList =
+      tableData &&
+      tableData.filter((item) => {
+        return item[fieldname]
+          ?.toString()
+          .toLowerCase()
+          .includes(e.detail.item.innerHTML.toLowerCase());
+      });
     console.log("filteredList", filteredList);
     console.log("selectedItem", e.detail.item.innerHTML, tableData, fieldname);
     settableData(filteredList);
     setInputValue(e.detail.item.innerHTML);
     setFilterDialogOpen(false);
   };
-  console.log("field",field)
+  console.log("field", field);
   switch (field.inputType) {
     case "text":
     case "number":
@@ -80,11 +90,18 @@ import HeaderFilterDialog from "./HeaderFilterDialog";
     case "date":
       return (
         <FlexBox direction="Column">
-          <Label>{field.DisplayName}</Label>
+          <Label>From Date</Label>
           <DatePicker
-            value={value}
-            //style={{ width: "0%" }}
-            onChange={(e) => handleChange(e, field.FieldName)}
+            name="FromDate"
+            value={filters.FromDate}
+            onChange={(e) => handleChange(e, "FromDate")}
+          />
+          <Label>To Date</Label>
+
+          <DatePicker
+            name="ToDate"
+            value={filters.ToDate}
+            onChange={(e) => handleChange(e, "ToDate")}
           />
         </FlexBox>
       );
@@ -150,18 +167,22 @@ import HeaderFilterDialog from "./HeaderFilterDialog";
             }
             name={field.FieldName}
             value={inputvalue}
-            style={{width:"180px"}}
+            style={{ width: "180px" }}
             onInput={(e) => {
               console.log("selectVal", e.target.value);
               handleChange(e, field.FieldName);
             }}
             type={field.inputType}
           >
-            {productCollection.map((item, idx) => (
-              <SuggestionItem key={idx} text={item.Name} />
-            ))}
+            {productCollection
+              .filter(
+                (item, index, self) =>
+                  index === self.findIndex((t) => t.Name === item.Name)
+              )
+              .map((item, idx) => (
+                <SuggestionItem key={idx} text={item.Name} />
+              ))}
           </Input>
-         
 
           <HeaderFilterDialog
             filterdialogOpen={filterdialogOpen}
@@ -173,6 +194,7 @@ import HeaderFilterDialog from "./HeaderFilterDialog";
         </FlexBox>
       );
     default:
-      return null;
+      return  null;
   }
+  
 };

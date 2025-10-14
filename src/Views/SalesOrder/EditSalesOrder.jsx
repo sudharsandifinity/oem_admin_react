@@ -129,7 +129,7 @@ const EditSalesOrder = () => {
             setitemData(
               () =>
                 orderList.value
-                  .map((item,index) => {
+                  .map((item, index) => {
                     const matched = orderListById.DocumentLines.find(
                       (line) => line.ItemCode === item.ItemCode
                     );
@@ -143,7 +143,7 @@ const EditSalesOrder = () => {
                           amount: matched.Amount,
                         }
                       : {
-                          slno:index, // usually LineNum is 0-based
+                          slno: index, // usually LineNum is 0-based
                           ItemCode: item.ItemCode,
                           ItemName: item.ItemName,
                           quantity: item.Quantity,
@@ -204,7 +204,10 @@ const EditSalesOrder = () => {
       } catch (err) {
         console.error("Failed to fetch order:", err);
       } finally {
-        setLoading(false);
+        setTimeout(() => {
+           setLoading(false);
+        }, 2000);
+       
       }
     };
 
@@ -317,23 +320,18 @@ const EditSalesOrder = () => {
   }, [formId]);
   return (
     <>
-      {loading ? (
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column", // stack indicator + message vertically
-            alignItems: "center", // center horizontally
-            justifyContent: "center", // center vertically
-            height: "90vh", // take full viewport height
-            width: "100%", // take full width
-          }}
-        >
-          <BusyIndicator active size="M" />
-          <span style={{ marginTop: "1rem", fontSize: "1rem", color: "#555" }}>
-            Loading please wait.🚀
-          </span>
-        </div>
-      ) : (
+      <BusyIndicator
+            style={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              zIndex: 1000,
+              backgroundColor: "rgba(241, 243, 248, 0.8)",
+            }}
+            active={loading}
+          >
         <ObjectPage
           footerArea={
             <>
@@ -417,10 +415,10 @@ const EditSalesOrder = () => {
                       Home
                     </BreadcrumbsItem>
                     <BreadcrumbsItem data-route={`/Sales/${formId}`}>
-                      Manage Sales Order
+                      Sales Order list
                     </BreadcrumbsItem>
                     <BreadcrumbsItem>
-                      {formDetails ? formDetails[0]?.name : "Sales Order"}
+                      {formDetails ? "Create"+formDetails[0]?.name : "Create Sales Order"}
                     </BreadcrumbsItem>
                   </Breadcrumbs>
                 </>
@@ -452,40 +450,23 @@ const EditSalesOrder = () => {
             </ObjectPageTitle>
           }
         >
-          {/* {console.log("tabList", tabList, orderItems, generaleditdata)}
-            {
-                tabList.length > 0 && tabList.map((tab) => {
-                    console.log("object", tab);
-                    if (tab.name === "general") {
-                        return ( */}
+         
           <ObjectPageSection
             id="section1"
             style={{ height: "100%" }}
             titleText="General"
-          >
-            <General
+          >{!loading&&
+          <General
               onSubmit={handleSubmit}
               setFormData={setFormData}
               formData={formData}
               defaultValues={formData} // ✅ now passes edit data properly
               apiError={apiError}
-            />
-            {/* <General
-                                        onSubmit={handleSubmit}
-                                        setFormData={setFormData}
-                                        formData={formData}
-                                        defaultValues={{
-                                            CardCode: generaleditdata.CardCode || "",
-                                            CardName: generaleditdata.CardName || "",
-                                            DocDueDate: generaleditdata.CreationDate || new Date().toISOString().split("T")[0],
-                                            DocumentLines: [],
-                                        }}
-                                        apiError={apiError}
-                                    /> */}
+            />}
+            
+       
           </ObjectPageSection>
-          {/* );
-                    } else if (tab.name === "contents") {
-                        return ( */}
+         
           <ObjectPageSection
             id="section2"
             style={{
@@ -512,9 +493,7 @@ const EditSalesOrder = () => {
               mode={"edit"}
             />
           </ObjectPageSection>
-          {/* );
-                    } else if (tab.name === "logistics") {
-                        return ( */}
+         
           <ObjectPageSection
             id="section3"
             style={{
@@ -529,10 +508,7 @@ const EditSalesOrder = () => {
               handleChange={handleChange}
             />
           </ObjectPageSection>
-          {/* );
-                    }
-                    else if (tab.name === "accounting") {
-                        return ( */}
+         
           <ObjectPageSection
             id="section4"
             style={{
@@ -554,9 +530,7 @@ const EditSalesOrder = () => {
           >
             <Attachments />
           </ObjectPageSection>
-          {/* );
-                    } else if (tab.name === "user-defined-field") {
-                        return ( */}
+          
           <ObjectPageSection
             id="section6"
             style={{
@@ -566,13 +540,9 @@ const EditSalesOrder = () => {
           >
             <UserDefinedFields form={form} handleChange={handleChange} />
           </ObjectPageSection>
-          {/* );
-                    }
-                })
-             
-            } */}
+         
         </ObjectPage>
-      )}
+     </BusyIndicator>
       <Dialog open={open} onAfterClose={() => setOpen(false)}>
         <div
           style={{
