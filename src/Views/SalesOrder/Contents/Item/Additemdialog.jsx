@@ -59,7 +59,7 @@ const Additemdialog = (props) => {
   } = props;
   const [itemchildrowSelection, setitemChildRowSelection] = useState([]);
   const [rowSelection, setRowSelection] = useState([]);
-  const [tableData, settableData] = useState(itempopupData);
+  const [originalItemData, setOriginalItemData] = useState([]);
   const onitemchildRowSelect = (e) => {
     console.log(
       "onRowSelect",
@@ -74,7 +74,13 @@ const Additemdialog = (props) => {
       [e.detail.row.original.slno]: e.detail.row.original,
     }));
   };
-
+useEffect(() => {
+  console.log("itemdatauseefect1",originalItemData)
+  if (addItemdialogOpen) {
+    console.log("itemdatauseefect",itemdata)
+    setOriginalItemData(itemdata);  // backup (for reset/clear filter)
+  }
+}, [addItemdialogOpen]);
   // useEffect(() => {
   //   if (mode === "edit" && itemTabledata && itemTabledata.length > 0) {
   //     const selected = {};
@@ -205,9 +211,15 @@ const Additemdialog = (props) => {
       setRowSelection(preselected);
     }
   }, [itemdata, itemTabledata]);
-  const clearFilter = () => {
-    console.log("itemdataafterclearfilter",itemdata)
-  };
+
+const clearFilter = () => {
+  const clearedFilters = {};
+  // ItemPopupFilterList.forEach((field) => {
+  //   clearedFilters[field.name] = ""; // reset each input field
+  // });
+  console.log("originalItemData",originalItemData)
+  setitemData(originalItemData);
+};
   return (
     <Dialog
       headerText="Item Details"

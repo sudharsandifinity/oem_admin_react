@@ -233,23 +233,18 @@ export default function SalesOrder() {
   }, [formId]);
   return (
     <>
-      {loading ? (
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column", // stack indicator + message vertically
-            alignItems: "center", // center horizontally
-            justifyContent: "center", // center vertically
-            height: "90vh", // take full viewport height
-            width: "100%", // take full width
-          }}
-        >
-          <BusyIndicator active size="M" />
-          <span style={{ marginTop: "1rem", fontSize: "1rem", color: "#555" }}>
-            Submitting your request… please wait.🚀
-          </span>
-        </div>
-      ) : (
+      <BusyIndicator
+                  style={{
+                    position: "fixed",
+                    top: 0,
+                    left: 0,
+                    width: "100%",
+                    height: "100%",
+                    zIndex: 1000,
+                    backgroundColor: "rgba(241, 243, 248, 0.8)",
+                  }}
+                  active={loading}
+                >
         <ObjectPage
           footerArea={
             <>
@@ -333,10 +328,10 @@ export default function SalesOrder() {
                       Home
                     </BreadcrumbsItem>
                     <BreadcrumbsItem data-route={`/Sales/${formId}`}>
-                      Manage Sales Order
+                      Sales Order list
                     </BreadcrumbsItem>
                     <BreadcrumbsItem>
-                      {formDetails ? formDetails[0]?.name : "Sales Order"}
+                      {formDetails ? "Create "+formDetails[0]?.name : "Create Sales Order"}
                     </BreadcrumbsItem>
                   </Breadcrumbs>
                 </>
@@ -477,7 +472,7 @@ export default function SalesOrder() {
         }
       }) */}
         </ObjectPage>
-      )}
+     </BusyIndicator>
       <Dialog open={open} onAfterClose={() => setOpen(false)}>
         <div
           style={{

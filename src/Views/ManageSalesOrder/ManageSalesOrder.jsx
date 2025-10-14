@@ -31,10 +31,12 @@ import { HeaderFilterBar } from "./HeaderFilterBar";
 import ItemViewPage from "../SalesOrder/Contents/Item/ItemViewPage";
 import ViewSalesOrder from "./ViewSalesOrder";
 import { useDispatch, useSelector } from "react-redux";
-import { deleteCustomerOrder, fetchBusinessPartner, fetchCustomerOrder } from "../../store/slices/CustomerOrderSlice";
+import {
+  deleteCustomerOrder,
+  fetchBusinessPartner,
+  fetchCustomerOrder,
+} from "../../store/slices/CustomerOrderSlice";
 import TopNav from "../../Components/Header/TopNav";
-
-
 
 const ManageSalesOrder = () => {
   const {
@@ -44,6 +46,12 @@ const ManageSalesOrder = () => {
   } = useContext(FormConfigContext);
   const dispatch = useDispatch();
 
+  const [filters, setFilters] = useState({
+    FromDate: "",
+    ToDate: "",
+  });
+
+  const [isClearFilter, setisClearFilter] = useState(false);
   const { companyformfield } = useSelector((state) => state.companyformfield);
   const { companyformfielddata } = useSelector(
     (state) => state.companyformfielddata
@@ -62,7 +70,7 @@ const ManageSalesOrder = () => {
   const settabledata = (customerorder) => {
     if (customerorder?.length > 0) {
       const tableconfig = customerorder.map((item) => ({
-        DocEntry:item.DocEntry,
+        DocEntry: item.DocEntry,
         CustomerCode: item.CardCode,
         CustomerName: item.CardName,
         DocumentNo: item.DocNum,
@@ -87,11 +95,9 @@ const ManageSalesOrder = () => {
         console.log("resusers", res);
         setFormConfig(res);
 
-
         // setTableConfig(res);
         //dispatch(fetchcompanyformfielddata())
         //
-
 
         // setTableConfig(res);
         //dispatch(fetchcompanyformfielddata())
@@ -133,7 +139,6 @@ const ManageSalesOrder = () => {
   // const [tableData, settableData] = useState(ManageSalesOderHeaderField);
   const [viewItem, setViewItem] = useState([]);
 
-
   const navigate = useNavigate();
   const [layout, setLayout] = useState("OneColumn");
   const [rowSelection, setRowSelection] = useState({});
@@ -157,15 +162,13 @@ const ManageSalesOrder = () => {
       })),
   ];
   const editRow = async (rowData) => {
-    console.log("rowData", rowData)
-    navigate("/SalesOrder/edit/" + formId+"/"+rowData.DocEntry
-    );
-  }
-  const viewRow =async(rowData)=>{
-     console.log("rowData", rowData)
-    navigate("/SalesOrder/view/" + formId+"/"+rowData.DocEntry
-    );
-  }
+    console.log("rowData", rowData);
+    navigate("/SalesOrder/edit/" + formId + "/" + rowData.DocEntry);
+  };
+  const viewRow = async (rowData) => {
+    console.log("rowData", rowData);
+    navigate("/SalesOrder/view/" + formId + "/" + rowData.DocEntry);
+  };
   const handleDelete = async (company) => {
     if (window.confirm(`Are you sure to delete user: ${company.name}?`)) {
       try {
@@ -178,7 +181,7 @@ const ManageSalesOrder = () => {
       }
     }
   };
-  
+
   const columns = useMemo(
     () => [
       ...ManageSalesOrderTableCols,
@@ -196,18 +199,21 @@ const ManageSalesOrder = () => {
           const { cell, row, webComponentsReactProperties } = instance;
           const isOverlay = webComponentsReactProperties.showOverlay;
           return (
-            <FlexBox alignItems="Center" direction="Row" justifyContent="Center">
+            <FlexBox
+              alignItems="Center"
+              direction="Row"
+              justifyContent="Center"
+            >
               <Button
                 icon="edit"
                 disabled={isOverlay}
                 design="Transparent"
-
                 onClick={() => {
                   editRow(row.original);
                 }}
-              // onClick={() => editRow(row)}
+                // onClick={() => editRow(row)}
               />
-             {/* <Button
+              {/* <Button
                 icon="sap-icon://delete"
                 disabled={isOverlay}
                 design="Transparent"
@@ -220,25 +226,23 @@ const ManageSalesOrder = () => {
                 icon="sap-icon://show"
                 disabled={isOverlay}
                 design="Transparent"
-
                 onClick={() => {
                   //setLayout("TwoColumnsMidExpanded");
-                  viewRow(row.original)
+                  viewRow(row.original);
                   //setViewItem(row.original);
                 }}
-              // onClick={() => editRow(row)}
+                // onClick={() => editRow(row)}
               />
               <Button
                 icon="sap-icon://navigation-right-arrow"
                 disabled={isOverlay}
                 design="Transparent"
-
                 onClick={() => {
                   setLayout("TwoColumnsMidExpanded");
                   //viewRow(row.original)
                   setViewItem(row.original);
                 }}
-              // onClick={() => editRow(row)}
+                // onClick={() => editRow(row)}
               />
             </FlexBox>
           );
@@ -247,14 +251,64 @@ const ManageSalesOrder = () => {
     ],
     [ManageSalesOrderTableCols]
   );
-  const handleChange = (e) => {
-    console.log("e", e);
+  // const handleChange = (e,fieldname) => {
+  //   console.log("e", e);
+  //   const filteredList = tableData&&tableData.filter((item) => {
+  //     return item[fieldname]
+  //       ?.toString()
+  //       .toLowerCase()
+  //       .includes(e.detail.item.innerHTML.toLowerCase());
+  //   });
+  //   console.log("filteredList", filteredList);
+  //   console.log("selectedItem", e.detail.item.innerHTML, tableData, fieldname);
+  //   settableData(filteredList);
+  //   //setInputValue(e.detail.item.innerHTML);
+  // };
+
+  const handleChange = (e, fieldname) => {
+    // Extract current value (from UI5 component)
+    const value = e.detail?.item?.innerHTML || e.detail?.value || "";
+    console.log("handledata", value);
+    // If you're tracking both dates in state
+    setFilters((prev) => {
+      const updatedFilters = { ...prev, [fieldname]: value };
+      console.log("updatedFilters", updatedFilters);
+      // When both dates are available — filter tableData by CreationDate
+      if (updatedFilters.FromDate && updatedFilters.ToDate) {
+        const from = new Date(updatedFilters.FromDate);
+        const to = new Date(updatedFilters.ToDate);
+
+        const filteredList =
+          tableData?.filter((item) => {
+            const itemDate = new Date(item.PostingDate); // change field if needed
+            console.log("itemDate", itemDate, item);
+            return itemDate >= from && itemDate <= to;
+          }) || [];
+
+        settableData(filteredList);
+        console.log("Filtered by date:", filteredList);
+      }
+
+      // For other (non-date) fields, run your text-based filter
+      else if (fieldname !== "FromDate" && fieldname !== "ToDate") {
+        const filteredList =
+          tableData?.filter((item) =>
+            item[fieldname]
+              ?.toString()
+              .toLowerCase()
+              .includes(value.toLowerCase())
+          ) || [];
+
+        settableData(filteredList);
+        console.log("Filtered by field:", filteredList);
+      }
+
+      return updatedFilters;
+    });
   };
+
   const { formId, childId } = useParams();
   const [formConfig, setFormConfig] = useState(null);
-
-
-
 
   // if (!formConfig) return <div>Loading form...</div>;
   return (
@@ -296,68 +350,57 @@ const ManageSalesOrder = () => {
                       tableData={tableData}
                       settableData={settableData}
                       handleChange={handleChange}
+                      filters={filters}
+                      setFilters={setFilters}
+                      customerorder={customerorder}
+                      isClearFilter={isClearFilter}
+                      setisClearFilter={setisClearFilter}
                     />
                   );
                 })}
-
               </Grid>
-              <Button style={{width:"100px"}}  onClick={() => settabledata(customerorder)} >Clear Filter</Button></FlexBox>
+              <Button
+                style={{ width: "100px" }}
+                onClick={() => {
+                  setisClearFilter(true);
+                  settabledata(customerorder);
+                  setFilters({
+                    FromDate: "",
+                    ToDate: "",
+                  });
+                }}
+              >
+                Clear Filter
+              </Button>
+            </FlexBox>
           </DynamicPageHeader>
         }
-        onPinButtonToggle={function Xs() { }}
-        onTitleToggle={function Xs() { }}
+        onPinButtonToggle={function Xs() {}}
+        onTitleToggle={function Xs() {}}
         style={{
           height: "700px",
         }}
         titleArea={
           <DynamicPageTitle
-            actionsBar={
-              <Toolbar design="Transparent">
-                <ToolbarButton
-                  design="Emphasized"
-                  onClick={() => navigate("/SalesOrder/create/" + formId)}
-                  text="Create"
-                />
-              </Toolbar>
-            }
             breadcrumbs={
-              <Breadcrumbs design="Standard"
+              <Breadcrumbs
+                design="Standard"
                 separators="Slash"
                 onItemClick={(e) => {
                   const route = e.detail.item.dataset.route;
                   if (route) navigate(route);
-                }}>
-                <BreadcrumbsItem data-route="/UserDashboard">Home</BreadcrumbsItem>
-                <BreadcrumbsItem>Manage Sales Order</BreadcrumbsItem>
-              </Breadcrumbs>
-            }
-            heading={
-              <Title
-                style={{ fontSize: "var(--sapObjectHeader_Title_FontSize)" }}
-              >Manage Sales Order
-                {/* {formConfig && formConfig.display_name} */}
-              </Title>
-            }
-            navigationBar={
-              <Toolbar design="Transparent">
-                <ToolbarButton onClick={() => navigate("/UserDashboard")} design="Transparent" icon="decline" />
-              </Toolbar>
-            }
-            snappedHeading={
-              <Title
-                style={{
-                  fontSize: "var(--sapObjectHeader_Title_SnappedFontSize)",
                 }}
               >
-                {/* {formConfig && formConfig.display_name} */}
-                Manage Sales Order
-              </Title>
+                <BreadcrumbsItem data-route="/UserDashboard">
+                  Home
+                </BreadcrumbsItem>
+                <BreadcrumbsItem>Sales Order List</BreadcrumbsItem>
+              </Breadcrumbs>
             }
           ></DynamicPageTitle>
         }
       >
         <div className="tab">
-
           <div>
             <FlexibleColumnLayout
               // style={{ height: "600px" }}
@@ -365,14 +408,30 @@ const ManageSalesOrder = () => {
               startColumn={
                 <FlexBox direction="Column">
                   <div>
-                    <FlexBox direction="Column">{console.log("tableDataanaly", tableData)}
+                    <FlexBox direction="Column">
+                      {console.log("tableDataanaly", tableData)}
+                      <FlexBox style={{ justifyContent: "end" }}>
+                        <Toolbar design="Transparent">
+                          <ToolbarButton
+                            design="Emphasized"
+                            onClick={() =>
+                              navigate("/SalesOrder/create/" + formId)
+                            }
+                            text="Create"
+                          />
+                        </Toolbar>
+                      </FlexBox>
                       <AnalyticalTable
                         columns={columns.length > 0 ? columns : []}
                         data={loading ? placeholderRows : tableData}
                         header={`(Sales Order - ${tableData.length})`}
                         loading={loading}
                         showOverlay={loading}
-                        noDataText={loading ? "Loading sales orders..." : "No sales orders found"}
+                        noDataText={
+                          loading
+                            ? "Loading sales orders..."
+                            : "No sales orders found"
+                        }
                         sortable
                         filterable
                         visibleRows={10}
@@ -383,15 +442,15 @@ const ManageSalesOrder = () => {
                         groupable
                         // header="Table Title"
                         infiniteScroll
-                        onGroup={() => { }}
-                        onLoadMore={() => { }}
+                        onGroup={() => {}}
+                        onLoadMore={() => {}}
                         onRowClick={(event) => {
                           console.log("Row::", event.detail.row.original._id);
                           //previewFormInModal(event.detail.row.original._id);
                         }}
-                        onRowExpandChange={() => { }}
-                        onSort={() => { }}
-                        onTableScroll={() => { }}
+                        onRowExpandChange={() => {}}
+                        onSort={() => {}}
+                        onTableScroll={() => {}}
                         // selectedRowIds={{
                         //     3: true,
                         // }}

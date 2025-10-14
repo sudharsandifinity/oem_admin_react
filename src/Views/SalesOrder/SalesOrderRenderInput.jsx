@@ -71,6 +71,7 @@ export const SalesOrderRenderInput = (
           <Input
             value={value}
             name={field.field_name}
+            style={{width:"300px"}}
             onInput={(e) => handleChange(e, field.field_name, formName)}
             type={field.input_type}
           ></Input>
@@ -100,7 +101,7 @@ export const SalesOrderRenderInput = (
             //onInput={(e) => handleChange(e, field.field_name,formName)}
             type={field.input_type}
             style={{
-              width: "430px",
+              width: "380px",
             }}
           >
             {productCollection.map((item, idx) => (

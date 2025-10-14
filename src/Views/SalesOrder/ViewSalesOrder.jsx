@@ -316,23 +316,18 @@ console.log("setitemeditpage",item,matched)
   }, [formId]);
   return (
     <>
-      {loading ? (
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column", // stack indicator + message vertically
-            alignItems: "center", // center horizontally
-            justifyContent: "center", // center vertically
-            height: "90vh", // take full viewport height
-            width: "100%", // take full width
-          }}
-        >
-          <BusyIndicator active size="M" />
-          <span style={{ marginTop: "1rem", fontSize: "1rem", color: "#555" }}>
-            Loading please wait.🚀
-          </span>
-        </div>
-      ) : (
+      <BusyIndicator
+                 style={{
+                   position: "fixed",
+                   top: 0,
+                   left: 0,
+                   width: "100%",
+                   height: "100%",
+                   zIndex: 1000,
+                   backgroundColor: "rgba(241, 243, 248, 0.8)",
+                 }}
+                 active={loading}
+               >
         <ObjectPage
           footerArea={
             <>
@@ -342,14 +337,12 @@ console.log("setitemeditpage",item,matched)
                 design="FloatingFooter"
                 endContent={
                   <>
-                    <Button design="Positive" onClick={() => handleSubmit()}>
-                      Update
-                    </Button>
+                
                     <Button
                       design="Positive"
                       onClick={() => navigate(`/Sales/${formId}`)}
                     >
-                      Cancel
+                      Close
                     </Button>
                   </>
                 }
@@ -416,10 +409,10 @@ console.log("setitemeditpage",item,matched)
                       Home
                     </BreadcrumbsItem>
                     <BreadcrumbsItem data-route={`/Sales/${formId}`}>
-                      Manage Sales Order
+                      Sales Order list
                     </BreadcrumbsItem>
                     <BreadcrumbsItem>
-                      {formDetails ? formDetails[0]?.name : "Sales Order"}
+                      {formDetails ? "Create "+formDetails[0]?.name : "Create Sales Order"}
                     </BreadcrumbsItem>
                   </Breadcrumbs>
                 </>
@@ -462,14 +455,14 @@ console.log("setitemeditpage",item,matched)
             style={{ height: "100%" }}
             titleText="General"
           >
-            <General
+            {!loading&&<General
               onSubmit={handleSubmit}
               setFormData={setFormData}
               formData={formData}
               defaultValues={formData} // ✅ now passes edit data properly
               apiError={apiError}
               mode="view"
-            />
+            />}
             {/* <General
                                         onSubmit={handleSubmit}
                                         setFormData={setFormData}
@@ -571,7 +564,7 @@ console.log("setitemeditpage",item,matched)
              
             } */}
         </ObjectPage>
-      )}
+      </BusyIndicator>
       <Dialog open={open} onAfterClose={() => setOpen(false)}>
               <div
                 style={{

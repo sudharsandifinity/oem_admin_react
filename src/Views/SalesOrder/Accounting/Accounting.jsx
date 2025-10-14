@@ -37,7 +37,7 @@ const Accounting = () => {
         >
           Accounting
         </label>
-      <Form labelSpan="S12 M3 L6 XL6" layout="S1 M1 L2 XL2">
+      <Form labelSpan="S12 M4 L6 XL6" layout="S2 M2 L2 XL2">
         <FormGroup>
           <FlexBox style={{ display: "flex", gap: "2rem" }}>
             {/* Left Column */}
