@@ -21,9 +21,11 @@ export const fetchBusinessPartner = createAsyncThunk(
 // ✅ Fetch All Orders
 export const fetchCustomerOrder = createAsyncThunk(
   'customerorder/fetchAll',
-  async (_, thunkApi) => {
+  async ({ top = 20, skip = 0 }, thunkApi) => {
     try {
-      const response = await api.get(API_URL, { withCredentials: true });
+      const response = await api.get(`/sap/orders?top=${top}&skip=${skip}`, {
+        withCredentials: true
+      });
       return response.data.value;
     } catch (error) {
       return thunkApi.rejectWithValue(error.response?.data || 'Error fetching orders');

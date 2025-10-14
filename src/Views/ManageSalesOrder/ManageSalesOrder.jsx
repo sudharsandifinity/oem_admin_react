@@ -80,39 +80,64 @@ const ManageSalesOrder = () => {
       settableData(tableconfig);
     }
   };
-  useEffect(() => {
-    settabledata(customerorder);
-  }, [customerorder]);
+  // useEffect(() => {
+  //   settabledata(customerorder);
+  // }, [customerorder]);
   console.log("fetchCustomerOrder", customerorder);
+  // useEffect(() => {
+  //   //dispatch(fetchBranch());
+  //   //dispatch(fetchCompanies());
+  //   const fetchData = async () => {
+  //     try {
+  //       const res = await dispatch(fetchCustomerOrder()).unwrap();
+  //       dispatch(fetchBusinessPartner()).unwrap();
+
+  //       console.log("resusers", res);
+  //       setFormConfig(res);
+
+
+  //       // setTableConfig(res);
+  //       //dispatch(fetchcompanyformfielddata())
+  //       //
+
+
+  //       // setTableConfig(res);
+  //       //dispatch(fetchcompanyformfielddata())
+  //       //
+
+  //       if (res.message === "Please Login!") {
+  //         navigate("/");
+  //       }
+  //     } catch (err) {
+  //       console.log("Failed to fetch user", err.message);
+  //       err.message && navigate("/");
+  //     }
+  //   };
+  //   fetchData();
+  // }, [dispatch]);
+
   useEffect(() => {
-    //dispatch(fetchBranch());
-    //dispatch(fetchCompanies());
-    const fetchData = async () => {
-      try {
-        const res = await dispatch(fetchCustomerOrder()).unwrap();
-        dispatch(fetchBusinessPartner()).unwrap();
+  const fetchInitial = async () => {
+    try {
+      const res = await dispatch(fetchCustomerOrder({ top: pageSize, skip: 0 })).unwrap();
+      const initialData = res.map(item => ({
+        DocEntry: item.DocEntry,
+        CustomerCode: item.CardCode,
+        CustomerName: item.CardName,
+        DocumentNo: item.DocNum,
+        PostingDate: item.CreationDate,
+        Status: item.DocumentStatus,
+      }));
+      settableData(initialData);
+      setPage(1);
+    } catch (err) {
+      console.error("Initial load failed", err);
+    }
+  };
 
-        console.log("resusers", res);
-        setFormConfig(res);
+  fetchInitial();
+}, []);
 
-        // setTableConfig(res);
-        //dispatch(fetchcompanyformfielddata())
-        //
-
-        // setTableConfig(res);
-        //dispatch(fetchcompanyformfielddata())
-        //
-
-        if (res.message === "Please Login!") {
-          navigate("/");
-        }
-      } catch (err) {
-        console.log("Failed to fetch user", err.message);
-        err.message && navigate("/");
-      }
-    };
-    fetchData();
-  }, [dispatch]);
   // const ManageSalesOderHeaderField = companyformfield.filter(
   //   (c) => c.Form?.name === "M_SO"
   // );
@@ -142,6 +167,10 @@ const ManageSalesOrder = () => {
   const navigate = useNavigate();
   const [layout, setLayout] = useState("OneColumn");
   const [rowSelection, setRowSelection] = useState({});
+  const [page, setPage] = useState(0);
+  const pageSize = 20;
+  const [allLoaded, setAllLoaded] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   const onRowSelect = (e) => {
     console.log("onRowSelect", e.detail.row.original);
@@ -162,26 +191,16 @@ const ManageSalesOrder = () => {
       })),
   ];
   const editRow = async (rowData) => {
-    console.log("rowData", rowData);
-    navigate("/SalesOrder/edit/" + formId + "/" + rowData.DocEntry);
-  };
-  const viewRow = async (rowData) => {
-    console.log("rowData", rowData);
-    navigate("/SalesOrder/view/" + formId + "/" + rowData.DocEntry);
-  };
-  const handleDelete = async (company) => {
-    if (window.confirm(`Are you sure to delete user: ${company.name}?`)) {
-      try {
-        const res = await dispatch(deleteCustomerOrder(company.id)).unwrap();
-        if (res.message === "Please Login!") {
-          navigate("/login");
-        }
-      } catch (error) {
-        console.error("Error deleting company:", error);
-      }
-    }
-  };
-
+    console.log("rowData", rowData)
+    navigate("/SalesOrder/edit/" + formId+"/"+rowData.DocEntry
+    );
+  }
+  const viewRow =async(rowData)=>{
+     console.log("rowData", rowData)
+    navigate("/SalesOrder/view/" + formId+"/"+rowData.DocEntry
+    );
+  }
+   
   const columns = useMemo(
     () => [
       ...ManageSalesOrderTableCols,
@@ -423,15 +442,11 @@ const ManageSalesOrder = () => {
                       </FlexBox>
                       <AnalyticalTable
                         columns={columns.length > 0 ? columns : []}
-                        data={loading ? placeholderRows : tableData}
+                        data={tableData}
                         header={`(Sales Order - ${tableData.length})`}
-                        loading={loading}
-                        showOverlay={loading}
-                        noDataText={
-                          loading
-                            ? "Loading sales orders..."
-                            : "No sales orders found"
-                        }
+                        loading={page === 0 && loading}
+                        showOverlay={page === 0 && loading}
+                        noDataText={loading ? "Loading sales orders..." : "No sales orders found"}
                         sortable
                         filterable
                         visibleRows={10}
@@ -442,8 +457,41 @@ const ManageSalesOrder = () => {
                         groupable
                         // header="Table Title"
                         infiniteScroll
-                        onGroup={() => {}}
-                        onLoadMore={() => {}}
+                        onGroup={() => { }}
+                        onLoadMore={async () => {
+                          if (isLoadingMore || allLoaded) return;
+
+                          setIsLoadingMore(true);
+
+                          try {
+                            const res = await dispatch(
+                              fetchCustomerOrder({ top: pageSize, skip: page * pageSize })
+                            ).unwrap();
+
+                            if (res.length < pageSize) {
+                              setAllLoaded(true);
+                            }
+
+                            const newRecords = res.map(item => ({
+                              DocEntry: item.DocEntry,
+                              CustomerCode: item.CardCode,
+                              CustomerName: item.CardName,
+                              DocumentNo: item.DocNum,
+                              PostingDate: item.CreationDate,
+                              Status: item.DocumentStatus,
+                            }));
+
+                            settableData(prev => [...prev, ...newRecords]);
+                            setPage(prev => prev + 1);
+                          } catch (error) {
+                            console.error("Load more failed", error);
+                          } finally {
+                            setIsLoadingMore(false);
+                          }
+                        }}
+
+
+
                         onRowClick={(event) => {
                           console.log("Row::", event.detail.row.original._id);
                           //previewFormInModal(event.detail.row.original._id);
