@@ -10,7 +10,7 @@ const HeaderFilterDialog = (props) => {
             open={filterdialogOpen}
             // style={{ width: "100px" }}
             onAfterClose={() => setFilterDialogOpen(false)}
-            footer={<Button onClick={() => setFilterDialogOpen(false)}>Close</Button>}
+            footer={<div style={{paddingBottom: '2px', paddingTop: '6px'}}><Button style={{width: '100px', height: '40px'}} onClick={() => setFilterDialogOpen(false)}>Close</Button></div>}
           >
             <List onItemClick={(e)=>handleDialogItemClick(e,fieldName)}>
               

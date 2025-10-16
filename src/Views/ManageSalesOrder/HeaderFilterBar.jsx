@@ -90,18 +90,12 @@ useEffect(()=>{
     case "date":
       return (
         <FlexBox direction="Column">
-          <Label>From Date</Label>
+          <Label>{field.DisplayName}</Label>
           <DatePicker
-            name="FromDate"
-            value={filters.FromDate}
-            onChange={(e) => handleChange(e, "FromDate")}
-          />
-          <Label>To Date</Label>
-
-          <DatePicker
-            name="ToDate"
-            value={filters.ToDate}
-            onChange={(e) => handleChange(e, "ToDate")}
+            value={value}
+            formatPattern="dd-MM-YYYY"
+            placeholder="DD-MM-YYYY"
+            onInput={(e) => handleChange(e, field.FieldName)}
           />
         </FlexBox>
       );
@@ -167,7 +161,7 @@ useEffect(()=>{
             }
             name={field.FieldName}
             value={inputvalue}
-            style={{ width: "180px" }}
+            style={{ width: "250px" }}
             onInput={(e) => {
               console.log("selectVal", e.target.value);
               handleChange(e, field.FieldName);
