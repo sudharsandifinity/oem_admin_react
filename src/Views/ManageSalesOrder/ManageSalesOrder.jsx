@@ -348,13 +348,7 @@ const ManageSalesOrder = () => {
         }
         headerArea={
           <DynamicPageHeader>
-            <FlexBox direction="Row">
-              <Grid
-                defaultIndent="XL0 L0 M1 S0"
-                defaultSpan="XL3 L2 M6 S12"
-                hSpacing="1rem"
-                vSpacing="1rem"
-              >
+            <FlexBox direction="Row" style={{display: 'inline-flex', alignItems: 'end', flexWrap: 'wrap', gap: '15px'}}>
                 {ManageSalesOderHeaderField.map((field) => {
                   const filteredData = {
                     inputType: field.input_type,
@@ -377,9 +371,8 @@ const ManageSalesOrder = () => {
                     />
                   );
                 })}
-              </Grid>
               <Button
-                style={{ width: "100px" }}
+                style={{ width: "100px", marginBottom: '2px' }}
                 onClick={() => {
                   setisClearFilter(true);
                   settabledata(customerorder);
@@ -413,9 +406,11 @@ const ManageSalesOrder = () => {
                 <BreadcrumbsItem data-route="/UserDashboard">
                   Home
                 </BreadcrumbsItem>
-                <BreadcrumbsItem>Sales Order List</BreadcrumbsItem>
+                <BreadcrumbsItem>Sales Orders</BreadcrumbsItem>
               </Breadcrumbs>
             }
+            heading={<Title>Sales Orders</Title>}
+            snappedHeading={<Title>Sales Orders</Title>}
           ></DynamicPageTitle>
         }
       >
@@ -428,25 +423,27 @@ const ManageSalesOrder = () => {
                 <FlexBox direction="Column">
                   <div>
                     <FlexBox direction="Column">
-                      {console.log("tableDataanaly", tableData)}
-                      <FlexBox style={{ justifyContent: "end" }}>
-                        <Toolbar design="Transparent">
-                          <ToolbarButton
-                            design="Emphasized"
-                            onClick={() =>
-                              navigate("/SalesOrder/create/" + formId)
-                            }
-                            text="Create"
-                          />
-                        </Toolbar>
-                      </FlexBox>
                       <AnalyticalTable
                         columns={columns.length > 0 ? columns : []}
                         data={tableData}
-                        header={`(Sales Order - ${tableData.length})`}
+                        // header={`(Sales Order - ${tableData.length})`}
+                        header={
+                          <FlexBox justifyContent="SpaceBetween" alignItems="Center" style={{width: '100%', padding: '4px 10px'}}>
+                            <Title style={{minWidth: '150px'}}>{`(Sales Order - ${tableData.length})`}</Title>
+                            <Toolbar design="Transparent" style={{border: 'none'}}>
+                              <ToolbarButton
+                                design="Default"
+                                onClick={() =>
+                                  navigate("/SalesOrder/create/" + formId)
+                                }
+                                text="Create"
+                              />
+                            </Toolbar>
+                          </FlexBox>
+                        }
                         loading={page === 0 && loading}
                         showOverlay={page === 0 && loading}
-                        noDataText={loading ? "Loading sales orders..." : "No sales orders found"}
+                        noDataText={loading ? "Loading data..." : "No data found!"}
                         sortable
                         filterable
                         visibleRows={10}
