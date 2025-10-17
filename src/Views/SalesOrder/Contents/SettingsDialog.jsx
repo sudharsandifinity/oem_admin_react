@@ -12,7 +12,7 @@ const SettingsDialog = (props) => {
             footer={<Button onClick={() => setSettingsDialogOpen(false)}>Close</Button>}
           >
             <List onSelectionChange={handleSettingsListClick} selectionMode="Multiple">
-              {dynamicColumnslist.map((item, idx) => (
+              {dynamicColumnslist&&dynamicColumnslist.map((item, idx) => (
                 <ListItemStandard key={idx}>{item.accessor}</ListItemStandard>
               ))}
             </List>

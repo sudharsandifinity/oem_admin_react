@@ -94,64 +94,47 @@ const CardDialog = ({
       onAfterClose={handleCardDialogClose}
       style={{ width: "70vw", height: "70vh" }}
     >
-      <FlexBox direction="Column">
+       <FlexBox direction="Column">
         <FlexBox direction="Row" style={{ padding: "0.5rem", gap: "2rem" }}>
-          <FlexBox direction="Column">
-            <Label>CardCode</Label>
-            {console.log("inputValue.CardCode ", inputValue)}
-            <Select
-              onChange={(e) => handleFilterChange(e, "CardCode")}
-              value={inputValue.CardCode || ""}
-              valueState="None"
-            >
-              <Option value="">Select</Option>
-              {generalData &&
-                generalData.map((data, index) => (
-                  <Option key={index} value={data.CardCode}>
-                    {data.CardCode}
-                  </Option>
-                ))}
-            </Select>
+          <FlexBox direction="Column"> <Label>Card Code</Label>
+          <Select
+            onChange={(e) => handleFilterChange(e, "CardCode")}
+            value={inputValue.CardCode || ""}
+          >
+            <Option value=""></Option>
+            {originalGeneralData.map((data, index) => (
+              <Option key={index} value={data.CardCode}>
+                {data.CardCode}
+              </Option>
+            ))}
+          </Select>
           </FlexBox>
-
-          <FlexBox direction="Column">
-            <Label>Card Name</Label>
-            <Select
-              onChange={(e) => handleFilterChange(e, "CardName")}
-              onClose={function Xs() {}}
-              onLiveChange={function Xs() {}}
-              onOpen={function Xs() {}}
-              value={inputValue.CardName || ""}
-              valueState="None"
-            >
-              <Option>Select</Option>
-              {generalData &&
-                generalData.map((data, index) => (
-                  <Option key={index} value={data.CardName}>
-                    {data.CardName}
-                  </Option>
-                ))}
-            </Select>
+<FlexBox direction="Column"> <Label>Card Name</Label>
+          <Select
+            onChange={(e) => handleFilterChange(e, "CardName")}
+            value={inputValue.CardName || ""}
+          >
+            <Option value=""></Option>
+            {originalGeneralData.map((data, index) => (
+              <Option key={index} value={data.CardName}>
+                {data.CardName}
+              </Option>
+            ))}
+          </Select>
           </FlexBox>
-          <FlexBox direction="Column">
-            <Label>Contact Person</Label>
-            <Select
-              onChange={(e) => handleFilterChange(e, "ContactPerson")}
-              onClose={function Xs() {}}
-              onLiveChange={function Xs() {}}
-              onOpen={function Xs() {}}
-              value={inputValue.ContactPerson || ""}
-              valueState="None"
-            >
-              <Option>Select</Option>
-              {generalData &&
-                generalData.map((data, index) => (
-                  <Option key={index} value={data.ContactPerson}>
-                    {data.ContactPerson}
-                  </Option>
-                ))}
-            </Select>
-          </FlexBox>
+<FlexBox direction="Column"> <Label>Contact Person</Label>
+          <Select
+            onChange={(e) => handleFilterChange(e, "ContactPerson")}
+            value={inputValue.ContactPerson || ""}
+          >
+            <Option value=""></Option>
+            {originalGeneralData.map((data, index) => (
+              <Option key={index} value={data.ContactPerson}>
+                {data.ContactPerson}
+              </Option>
+            ))}
+          </Select>
+</FlexBox>
           {console.log("originalGeneralData", originalGeneralData)}
           <Button
             style={{ width: "100px" }}
@@ -171,11 +154,11 @@ const CardDialog = ({
           onRowSelect={handleSelectionChange}
           getRowProps={(row) => ({
             onDoubleClick: () => handleOk(row),
-            style: { cursor: "pointer" }, // optional: visual cue
+            style: { cursor: "pointer" },
           })}
-          style={{ height: "100%" }}
         />
       </FlexBox>
+
     </Dialog>
   );
 };

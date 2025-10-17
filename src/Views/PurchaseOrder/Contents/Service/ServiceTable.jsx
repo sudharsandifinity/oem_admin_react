@@ -79,7 +79,7 @@ const ServiceTable = (props) => {
   const handleSettingsListClick = (event) => {
     const selectedServices = event.detail.selectedItems;
 
-    // Extract text or values from selected ListServiceStandard components
+    // Extract text or values from selected ListItemeStandard components
     const selectedAccessors = selectedServices.map((service) =>
       service.textContent.trim()
     );

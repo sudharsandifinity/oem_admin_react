@@ -56,7 +56,11 @@ const Additemdialog = (props) => {
     itemTabledata,
     mode,
     itempopupdata,
+    isAddnewRow,
+    inputvalue,
+    setInputValue,
   } = props;
+
   const [itemchildrowSelection, setitemChildRowSelection] = useState([]);
   const [rowSelection, setRowSelection] = useState([]);
   const [originalItemData, setOriginalItemData] = useState([]);
@@ -74,13 +78,13 @@ const Additemdialog = (props) => {
       [e.detail.row.original.slno]: e.detail.row.original,
     }));
   };
-useEffect(() => {
-  console.log("itemdatauseefect1",originalItemData)
-  if (addItemdialogOpen) {
-    console.log("itemdatauseefect",itemdata)
-    setOriginalItemData(itemdata);  // backup (for reset/clear filter)
-  }
-}, [addItemdialogOpen]);
+  useEffect(() => {
+    console.log("itemdatauseefect1", originalItemData);
+    if (addItemdialogOpen) {
+      console.log("itemdatauseefect", itemdata);
+      setOriginalItemData(itemdata); // backup (for reset/clear filter)
+    }
+  }, [addItemdialogOpen]);
   // useEffect(() => {
   //   if (mode === "edit" && itemTabledata && itemTabledata.length > 0) {
   //     const selected = {};
@@ -207,19 +211,23 @@ useEffect(() => {
           preselected[row.slno] = row;
         }
       });
-
-      setRowSelection(preselected);
+      if (isAddnewRow) {
+        setRowSelection([]);
+      } else {
+        setRowSelection(preselected);
+      }
     }
   }, [itemdata, itemTabledata]);
 
-const clearFilter = () => {
-  const clearedFilters = {};
-  // ItemPopupFilterList.forEach((field) => {
-  //   clearedFilters[field.name] = ""; // reset each input field
-  // });
-  console.log("originalItemData",originalItemData)
-  setitemData(originalItemData);
-};
+  const clearFilter = () => {
+    const clearedFilters = {};
+    // ItemPopupFilterList.forEach((field) => {
+    //   clearedFilters[field.name] = ""; // reset each input field
+    // });
+    console.log("originalItemData", originalItemData);
+    setInputValue([]);
+    setitemData(originalItemData);
+  };
   return (
     <Dialog
       headerText="Item Details"
@@ -227,12 +235,22 @@ const clearFilter = () => {
       onAfterClose={() => setAddItemDialogOpen(false)}
       footer={
         <FlexBox direction="Row" gap={2}>
-          <Button onClick={() => setAddItemDialogOpen(false)}>Close</Button>
+          <Button
+            onClick={() => {
+              setAddItemDialogOpen(false);
+              setInputValue([]);
+              setitemData(originalItemData);
+            }}
+          >
+            Close
+          </Button>
 
           <Button
             onClick={() => {
               setAddItemDialogOpen(false);
               saveItem(rowSelection, selectedRowIndex);
+              setInputValue([]);
+              setitemData(originalItemData);
             }}
           >
             Choose
@@ -253,7 +271,13 @@ const clearFilter = () => {
               >
                 {/* Custom Filter Field */}
                 {ItemPopupFilterList.map((field) =>
-                  ItemPopupFilter(field, itemdata, setitemData)
+                  ItemPopupFilter(
+                    field,
+                    itemdata,
+                    setitemData,
+                    inputvalue,
+                    setInputValue
+                  )
                 )}
 
                 {/* <FlexBox justifyContent="end">
@@ -310,6 +334,7 @@ const clearFilter = () => {
                 selectionMode="MultiSelect"
                 selectedRowIds={rowSelection}
                 onRowSelect={onitemchildRowSelect}
+                
                 // onRowSelectionChange={(e) =>
                 //   setRowSelection(e.detail.selectedRowIds)
 

@@ -59,7 +59,11 @@ const General = ({
   const [generalData, setgeneralData] = useState([]);
     const [originalGeneralData,setOriginalgeneralData ] = useState([]);
   const [selectedcardcode, setSelectedCardCode] = useState("");
-  const [inputValue, setInputValue] = useState({});
+  const [inputValue, setInputValue] = useState([{
+    CardCode:"",
+    CardName:"",
+    ContactPerson:""
+  }]);
 
 
   const dispatch = useDispatch();

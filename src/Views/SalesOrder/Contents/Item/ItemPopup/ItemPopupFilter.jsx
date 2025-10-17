@@ -18,13 +18,12 @@ import React, { useEffect, useState } from "react";
 import "@ui5/webcomponents-icons/dist/value-help.js";
 import ItemPopupFilterDialog from "./ItemPopupFilterDialog";
 
-export const ItemPopupFilter = (field, itemData,setitemData, handleChange) => {
+export const ItemPopupFilter = (field, itemData,setitemData,inputvalue, setInputValue, handleChange) => {
   //const value = form[field.FieldName] || "";
   const [value, setvalue] = useState("");
   const [fieldName, setfieldName] = useState("");
 
-  const [inputvalue, setInputValue] = useState([]);
-  const [filterdialogOpen, setFilterDialogOpen] = useState(false);
+  const [filterdialogOpen, setFilterDialogOpen] = useState(false); 
 
   // Suggestion and dialog items
   const productCollection = [
@@ -59,7 +58,8 @@ export const ItemPopupFilter = (field, itemData,setitemData, handleChange) => {
 console.log("filteredList",filteredList)
     console.log("selectedItem", e.detail.item.innerHTML,itemData,fieldname);
     setitemData(filteredList)
-    setInputValue(e.detail.item.innerHTML);
+   // setInputValue(e.detail.item.innerHTML);
+      setInputValue((prev) => ({ ...prev, [fieldname]: e.detail.item.innerHTML }));
     setFilterDialogOpen(false);
   };
 
@@ -141,6 +141,7 @@ console.log("filteredList",filteredList)
       return (
         <FlexBox direction="Column">
           <Label>{field.DisplayName}</Label>
+          {console.log("itempopupfilterinputval",inputvalue)}
           <Input
             icon={
               <Icon
@@ -149,7 +150,7 @@ console.log("filteredList",filteredList)
               />
             }
             name={field.FieldName}
-            value={inputvalue}
+            value={inputvalue[field.FieldName] || ""}
             onInput={(e) => {console.log("selectVal",e.target.value);handleChange(e, field.FieldName)}}
             type={field.inputType}
 

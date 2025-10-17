@@ -38,6 +38,7 @@ import {
 } from "../../store/slices/CustomerOrderSlice";
 import TopNav from "../../Components/Header/TopNav";
 
+
 const ManageSalesOrder = () => {
   const {
     ManageSalesOrderTableColumn,
@@ -68,6 +69,7 @@ const ManageSalesOrder = () => {
     Status: "-",
   });
   const settabledata = (customerorder) => {
+    console.log("customerorderobject", customerorder);
     if (customerorder?.length > 0) {
       const tableconfig = customerorder.map((item) => ({
         DocEntry: item.DocEntry,
@@ -76,6 +78,7 @@ const ManageSalesOrder = () => {
         DocumentNo: item.DocNum,
         PostingDate: item.CreationDate,
         Status: item.DocumentStatus,
+        DocumentLines: item.DocumentLines,
       }));
       settableData(tableconfig);
     }
@@ -95,11 +98,9 @@ const ManageSalesOrder = () => {
   //       console.log("resusers", res);
   //       setFormConfig(res);
 
-
   //       // setTableConfig(res);
   //       //dispatch(fetchcompanyformfielddata())
   //       //
-
 
   //       // setTableConfig(res);
   //       //dispatch(fetchcompanyformfielddata())
@@ -117,26 +118,30 @@ const ManageSalesOrder = () => {
   // }, [dispatch]);
 
   useEffect(() => {
-  const fetchInitial = async () => {
-    try {
-      const res = await dispatch(fetchCustomerOrder({ top: pageSize, skip: 0 })).unwrap();
-      const initialData = res.map(item => ({
-        DocEntry: item.DocEntry,
-        CustomerCode: item.CardCode,
-        CustomerName: item.CardName,
-        DocumentNo: item.DocNum,
-        PostingDate: item.CreationDate,
-        Status: item.DocumentStatus,
-      }));
-      settableData(initialData);
-      setPage(1);
-    } catch (err) {
-      console.error("Initial load failed", err);
-    }
-  };
+    const fetchInitial = async () => {
+      try {
+        const res = await dispatch(
+          fetchCustomerOrder({ top: pageSize, skip: 0 })
+        ).unwrap();
+        console.log("fetchinitial", res);
+        const initialData = res.map((item) => ({
+          DocEntry: item.DocEntry,
+          CustomerCode: item.CardCode,
+          CustomerName: item.CardName,
+          DocumentNo: item.DocNum,
+          DocumentLines: item.DocumentLines,
+          PostingDate: item.CreationDate,
+          Status: item.DocumentStatus,
+        }));
+        settableData(initialData);
+        setPage(1);
+      } catch (err) {
+        console.error("Initial load failed", err);
+      }
+    };
 
-  fetchInitial();
-}, []);
+    fetchInitial();
+  }, []);
 
   // const ManageSalesOderHeaderField = companyformfield.filter(
   //   (c) => c.Form?.name === "M_SO"
@@ -191,16 +196,14 @@ const ManageSalesOrder = () => {
       })),
   ];
   const editRow = async (rowData) => {
-    console.log("rowData", rowData)
-    navigate("/SalesOrder/edit/" + formId+"/"+rowData.DocEntry
-    );
-  }
-  const viewRow =async(rowData)=>{
-     console.log("rowData", rowData)
-    navigate("/SalesOrder/view/" + formId+"/"+rowData.DocEntry
-    );
-  }
-   
+    console.log("rowData", rowData);
+    navigate("/SalesOrder/edit/" + formId + "/" + rowData.DocEntry);
+  };
+  const viewRow = async (rowData) => {
+    console.log("rowData", rowData);
+    navigate("/SalesOrder/view/" + formId + "/" + rowData.DocEntry);
+  };
+
   const columns = useMemo(
     () => [
       ...ManageSalesOrderTableCols,
@@ -217,6 +220,11 @@ const ManageSalesOrder = () => {
         Cell: (instance) => {
           const { cell, row, webComponentsReactProperties } = instance;
           const isOverlay = webComponentsReactProperties.showOverlay;
+          const docLines = row.original?.DocumentLines;
+
+          const isRowDisabled = Array.isArray(docLines)
+            ? docLines.every((line) => Number(line?.Quantity) === 2)
+            : Number(docLines?.Quantity) === 2;
           return (
             <FlexBox
               alignItems="Center"
@@ -225,7 +233,7 @@ const ManageSalesOrder = () => {
             >
               <Button
                 icon="edit"
-                disabled={isOverlay}
+                disabled={isOverlay || isRowDisabled}
                 design="Transparent"
                 onClick={() => {
                   editRow(row.original);
@@ -243,7 +251,7 @@ const ManageSalesOrder = () => {
               /> */}
               <Button
                 icon="sap-icon://show"
-                disabled={isOverlay}
+                disabled={isOverlay || isRowDisabled}
                 design="Transparent"
                 onClick={() => {
                   //setLayout("TwoColumnsMidExpanded");
@@ -254,7 +262,7 @@ const ManageSalesOrder = () => {
               />
               <Button
                 icon="sap-icon://navigation-right-arrow"
-                disabled={isOverlay}
+                disabled={isOverlay || isRowDisabled}
                 design="Transparent"
                 onClick={() => {
                   setLayout("TwoColumnsMidExpanded");
@@ -454,7 +462,7 @@ const ManageSalesOrder = () => {
                         groupable
                         // header="Table Title"
                         infiniteScroll
-                        onGroup={() => { }}
+                        onGroup={() => {}}
                         onLoadMore={async () => {
                           if (isLoadingMore || allLoaded) return;
 
@@ -462,14 +470,17 @@ const ManageSalesOrder = () => {
 
                           try {
                             const res = await dispatch(
-                              fetchCustomerOrder({ top: pageSize, skip: page * pageSize })
+                              fetchCustomerOrder({
+                                top: pageSize,
+                                skip: page * pageSize,
+                              })
                             ).unwrap();
 
                             if (res.length < pageSize) {
                               setAllLoaded(true);
                             }
 
-                            const newRecords = res.map(item => ({
+                            const newRecords = res.map((item) => ({
                               DocEntry: item.DocEntry,
                               CustomerCode: item.CardCode,
                               CustomerName: item.CardName,
@@ -478,17 +489,14 @@ const ManageSalesOrder = () => {
                               Status: item.DocumentStatus,
                             }));
 
-                            settableData(prev => [...prev, ...newRecords]);
-                            setPage(prev => prev + 1);
+                            settableData((prev) => [...prev, ...newRecords]);
+                            setPage((prev) => prev + 1);
                           } catch (error) {
                             console.error("Load more failed", error);
                           } finally {
                             setIsLoadingMore(false);
                           }
                         }}
-
-
-
                         onRowClick={(event) => {
                           console.log("Row::", event.detail.row.original._id);
                           //previewFormInModal(event.detail.row.original._id);
@@ -496,9 +504,6 @@ const ManageSalesOrder = () => {
                         onRowExpandChange={() => {}}
                         onSort={() => {}}
                         onTableScroll={() => {}}
-                        // selectedRowIds={{
-                        //     3: true,
-                        // }}
                         selectionMode="SingleSelect"
                         selectionBehavior="RowOnly"
                         // tableHooks={[AnalyticalTableHooks.useManualRowSelect("isSelected")]}

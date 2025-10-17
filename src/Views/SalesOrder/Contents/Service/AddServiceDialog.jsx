@@ -1,4 +1,4 @@
-import React, { useContext, useMemo, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import {
   AnalyticalTable,
   Bar,
@@ -44,13 +44,18 @@ const AddServiceDialog = (props) => {
     saveService,
     serviceForm,
     setserviceData,
+    servicedata,
     handleserviceRowChange,
     selectedRowIndex,
     serviceDialogOpen,
     setserviceDialogOpen,
+    serviceTabledata
   } = props;
   const [rowSelection, setRowSelection] = useState({});
   const [tableData, settableData] = useState(servicepopupData);
+    const [originalServiceData, setOriginalServiceData] = useState([]);
+    addServicedialogOpen
+  
   const onRowSelect = (e) => {
     console.log("onRowSelect", e.detail.row.original);
     //selectionChangeHandler(e.detail.row.original);
@@ -59,31 +64,66 @@ const AddServiceDialog = (props) => {
       [e.detail.row.id]: e.detail.row.original,
     }));
   };
-  const dynamcicServiceCols = [
-    ...(serviceTableColumn &&
-      serviceTableColumn.length &&
-      serviceTableColumn.map((col) => {
-        return {
-          Header: col.Header,
-          accessor: col.accessor,
-        };
-      })),
-  ];
-  const columns = useMemo(() => [...dynamcicServiceCols], [dynamcicServiceCols]);
+  // const dynamcicServiceCols = [
+  //   ...(serviceTableColumn &&
+  //     serviceTableColumn.length &&
+  //     serviceTableColumn.map((col) => {
+  //       return {
+  //         Header: col.Header,
+  //         accessor: col.accessor,
+  //       };
+  //     })),
+  // ];
+  // const columns = useMemo(() => [...dynamcicServiceCols], [dynamcicServiceCols]);
+  useEffect(() => {
+    console.log("itemdatauseefect1",originalServiceData)
+    if (addServicedialogOpen) {
+      console.log("itemdatauseefect",servicedata)
+      setOriginalServiceData(servicedata);  // backup (for reset/clear filter)
+    }
+  }, [addServicedialogOpen]);
+    const columns = useMemo(
+      () => [
+        {
+          Header: "SL No",
+          accessor: "id", // not used for data, but needed for the column
+          //Cell: ({ row }) => Number(row.id) + 1, // ✅ row.id is 0-based
+          width: 80,
+        },
+        {
+          Header: "Item Name",
+          accessor: "ItemName",
+        },
+        {
+          Header: "Item Code",
+          accessor: "ItemCode",
+        },
+        {
+          Header: "Foriegn Name",
+          accessor: "ForeignName",
+        },
+      
+      ],
+      []
+    );
+    const clearFilter = () => {
+  setserviceData(originalServiceData);
+};
   return (
     <Dialog
       headerText="Service Details"
-      open={serviceDialogOpen}
-      onAfterClose={() => setserviceDialogOpen(false)}
+      open={addServicedialogOpen}
+      onAfterClose={() => setAddServiceDialogOpen(false)}
       footer={
         <FlexBox direction="Row">
-          <Button onClick={() => setserviceDialogOpen(false)}>Close</Button>
+          <Button onClick={() => setAddServiceDialogOpen(false)}>Close</Button>
 
           <Button
             onClick={() => {
-              setserviceDialogOpen(false);
+              setAddServiceDialogOpen(false);
               console.log("saveserviceitems",rowSelection,selectedRowIndex)
               saveService(rowSelection, selectedRowIndex);
+           clearFilter()
             }}
           >
             Save
@@ -103,16 +143,16 @@ const AddServiceDialog = (props) => {
             >
               {/* Custom Filter Field */}
               {ServicePopupFilterList.map((field) =>
-                ServicePopupFilter(field, tableData, settableData,handleChange)
+                ServicePopupFilter(field, servicedata, setserviceData,handleChange)
               )}
 
-              {/* <FlexBox justifyContent="end">
+              <FlexBox justifyContent="end">
                 <Button
-                //onClick={handleSearch}
+                onClick={clearFilter}
                 >
-                  Go
+                  Clear Filter
                 </Button>
-              </FlexBox> */}
+              </FlexBox>
             </Grid>
             {/* Basic Company Code Search */}
           </DynamicPageHeader>
@@ -125,10 +165,10 @@ const AddServiceDialog = (props) => {
       >
         <div className="tab">
           <FlexBox direction="Column">
-            <div>
+            <div>{console.log("serviceTabledata",servicedata)}
               <AnalyticalTable
                 columns={columns.length > 0 ? columns : []}
-                data={tableData}
+                data={servicedata}
                 header={"Business Partners(" + fieldConfig.length + ")"}
                 selectionMode="MultiSelect"
                 onRowSelect={onRowSelect}
