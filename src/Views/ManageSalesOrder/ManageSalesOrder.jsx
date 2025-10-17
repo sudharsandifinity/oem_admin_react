@@ -23,7 +23,6 @@ import {
   Toolbar,
   ToolbarButton,
 } from "@ui5/webcomponents-react";
-import Moment from "moment";
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import { FormConfigContext } from "../../Components/Context/FormConfigContext";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
@@ -32,12 +31,9 @@ import ItemViewPage from "../SalesOrder/Contents/Item/ItemViewPage";
 import ViewSalesOrder from "./ViewSalesOrder";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  deleteCustomerOrder,
-  fetchBusinessPartner,
   fetchCustomerOrder,
 } from "../../store/slices/CustomerOrderSlice";
 import TopNav from "../../Components/Header/TopNav";
-
 
 const ManageSalesOrder = () => {
   const {
@@ -83,39 +79,6 @@ const ManageSalesOrder = () => {
       settableData(tableconfig);
     }
   };
-  // useEffect(() => {
-  //   settabledata(customerorder);
-  // }, [customerorder]);
-  console.log("fetchCustomerOrder", customerorder);
-  // useEffect(() => {
-  //   //dispatch(fetchBranch());
-  //   //dispatch(fetchCompanies());
-  //   const fetchData = async () => {
-  //     try {
-  //       const res = await dispatch(fetchCustomerOrder()).unwrap();
-  //       dispatch(fetchBusinessPartner()).unwrap();
-
-  //       console.log("resusers", res);
-  //       setFormConfig(res);
-
-  //       // setTableConfig(res);
-  //       //dispatch(fetchcompanyformfielddata())
-  //       //
-
-  //       // setTableConfig(res);
-  //       //dispatch(fetchcompanyformfielddata())
-  //       //
-
-  //       if (res.message === "Please Login!") {
-  //         navigate("/");
-  //       }
-  //     } catch (err) {
-  //       console.log("Failed to fetch user", err.message);
-  //       err.message && navigate("/");
-  //     }
-  //   };
-  //   fetchData();
-  // }, [dispatch]);
 
   useEffect(() => {
     const fetchInitial = async () => {
@@ -143,30 +106,7 @@ const ManageSalesOrder = () => {
     fetchInitial();
   }, []);
 
-  // const ManageSalesOderHeaderField = companyformfield.filter(
-  //   (c) => c.Form?.name === "M_SO"
-  // );
-
-  // useEffect(() => {
-  //   //dispatch(fetchCompanyFormfields());
-  //   const fetchData = async () => {
-  //     try {
-  //       const res = await dispatch(fetchCompanyFormfields()).unwrap();
-  //       //dispatch(fetchcompanyformfielddata())
-  //       console.log("resusers", res);
-
-  //       if (res.message === "Please Login!") {
-  //         navigate("/");
-  //       }
-  //     } catch (err) {
-  //       console.log("Failed to fetch user", err.message);
-  //       err.message && navigate("/");
-  //     }
-  //   };
-  //   fetchData();
-  // }, [dispatch]);
-  // console.log("ManageSalesOderHeaderField", ManageSalesOderHeaderField);
-  // const [tableData, settableData] = useState(ManageSalesOderHeaderField);
+ 
   const [viewItem, setViewItem] = useState([]);
 
   const navigate = useNavigate();
@@ -223,8 +163,8 @@ const ManageSalesOrder = () => {
           const docLines = row.original?.DocumentLines;
 
           const isRowDisabled = Array.isArray(docLines)
-            ? docLines.every((line) => Number(line?.Quantity) === 2)
-            : Number(docLines?.Quantity) === 2;
+            ? docLines.every((line) => Number(line?.Quantity) === 1)
+            : Number(docLines?.Quantity) === 1;
           return (
             <FlexBox
               alignItems="Center"
@@ -278,20 +218,48 @@ const ManageSalesOrder = () => {
     ],
     [ManageSalesOrderTableCols]
   );
-  // const handleChange = (e,fieldname) => {
-  //   console.log("e", e);
-  //   const filteredList = tableData&&tableData.filter((item) => {
-  //     return item[fieldname]
-  //       ?.toString()
-  //       .toLowerCase()
-  //       .includes(e.detail.item.innerHTML.toLowerCase());
-  //   });
-  //   console.log("filteredList", filteredList);
-  //   console.log("selectedItem", e.detail.item.innerHTML, tableData, fieldname);
-  //   settableData(filteredList);
-  //   //setInputValue(e.detail.item.innerHTML);
-  // };
 
+  const disabledCellStyle = {
+    opacity: 0.5,
+    pointerEvents: "none", // prevents clicks inside cell
+    userSelect: "none",
+  };
+  const columnsWithRowWrap = useMemo(() => {
+    return columns.map((col) => {
+      const originalCell = col.Cell;
+
+      return {
+        ...col,
+        // new Cell wrapper which calls the original renderer (if exists)
+        Cell: (instance) => {
+          const { row } = instance;
+          const docLines = row.original?.DocumentLines || [];
+
+          // disable if ALL Quantities are zero
+          const isRowDisabled =
+            Array.isArray(docLines) &&
+            docLines.length > 0 &&
+            docLines.every((line) => Number(line?.Quantity) === 1);
+
+          // compute style for this row (apply only when disabled)
+          const style = isRowDisabled ? disabledCellStyle : {};
+
+          // if originalCell exists, render it and wrap its result
+          if (typeof originalCell === "function") {
+            // render original cell (it may return JSX)
+            const originalRendered = originalCell(instance);
+
+            // wrap it — keep layout (block-level wrapper)
+            return <div style={style}>{originalRendered}</div>;
+          }
+
+          // otherwise fallback to showing the raw cell value
+          const value = instance.value ?? row.original?.[col.accessor] ?? "";
+          return <div style={style}>{String(value)}</div>;
+        },
+      };
+    });
+  }, [columns]);
   const handleChange = (e, fieldname) => {
     // Extract current value (from UI5 component)
     const value = e.detail?.item?.innerHTML || e.detail?.value || "";
@@ -356,31 +324,43 @@ const ManageSalesOrder = () => {
         }
         headerArea={
           <DynamicPageHeader>
-            <FlexBox direction="Row" style={{display: 'inline-flex', alignItems: 'end', flexWrap: 'wrap', gap: '15px'}}>
-                {ManageSalesOderHeaderField.map((field) => {
-                  const filteredData = {
-                    inputType: field.input_type,
-                    DisplayName: field.display_name,
-                    FieldName: field.field_name,
-                  };
+            <FlexBox
+              direction="Row"
+              style={{
+                display: "inline-flex",
+                alignItems: "end",
+                flexWrap: "wrap",
+                gap: "15px",
+              }}
+            >
+              {console.log(
+                "ManageSalesOderHeaderField",
+                ManageSalesOderHeaderField
+              )}
+              {ManageSalesOderHeaderField.map((field) => {
+                const filteredData = {
+                  inputType: field.input_type,
+                  DisplayName: field.display_name,
+                  FieldName: field.field_name,
+                };
 
-                  return (
-                    <HeaderFilterBar
-                      key={field.field_name}
-                      field={filteredData}
-                      tableData={tableData}
-                      settableData={settableData}
-                      handleChange={handleChange}
-                      filters={filters}
-                      setFilters={setFilters}
-                      customerorder={customerorder}
-                      isClearFilter={isClearFilter}
-                      setisClearFilter={setisClearFilter}
-                    />
-                  );
-                })}
+                return (
+                  <HeaderFilterBar
+                    key={field.field_name}
+                    field={filteredData}
+                    tableData={tableData}
+                    settableData={settableData}
+                    handleChange={handleChange}
+                    filters={filters}
+                    setFilters={setFilters}
+                    customerorder={customerorder}
+                    isClearFilter={isClearFilter}
+                    setisClearFilter={setisClearFilter}
+                  />
+                );
+              })}
               <Button
-                style={{ width: "100px", marginBottom: '2px' }}
+                style={{ width: "100px", marginBottom: "2px" }}
                 onClick={() => {
                   setisClearFilter(true);
                   settabledata(customerorder);
@@ -432,13 +412,32 @@ const ManageSalesOrder = () => {
                   <div>
                     <FlexBox direction="Column">
                       <AnalyticalTable
-                        columns={columns.length > 0 ? columns : []}
+                        columns={columnsWithRowWrap}
                         data={tableData}
                         // header={`(Sales Order - ${tableData.length})`}
+                        rowStyle={(row) => {
+                          const docLines = row.original?.DocumentLines || [];
+                          const allQtyZero =
+                            Array.isArray(docLines) &&
+                            docLines.length > 0 &&
+                            docLines.every((l) => Number(l?.Quantity) === 1);
+                          return allQtyZero
+                            ? { backgroundColor: "#fafafa" }
+                            : {};
+                        }}
                         header={
-                          <FlexBox justifyContent="SpaceBetween" alignItems="Center" style={{width: '100%', padding: '4px 10px'}}>
-                            <Title style={{minWidth: '150px'}}>{`(Sales Order - ${tableData.length})`}</Title>
-                            <Toolbar design="Transparent" style={{border: 'none'}}>
+                          <FlexBox
+                            justifyContent="SpaceBetween"
+                            alignItems="Center"
+                            style={{ width: "100%", padding: "4px 10px" }}
+                          >
+                            <Title
+                              style={{ minWidth: "150px" }}
+                            >{`(Sales Order - ${tableData.length})`}</Title>
+                            <Toolbar
+                              design="Transparent"
+                              style={{ border: "none" }}
+                            >
                               <ToolbarButton
                                 design="Default"
                                 onClick={() =>
@@ -451,7 +450,9 @@ const ManageSalesOrder = () => {
                         }
                         loading={page === 0 && loading}
                         showOverlay={page === 0 && loading}
-                        noDataText={loading ? "Loading data..." : "No data found!"}
+                        noDataText={
+                          loading ? "Loading data..." : "No data found!"
+                        }
                         sortable
                         filterable
                         visibleRows={10}

@@ -89,16 +89,31 @@ useEffect(()=>{
       );
     case "date":
       return (
-        <FlexBox direction="Column">
-          <Label>{field.DisplayName}</Label>
-          <DatePicker
-            value={value}
-            formatPattern="dd-MM-YYYY"
-            placeholder="DD-MM-YYYY"
-            onInput={(e) => handleChange(e, field.FieldName)}
-          />
-        </FlexBox>
-      );
+              // <FlexBox direction="Column">
+              //   <Label>From Date</Label>
+              //   <DatePicker
+              //     name="FromDate"
+              //     value={filters.FromDate}
+              //     onChange={(e) => handleChange(e, "FromDate")}
+              //   />
+              //   <Label>To Date</Label>
+      
+              //   <DatePicker
+              //     name="ToDate"
+              //     value={filters.ToDate}
+              //     onChange={(e) => handleChange(e, "ToDate")}
+              //   />
+              // </FlexBox>
+               <FlexBox direction="Column">
+                <Label>{field.DisplayName}</Label>
+                {console.log("filters[field.field_name]",field.FieldName,filters[field.FieldName],filters)}
+                <DatePicker
+                  name={field.FieldName}
+                  value={filters[field.FieldName]}
+                  onChange={(e) => handleChange(e, field.FieldName)}
+                /></FlexBox>
+            );
+      
     case "checkbox":
       return (
         <FlexBox direction="Column">
