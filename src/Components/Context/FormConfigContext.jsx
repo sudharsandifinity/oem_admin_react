@@ -138,16 +138,7 @@ const FormConfigProvider = ({ children }) => {
     //   field_order: "1",
     //   is_visible: "1",
     // },
-     {
-      field_name: "PostingDate",
-      display_name: "Posting Date",
-      DataType: "nvarchar(50)",
-      input_type: "date",
-      Position: "Header",
-      DisplayType: "Left",
-      field_order: "1",
-      is_visible: "1",
-    },
+  
      {
       field_name: "FromDate",
       display_name: "From Date",
@@ -168,7 +159,16 @@ const FormConfigProvider = ({ children }) => {
       field_order: "1",
       is_visible: "1",
     },
-   
+    // {
+    //   field_name: "PostingDate",
+    //   display_name: "Posting Date",
+    //   DataType: "nvarchar(50)",
+    //   input_type: "date",
+    //   Position: "Header",
+    //   DisplayType: "Left",
+    //   field_order: "1",
+    //   is_visible: "1",
+    // },
     {
       field_name: "Status",
       display_name: "Status",

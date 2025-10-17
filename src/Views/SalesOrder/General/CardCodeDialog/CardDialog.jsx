@@ -19,7 +19,8 @@ const CardDialog = ({
   setgeneralData,
   originalGeneralData,
   setOriginalgeneralData,
-  inputValue, setInputValue
+  inputValue,
+  setInputValue,
 }) => {
   const [selected, setSelected] = useState(null);
 
@@ -94,47 +95,55 @@ const CardDialog = ({
       onAfterClose={handleCardDialogClose}
       style={{ width: "70vw", height: "70vh" }}
     >
-       <FlexBox direction="Column">
-        <FlexBox direction="Row" style={{ padding: "0.5rem", gap: "2rem" }}>
-          <FlexBox direction="Column"> <Label>Card Code</Label>
-          <Select
-            onChange={(e) => handleFilterChange(e, "CardCode")}
-            value={inputValue.CardCode || ""}
-          >
-            <Option value=""></Option>
-            {originalGeneralData.map((data, index) => (
-              <Option key={index} value={data.CardCode}>
-                {data.CardCode}
-              </Option>
-            ))}
-          </Select>
+      <FlexBox direction="Column">
+        {/* <FlexBox direction="Row" style={{ padding: "0.5rem", gap: "2rem" }}> */}
+          <FlexBox direction="Row" style={{display: 'inline-flex', alignItems: 'end', flexWrap: 'wrap', gap: '15px'}}>
+                       
+          <FlexBox direction="Column">
+            {" "}
+            <Label>Card Code</Label>
+            <Select
+              onChange={(e) => handleFilterChange(e, "CardCode")}
+              value={inputValue.CardCode || ""}
+            >
+              <Option value=""></Option>
+              {originalGeneralData.map((data, index) => (
+                <Option key={index} value={data.CardCode}>
+                  {data.CardCode}
+                </Option>
+              ))}
+            </Select>
           </FlexBox>
-<FlexBox direction="Column"> <Label>Card Name</Label>
-          <Select
-            onChange={(e) => handleFilterChange(e, "CardName")}
-            value={inputValue.CardName || ""}
-          >
-            <Option value=""></Option>
-            {originalGeneralData.map((data, index) => (
-              <Option key={index} value={data.CardName}>
-                {data.CardName}
-              </Option>
-            ))}
-          </Select>
+          <FlexBox direction="Column">
+            {" "}
+            <Label>Card Name</Label>
+            <Select
+              onChange={(e) => handleFilterChange(e, "CardName")}
+              value={inputValue.CardName || ""}
+            >
+              <Option value=""></Option>
+              {originalGeneralData.map((data, index) => (
+                <Option key={index} value={data.CardName}>
+                  {data.CardName}
+                </Option>
+              ))}
+            </Select>
           </FlexBox>
-<FlexBox direction="Column"> <Label>Contact Person</Label>
-          <Select
-            onChange={(e) => handleFilterChange(e, "ContactPerson")}
-            value={inputValue.ContactPerson || ""}
-          >
-            <Option value=""></Option>
-            {originalGeneralData.map((data, index) => (
-              <Option key={index} value={data.ContactPerson}>
-                {data.ContactPerson}
-              </Option>
-            ))}
-          </Select>
-</FlexBox>
+          <FlexBox direction="Column">
+            {" "}
+            <Label>Contact Person</Label>
+            <Select
+              onChange={(e) => handleFilterChange(e, "ContactPerson")}
+              value={inputValue.ContactPerson || ""}
+            >
+              <Option value=""></Option>
+              {originalGeneralData.map((data, index) => (
+                <Option key={index} value={data.ContactPerson}>
+                  {data.ContactPerson}
+                </Option>
+              ))}
+            </Select>
+          </FlexBox>
           {console.log("originalGeneralData", originalGeneralData)}
           <Button
             style={{ width: "100px" }}
@@ -158,7 +167,6 @@ const CardDialog = ({
           })}
         />
       </FlexBox>
-
     </Dialog>
   );
 };

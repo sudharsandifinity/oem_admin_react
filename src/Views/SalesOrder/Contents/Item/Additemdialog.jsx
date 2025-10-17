@@ -262,7 +262,8 @@ const Additemdialog = (props) => {
       <DynamicPage
         headerArea={
           <DynamicPageHeader>
-            <FlexBox direction="Row">
+                       <FlexBox direction="Row" style={{display: 'inline-flex', alignItems: 'end', flexWrap: 'wrap', gap: '15px'}}>
+                        
               <Grid
                 defaultIndent="XL0 L0 M0 S0"
                 defaultSpan="XL4 L4 M6 S12"
