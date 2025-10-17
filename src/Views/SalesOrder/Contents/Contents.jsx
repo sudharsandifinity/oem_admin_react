@@ -55,6 +55,10 @@ const Contents = (props) => {
     setitemData,
     setitemTableData,
     itemTabledata,
+    servicedata,
+    setserviceData,
+    setserviceTableData,
+    serviceTabledata,
   } = props;
   const {
     fieldConfig,
@@ -63,7 +67,7 @@ const Contents = (props) => {
     itemTableColumn,
     serviceTableColumn,
     itemData,
-    servicedata,
+    //servicedata,
   } = useContext(FormConfigContext);
   const tableRef = useRef();
   const dispatch = useDispatch();
@@ -76,11 +80,11 @@ const Contents = (props) => {
     amount: "-",
   });
   console.log("orderitem", orderItems);
+  const [type, setType] = useState("Item");
   const [addItemdialogOpen, setAddItemDialogOpen] = useState(false);
   const [addServiceDialogOpen, setAddServicedialogOpen] = useState(false);
 
   const [itemForm, setItemForm] = useState([]);
-  const [serviceData, setServiceData] = useState(servicedata);
   const [serviceForm, setserviceForm] = useState([]);
   const [viewItem, setViewItem] = useState([]);
   const [viewService, setViewService] = useState([]);
@@ -145,7 +149,7 @@ const Contents = (props) => {
       itemTableColumn
         // .filter(
         //   (col) =>
-        //     col.accessor !== "ItemCode" 
+        //     col.accessor !== "ItemCode"
         // )
         .map((col) => ({
           Header: col.Header,
@@ -280,13 +284,51 @@ const Contents = (props) => {
     ],
     [setitemData, layout]
   );
+const[selectedServices,setSelectedServices] = useState({})
+  const saveService=(item)=>{
+ setSelectedServices(rowSelection);
+    console.log("itemForm", itemForm, item);
+setserviceTableData((prev) => {
+  let updated = [...prev];
+console.log("updated",updated)
+  // Remove the last row if it's an empty placeholder
+  if (updated[updated.length - 1]?.ServiceCode === "") {
+    updated.pop();
+  }
+
+  // Convert to array if item is object form like {0: {...}, 1: {...}}
+  const newItems = Array.isArray(item) ? item : Object.values(item);
+
+  // ✅ Append new items instead of replacing
+  updated = [...updated, ...newItems];
+
+  return updated;
+  });
+};
   const [selectedRowIndex, setSelectedRowIndex] = useState(null);
 
   const [selectedItems, setSelectedItems] = useState({});
   const saveItem = (item, index) => {
     setSelectedItems(rowSelection);
     console.log("itemForm", itemForm, item);
-    // setitemData((prev) => {
+setitemTableData((prev) => {
+  let updated = [...prev];
+
+  // Remove the last row if it's an empty placeholder
+  if (updated[updated.length - 1]?.ItemCode === "") {
+    updated.pop();
+  }
+
+  // Convert to array if item is object form like {0: {...}, 1: {...}}
+  const newItems = Array.isArray(item) ? item : Object.values(item);
+
+  // ✅ Append new items instead of replacing
+  updated = [...updated, ...newItems];
+
+  return updated;
+});
+
+    // setitemTableData((prev) => {
     //   const updated = [...prev];
 
     //   if (updated[updated.length - 1]?.ItemCode === "") {
@@ -299,27 +341,8 @@ const Contents = (props) => {
     //     updated[index + i] = newItem;
     //   });
 
-    //   return updated;
+    //   return newItems;
     // });
-    setitemTableData((prev) => {
-      const updated = [...prev];
-
-      // Remove the last row if it's an empty placeholder
-      if (updated[updated.length - 1]?.ItemCode === "") {
-        updated.pop();
-      }
-
-      // Convert to array if item is in object form like {0: {...}, 1: {...}}
-      const newItems = Array.isArray(item) ? item : Object.values(item);
-
-      // Replace the item at the given index
-      newItems.forEach((newItem, i) => {
-        updated[index + i] = newItem; // replaces existing or extends
-      });
-
-      return newItems;
-      //return newItems;
-    });
   };
 
   const handleitemRowChange = (item) => {
@@ -410,16 +433,20 @@ const Contents = (props) => {
           height: "600px",
         }}
       > */}
-        <div className="tab">
-           <Title level="H4">Type - Items</Title>
-          <div>
-            <FlexibleColumnLayout
-              // style={{ height: "600px" }}
-              layout={layout}
-              startColumn={
-                <FlexBox direction="Column">
-                  <div>
-                    {/* <AnalyticalTable
+      <div className="tab">
+        <Title>Type</Title>
+        <Select>
+          <Option onClick={() => setType("Item")}>Item</Option>
+          <Option onClick={() => setType("Service")}>Service</Option>
+        </Select>
+        <div>
+          <FlexibleColumnLayout
+            // style={{ height: "600px" }}
+            layout={layout}
+            startColumn={
+              <FlexBox direction="Column">
+                <div>
+                  {/* <AnalyticalTable
                       data={loading ? placeholderRows : itemdata ? itemdata : []}
                       columns={itemcolumns}
                       groupBy={[]}
@@ -431,7 +458,8 @@ const Contents = (props) => {
                       rowHeight={44}
                       headerRowHeight={48}
                     /> */}
-                    {console.log("itemTabledata", itemTabledata, itemdata)}
+                  {console.log("itemTabledata", itemTabledata, itemdata)}
+                  {type === "Item" ? (
                     <Itemtable
                       addItemdialogOpen={addItemdialogOpen}
                       setAddItemDialogOpen={setAddItemDialogOpen}
@@ -452,41 +480,63 @@ const Contents = (props) => {
                       mode={mode}
                       selectedItems={selectedItems}
                     />
-                  </div>
-                </FlexBox>
-              }
-              midColumn={
-                <Page
-                  header={
-                    <Bar
-                      endContent={
-                        <Button
-                          icon="sap-icon://decline"
-                          title="close"
-                          onClick={() => setLayout("OneColumn")}
-                        />
-                      }
-                      startContent={<Title level="H5">Preview Form</Title>}
-                    ></Bar>
-                  }
+                  ) : (
+                    <ServiceTable
+                      addServiceDialogOpen={addServiceDialogOpen}
+                      setAddServicedialogOpen={setAddServicedialogOpen}
+                      serviceTableColumn={serviceTableColumn}
+                      renderIteminput={renderIteminput}
+                      form={form}
+                      handleChange={handleChange}
+                      setRowSelection={setRowSelection}
+                      rowSelection={rowSelection}
+                      saveService={saveService}
+                      servicedata={itemdata}
+                      setserviceData={setitemData}
+                      setserviceTableData={setserviceTableData}
+                      serviceTabledata={serviceTabledata}
+                      dynamcicServiceCols={dynamcicItemCols}
+                      selectedRowIndex={selectedRowIndex}
+                      setSelectedRowIndex={setSelectedRowIndex}
+                      mode={mode}
+                      selectedServices={selectedServices}
+                    />
+                  )}
+                </div>
+              </FlexBox>
+            }
+            midColumn={
+              <Page
+                header={
+                  <Bar
+                    endContent={
+                      <Button
+                        icon="sap-icon://decline"
+                        title="close"
+                        onClick={() => setLayout("OneColumn")}
+                      />
+                    }
+                    startContent={<Title level="H5">Preview Form</Title>}
+                  ></Bar>
+                }
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    justifyContent: "center",
+                    alignItems: "start",
+                    height: "90%",
+                    verticalAlign: "middle",
+                  }}
                 >
-                  <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "row",
-                      justifyContent: "center",
-                      alignItems: "start",
-                      height: "90%",
-                      verticalAlign: "middle",
-                    }}
-                  >
-                    <ItemViewPage viewItem={viewItem} />
-                  </div>
-                </Page>
-              }
-            />
-          </div>
+                  <ItemViewPage viewItem={viewItem} />
+                </div>
+              </Page>
+            }
+          />
         </div>
+      </div>
       {/* </DynamicPage> */}
     </div>
   );

@@ -20,13 +20,13 @@ import ServicePopupFilterDialog from "./ServicePopupFilterDialog";
 
 export const ServicePopupFilter = (
   field,
-  tableData,
-  settableData,
+  servicedata,
+  setserviceData,
   handleChange
 ) => {
   //const value = form[field.FieldName] || "";
   const [value, setvalue] = useState("");
-  const [fieldName, setfieldName] = useState("");
+  const [fieldName, setfieldName] = useState(""); 
 
   const [inputvalue, setInputValue] = useState([]);
   const [filterdialogOpen, setFilterDialogOpen] = useState(false);
@@ -55,7 +55,7 @@ export const ServicePopupFilter = (
   // Handle popup service click
   const handleDialogServiceClick = (e, fieldname) => {
     //const selectedService = e.detail.service.textContent;
-    const filteredList = tableData.filter((service) => {
+    const filteredList = servicedata.filter((service) => {
       return service[fieldname]
         ?.toString()
         .toLowerCase()
@@ -65,10 +65,10 @@ export const ServicePopupFilter = (
     console.log(
       "selectedService",
       e.detail.item.innerHTML,
-      tableData,
+      servicedata,
       fieldname
     );
-    settableData(filteredList);
+    setserviceData(filteredList);
     setInputValue(e.detail.item.innerHTML);
     setFilterDialogOpen(false);
   };
@@ -175,7 +175,7 @@ export const ServicePopupFilter = (
           <ServicePopupFilterDialog
             filterdialogOpen={filterdialogOpen}
             setFilterDialogOpen={setFilterDialogOpen}
-            servicepopupData={tableData}
+            servicepopupData={servicedata}
             handleDialogServiceClick={handleDialogServiceClick}
             fieldName={field.FieldName}
           />

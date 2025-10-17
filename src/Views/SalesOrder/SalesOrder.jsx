@@ -37,7 +37,7 @@ import {
   BusyIndicator,
 } from "@ui5/webcomponents-react";
 import { FormConfigContext } from "../../Components/Context/FormConfigContext";
-import axios from "axios";
+
 import { SalesOrderRenderInput } from "./SalesOrderRenderInput";
 import General from "./General/General";
 import Contents from "./Contents/Contents";
@@ -48,10 +48,8 @@ import Accounting from "./Accounting/Accounting";
 import Attachments from "./Attachments/Attachments";
 import UserDefinedFields from "./User-DefinedFields/UserDefinedFields";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchOrderItems } from "../../store/slices/CustomerOrderItemsSlice";
 import {
   createCustomerOrder,
-  fetchBusinessPartner,
 } from "../../store/slices/CustomerOrderSlice";
 
 export default function SalesOrder() {
@@ -75,6 +73,12 @@ export default function SalesOrder() {
   const [itemdata, setitemData] = useState([
     { slno: 1, ItemCode: "", ItemName: "", quantity: "", amount: "" },
   ]);
+  const [serviceTabledata, setserviceTableData] = useState([
+    { slno: 1, ServiceCode: "", ServiceName: "", quantity: "", amount: "" },
+  ]);
+  const [servicedata, setserviceData] = useState([
+    { slno: 1, ServiceCode: "", ServiceName: "", quantity: "", amount: "" },
+  ]);
   const [form, setForm] = useState({
     CardCode: "",
     CardName: "",
@@ -88,12 +92,8 @@ export default function SalesOrder() {
     U_Test1: "",
     U_Test2: "",
   });
-  const menuRef = useRef();
 
-  const openMenu = (e) => {
-    menuRef.current.open = true;
-    menuRef.current.opener = e.currentTarget;
-  };
+
   const handleChange = (e, name, formName) => {
     const newValue = e.target.value;
     if (formName === "cusDetail" || formName === "docDetail") {
@@ -403,6 +403,10 @@ export default function SalesOrder() {
               setitemData={setitemData}
               setitemTableData={setitemTableData}
               itemTabledata={itemTabledata}
+               servicedata={servicedata}
+              setserviceData={setserviceData}
+              setserviceTableData={setserviceTableData}
+              serviceTabledata={serviceTabledata}
               orderItems={orderItems}
               loading={loading}
               form={form}

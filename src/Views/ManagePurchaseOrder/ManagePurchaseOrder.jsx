@@ -60,6 +60,7 @@ const ManagePurchaseOrder = () => {
     Status: "-",
   });
   const settabledata = (vendororder) => {
+    console.log("vendororderobject",vendororder)
     if (vendororder?.length > 0) {
       const tableconfig = vendororder.map((item) => ({
         DocEntry:item.DocEntry,
