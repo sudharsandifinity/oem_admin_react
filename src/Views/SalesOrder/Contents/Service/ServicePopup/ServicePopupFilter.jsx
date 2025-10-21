@@ -18,18 +18,12 @@ import React, { useEffect, useState } from "react";
 import "@ui5/webcomponents-icons/dist/value-help.js";
 import ServicePopupFilterDialog from "./ServicePopupFilterDialog";
 
-export const ServicePopupFilter = (
-  field,
-  servicedata,
-  setserviceData,
-  handleChange
-) => {
+export const ServicePopupFilter = (field, serviceData,setserviceData,inputvalue, setInputValue, handleChange) => {
   //const value = form[field.FieldName] || "";
   const [value, setvalue] = useState("");
-  const [fieldName, setfieldName] = useState(""); 
+  const [fieldName, setfieldName] = useState("");
 
-  const [inputvalue, setInputValue] = useState([]);
-  const [filterdialogOpen, setFilterDialogOpen] = useState(false);
+  const [filterdialogOpen, setFilterDialogOpen] = useState(false); 
 
   // Suggestion and dialog services
   const productCollection = [
@@ -47,29 +41,26 @@ export const ServicePopupFilter = (
 
   // Handle value help button click
   const handleValueHelpRequest = (fieldname) => {
-    console.log("handleValueHelpRequest", fieldname);
+    console.log("handleValueHelpRequest",fieldname)
     setFilterDialogOpen(true);
-    setfieldName(fieldname);
+    setfieldName(fieldname)
   };
 
   // Handle popup service click
-  const handleDialogServiceClick = (e, fieldname) => {
-    //const selectedService = e.detail.service.textContent;
-    const filteredList = servicedata.filter((service) => {
-      return service[fieldname]
-        ?.toString()
-        .toLowerCase()
-        .includes(e.detail.item.innerHTML.toLowerCase());
-    });
-    console.log("filteredList", filteredList);
-    console.log(
-      "selectedService",
-      e.detail.item.innerHTML,
-      servicedata,
-      fieldname
-    );
-    setserviceData(filteredList);
-    setInputValue(e.detail.item.innerHTML);
+  const handleDialogServiceClick = (e,fieldname) => {
+    //const selectedService = e.detail.service.textContent;\
+    console.log("handleDialogServiceClicklog",e.detail.item.innerHTML.toLowerCase())
+const filteredList = serviceData.filter((service) => {
+  return service[fieldname]
+    ?.toString()
+    .toLowerCase()
+    .includes(e.detail.item.innerHTML.toLowerCase());
+});
+console.log("filteredList",filteredList)
+    console.log("selectedService", e.detail.item.innerHTML.toLowerCase(),serviceData,fieldname);
+    setserviceData(filteredList)
+   // setInputValue(e.detail.service.innerHTML);
+      setInputValue((prev) => ({ ...prev, [fieldname]: e.detail.item.innerHTML }));
     setFilterDialogOpen(false);
   };
 
@@ -82,7 +73,7 @@ export const ServicePopupFilter = (
           <Input
             type={field.inputType}
             value={value}
-            onInput={(e) => handleChange(e, field.FieldName,"Service")}
+            onInput={(e) => handleChange(e, field.FieldName)}
           />
         </FlexBox>
       );
@@ -92,21 +83,20 @@ export const ServicePopupFilter = (
           <Label>{field.DisplayName}</Label>
           <DatePicker
             value={value}
-            onChange={(e) => handleChange(e, field.FieldName,"Service")}
+            onChange={(e) => handleChange(e, field.FieldName)}
           />
         </FlexBox>
       );
-    case "checkbox":
-      return (
-        <FlexBox direction="Column">
+      case "checkbox":
+        return(
+          <FlexBox direction="Column">
           <Label>{field.DisplayName}</Label>
           <CheckBox
-            onChange={(e) => handleChange(e, field.FieldName,"Service")}
+            onChange={(e) => handleChange(e, field.FieldName)}
             text="CheckBox"
             valueState="None"
-          />
-        </FlexBox>
-      );
+          /></FlexBox>
+        )
     case "search":
       return (
         <FlexBox direction="Column">
@@ -125,7 +115,7 @@ export const ServicePopupFilter = (
           <Label>{field.DisplayName}</Label>
           <TextArea
             value={value}
-            onInput={(e) => handleChange(e, field.FieldName,"Service")}
+            onInput={(e) => handleChange(e, field.FieldName)}
           />
         </FlexBox>
       );
@@ -152,6 +142,7 @@ export const ServicePopupFilter = (
       return (
         <FlexBox direction="Column">
           <Label>{field.DisplayName}</Label>
+          {console.log("servicepopupfilterinputval",inputvalue)}
           <Input
             icon={
               <Icon
@@ -160,22 +151,20 @@ export const ServicePopupFilter = (
               />
             }
             name={field.FieldName}
-            value={inputvalue}
-            onInput={(e) => {
-              console.log("selectVal", e.target.value);
-              handleChange(e, field.FieldName,"Service");
-            }}
+            value={inputvalue[field.FieldName] || ""}
+            onInput={(e) => {console.log("selectVal",e.target.value);handleChange(e, field.FieldName)}}
             type={field.inputType}
+
           >
             {productCollection.map((service, idx) => (
               <SuggestionItem key={idx} text={service.Name} />
             ))}
           </Input>
-
+{console.log("fieldName",fieldName,serviceData)}
           <ServicePopupFilterDialog
             filterdialogOpen={filterdialogOpen}
             setFilterDialogOpen={setFilterDialogOpen}
-            servicepopupData={servicedata}
+            servicepopupData={serviceData}
             handleDialogServiceClick={handleDialogServiceClick}
             fieldName={field.FieldName}
           />

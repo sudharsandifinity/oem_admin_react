@@ -390,7 +390,7 @@ const ViewPurchaseOrder = () => {
                       Home
                     </BreadcrumbsItem>
                     <BreadcrumbsItem data-route={`/Purchase/${formId}`}>
-                      Manage Purchase Order
+                      {formDetails[0]?.name?formDetails[0]?.name:"Purchase Order"}
                     </BreadcrumbsItem>
                     <BreadcrumbsItem>
                       {formDetails ? formDetails[0]?.name : "Purchase Order"}

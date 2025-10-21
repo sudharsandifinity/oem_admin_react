@@ -67,6 +67,7 @@ export default function SalesOrder() {
   const [formData, setFormData] = useState({});
   const [rowSelection, setRowSelection] = useState({});
   const [open, setOpen] = useState(false);
+  const [type,setType]= useState("Item")
   const [itemTabledata, setitemTableData] = useState([
     { slno: 1, ItemCode: "", ItemName: "", quantity: "", amount: "" },
   ]);
@@ -132,10 +133,10 @@ export default function SalesOrder() {
   const handleSubmit = async (form) => {
     console.log(
       "Form submitted:",
-      form,
-      formData,
+      
       rowSelection,
       itemTabledata,
+      serviceTabledata,
       itemdata
     );
     const filteredData = itemdata.filter((item) =>
@@ -145,9 +146,11 @@ export default function SalesOrder() {
           tableItem.ItemName === item.ItemName
       )
     );
+    let payload={}
     try {
       setLoading(true);
-      const payload = {
+      if(type==="Item"){
+        payload = {
         CardCode: formData.CardCode,
         DocDueDate: formData.DocDueDate
           ? new Date(formData.DocDueDate)
@@ -155,13 +158,32 @@ export default function SalesOrder() {
               .split("T")[0]
               .replace(/-/g, "")
           : new Date().toISOString().split("T")[0].replace(/-/g, ""),
-        DocumentLines: Object.values(filteredData).map((line) => ({
+        DocumentLines: Object.values(itemTabledata).map((line) => ({
           ItemCode: line.ItemCode,
           ItemDescription: line.ItemName, // ✅ rename to ItemDescription
           Quantity: line.quantity,
           UnitPrice: line.amount,
         })),
       };
+      }else{
+        payload = {
+        CardCode: formData.CardCode,
+        DocType: "dDocument_Service",
+        DocDueDate: formData.DocDueDate
+          ? new Date(formData.DocDueDate)
+              .toISOString()
+              .split("T")[0]
+              .replace(/-/g, "")
+          : new Date().toISOString().split("T")[0].replace(/-/g, ""),
+        DocumentLines: Object.values(serviceTabledata).map((line) => ({
+          AccountCode: line.ServiceCode,
+          ItemDescription: line.ServiceName, // ✅ rename to ItemDescription        
+          
+          UnitPrice: line.amount,
+        })),
+      };
+      }
+      
 
       console.log("payload", payload);
       const res = await dispatch(createCustomerOrder(payload)).unwrap();
@@ -328,7 +350,7 @@ export default function SalesOrder() {
                       Home
                     </BreadcrumbsItem>
                     <BreadcrumbsItem data-route={`/Sales/${formId}`}>
-                      Sales Order list
+                      {formDetails[0]?.name?formDetails[0]?.name:"Sales order List"}
                     </BreadcrumbsItem>
                     <BreadcrumbsItem>
                       {formDetails ? "Create "+formDetails[0]?.name : "Create Sales Order"}
@@ -415,6 +437,8 @@ export default function SalesOrder() {
               addRow={addRow}
               SalesOrderRenderInput={SalesOrderRenderInput}
               handleChange={handleChange}
+              type={type}
+              setType={setType}
               mode={"create"}
             />
           </ObjectPageSection>

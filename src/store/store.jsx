@@ -16,6 +16,7 @@ import customerorderReducer from './slices/CustomerOrderSlice';
 import customerorderitemsReducer from './slices/CustomerOrderItemsSlice';
 import vendororderReducer from './slices/VendorOrderSlice';
 import vendororderitemsReducer from './slices/VendorOrderItemsSlice';
+import customerorderserviceReducer from './slices/CustomerOrderServiceSlice'
 const store = configureStore({
   reducer: {
     auth: authReducer,
@@ -33,6 +34,7 @@ const store = configureStore({
     companyformfielddata:formfielddataReducer,
     customerorder:customerorderReducer,
     orderItems:customerorderitemsReducer,
+    orderServices:customerorderserviceReducer,
     vendororder:vendororderReducer,
     vendororderItems:vendororderitemsReducer,
   },

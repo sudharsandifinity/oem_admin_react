@@ -45,6 +45,8 @@ const ManagePurchaseOrder = () => {
   const dispatch = useDispatch();
 
   const { companyformfield } = useSelector((state) => state.companyformfield);
+    const user = useSelector((state) => state.auth.user);
+  
   const { companyformfielddata } = useSelector(
     (state) => state.companyformfielddata
   );
@@ -59,6 +61,12 @@ const ManagePurchaseOrder = () => {
     PostingDate: "-",
     Status: "-",
   });
+    const [formDetails, setFormDetails] = useState([]);
+    
+    
+  const [tabList, setTabList] = useState([]);
+
+  
   const settabledata = (vendororder) => {
     console.log("vendororderobject",vendororder)
     if (vendororder?.length > 0) {
@@ -232,7 +240,20 @@ const ManagePurchaseOrder = () => {
   const { formId, childId } = useParams();
   const [formConfig, setFormConfig] = useState(null);
 
-
+  useEffect(() => {
+    if (formId) {
+      // Fetch form data based on formId
+      const formDetails = user?.Roles?.flatMap((role) =>
+        role.UserMenus.flatMap((menu) =>
+          menu.children.filter((submenu) => submenu.Form.id === formId)
+        )
+      );
+      setTabList((formDetails && formDetails[0]?.Form.FormTabs) || []);
+      setFormDetails(formDetails);
+    } else {
+      navigate("/");
+    }
+  }, [formId]);
 
 
   // if (!formConfig) return <div>Loading form...</div>;
@@ -307,7 +328,8 @@ const ManagePurchaseOrder = () => {
                   if (route) navigate(route);
                 }}>
                 <BreadcrumbsItem data-route="/UserDashboard">Home</BreadcrumbsItem>
-                <BreadcrumbsItem>Manage Purchase Order</BreadcrumbsItem>
+                <BreadcrumbsItem> {formDetails[0]?.name?formDetails[0]?.name:"Purchase Order"}
+</BreadcrumbsItem>
               </Breadcrumbs>
             }
             heading={
@@ -315,7 +337,7 @@ const ManagePurchaseOrder = () => {
                 style={{ fontSize: "var(--sapObjectHeader_Title_FontSize)" }}
               >
                 {/* {formConfig && formConfig.display_name} */}
-                Manage Purchase Order
+                {formDetails[0]?.name?formDetails[0]?.name+" List":"Purchase Order List"}
               </Title>
             }
             navigationBar={
@@ -330,7 +352,7 @@ const ManagePurchaseOrder = () => {
                 }}
               >
                 {/* {formConfig && formConfig.display_name} */}
-                Manage Purchase Order
+                {formDetails[0]?.name?formDetails[0]?.name+" List":"Purchase Order List"}
               </Title>
             }
           ></DynamicPageTitle>

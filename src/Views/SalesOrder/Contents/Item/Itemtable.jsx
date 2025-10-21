@@ -97,12 +97,26 @@ const Itemtable = (props) => {
     const index = e.detail.row.index;
     setSelectedRowIndex(index);
     setSelectedRowIds(e.detail.selectedRowIds);
-    console.log("onRowSelect", e.detail.row.original);
-    //selectionChangeHandler(e.detail.row.original);
-    setRowSelection((prev) => ({
-      ...prev,
-      [e.detail.row.id]: e.detail.row.original,
-    }));
+     const selectedIdsArray = Object.keys(e.detail.selectedRowIds); 
+    console.log("onRowSelect",itemTabledata, e.detail,selectedIdsArray);
+
+
+   setRowSelection((prev) => {
+    const updated = { ...prev }; // keep old selections
+
+    selectedIdsArray.forEach((id) => {
+      const rowData = itemTabledata.find((item) => item.slno.toString() === id);
+      if (rowData) {
+        updated[id] = rowData;
+      }
+    });
+console.log("updated",updated)
+    return updated;
+  });
+    // setRowSelection((prev) => ({
+    //   ...prev,
+    //   [e.detail.row.id]: e.detail.row.original,
+    // }));
   };
   const markNavigatedRow = useCallback(
     (row) => {
@@ -130,19 +144,57 @@ const Itemtable = (props) => {
       { ItemCode: "", ItemName: "", quantity: 0, amount: 0 },
     ]);
   };
-  const duplicateRow = () => {
-    console.log("selectedRow", selectedRow.original);
-    setitemTableData([...itemTabledata, selectedRow.original]);
-  };
+ const duplicateRow = () => {
+  if (!selectedRow?.original) return;
+
+  console.log("selectedRow", selectedRow.original);
+
+  setitemTableData((prev) => {
+    const updated = [...prev];
+
+    // ✅ Find last serial number (slno) in table
+    const lastSlno = updated.length > 0 ? updated[updated.length - 1].slno : 0;
+
+    // ✅ Create new duplicated row with incremented slno
+    const newRow = {
+      ...selectedRow.original,
+      slno: lastSlno + 1,
+    };
+
+    return [...updated, newRow];
+  });
+};
+
   const copyRow = () => {
     setCopySelectedRow(selectedRow.original);
   };
   const pasteRow = () => {
-    setitemTableData([...itemTabledata, copySelectedRow]);
+    //setitemTableData([...itemTabledata, copySelectedRow]);
+     if (!selectedRow?.original) return;
+
+  console.log("selectedRow", selectedRow.original);
+
+  setitemTableData((prev) => {
+    const updated = [...prev];
+
+    // ✅ Find last serial number (slno) in table
+    const lastSlno = updated.length > 0 ? updated[updated.length - 1].slno : 0;
+
+    // ✅ Create new duplicated row with incremented slno
+    const newRow = {
+      ...selectedRow.original,
+      slno: lastSlno + 1,
+    };
+
+    return [...updated, newRow];
+  });
   };
 
-  const deleteRow = (itemCodeToRemove) => {
-    console.log("delete",itemTabledata,itemCodeToRemove)
+const deleteRow = (itemCodeToRemove) => {
+  console.log("delete", itemTabledata, rowSelection, itemCodeToRemove);
+
+  if (itemCodeToRemove) {
+    // ✅ Delete a single row
     setitemTableData((prev) =>
       prev.filter(
         (item) =>
@@ -150,7 +202,27 @@ const Itemtable = (props) => {
           item.ItemName !== itemCodeToRemove.ItemName
       )
     );
-  };
+  } else {
+    // ✅ Delete all selected rows (rowSelection = { 0:{}, 1:{} })
+    const selectedRows = Object.values(rowSelection); // convert object → array
+
+    setitemTableData((prev) =>
+      prev.filter(
+        (item) =>
+          !selectedRows.some(
+            (row) =>
+              row.ItemCode === item.ItemCode &&
+              row.ItemName === item.ItemName&&
+              row.slno===item.slno
+          )
+      )
+    );
+
+    // ✅ Clear selection after deleting
+    setRowSelection({});
+  }
+};
+
   const addRowAfter = () => {
     const newRow = { ItemCode: "", ItemName: "", quantity: 0, amount: 0 };
     const updated = [...itemTabledata];
@@ -211,6 +283,7 @@ const Itemtable = (props) => {
       {
         Header: "Sl No",
         accessor: "slno",
+        width:100,
         Cell: ({ row }) => (
           <div disabled={mode === "view"}>{row.index + 1}</div>
         ),
@@ -306,6 +379,8 @@ const Itemtable = (props) => {
           <Input
             style={{ textAlign: "right" }}
             disabled={mode === "view"}
+            type="Number"
+
             value={value || ""}
             onChange={(e) => {
               const newValue = e.target.value;
@@ -393,7 +468,7 @@ const Itemtable = (props) => {
   return (
     <>
       <FlexBox style={{ justifyContent: "end" }}>
-        {/* <Button disabled={disable} design="Transparent" onClick={duplicateRow}>
+        <Button disabled={disable} design="Transparent" onClick={duplicateRow}>
           Duplicate
         </Button>
         <Button disabled={disable} design="Transparent" onClick={copyRow}>
@@ -402,7 +477,7 @@ const Itemtable = (props) => {
         <Button disabled={disable} design="Transparent" onClick={pasteRow}>
           Paste
         </Button>
-        <>
+        {/* <>
           <Button
             icon="navigation-down-arrow"
             iconEnd
@@ -425,7 +500,7 @@ const Itemtable = (props) => {
               onClick={addRowAfter}
             />
           </Menu>
-        </> */}
+        </>  */}
         <Button
           disabled={mode === "view"}
           design="Transparent"
@@ -442,10 +517,10 @@ const Itemtable = (props) => {
           onClick={selectBottomRow}
         >
           <Icon design="Information" name="arrow-bottom"></Icon>
-        </Button>
-        <Button disabled={disable} design="Transparent" onClick={deleteRow}>
-          <Icon design="Information" name="delete"></Icon>
         </Button> */}
+        <Button disabled={disable} design="Transparent" onClick={()=>deleteRow()}>
+          <Icon design="Information" name="delete"></Icon>
+        </Button>
 
         <Button
           disabled={mode === "view"}
@@ -461,9 +536,9 @@ const Itemtable = (props) => {
         columns={columns}
         withNavigationHighlight
         getRowId={(row) => row.original.id.toString()}
-        //selectionMode="Single"
-        // selectedRowIds={rowSelection && Object.keys(rowSelection)} // 👈 ensures rows are preselected
-        // onRowSelect={(e) => onRowSelect(e)}
+        selectionMode="Multiple"
+         //selectedRowIds={rowSelection && Object.keys(rowSelection)} // 👈 ensures rows are preselected
+         onRowSelect={(e) => onRowSelect(e)}
         // markNavigatedRow={markNavigatedRow}
         visibleRows={5}
       />

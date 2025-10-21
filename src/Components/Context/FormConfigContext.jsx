@@ -290,7 +290,7 @@ const FormConfigProvider = ({ children }) => {
     //   is_visible: "1",
     // },
     {
-      FieldName: "ItemCode",
+      FieldName: "ServiceCode",
       DisplayName: "Service Code",
       DataType: "nvarchar(50)",
       inputType: "select",
@@ -300,7 +300,7 @@ const FormConfigProvider = ({ children }) => {
       is_visible: "1",
     },
     {
-      FieldName: "ItemName",
+      FieldName: "ServiceName",
       DisplayName: "Service Name",
       DataType: "nvarchar(50)",
       inputType: "select",
@@ -589,15 +589,14 @@ const FormConfigProvider = ({ children }) => {
       grosstotal: "8000",
     },
   ];
-  const serviceTableColumn = [
-    { Header: "#", accessor: "serviceCode", type: "text" },
-    { Header: "Description", accessor: "description", type: "text" },
-    { Header: "G/L Account", accessor: "GLAccount", type: "number" },
-    { Header: "G/L Account name", accessor: "GLAccountName", type: "text" },
-    { Header: "Tax Code", accessor: "Taxcode", type: "number" },
-    { Header: "Total(LC)", accessor: "totallc", type: "number" },
 
-    { Header: "Gross Total(LC)", accessor: "grosstotal", type: "number" },
+   const serviceTableColumn = [
+    { Header: "SL No", accessor: "slno", type: "text" },
+    { Header: "Service No", accessor: "ServiceCode", type: "text" },
+
+    { Header: "Service Description", accessor: "ServiceName", type: "text" },
+    { Header: "Quantity", accessor: "quantity", type: "number" },
+    { Header: "Amount", accessor: "amount", type: "number" },
   ];
   const fieldConfig = [
     {
