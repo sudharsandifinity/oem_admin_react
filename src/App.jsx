@@ -78,7 +78,7 @@ import EditPurchaseOrder from "./Views/PurchaseOrder/EditPurchaseOrder";
 import ViewSalesOrder from "./Views/SalesOrder/ViewSalesOrder";
 import ViewPurchaseOrder from "./Views/PurchaseOrder/ViewPurchaseOrder";
 import UserMainLayout from "./Views/Layouts/UserMainLayout";
-import Home from "./Home";
+// import Home from "./Home";
 // import AssignFormMenuMaster from "./Views/Admin/Menu/AssignFormToMenu/AssignFormMenuMaster";
 // import CreateAssignFormMenu from "./Views/Admin/Menu/AssignFormToMenu/CreateAssignFormMenu";
 //import { useEffect, useState } from "react";
