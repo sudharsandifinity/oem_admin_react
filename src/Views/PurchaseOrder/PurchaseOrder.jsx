@@ -50,7 +50,6 @@ import UserDefinedFields from "./User-DefinedFields/UserDefinedFields";
 import { useDispatch, useSelector } from "react-redux";
 import { createVendorOrder } from "../../store/slices/VendorOrderSlice";
 
-
 export default function PurchaseOrder() {
   const { fieldConfig, CustomerDetails, DocumentDetails } =
     useContext(FormConfigContext);
@@ -143,7 +142,7 @@ export default function PurchaseOrder() {
       )
     );
     try {
-        setLoading(true);
+      setLoading(true);
       const payload = {
         CardCode: formData.CardCode,
         DocDueDate: formData.DocDueDate
@@ -166,16 +165,15 @@ export default function PurchaseOrder() {
         navigate("/login");
       }
       setOpen(true);
-      
     } catch (err) {
       setApiError(err?.message || "Failed to create branch");
     } finally {
-    setLoading(false); // ✅ stop loader
+      setLoading(false); // ✅ stop loader
       setTimeout(() => {
-      setLoading(false);
-      setOpen(true); // open success dialog
-    }, 2000);
-  }
+        setLoading(false);
+        setOpen(true); // open success dialog
+      }, 2000);
+    }
   };
   const renderInput = (field) => {
     const value = form[field.FieldName] || "";
@@ -231,7 +229,8 @@ export default function PurchaseOrder() {
     }
   }, [formId]);
   return (
-      <>{loading ? (
+    <>
+      {loading ? (
         <div
           style={{
             display: "flex",
@@ -247,32 +246,33 @@ export default function PurchaseOrder() {
             Submitting your request… please wait.🚀
           </span>
         </div>
-      ) : (<ObjectPage
-      footerArea={
-        <>
-          {" "}
-          <Bar
-            style={{ padding: 0.5 }}
-            design="FloatingFooter"
-            endContent={
-              <>
-                <Button design="Positive" onClick={() => handleSubmit()}>
-                  Submit
-                </Button>
-                <Button
-                  design="Positive"
-                  onClick={() => navigate(`/Purchase/${formId}`)}
-                >
-                  Cancel
-                </Button>
-              </>
-            }
-          />
-        </>
-      }
-      headerArea={
-        <DynamicPageHeader>
-          {/* <FlexBox wrap="Wrap">
+      ) : (
+        <ObjectPage
+          footerArea={
+            <>
+              {" "}
+              <Bar
+                style={{ padding: 0.5 }}
+                design="FloatingFooter"
+                endContent={
+                  <>
+                    <Button design="Positive" onClick={() => handleSubmit()}>
+                      Submit
+                    </Button>
+                    <Button
+                      design="Positive"
+                      onClick={() => navigate(`/Purchase/${formId}`)}
+                    >
+                      Cancel
+                    </Button>
+                  </>
+                }
+              />
+            </>
+          }
+          headerArea={
+            <DynamicPageHeader>
+              {/* <FlexBox wrap="Wrap">
             <FlexBox direction="Column">
               <Label>Customer</Label>
             </FlexBox>
@@ -300,207 +300,224 @@ export default function PurchaseOrder() {
               />
             </FlexBox>
           </FlexBox> */}
-        </DynamicPageHeader>
-      }
-      // image="https://sap.github.io/ui5-webcomponents-react/v2/assets/Person-B7wHqdJw.png"
-      imageShapeCircle
-      mode="IconTabBar"
-      onBeforeNavigate={function Xs() {}}
-      onPinButtonToggle={function Xs() {}}
-      onSelectedSectionChange={function Xs() {}}
-      onToggleHeaderArea={function Xs() {}}
-      selectedSectionId="section1"
-      style={{
-        height: "700px",
-        maxHeight: "90vh",
-      }}
-      titleArea={
-        <ObjectPageTitle
-          breadcrumbs={
-            <>
-              <Breadcrumbs
-                design="Standard"
-                separators="Slash"
-                onItemClick={(e) => {
-                  const route = e.detail.item.dataset.route;
-                  if (route) navigate(route);
-                }}
-              >
-                <BreadcrumbsItem data-route="/UserDashboard">
-                  Home
-                </BreadcrumbsItem>
-                <BreadcrumbsItem data-route={`/Purchase/${formId}`}>
-                  Manage Purchase Order
-                </BreadcrumbsItem>
-                <BreadcrumbsItem>
+            </DynamicPageHeader>
+          }
+          // image="https://sap.github.io/ui5-webcomponents-react/v2/assets/Person-B7wHqdJw.png"
+          imageShapeCircle
+          mode="IconTabBar"
+          onBeforeNavigate={function Xs() {}}
+          onPinButtonToggle={function Xs() {}}
+          onSelectedSectionChange={function Xs() {}}
+          onToggleHeaderArea={function Xs() {}}
+          selectedSectionId="section1"
+          style={{
+            height: "700px",
+            maxHeight: "90vh",
+          }}
+          titleArea={
+            <ObjectPageTitle
+              breadcrumbs={
+                <>
+                  <Breadcrumbs
+                    design="Standard"
+                    separators="Slash"
+                    onItemClick={(e) => {
+                      const route = e.detail.item.dataset.route;
+                      if (route) navigate(route);
+                    }}
+                  >
+                    <BreadcrumbsItem data-route="/UserDashboard">
+                      Home
+                    </BreadcrumbsItem>
+                    <BreadcrumbsItem data-route={`/Purchase/${formId}`}>
+                      {formDetails[0]?.name?formDetails[0]?.name:"Purchase Order"}
+                    </BreadcrumbsItem>
+                    <BreadcrumbsItem>
+                      {formDetails ? formDetails[0]?.name : "Purchase Order"}
+                    </BreadcrumbsItem>
+                  </Breadcrumbs>
+                </>
+              }
+              header={
+                <Title level="H2">
                   {formDetails ? formDetails[0]?.name : "Purchase Order"}
-                </BreadcrumbsItem>
-              </Breadcrumbs>
-            </>
-          }
-          header={
-            <Title level="H2">
-              {formDetails ? formDetails[0]?.name : "Purchase Order"}
-            </Title>
-          }
-          navigationBar={
-            <Toolbar design="Transparent">
-              {/* <ToolbarButton design="Transparent" icon="full-screen" />
+                </Title>
+              }
+              navigationBar={
+                <Toolbar design="Transparent">
+                  {/* <ToolbarButton design="Transparent" icon="full-screen" />
               <ToolbarButton design="Transparent" icon="exit-full-screen" /> */}
 
-              <ToolbarButton
-                onClick={() => navigate(`/Purchase/${formId}`)}
-                design="Transparent"
-                icon="decline"
-              />
-            </Toolbar>
-          }
-        >
-          <ObjectStatus>
-            {/* <Button design="Transparent" icon="navigation-right-arrow"  onClick={openMenu} >
+                  <ToolbarButton
+                    onClick={() => navigate(`/Purchase/${formId}`)}
+                    design="Transparent"
+                    icon="decline"
+                  />
+                </Toolbar>
+              }
+            >
+              <ObjectStatus>
+                {/* <Button design="Transparent" icon="navigation-right-arrow"  onClick={openMenu} >
                  Company
               </Button>
             <CustomerSelection menuRef={menuRef}/> */}
-          </ObjectStatus>
-        </ObjectPageTitle>
-      }
-    >
-      {/* {
+              </ObjectStatus>
+            </ObjectPageTitle>
+          }
+        >
+          {/* {
       tabList.length > 0 && tabList.map((tab) => {
         console.log("object", tab);
         if (tab.name === "general") {
           return ( */}
-      <ObjectPageSection
-        id="section1"
-        style={{ height: "100%" }}
-        titleText="General"
-      >
-        {/* <General form={form} SubForms={tab.SubForms} handleChange={handleChange} /> */}
-        <General
-          onSubmit={handleSubmit}
-          setFormData={setFormData}
-          formData={formData}
-          defaultValues={{
-            CardCode: "",
-            DocDueDate: "1",
-            DocumentLines: [],
-          }}
-          apiError={apiError}
-        />
-      </ObjectPageSection>
-      {/* );
+          <ObjectPageSection
+            id="section1"
+            style={{ height: "100%" }}
+            titleText="General"
+          >
+            {/* <General form={form} SubForms={tab.SubForms} handleChange={handleChange} /> */}
+            <General
+              onSubmit={handleSubmit}
+              setFormData={setFormData}
+              formData={formData}
+              defaultValues={{
+                CardCode: "",
+                DocDueDate: "1",
+                DocumentLines: [],
+              }}
+              apiError={apiError}
+            />
+          </ObjectPageSection>
+          {/* );
         } else if (tab.name === "contents") {
           return ( */}
-      <ObjectPageSection
-        id="section2"
-        style={{
-          height: "100%",
-        }}
-        titleText="Contents"
-      >
-        <Contents
-          rowSelection={rowSelection}
-          setRowSelection={setRowSelection}
-          itemdata={itemdata}
-          setitemData={setitemData}
-          setitemTableData={setitemTableData}
-          itemTabledata={itemTabledata}
-          orderItems={orderItems}
-          loading={loading}
-          form={form}
-          handleRowChange={handleRowChange}
-          deleteRow={deleteRow}
-          addRow={addRow}
-          PurchaseOrderRenderInput={PurchaseOrderRenderInput}
-          handleChange={handleChange}
-          mode="create"
-        />
-      </ObjectPageSection>
-      {/* );
+          <ObjectPageSection
+            id="section2"
+            style={{
+              height: "100%",
+            }}
+            titleText="Contents"
+          >
+            <Contents
+              rowSelection={rowSelection}
+              setRowSelection={setRowSelection}
+              itemdata={itemdata}
+              setitemData={setitemData}
+              setitemTableData={setitemTableData}
+              itemTabledata={itemTabledata}
+              orderItems={orderItems}
+              loading={loading}
+              form={form}
+              handleRowChange={handleRowChange}
+              deleteRow={deleteRow}
+              addRow={addRow}
+              PurchaseOrderRenderInput={PurchaseOrderRenderInput}
+              handleChange={handleChange}
+              mode="create"
+            />
+          </ObjectPageSection>
+          {/* );
         } else if (tab.name === "logistics") {
           return ( */}
-      <ObjectPageSection
-        id="section3"
-        style={{
-          height: "100%",
-        }}
-        titleText="Logistics"
-      >
-        <Logistics
-          fieldConfig={fieldConfig}
-          PurchaseOrderRenderInput={PurchaseOrderRenderInput}
-          form={form}
-          handleChange={handleChange}
-        />
-      </ObjectPageSection>
-      {/* );
+          <ObjectPageSection
+            id="section3"
+            style={{
+              height: "100%",
+            }}
+            titleText="Logistics"
+          >
+            <Logistics
+              fieldConfig={fieldConfig}
+              PurchaseOrderRenderInput={PurchaseOrderRenderInput}
+              form={form}
+              handleChange={handleChange}
+            />
+          </ObjectPageSection>
+          {/* );
         }
         else if (tab.name === "accounting") {
           return ( */}
-      <ObjectPageSection
-        id="section4"
-        style={{
-          height: "100%",
-        }}
-        titleText="Accounting"
-      >
-        <Accounting />
-      </ObjectPageSection>
-      {/* );
+          <ObjectPageSection
+            id="section4"
+            style={{
+              height: "100%",
+            }}
+            titleText="Accounting"
+          >
+            <Accounting />
+          </ObjectPageSection>
+          {/* );
         } else if (tab.name === "attachments") {
           return ( */}
-      <ObjectPageSection
-        id="section5"
-        style={{
-          height: "100%",
-        }}
-        titleText="Attachments"
-      >
-        <Attachments />
-      </ObjectPageSection>
-      {/* );
+          <ObjectPageSection
+            id="section5"
+            style={{
+              height: "100%",
+            }}
+            titleText="Attachments"
+          >
+            <Attachments />
+          </ObjectPageSection>
+          {/* );
         } else if (tab.name === "user-defined-field") {
           return ( */}
-      <ObjectPageSection
-        id="section6"
-        style={{
-          height: "100%",
-        }}
-        titleText="User-defined Fields"
-      >
-        <UserDefinedFields form={form} handleChange={handleChange} />
-      </ObjectPageSection>
-      {/* );
+          <ObjectPageSection
+            id="section6"
+            style={{
+              height: "100%",
+            }}
+            titleText="User-defined Fields"
+          >
+            <UserDefinedFields form={form} handleChange={handleChange} />
+          </ObjectPageSection>
+          {/* );
         }
       }) */}
-    </ObjectPage>)}
-    <Dialog open={open} onAfterClose={() => setOpen(false)}>
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                padding: "2rem",
-                textAlign: "center"
-              }}
-            >
-               {apiError ? (
-                               <><Icon
-                                 name="message-error"
-                                 style={{ fontSize: "2rem", color: "red" }}
-                               > </Icon>
-                                 <h2 style={{ marginTop: "1rem" }}>Error!</h2>
-                                 <p>{apiError}</p>
-                              </>
-                             ) : (
-                         <> <Icon name="message-success" style={{ fontSize: "2rem", color: "green" }} ></Icon>
-                           <h2 style={{ marginTop: "1rem" }}>Success!</h2>
-                           <p>Your request has been submitted successfully 🎉</p>
-                         </>
-                       )}  <Button design="Emphasized" onClick={() => {navigate(`/Purchase/${formId}`);;setOpen(false)}}>
-                OK
-              </Button>
-            </div>
-          </Dialog></>
+        </ObjectPage>
+      )}
+      <Dialog open={open} onAfterClose={() => setOpen(false)}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            padding: "2rem",
+            textAlign: "center",
+          }}
+        >
+          {apiError ? (
+            <>
+              <Icon
+                name="message-error"
+                style={{ fontSize: "2rem", color: "red" }}
+              >
+                {" "}
+              </Icon>
+              <h2 style={{ marginTop: "1rem" }}>Error!</h2>
+              <p>{apiError}</p>
+            </>
+          ) : (
+            <>
+              {" "}
+              <Icon
+                name="message-success"
+                style={{ fontSize: "2rem", color: "green" }}
+              ></Icon>
+              <h2 style={{ marginTop: "1rem" }}>Success!</h2>
+              <p>Your request has been submitted successfully 🎉</p>
+            </>
+          )}{" "}
+          <Button
+            design="Emphasized"
+            onClick={() => {
+              navigate(`/Purchase/${formId}`);
+              setOpen(false);
+            }}
+          >
+            OK
+          </Button>
+        </div>
+      </Dialog>
+    </>
   );
 }

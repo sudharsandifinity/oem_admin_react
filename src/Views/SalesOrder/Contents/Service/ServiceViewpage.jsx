@@ -1,4 +1,4 @@
-import React from 'react'
+import React from "react";
 import {
   List,
   ListItemStandard,
@@ -6,11 +6,12 @@ import {
   FlexBox,
   FlexBoxDirection,
 } from "@ui5/webcomponents-react";
-const ServiceViewpage = (viewService) => {
+const serviceViewPage = (viewservice) => {
+  console.log("viewservice", viewservice);
   return (
     <div style={{ height: "flex", width: "300px",marginTop:"20px" }}>
       <List>
-        {Object.entries(viewService.viewService).map(([key, value]) => (
+        {Object.entries(viewservice.viewservice).map(([key, value]) => (
           <ListItemStandard >
             <FlexBox
               direction={FlexBoxDirection.Row}
@@ -23,7 +24,7 @@ const ServiceViewpage = (viewService) => {
         ))}
       </List>
     </div>
-  )
-}
+  );
+};
 
-export default ServiceViewpage
+export default serviceViewPage;

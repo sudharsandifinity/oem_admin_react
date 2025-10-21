@@ -3,7 +3,7 @@ import React from 'react'
 
 const ServicePopupFilterDialog = (props) => {
     const {setFilterDialogOpen,filterdialogOpen,servicepopupData,handleDialogServiceClick,fieldName}=props
-
+console.log("servicepopupData",servicepopupData)
     return (
     <Dialog
             headerText={"Select " + fieldName + "" }
@@ -13,11 +13,12 @@ const ServicePopupFilterDialog = (props) => {
             footer={<Button onClick={() => setFilterDialogOpen(false)}>Close</Button>}
           >
             <List onItemClick={(e)=>handleDialogServiceClick(e,fieldName)}>
-              {servicepopupData.map((service, idx) => 
+              {servicepopupData.length>0&&servicepopupData.map((service, idx) => 
                 <ListItemStandard key={idx} value={service[fieldName]}>{service[fieldName]}</ListItemStandard>
               )}
             </List>
           </Dialog>
   )
 }
+
 export default ServicePopupFilterDialog

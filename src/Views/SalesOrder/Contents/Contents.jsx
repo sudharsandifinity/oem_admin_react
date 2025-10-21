@@ -42,6 +42,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { fetchOrderItems } from "../../../store/slices/CustomerOrderItemsSlice";
 import { set } from "react-hook-form";
+import { fetchOrderServices } from "../../../store/slices/CustomerOrderServiceSlice";
 
 const Contents = (props) => {
   const {
@@ -59,6 +60,7 @@ const Contents = (props) => {
     setserviceData,
     setserviceTableData,
     serviceTabledata,
+    type,setType
   } = props;
   const {
     fieldConfig,
@@ -80,7 +82,7 @@ const Contents = (props) => {
     amount: "-",
   });
   console.log("orderitem", orderItems);
-  const [type, setType] = useState("Item");
+ 
   const [addItemdialogOpen, setAddItemDialogOpen] = useState(false);
   const [addServiceDialogOpen, setAddServicedialogOpen] = useState(false);
 
@@ -112,6 +114,16 @@ const Contents = (props) => {
             ItemName: item.ItemName,
           }));
           mode === "create" && setitemData(tableconfig);
+        }
+        const serviceorder = await dispatch(fetchOrderServices()).unwrap();
+        console.log("serviceorder",serviceorder)
+         if (res.value?.length > 0) {
+          const tableconfig = serviceorder.value.map((item, index) => ({
+            slno: index,
+            ServiceCode: item.Code,
+            ServiceName: item.Name,
+          }));
+          mode === "create" && setserviceData(tableconfig);
         }
         if (res.message === "Please Login!") {
           navigate("/");
@@ -147,6 +159,19 @@ const Contents = (props) => {
     ...(itemTableColumn &&
       itemTableColumn.length &&
       itemTableColumn
+        // .filter(
+        //   (col) =>
+        //     col.accessor !== "ItemCode"
+        // )
+        .map((col) => ({
+          Header: col.Header,
+          accessor: col.accessor,
+        }))),
+  ];
+  const dynamcicServiceCols = [
+    ...(serviceTableColumn &&
+      serviceTableColumn.length &&
+      serviceTableColumn
         // .filter(
         //   (col) =>
         //     col.accessor !== "ItemCode"
@@ -284,67 +309,77 @@ const Contents = (props) => {
     ],
     [setitemData, layout]
   );
-const[selectedServices,setSelectedServices] = useState({})
-  const saveService=(item)=>{
- setSelectedServices(rowSelection);
+  const [selectedServices, setSelectedServices] = useState({});
+  const saveService = (item) => {
+    setSelectedServices(rowSelection);
     console.log("itemForm", itemForm, item);
-setserviceTableData((prev) => {
-  let updated = [...prev];
-console.log("updated",updated)
-  // Remove the last row if it's an empty placeholder
-  if (updated[updated.length - 1]?.ServiceCode === "") {
-    updated.pop();
-  }
+    setserviceTableData((prev) => {
+      let updated = [...prev];
+      console.log("updated", updated);
+      // Remove the last row if it's an empty placeholder
+      if (updated[updated.length - 1]?.ServiceCode === "") {
+        updated.pop();
+      }
 
-  // Convert to array if item is object form like {0: {...}, 1: {...}}
-  const newItems = Array.isArray(item) ? item : Object.values(item);
+      // Convert to array if item is object form like {0: {...}, 1: {...}}
+      const newItems = Array.isArray(item) ? item : Object.values(item);
 
-  // ✅ Append new items instead of replacing
-  updated = [...updated, ...newItems];
+      // ✅ Append new items instead of replacing
+      updated = [...updated, ...newItems];
 
-  return updated;
-  });
-};
+      return updated;
+    });
+  };
   const [selectedRowIndex, setSelectedRowIndex] = useState(null);
 
   const [selectedItems, setSelectedItems] = useState({});
-  const saveItem = (item, index) => {
-    setSelectedItems(rowSelection);
-    console.log("itemForm", itemForm, item);
-setitemTableData((prev) => {
-  let updated = [...prev];
+  // const saveItem = (item, index) => {
+  //   setSelectedItems(rowSelection);
+  //   console.log("itemForm", itemForm, item);
+  //   setitemTableData((prev) => {
+  //     let updated = [...prev];
 
-  // Remove the last row if it's an empty placeholder
-  if (updated[updated.length - 1]?.ItemCode === "") {
-    updated.pop();
-  }
+  //     // Remove the last row if it's an empty placeholder
+  //     if (updated[updated.length - 1]?.ItemCode === "") {
+  //       updated.pop();
+  //     }
 
-  // Convert to array if item is object form like {0: {...}, 1: {...}}
-  const newItems = Array.isArray(item) ? item : Object.values(item);
+  //     // Convert to array if item is object form like {0: {...}, 1: {...}}
+  //     const newItems = Array.isArray(item) ? item : Object.values(item);
 
-  // ✅ Append new items instead of replacing
-  updated = [...updated, ...newItems];
+  //     // ✅ Append new items instead of replacing
+  //     updated = [...updated, ...newItems];
 
-  return updated;
-});
+  //     return updated;
+  //   });
 
-    // setitemTableData((prev) => {
-    //   const updated = [...prev];
+  // };
+const saveItem = (item, index) => {
+  setSelectedItems(rowSelection);
 
-    //   if (updated[updated.length - 1]?.ItemCode === "") {
-    //     updated.pop();
-    //   }
+  setitemTableData((prev) => {
+    let updated = [...prev];
 
-    //   const newItems = Array.isArray(item) ? item : Object.values(item);
+    if (updated.length > 0 && updated[updated.length - 1]?.ItemCode === "") {
+      updated.pop();
+    }
 
-    //   newItems.forEach((newItem, i) => {
-    //     updated[index + i] = newItem;
-    //   });
+    let nextSlno =
+      updated.length > 0 ? updated[updated.length - 1].slno + 1 : 0;
 
-    //   return newItems;
-    // });
-  };
+    const newItems = Array.isArray(item) ? item : Object.values(item);
 
+    newItems.forEach((newItem) => {
+      updated.push({
+        ...newItem,
+        slno: nextSlno, 
+      });
+      nextSlno++; 
+    });
+
+    return updated;
+  });
+}
   const handleitemRowChange = (item) => {
     console.log("handleitemRowChange", item);
   };
@@ -491,11 +526,11 @@ setitemTableData((prev) => {
                       setRowSelection={setRowSelection}
                       rowSelection={rowSelection}
                       saveService={saveService}
-                      servicedata={itemdata}
-                      setserviceData={setitemData}
+                      servicedata={servicedata}
+                      setserviceData={setserviceData}
                       setserviceTableData={setserviceTableData}
                       serviceTabledata={serviceTabledata}
-                      dynamcicServiceCols={dynamcicItemCols}
+                      dynamcicServiceCols={dynamcicServiceCols}
                       selectedRowIndex={selectedRowIndex}
                       setSelectedRowIndex={setSelectedRowIndex}
                       mode={mode}

@@ -49,6 +49,8 @@ const ManageSalesOrder = () => {
   });
 
   const [isClearFilter, setisClearFilter] = useState(false);
+    const user = useSelector((state) => state.auth.user);
+  
   const { companyformfield } = useSelector((state) => state.companyformfield);
   const { companyformfielddata } = useSelector(
     (state) => state.companyformfielddata
@@ -57,6 +59,8 @@ const ManageSalesOrder = () => {
     (state) => state.customerorder
   );
   const [tableData, settableData] = useState([]);
+    const [formDetails, setFormDetails] = useState([]);
+  
   const placeholderRows = Array(5).fill({
     CustomerCode: "Loading...",
     CustomerName: "Loading...",
@@ -163,8 +167,8 @@ const ManageSalesOrder = () => {
           const docLines = row.original?.DocumentLines;
 
           const isRowDisabled = Array.isArray(docLines)
-            ? docLines.every((line) => Number(line?.Quantity) === 1)
-            : Number(docLines?.Quantity) === 1;
+            ? docLines.every((line) => Number(line?.Quantity) === 0)
+            : Number(docLines?.Quantity) === 0;
           return (
             <FlexBox
               alignItems="Center"
@@ -191,7 +195,7 @@ const ManageSalesOrder = () => {
               /> */}
               <Button
                 icon="sap-icon://show"
-                disabled={isOverlay || isRowDisabled}
+                //disabled={isOverlay || isRowDisabled}
                 design="Transparent"
                 onClick={() => {
                   //setLayout("TwoColumnsMidExpanded");
@@ -202,7 +206,7 @@ const ManageSalesOrder = () => {
               />
               <Button
                 icon="sap-icon://navigation-right-arrow"
-                disabled={isOverlay || isRowDisabled}
+                //disabled={isOverlay || isRowDisabled}
                 design="Transparent"
                 onClick={() => {
                   setLayout("TwoColumnsMidExpanded");
@@ -239,7 +243,7 @@ const ManageSalesOrder = () => {
           const isRowDisabled =
             Array.isArray(docLines) &&
             docLines.length > 0 &&
-            docLines.every((line) => Number(line?.Quantity) === 1);
+            docLines.every((line) => Number(line?.Quantity) === 0);
 
           // compute style for this row (apply only when disabled)
           const style = isRowDisabled ? disabledCellStyle : {};
@@ -306,6 +310,20 @@ const ManageSalesOrder = () => {
   const [formConfig, setFormConfig] = useState(null);
 
   // if (!formConfig) return <div>Loading form...</div>;
+    useEffect(() => {
+      if (formId) {
+        // Fetch form data based on formId
+        const formDetails = user?.Roles?.flatMap((role) =>
+          role.UserMenus.flatMap((menu) =>
+            menu.children.filter((submenu) => submenu.Form.id === formId)
+          )
+        );
+        //setTabList((formDetails && formDetails[0]?.Form.FormTabs) || []);
+        setFormDetails(formDetails);
+      } else {
+        navigate("/");
+      }
+    }, [formId]);
   return (
     <div>
       <TopNav />
@@ -394,11 +412,11 @@ const ManageSalesOrder = () => {
                 <BreadcrumbsItem data-route="/UserDashboard">
                   Home
                 </BreadcrumbsItem>
-                <BreadcrumbsItem>Sales Orders</BreadcrumbsItem>
+                <BreadcrumbsItem>{formDetails[0]?.name?formDetails[0]?.name:"Sales order List"}</BreadcrumbsItem>
               </Breadcrumbs>
             }
-            heading={<Title>Sales Orders</Title>}
-            snappedHeading={<Title>Sales Orders</Title>}
+            heading={<Title>{formDetails[0]?.name?formDetails[0]?.name:"Sales order List"}</Title>}
+            snappedHeading={<Title>{formDetails[0]?.name?formDetails[0]?.name:"Sales order List"}</Title>}
           ></DynamicPageTitle>
         }
       >
@@ -412,7 +430,7 @@ const ManageSalesOrder = () => {
                   <div>
                     <FlexBox direction="Column">
                       <AnalyticalTable
-                        columns={columnsWithRowWrap}
+                        columns={columns}
                         data={tableData}
                         // header={`(Sales Order - ${tableData.length})`}
                         rowStyle={(row) => {
