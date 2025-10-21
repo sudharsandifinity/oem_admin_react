@@ -22,7 +22,7 @@ function buildMenuTree(menus) {
   return grouped;
 }
 
-const UserSideNav = ({ collapsed, setCollapsed }) => {
+const UserSideBar = ({ collapsed, setCollapsed }) => {
     // const { Menuitems } = useContext(FormConfigContext);
   const { usermenus } = useSelector((state) => state.usermenus);
   const { user } = useSelector((state) => state.auth);
@@ -172,19 +172,8 @@ const UserSideNav = ({ collapsed, setCollapsed }) => {
                 </SideNavigationGroup>
             </SideNavigation>
         </FlexBox>
-        <FlexBox style={{ flex: 1, height: "100%" }}>
-            <Outlet />
-            {/* <Button onClick={() =>
-                                  navigate("/home")
-                                }>test</Button> */}
-             {/* <Button onClick={() =>
-                                  navigate("/lay")
-                                }>test</Button> */}
-            {/* {location.pathname === "/UserDashboard" && <UserDashboard />} */}
-            <UserDashboard />
-        </FlexBox>
     </FlexBox>
   )
 }
 
-export default UserSideNav
+export default UserSideBar

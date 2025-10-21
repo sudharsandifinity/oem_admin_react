@@ -255,7 +255,7 @@ export default function SalesOrder() {
   }, [formId]);
   return (
     <>
-      <BusyIndicator
+      {/* <BusyIndicator
                   style={{
                     position: "fixed",
                     top: 0,
@@ -266,7 +266,7 @@ export default function SalesOrder() {
                     backgroundColor: "rgba(241, 243, 248, 0.8)",
                   }}
                   active={loading}
-                >
+                > */}
         <ObjectPage
           footerArea={
             <>
@@ -350,7 +350,7 @@ export default function SalesOrder() {
                       Home
                     </BreadcrumbsItem>
                     <BreadcrumbsItem data-route={`/Sales/${formId}`}>
-                      {formDetails[0]?.name?formDetails[0]?.name:"Sales order List"}
+                      Sales Orders
                     </BreadcrumbsItem>
                     <BreadcrumbsItem>
                       {formDetails ? "Create "+formDetails[0]?.name : "Create Sales Order"}
@@ -500,7 +500,7 @@ export default function SalesOrder() {
         }
       }) */}
         </ObjectPage>
-     </BusyIndicator>
+     {/* </BusyIndicator> */}
       <Dialog open={open} onAfterClose={() => setOpen(false)}>
         <div
           style={{
