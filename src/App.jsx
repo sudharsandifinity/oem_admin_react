@@ -77,6 +77,8 @@ import PurchaseOrder from "./Views/PurchaseOrder/PurchaseOrder";
 import EditPurchaseOrder from "./Views/PurchaseOrder/EditPurchaseOrder";
 import ViewSalesOrder from "./Views/SalesOrder/ViewSalesOrder";
 import ViewPurchaseOrder from "./Views/PurchaseOrder/ViewPurchaseOrder";
+import UserMainLayout from "./Views/Layouts/UserMainLayout";
+import Home from "./Home";
 // import AssignFormMenuMaster from "./Views/Admin/Menu/AssignFormToMenu/AssignFormMenuMaster";
 // import CreateAssignFormMenu from "./Views/Admin/Menu/AssignFormToMenu/CreateAssignFormMenu";
 //import { useEffect, useState } from "react";
@@ -126,7 +128,7 @@ function App() {
 
                   <Route path="/UserDashboard" element={<UserSideNavWrapper />} />
 
-                  <Route path="/SalesOrder/create/:formId" element={<SalesOrder />} />
+                  {/* <Route path="/SalesOrder/create/:formId" element={<SalesOrder />} /> */}
                   <Route path="/SalesOrder/edit/:formId/:id" element={<EditSalesOrder />} />
                   <Route path="/SalesOrder/view/:formId/:id" element={<ViewSalesOrder/>}/>
 
@@ -252,6 +254,10 @@ function App() {
                     />
 
                     {/* Add other nested routes similarly */}
+                  </Route>
+
+                  <Route element={<UserMainLayout />} >
+                    <Route path="/SalesOrder/create/:formId" element={<SalesOrder />} />
                   </Route>
                 </Routes>
               </FormConfigProvider>

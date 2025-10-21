@@ -87,7 +87,7 @@ const CardDialog = ({
       headerText="Select Card Details"
       footer={
         <>
-          <Button design="Emphasized" onClick={handleOk}>
+          <Button design="Default" style={{ width: '100px', margin: '10px' }} onClick={handleOk}>
             OK
           </Button>
         </>
