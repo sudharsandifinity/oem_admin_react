@@ -54,6 +54,7 @@ import {
 } from "../../store/slices/CustomerOrderSlice";
 import { fetchOrderItems } from "../../store/slices/CustomerOrderItemsSlice";
 import { fetchVendorOrderById } from "../../store/slices/VendorOrderSlice";
+import { fetchOrderServices } from "../../store/slices/CustomerOrderServiceSlice";
 
 const EditPurchaseOrder = () => {
   const { id, formId } = useParams();
@@ -69,12 +70,20 @@ const EditPurchaseOrder = () => {
   const [formDetails, setFormDetails] = useState([]);
   const [formData, setFormData] = useState({});
   const [rowSelection, setRowSelection] = useState({});
+  const [type, setType] = useState("Item");
+
   const [generaleditdata, setgeneraleditdata] = useState([]);
   const [itemdata, setitemData] = useState([
     { slno: 1, ItemCode: "", ItemName: "", quantity: "", amount: "" },
   ]);
   const [itemTabledata, setitemTableData] = useState([
     { slno: 1, ItemCode: "", ItemName: "", quantity: "", amount: "" },
+  ]);
+  const [serviceTabledata, setserviceTableData] = useState([
+    { slno: 1, ServiceCode: "", ServiceName: "", quantity: "", amount: "" },
+  ]);
+  const [servicedata, setserviceData] = useState([
+    { slno: 1, ServiceCode: "", ServiceName: "", quantity: "", amount: "" },
   ]);
   const [form, setForm] = useState({
     CardCode: "",
@@ -97,7 +106,8 @@ const EditPurchaseOrder = () => {
       try {
         const orderListById = await dispatch(fetchVendorOrderById(id)).unwrap();
         const orderList = await dispatch(fetchOrderItems()).unwrap();
-        console.log("res,res1", orderListById, orderList);
+        const serviceList = await dispatch(fetchOrderServices().unwrap())
+        console.log("res,res1", orderListById, orderList,serviceList);
         if (orderListById) {
           // 1. Store order header info
           setFormData({
@@ -111,72 +121,137 @@ const EditPurchaseOrder = () => {
 
           // 2. Merge document lines into orderItems
           if (orderListById.DocumentLines?.length > 0) {
-            setitemData(
-              () =>
-                orderList.value
-                  .map((item, index) => {
-                    const matched = orderListById.DocumentLines.find(
-                      (line) => line.ItemCode === item.ItemCode
-                    );
-                    console.log("setitemeditpage", item, matched);
-                    return matched !== undefined
-                      ? {
-                          slno: index, // usually LineNum is 0-based
-                          ItemCode: matched.ItemCode,
-                          ItemName: matched.ItemDescription,
-                          quantity: matched.Quantity,
-                          amount: matched.Amount,
-                        }
-                      : {
-                          slno: index, // usually LineNum is 0-based
-                          ItemCode: item.ItemCode,
-                          ItemName: item.ItemName,
-                          quantity: item.Quantity,
-                          amount: item.Amount,
-                        }; // no placeholder
-                  })
-                  .filter(Boolean) // remove nulls
-            );
+            if (orderListById.DocType === "dDocument_Items") {
+              setType("Item")
+              setitemData(
+                () =>
+                  orderList.value
+                    .map((item, index) => {
+                      const matched = orderListById.DocumentLines.find(
+                        (line) => line.ItemCode === item.ItemCode
+                      );
+                      console.log("setitemeditpage", item, matched);
+                      return matched !== undefined
+                        ? {
+                            slno: index, // usually LineNum is 0-based
+                            ItemCode: matched.ItemCode,
+                            ItemName: matched.ItemDescription,
+                            quantity: matched.Quantity,
+                            amount: matched.Amount,
+                          }
+                        : {
+                            slno: index, // usually LineNum is 0-based
+                            ItemCode: item.ItemCode,
+                            ItemName: item.ItemName,
+                            quantity: item.Quantity,
+                            amount: item.Amount,
+                          }; // no placeholder
+                    })
+                    .filter(Boolean) // remove nulls
+              );
+              setitemTableData(
+                () =>
+                  orderList.value
+                    .map((item) => {
+                      const matched = orderListById.DocumentLines.find(
+                        (line) => line.ItemCode === item.ItemCode
+                      );
+
+                      return matched
+                        ? {
+                            slno: matched.LineNum + 1, // usually LineNum is 0-based
+                            ItemCode: matched.ItemCode,
+                            ItemName: matched.ItemDescription,
+                            quantity: matched.Quantity,
+                            amount: matched.Amount,
+                          }
+                        : null; // no placeholder
+                    })
+                    .filter(Boolean) // remove nulls
+              );
+              if (orderList.value?.length > 0) {
+                const preselected = {};
+                orderListById.DocumentLines.forEach((line) => {
+                  const idx = orderList.value.findIndex(
+                    (o) => o.ItemCode === line.ItemCode
+                  );
+                  if (idx !== -1) {
+                    preselected[idx] = orderList.value[idx];
+                  }
+                });
+                setRowSelection(preselected);
+              }
+            } else {
+              console.log("serviceList",serviceList)
+              setType("Service")
+              setserviceData(
+                () =>
+                  orderList.value
+                    .map((item, index) => {
+                      const matched = orderListById.DocumentLines.find(
+                        (line) => line.AccountCode === item.AccountCode
+                      );
+                      console.log("setitemeditpage", item, matched);
+                      return matched !== undefined
+                        ? {
+                            slno: index, // usually LineNum is 0-based
+                            ItemCode: matched.ItemCode,
+                            ItemName: matched.ItemDescription,
+                            quantity: matched.Quantity,
+                            amount: matched.Amount,
+                          }
+                        : {
+                            slno: index, // usually LineNum is 0-based
+                            ItemCode: item.ItemCode,
+                            ItemName: item.ItemName,
+                            quantity: item.Quantity,
+                            amount: item.Amount,
+                          }; // no placeholder
+                    })
+                    .filter(Boolean) // remove nulls
+              );
+              setitemTableData(
+                () =>
+                  orderList.value
+                    .map((item) => {
+                      const matched = orderListById.DocumentLines.find(
+                        (line) => line.ItemCode === item.ItemCode
+                      );
+
+                      return matched
+                        ? {
+                            slno: matched.LineNum + 1, // usually LineNum is 0-based
+                            ItemCode: matched.ItemCode,
+                            ItemName: matched.ItemDescription,
+                            quantity: matched.Quantity,
+                            amount: matched.Amount,
+                          }
+                        : null; // no placeholder
+                    })
+                    .filter(Boolean) // remove nulls
+              );
+              if (orderList.value?.length > 0) {
+                const preselected = {};
+                orderListById.DocumentLines.forEach((line) => {
+                  const idx = orderList.value.findIndex(
+                    (o) => o.ItemCode === line.ItemCode
+                  );
+                  if (idx !== -1) {
+                    preselected[idx] = orderList.value[idx];
+                  }
+                });
+                setRowSelection(preselected);
+              }
+            }
+
             console.log(
               "itemTabledata:->",
               itemTabledata,
               itemdata,
               orderListById.DocumentLines
             );
-            setitemTableData(
-              () =>
-                orderList.value
-                  .map((item) => {
-                    const matched = orderListById.DocumentLines.find(
-                      (line) => line.ItemCode === item.ItemCode
-                    );
-
-                    return matched
-                      ? {
-                          slno: matched.LineNum + 1, // usually LineNum is 0-based
-                          ItemCode: matched.ItemCode,
-                          ItemName: matched.ItemDescription,
-                          quantity: matched.Quantity,
-                          amount: matched.Amount,
-                        }
-                      : null; // no placeholder
-                  })
-                  .filter(Boolean) // remove nulls
-            );
 
             // 3. Preselect rows
-            if (orderList.value?.length > 0) {
-              const preselected = {};
-              orderListById.DocumentLines.forEach((line) => {
-                const idx = orderList.value.findIndex(
-                  (o) => o.ItemCode === line.ItemCode
-                );
-                if (idx !== -1) {
-                  preselected[idx] = orderList.value[idx];
-                }
-              });
-              setRowSelection(preselected);
-            }
           }
 
           // set general header edit data
@@ -252,23 +327,44 @@ const EditPurchaseOrder = () => {
     //       tableItem.ItemName === item.ItemName
     //   )
     // );
+    let payload = {};
+
     try {
       setLoading(true);
-      const payload = {
-        CardCode: formData.CardCode,
-        DocDueDate: formData.DocDueDate
-          ? new Date(formData.DocDueDate)
-              .toISOString()
-              .split("T")[0]
-              .replace(/-/g, "")
-          : new Date().toISOString().split("T")[0].replace(/-/g, ""),
-        DocumentLines: Object.values(filteredData).map((line) => ({
-          ItemCode: line.ItemCode,
-          ItemDescription: line.ItemName, // ✅ rename to ItemDescription
-          Quantity: line.quantity ? line.quantity : 1,
-          UnitPrice: line.amount,
-        })),
-      };
+      if (type === "Item") {
+        payload = {
+          CardCode: formData.CardCode,
+          DocDueDate: formData.DocDueDate
+            ? new Date(formData.DocDueDate)
+                .toISOString()
+                .split("T")[0]
+                .replace(/-/g, "")
+            : new Date().toISOString().split("T")[0].replace(/-/g, ""),
+          DocumentLines: Object.values(itemTabledata).map((line) => ({
+            ItemCode: line.ItemCode,
+            ItemDescription: line.ItemName, // ✅ rename to ItemDescription
+            Quantity: line.quantity,
+            UnitPrice: line.amount,
+          })),
+        };
+      } else {
+        payload = {
+          CardCode: formData.CardCode,
+          DocType: "dDocument_Service",
+          DocDueDate: formData.DocDueDate
+            ? new Date(formData.DocDueDate)
+                .toISOString()
+                .split("T")[0]
+                .replace(/-/g, "")
+            : new Date().toISOString().split("T")[0].replace(/-/g, ""),
+          DocumentLines: Object.values(serviceTabledata).map((line) => ({
+            AccountCode: line.ServiceCode,
+            ItemDescription: line.ServiceName, // ✅ rename to ItemDescription
+
+            UnitPrice: line.amount,
+          })),
+        };
+      }
       console.log("payload", payload);
       const res = await dispatch(
         updateCustomerOrder({ id, data: payload })
@@ -403,7 +499,9 @@ const EditPurchaseOrder = () => {
                       Home
                     </BreadcrumbsItem>
                     <BreadcrumbsItem data-route={`/Purchase/${formId}`}>
-                     {formDetails[0]?.name?formDetails[0]?.name:"Purchase Order"}
+                      {formDetails[0]?.name
+                        ? formDetails[0]?.name
+                        : "Purchase Order"}
                     </BreadcrumbsItem>
                     <BreadcrumbsItem>
                       {formDetails ? formDetails[0]?.name : "Purchase Order"}
@@ -495,6 +593,8 @@ const EditPurchaseOrder = () => {
               addRow={addRow}
               PurchaseOrderRenderInput={PurchaseOrderRenderInput}
               handleChange={handleChange}
+              type={type}
+              setType={setType}
               mode="edit"
             />
           </ObjectPageSection>

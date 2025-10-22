@@ -470,7 +470,7 @@ const saveItem = (item, index) => {
       > */}
       <div className="tab">
         <Title>Type</Title>
-        <Select>
+        <Select value={type}>
           <Option onClick={() => setType("Item")}>Item</Option>
           <Option onClick={() => setType("Service")}>Service</Option>
         </Select>
