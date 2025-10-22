@@ -2,7 +2,7 @@ import axios from "axios";
 
 // Your local backend API
 const api = axios.create({
-  baseURL: "http://localhost:3002/api/v1",
+  baseURL: "http://192.168.100.82:3002/api/v1",
   timeout: 10000,
   headers: {
     "Content-Type": "application/json",
