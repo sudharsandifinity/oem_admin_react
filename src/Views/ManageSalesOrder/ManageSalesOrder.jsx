@@ -177,7 +177,7 @@ const ManageSalesOrder = () => {
             >
               <Button
                 icon="edit"
-                disabled={isOverlay || isRowDisabled}
+                //disabled={isOverlay || isRowDisabled}
                 design="Transparent"
                 onClick={() => {
                   editRow(row.original);

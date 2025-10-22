@@ -348,7 +348,7 @@ const deleteRow = (itemCodeToRemove) => {
             style={{ textAlign: "right" }}
             type="Number"
             disabled={mode === "view"}
-            value={value || ""}
+            value={value || "0"}
             onInput={(e) => {
               const newValue = e.target.value;
               const rowId = row.original.id;

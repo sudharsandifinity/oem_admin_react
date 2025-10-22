@@ -544,7 +544,7 @@ const saveItem = (item, index) => {
                       )}
                     </div>
                   </FlexBox>
-                }
+            }
                 midColumn={
                   <Page
                     header={
