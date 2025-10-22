@@ -466,7 +466,7 @@ const deleteRow = (itemCodeToRemove) => {
   }, [itemTabledata, mode, dynamicItemColumnslist]);
 
   return (
-    <>
+    <div style={{background: 'white'}}>
       <FlexBox style={{ justifyContent: "end" }}>
         <Button disabled={disable} design="Transparent" onClick={duplicateRow}>
           Duplicate
@@ -532,6 +532,7 @@ const deleteRow = (itemCodeToRemove) => {
       </FlexBox>
       {console.log("itemTabledata", itemTabledata, dynamicItemColumnslist)}
       <AnalyticalTable
+        style={{ borderTop: '1px solid #d6dbe0' }}
         data={itemTabledata}
         columns={columns}
         withNavigationHighlight
@@ -540,7 +541,7 @@ const deleteRow = (itemCodeToRemove) => {
          //selectedRowIds={rowSelection && Object.keys(rowSelection)} // 👈 ensures rows are preselected
          onRowSelect={(e) => onRowSelect(e)}
         // markNavigatedRow={markNavigatedRow}
-        visibleRows={5}
+        visibleRows={10}
       />
       {/* <FlexBox
         justifyContent="end"
@@ -548,15 +549,24 @@ const deleteRow = (itemCodeToRemove) => {
       > */}
       <FlexBox
         style={{
-          justifyContent: "end",
-          marginTop: "1rem",
-          paddingRight: "2rem",
+          marginTop: "3rem"
         }}
       >
-        <Title level="H5">
-          Total Amount:{" "}
-          {totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-        </Title>
+        <FlexBox style={{width: '80%'}}>
+        </FlexBox>
+        <FlexBox 
+          direction="Column"
+          alignItems="FlexStart"
+          style={{width: '30%', gap: '30px'}}
+        >
+          <Title level="H3">
+            Total Summary
+          </Title>
+          <FlexBox>
+            <Label showColon style={{minWidth: '200px'}}>Total</Label>
+            {totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+          </FlexBox>
+        </FlexBox>
       </FlexBox>
       <Dialog
         headerText="Select Item"
@@ -621,7 +631,7 @@ const deleteRow = (itemCodeToRemove) => {
         handleSettingsListClick={handleSettingsListClick}
         dynamicColumnslist={dynamicItemColumnslist}
       />
-    </>
+    </div>
   );
 };
 

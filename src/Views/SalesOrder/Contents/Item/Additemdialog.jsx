@@ -234,7 +234,7 @@ const Additemdialog = (props) => {
       open={addItemdialogOpen}
       onAfterClose={() => setAddItemDialogOpen(false)}
       footer={
-        <FlexBox direction="Row" gap={2}>
+        <FlexBox direction="Row" gap={20} style={{marginTop: '10px'}}>
           <Button
             onClick={() => {
               setAddItemDialogOpen(false);
@@ -262,7 +262,7 @@ const Additemdialog = (props) => {
       <DynamicPage
         headerArea={
           <DynamicPageHeader>
-                       <FlexBox direction="Row" style={{display: 'inline-flex', alignItems: 'end', flexWrap: 'wrap', gap: '15px'}}>
+                       <FlexBox direction="Row" alignItems="Center" justifyContent="SpaceBetween">
                         
               <Grid
                 defaultIndent="XL0 L0 M0 S0"
