@@ -53,6 +53,7 @@ import {
   updateCustomerOrder,
 } from "../../store/slices/CustomerOrderSlice";
 import { fetchOrderItems } from "../../store/slices/CustomerOrderItemsSlice";
+import { fetchOrderServices } from "../../store/slices/CustomerOrderServiceSlice";
 
 const EditSalesOrder = () => {
   const { id, formId } = useParams();
@@ -70,12 +71,20 @@ const EditSalesOrder = () => {
   const [formData, setFormData] = useState({});
   const [rowSelection, setRowSelection] = useState({});
   const [generaleditdata, setgeneraleditdata] = useState([]);
+    const [type, setType] = useState("Item");
+  
   const [itemdata, setitemData] = useState([
     { slno: 1, ItemCode: "", ItemName: "", quantity: "", amount: "" },
   ]);
   const [itemTabledata, setitemTableData] = useState([
     { slno: 1, ItemCode: "", ItemName: "", quantity: "", amount: "" },
   ]);
+    const [serviceTabledata, setserviceTableData] = useState([
+      { slno: 1, ServiceCode: "", ServiceName: "", quantity: "", amount: "" },
+    ]);
+    const [servicedata, setserviceData] = useState([
+      { slno: 1, ServiceCode: "", ServiceName: "", quantity: "", amount: "" },
+    ]);
   const [form, setForm] = useState({
     CardCode: "",
     CardName: "",
@@ -98,120 +107,169 @@ const EditSalesOrder = () => {
           fetchCustomerOrderById(id)
         ).unwrap();
         const orderList = await dispatch(fetchOrderItems()).unwrap();
-        console.log("res,res1", orderListById, orderList);
-        if (orderListById) {
-          // 1. Store order header info
-          setFormData({
-            CardCode: orderListById.CardCode,
-            CardName: orderListById.CardName,
-            DocDueDate: orderListById.CreationDate
-              ? new Date(orderListById.CreationDate).toISOString().split("T")[0]
-              : new Date().toISOString().split("T")[0],
-            DocumentLines: orderListById.DocumentLines || [],
-          });
-
-          // 2. Merge document lines into orderItems
-          if (orderListById.DocumentLines?.length > 0) {
-            // setitemData((prev) =>
-            //   prev.map((item) => {
-            //     const matched = res.DocumentLines.find(
-            //       (line) => line.ItemCode === item.ItemCode
-            //     );
-            //     return matched
-            //       ? {
-            //           ...item,
-            //           quantity: matched.Quantity,
-            //           amount: matched.Amount,
-            //         }
-            //       : item;
-            //   })
-            // );
-            setitemData(
-              () =>
-                orderList.value
-                  .map((item, index) => {
-                    const matched = orderListById.DocumentLines.find(
-                      (line) => line.ItemCode === item.ItemCode
+         const serviceList = await dispatch(fetchOrderServices()).unwrap();
+                console.log("res,res1", orderListById, orderList,serviceList);
+                if (orderListById) {
+                  // 1. Store order header info
+                  setFormData({
+                    CardCode: orderListById.CardCode,
+                    CardName: orderListById.CardName,
+                    DocDueDate: orderListById.CreationDate
+                      ? new Date(orderListById.CreationDate).toISOString().split("T")[0]
+                      : new Date().toISOString().split("T")[0],
+                    DocumentLines: orderListById.DocumentLines || [],
+                  });
+        
+                  // 2. Merge document lines into orderItems
+                  if (orderListById.DocumentLines?.length > 0) {
+                    if (orderListById.DocType === "dDocument_Items") {
+                      setType("Item")
+                      setitemData(
+                        () =>
+                          orderList.value
+                            .map((item, index) => {
+                              const matched = orderListById.DocumentLines.find(
+                                (line) => line.ItemCode === item.ItemCode
+                              );
+                              console.log("setitemeditpage", item, matched);
+                              return matched !== undefined
+                                ? {
+                                    slno: index, // usually LineNum is 0-based
+                                    ItemCode: matched.ItemCode,
+                                    ItemName: matched.ItemDescription,
+                                    quantity: matched.Quantity,
+                                    amount: matched.UnitPrice,
+                                  }
+                                : {
+                                    slno: index, // usually LineNum is 0-based
+                                    ItemCode: item.ItemCode,
+                                    ItemName: item.ItemName,
+                                    quantity: item.Quantity,
+                                    amount: item.UnitPrice,
+                                  }; // no placeholder
+                            })
+                            .filter(Boolean) // remove nulls
+                      );
+                      setitemTableData(
+                        () =>
+                          orderList.value
+                            .map((item) => {
+                              const matched = orderListById.DocumentLines.find(
+                                (line) => line.ItemCode === item.ItemCode
+                              );
+        
+                              return matched
+                                ? {
+                                    slno: matched.LineNum + 1, // usually LineNum is 0-based
+                                    ItemCode: matched.ItemCode,
+                                    ItemName: matched.ItemDescription,
+                                    quantity: matched.Quantity,
+                                    amount: matched.UnitPrice,
+                                  }
+                                : null; // no placeholder
+                            })
+                            .filter(Boolean) // remove nulls
+                      );
+                      if (orderList.value?.length > 0) {
+                        const preselected = {};
+                        orderListById.DocumentLines.forEach((line) => {
+                          const idx = orderList.value.findIndex(
+                            (o) => o.ItemCode === line.ItemCode
+                          );
+                          if (idx !== -1) {
+                            preselected[idx] = orderList.value[idx];
+                          }
+                        });
+                        setRowSelection(preselected);
+                      }
+                    } else {
+                      console.log("serviceList",serviceList)
+                      setType("Service")
+                      setserviceData(
+                        () =>
+                          serviceList.value
+                            .map((item, index) => {
+                              const matched = orderListById.DocumentLines.find(
+                                (line) => line.AccountCode === item.Code
+                              );
+                              return matched !== undefined
+                                ? {
+                                    slno: index, // usually LineNum is 0-based
+                                    ServiceCode: matched.AccountCode,
+                                    ServiceName: matched.ItemDescription,
+                                    quantity: matched.Quantity,
+                                    amount: matched.UnitPrice
+,
+                                  }
+                                : {
+                                    slno: index, // usually LineNum is 0-based
+                                    ServiceCode: item.AccountCode,
+                                    ServiceName: item.ItemDescription,
+                                    quantity: item.Quantity,
+                                    amount: item.UnitPrice,
+                                  }; // no placeholder
+                            })
+                            .filter(Boolean) // remove nulls
+                      );
+                      setserviceTableData(
+                        () =>
+                          serviceList.value
+                            .map((item) => {
+                              const matched = orderListById.DocumentLines.find(
+                                (line) => line.AccountCode === item.Code
+                              );
+        
+                              return matched
+                                ? {
+                                    slno: matched.LineNum + 1, // usually LineNum is 0-based
+                                    ServiceCode: matched.AccountCode,
+                                    ServiceName: matched.ItemDescription,
+                                    quantity: matched.Quantity,
+                                    amount: matched.UnitPrice,
+                                  }
+                                : null; // no placeholder
+                            })
+                            .filter(Boolean) // remove nulls
+                      );
+                      if (serviceList.value?.length > 0) {
+                        const preselected = {};
+                        orderListById.DocumentLines.forEach((line) => {
+                          const idx = serviceList.value.findIndex(
+                            (o) => o.Code === line.AccountCode
+                          );
+                          if (idx !== -1) {
+                            preselected[idx] = orderList.value[idx];
+                          }
+                        });
+                        setRowSelection(preselected);
+                      }
+                    }
+        
+                    console.log(
+                      "itemTabledata:->",
+                      itemTabledata,
+                      itemdata,
+                      orderListById.DocumentLines
                     );
-                    console.log("setitemeditpage", item, matched);
-                    return matched !== undefined
-                      ? {
-                          slno: index, // usually LineNum is 0-based
-                          ItemCode: matched.ItemCode,
-                          ItemName: matched.ItemDescription,
-                          quantity: matched.Quantity,
-                          amount: matched.Amount,
-                        }
-                      : {
-                          slno: index, // usually LineNum is 0-based
-                          ItemCode: item.ItemCode,
-                          ItemName: item.ItemName,
-                          quantity: item.Quantity,
-                          amount: item.Amount,
-                        }; // no placeholder
-                  })
-                  .filter(Boolean) // remove nulls
-            );
-            console.log(
-              "itemTabledata:->",
-              itemTabledata,
-              itemdata,
-              orderListById.DocumentLines
-            );
-            setitemTableData(
-              () =>
-                orderList.value
-                  .map((item) => {
-                    const matched = orderListById.DocumentLines.find(
-                      (line) => line.ItemCode === item.ItemCode
-                    );
-
-                    return matched
-                      ? {
-                          slno: matched.LineNum + 1, // usually LineNum is 0-based
-                          ItemCode: matched.ItemCode,
-                          ItemName: matched.ItemDescription,
-                          quantity: matched.Quantity,
-                          amount: matched.Amount,
-                        }
-                      : null; // no placeholder
-                  })
-                  .filter(Boolean) // remove nulls
-            );
-
-            // 3. Preselect rows
-            if (orderList.value?.length > 0) {
-              const preselected = {};
-              orderListById.DocumentLines.forEach((line) => {
-                const idx = orderList.value.findIndex(
-                  (o) => o.ItemCode === line.ItemCode
-                );
-                if (idx !== -1) {
-                  preselected[idx] = orderList.value[idx];
+        
+                    // 3. Preselect rows
+                  }
+        
+                  // set general header edit data
+                  setgeneraleditdata({
+                    CardCode: orderListById.CardCode,
+                    CardName: orderListById.CardName,
+                    CreationDate: orderListById.CreationDate,
+                  });
                 }
-              });
-              setRowSelection(preselected);
-            }
-          }
-
-          // set general header edit data
-          setgeneraleditdata({
-            CardCode: orderListById.CardCode,
-            CardName: orderListById.CardName,
-            CreationDate: orderListById.CreationDate,
-          });
-        }
-      } catch (err) {
-        console.error("Failed to fetch order:", err);
-      } finally {
-        setTimeout(() => {
-           setLoading(false);
-        }, 2000);
-       
-      }
-    };
-
-    fetchData();
+              } catch (err) {
+                console.error("Failed to fetch order:", err);
+              } finally {
+                setLoading(false);
+              }
+            };
+        
+            fetchData();
   }, [dispatch, id, orderItems]);
 
   const handleChange = (e, name, formName) => {
@@ -271,7 +329,7 @@ const EditSalesOrder = () => {
     //   )
     // );
     try {
-      setLoading(true);
+      setLoading(true); 
       const payload = {
         CardCode: formData.CardCode,
         DocDueDate: formData.DocDueDate
@@ -482,7 +540,11 @@ const EditSalesOrder = () => {
               setitemData={setitemData}
               setitemTableData={setitemTableData}
               itemTabledata={itemTabledata}
-              orderItems={orderItems}
+               servicedata={servicedata}
+              setserviceData={setserviceData}
+              setserviceTableData={setserviceTableData}
+              serviceTabledata={serviceTabledata}
+             orderItems={orderItems}
               loading={loading}
               form={form}
               handleRowChange={handleRowChange}
@@ -490,6 +552,8 @@ const EditSalesOrder = () => {
               addRow={addRow}
               SalesOrderRenderInput={SalesOrderRenderInput}
               handleChange={handleChange}
+              type={type}
+              setType={setType}
               mode={"edit"}
             />
           </ObjectPageSection>
