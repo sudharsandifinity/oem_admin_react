@@ -339,38 +339,38 @@ const deleteRow = (serviceCodeToRemove) => {
           />
         ),
       },
-      {
-        Header: "Quantity",
-        accessor: "quantity",
-       // width: 250,
-        Cell: ({ row, value }) => (
-          <Input
-            style={{ textAlign: "right" }}
-            type="Number"
-            disabled={mode === "view"}
-            value={value || "0"}
-            onInput={(e) => {
-              const newValue = e.target.value;
-              const rowId = row.original.id;
+      // {
+      //   Header: "Quantity",
+      //   accessor: "quantity",
+      //  // width: 250,
+      //   Cell: ({ row, value }) => (
+      //     <Input
+      //       style={{ textAlign: "right" }}
+      //       type="Number"
+      //       disabled={mode === "view"}
+      //       value={value || "0"}
+      //       onInput={(e) => {
+      //         const newValue = e.target.value;
+      //         const rowId = row.original.id;
 
-              // update serviceData
-              setserviceData((prev) => {
-                const updated = [...prev];
-                const idx = updated.findIndex((r) => r.id === rowId);
-                if (idx > -1)
-                  updated[idx] = { ...updated[idx], quantity: newValue };
-                return updated;
-              });
+      //         // update serviceData
+      //         setserviceData((prev) => {
+      //           const updated = [...prev];
+      //           const idx = updated.findIndex((r) => r.id === rowId);
+      //           if (idx > -1)
+      //             updated[idx] = { ...updated[idx], quantity: newValue };
+      //           return updated;
+      //         });
 
-              // update rowSelection
-              setRowSelection((prev) => ({
-                ...prev,
-                [rowId]: { ...(prev[rowId] || {}), quantity: newValue },
-              }));
-            }}
-          />
-        ),
-      },
+      //         // update rowSelection
+      //         setRowSelection((prev) => ({
+      //           ...prev,
+      //           [rowId]: { ...(prev[rowId] || {}), quantity: newValue },
+      //         }));
+      //       }}
+      //     />
+      //   ),
+      // },
       {
         Header: "Amount",
         accessor: "amount",

@@ -7,6 +7,8 @@ import {
   Label,
   Select,
   Option,
+  ComboBox,
+  ComboBoxItem,
 } from "@ui5/webcomponents-react";
 
 const CardDialog = ({
@@ -25,6 +27,7 @@ const CardDialog = ({
   const [selected, setSelected] = useState(null);
 
   const columns = [
+   
     {
       Header: "Card Code",
       accessor: "CardCode",
@@ -51,7 +54,8 @@ const CardDialog = ({
   };
 
   const handleFilterChange = (e, fieldname) => {
-    const selectedOption = e.detail.selectedOption;
+    console.log("handleFilterChange", e.target.value);
+    const selectedOption = e.target; //e.detail.selectedOption;
     if (!selectedOption) return;
 
     const selectedValue = selectedOption.value || selectedOption.textContent;
@@ -87,7 +91,11 @@ const CardDialog = ({
       headerText="Select Card Details"
       footer={
         <>
-          <Button design="Default" style={{ width: '100px', margin: '10px' }} onClick={handleOk}>
+          <Button
+            design="Default"
+            style={{ width: "100px", margin: "10px" }}
+            onClick={handleOk}
+          >
             OK
           </Button>
         </>
@@ -97,12 +105,19 @@ const CardDialog = ({
     >
       <FlexBox direction="Column">
         {/* <FlexBox direction="Row" style={{ padding: "0.5rem", gap: "2rem" }}> */}
-          <FlexBox direction="Row" style={{display: 'inline-flex', alignItems: 'end', flexWrap: 'wrap', gap: '15px'}}>
-                       
+        <FlexBox
+          direction="Row"
+          style={{
+            display: "inline-flex",
+            alignItems: "end",
+            flexWrap: "wrap",
+            gap: "15px",
+          }}
+        >
           <FlexBox direction="Column">
             {" "}
             <Label>Card Code</Label>
-            <Select
+            {/* <Select
               onChange={(e) => handleFilterChange(e, "CardCode")}
               value={inputValue.CardCode || ""}
             >
@@ -112,12 +127,22 @@ const CardDialog = ({
                   {data.CardCode}
                 </Option>
               ))}
-            </Select>
+            </Select> */}
+            <ComboBox
+              filter
+              value={inputValue.CardCode || ""}
+              onChange={(e) => handleFilterChange(e, "CardCode")}
+              placeholder="Search Card Code..."
+            >
+              {originalGeneralData.map((data, idx) => (
+                <ComboBoxItem key={idx} text={data.CardCode} />
+              ))}
+            </ComboBox>
           </FlexBox>
           <FlexBox direction="Column">
             {" "}
             <Label>Card Name</Label>
-            <Select
+            {/* <Select
               onChange={(e) => handleFilterChange(e, "CardName")}
               value={inputValue.CardName || ""}
             >
@@ -127,12 +152,22 @@ const CardDialog = ({
                   {data.CardName}
                 </Option>
               ))}
-            </Select>
+            </Select> */}
+              <ComboBox
+              filter
+              value={inputValue.CardName || ""}
+              onChange={(e) => handleFilterChange(e, "CardName")}
+              placeholder="Search Card Name..."
+            >
+              {originalGeneralData.map((data, idx) => (
+                <ComboBoxItem key={idx} text={data.CardName} />
+              ))}
+            </ComboBox>
           </FlexBox>
           <FlexBox direction="Column">
             {" "}
             <Label>Contact Person</Label>
-            <Select
+            {/* <Select
               onChange={(e) => handleFilterChange(e, "ContactPerson")}
               value={inputValue.ContactPerson || ""}
             >
@@ -142,7 +177,17 @@ const CardDialog = ({
                   {data.ContactPerson}
                 </Option>
               ))}
-            </Select>
+            </Select> */}
+            <ComboBox
+              filter
+              value={inputValue.ContactPerson || ""}
+              onChange={(e) => handleFilterChange(e, "ContactPerson")}
+              placeholder="Search  Contact Person..."
+            >
+              {originalGeneralData.map((data, idx) => (
+                <ComboBoxItem key={idx} text={data.ContactPerson} />
+              ))}
+            </ComboBox>
           </FlexBox>
           {console.log("originalGeneralData", originalGeneralData)}
           <Button
@@ -161,10 +206,7 @@ const CardDialog = ({
           columns={columns}
           selectionMode="Single"
           onRowSelect={handleSelectionChange}
-          getRowProps={(row) => ({
-            onDoubleClick: () => handleOk(row),
-            style: { cursor: "pointer" },
-          })}
+         
         />
       </FlexBox>
     </Dialog>

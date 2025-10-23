@@ -32,9 +32,10 @@ import ItemViewPage from "../PurchaseOrder/Contents/Item/ItemViewPage";
 import ViewPurchaseOrder from "./ViewPurchaseOrder";
 import { useDispatch, useSelector } from "react-redux";
 import TopNav from "../../Components/Header/TopNav";
-import { fetchBusinessPartner, fetchVendorOrder } from "../../store/slices/VendorOrderSlice";
-
-
+import {
+  fetchBusinessPartner,
+  fetchVendorOrder,
+} from "../../store/slices/VendorOrderSlice";
 
 const ManagePurchaseOrder = () => {
   const {
@@ -44,9 +45,16 @@ const ManagePurchaseOrder = () => {
   } = useContext(FormConfigContext);
   const dispatch = useDispatch();
 
+  const [filters, setFilters] = useState({
+    FromDate: "",
+    ToDate: "",
+  });
+
+  const [isClearFilter, setisClearFilter] = useState(false);
+
   const { companyformfield } = useSelector((state) => state.companyformfield);
-    const user = useSelector((state) => state.auth.user);
-  
+  const user = useSelector((state) => state.auth.user);
+
   const { companyformfielddata } = useSelector(
     (state) => state.companyformfielddata
   );
@@ -54,6 +62,8 @@ const ManagePurchaseOrder = () => {
     (state) => state.vendororder
   );
   const [tableData, settableData] = useState([]);
+  const [formDetails, setFormDetails] = useState([]);
+
   const placeholderRows = Array(5).fill({
     CustomerCode: "Loading...",
     CustomerName: "Loading...",
@@ -61,22 +71,20 @@ const ManagePurchaseOrder = () => {
     PostingDate: "-",
     Status: "-",
   });
-    const [formDetails, setFormDetails] = useState([]);
-    
-    
+
   const [tabList, setTabList] = useState([]);
 
-  
   const settabledata = (vendororder) => {
-    console.log("vendororderobject",vendororder)
+    console.log("vendororderobject", vendororder);
     if (vendororder?.length > 0) {
       const tableconfig = vendororder.map((item) => ({
-        DocEntry:item.DocEntry,
+        DocEntry: item.DocEntry,
         CustomerCode: item.CardCode,
         CustomerName: item.CardName,
         DocumentNo: item.DocNum,
         PostingDate: item.CreationDate,
         Status: item.DocumentStatus,
+        DocumentLines: item.DocumentLines,
       }));
       settableData(tableconfig);
     }
@@ -88,19 +96,27 @@ const ManagePurchaseOrder = () => {
   useEffect(() => {
     //dispatch(fetchBranch());
     //dispatch(fetchCompanies());
-    const fetchData = async () => {
+    const fetchInitial = async () => {
       try {
         const res = await dispatch(fetchVendorOrder()).unwrap();
         dispatch(fetchBusinessPartner()).unwrap();
-
+        const initialData = res.map((item) => ({
+          DocEntry: item.DocEntry,
+          CustomerCode: item.CardCode,
+          CustomerName: item.CardName,
+          DocumentNo: item.DocNum,
+          DocumentLines: item.DocumentLines,
+          PostingDate: item.CreationDate,
+          Status: item.DocumentStatus,
+        }));
+        settableData(initialData);
+        setPage(1);
         console.log("resusers", res);
         setFormConfig(res);
-
 
         // setTableConfig(res);
         //dispatch(fetchcompanyformfielddata())
         //
-
 
         // setTableConfig(res);
         //dispatch(fetchcompanyformfielddata())
@@ -114,7 +130,7 @@ const ManagePurchaseOrder = () => {
         err.message && navigate("/");
       }
     };
-    fetchData();
+    fetchInitial();
   }, [dispatch]);
   // const ManageSalesOderHeaderField = companyformfield.filter(
   //   (c) => c.Form?.name === "M_SO"
@@ -142,10 +158,13 @@ const ManagePurchaseOrder = () => {
   // const [tableData, settableData] = useState(ManageSalesOderHeaderField);
   const [viewItem, setViewItem] = useState([]);
 
-
   const navigate = useNavigate();
   const [layout, setLayout] = useState("OneColumn");
   const [rowSelection, setRowSelection] = useState({});
+  const [page, setPage] = useState(0);
+  const pageSize = 20;
+  const [allLoaded, setAllLoaded] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   const onRowSelect = (e) => {
     console.log("onRowSelect", e.detail.row.original);
@@ -166,16 +185,14 @@ const ManagePurchaseOrder = () => {
       })),
   ];
   const editRow = async (rowData) => {
-    console.log("rowData", rowData)
-    navigate("/PurchaseOrder/edit/" + formId+"/"+rowData.DocEntry
-    );
-  }
- const viewRow =async(rowData)=>{
-     console.log("rowData", rowData)
-    navigate("/PurchaseOrder/view/" + formId+"/"+rowData.DocEntry
-    );
-  }
-  
+    console.log("rowData", rowData);
+    navigate("/PurchaseOrder/edit/" + formId + "/" + rowData.DocEntry);
+  };
+  const viewRow = async (rowData) => {
+    console.log("rowData", rowData);
+    navigate("/PurchaseOrder/view/" + formId + "/" + rowData.DocEntry);
+  };
+
   const columns = useMemo(
     () => [
       ...ManageSalesOrderTableCols,
@@ -190,42 +207,47 @@ const ManagePurchaseOrder = () => {
         width: 200,
 
         Cell: (instance) => {
-          const { cell, row, webComponentsReactProperties } = instance;
+          const { cell, row, webComponentsReactProperties } = instance; 
           const isOverlay = webComponentsReactProperties.showOverlay;
+           const docLines = row.original?.DocumentLines;
+          const isRowDisabled = Array.isArray(docLines)
+            ? docLines.every((line) => Number(line?.Quantity) === 0)
+            : Number(docLines?.Quantity) === 0;
           return (
-            <FlexBox alignItems="Center" direction="Row" justifyContent="Center">
+            <FlexBox
+              alignItems="Center"
+              direction="Row"
+              justifyContent="Center"
+            >
               <Button
                 icon="edit"
-                disabled={isOverlay}
                 design="Transparent"
-
+                disabled={isOverlay || isRowDisabled}
                 onClick={() => {
                   editRow(row.original);
                 }}
-              // onClick={() => editRow(row)}
+                // onClick={() => editRow(row)}
               />
               <Button
-                             icon="sap-icon://show"
-                             disabled={isOverlay}
-                             design="Transparent"
-             
-                             onClick={() => {
-                               //setLayout("TwoColumnsMidExpanded");
-                               viewRow(row.original)
-                               //setViewItem(row.original);
-                             }}
-                           // onClick={() => editRow(row)}
-                           />
+                icon="sap-icon://show"
+                disabled={isOverlay}
+                design="Transparent"
+                onClick={() => {
+                  //setLayout("TwoColumnsMidExpanded");
+                  viewRow(row.original);
+                  //setViewItem(row.original);
+                }}
+                // onClick={() => editRow(row)}
+              />
               <Button
                 icon="sap-icon://navigation-right-arrow"
                 disabled={isOverlay}
                 design="Transparent"
-
                 onClick={() => {
                   setLayout("TwoColumnsMidExpanded");
                   setViewItem(row.original);
                 }}
-              // onClick={() => editRow(row)}
+                // onClick={() => editRow(row)}
               />
             </FlexBox>
           );
@@ -234,8 +256,46 @@ const ManagePurchaseOrder = () => {
     ],
     [ManageSalesOrderTableCols]
   );
-  const handleChange = (e) => {
-    console.log("e", e);
+  const handleChange = (e, fieldname) => {
+    // Extract current value (from UI5 component)
+    const value = e.detail?.item?.innerHTML || e.detail?.value || "";
+    console.log("handledata", value);
+    // If you're tracking both dates in state
+    setFilters((prev) => {
+      const updatedFilters = { ...prev, [fieldname]: value };
+      console.log("updatedFilters", updatedFilters);
+      // When both dates are available — filter tableData by CreationDate
+      if (updatedFilters.FromDate && updatedFilters.ToDate) {
+        const from = new Date(updatedFilters.FromDate);
+        const to = new Date(updatedFilters.ToDate);
+
+        const filteredList =
+          tableData?.filter((item) => {
+            const itemDate = new Date(item.PostingDate); // change field if needed
+            console.log("itemDate", itemDate, item);
+            return itemDate >= from && itemDate <= to;
+          }) || [];
+
+        settableData(filteredList);
+        console.log("Filtered by date:", filteredList);
+      }
+
+      // For other (non-date) fields, run your text-based filter
+      else if (fieldname !== "FromDate" && fieldname !== "ToDate") {
+        const filteredList =
+          tableData?.filter((item) =>
+            item[fieldname]
+              ?.toString()
+              .toLowerCase()
+              .includes(value.toLowerCase())
+          ) || [];
+
+        settableData(filteredList);
+        console.log("Filtered by field:", filteredList);
+      }
+
+      return updatedFilters;
+    });
   };
   const { formId, childId } = useParams();
   const [formConfig, setFormConfig] = useState(null);
@@ -254,7 +314,6 @@ const ManagePurchaseOrder = () => {
       navigate("/");
     }
   }, [formId]);
-
 
   // if (!formConfig) return <div>Loading form...</div>;
   return (
@@ -275,61 +334,78 @@ const ManagePurchaseOrder = () => {
         }
         headerArea={
           <DynamicPageHeader>
-            <FlexBox direction="Row">
-              <Grid
-                defaultIndent="XL0 L0 M1 S0"
-                defaultSpan="XL3 L2 M6 S12"
-                hSpacing="1rem"
-                vSpacing="1rem"
+            <FlexBox
+              direction="Row"
+              style={{
+                display: "inline-flex",
+                alignItems: "end",
+                flexWrap: "wrap",
+                gap: "15px",
+              }}
+            >
+              {ManageSalesOderHeaderField.map((field) => {
+                const filteredData = {
+                  inputType: field.input_type,
+                  DisplayName: field.display_name,
+                  FieldName: field.field_name,
+                };
+
+                return (
+                  <HeaderFilterBar
+                    key={field.field_name}
+                    field={filteredData}
+                    tableData={tableData}
+                    settableData={settableData}
+                    handleChange={handleChange}
+                    filters={filters}
+                    setFilters={setFilters}
+                    customerorder={vendororder}
+                    isClearFilter={isClearFilter}
+                    setisClearFilter={setisClearFilter}
+                  />
+                );
+              })}
+              <Button
+                style={{ width: "100px", marginBottom: "2px" }}
+                onClick={() => {
+                  setisClearFilter(true);
+                  settabledata(vendororder);
+                  setFilters({
+                    FromDate: "",
+                    ToDate: "",
+                  });
+                }}
               >
-                {ManageSalesOderHeaderField.map((field) => {
-                  const filteredData = {
-                    inputType: field.input_type,
-                    DisplayName: field.display_name,
-                    FieldName: field.field_name,
-                  };
-
-                  return (
-                    <HeaderFilterBar
-                      key={field.field_name}
-                      field={filteredData}
-                      tableData={tableData}
-                      settableData={settableData}
-                      handleChange={handleChange}
-                    />
-                  );
-                })}
-
-              </Grid>
-              <Button style={{width:"100px"}}  onClick={() => settabledata(vendororder)} >Clear Filter</Button></FlexBox>
+                Clear Filter
+              </Button>
+            </FlexBox>
           </DynamicPageHeader>
         }
-        onPinButtonToggle={function Xs() { }}
-        onTitleToggle={function Xs() { }}
+        onPinButtonToggle={function Xs() {}}
+        onTitleToggle={function Xs() {}}
         style={{
           height: "700px",
         }}
         titleArea={
           <DynamicPageTitle
-            actionsBar={
-              <Toolbar design="Transparent">
-                <ToolbarButton
-                  design="Emphasized"
-                  onClick={() => navigate("/PurchaseOrder/create/" + formId)}
-                  text="Create"
-                />
-              </Toolbar>
-            }
             breadcrumbs={
-              <Breadcrumbs design="Standard"
+              <Breadcrumbs
+                design="Standard"
                 separators="Slash"
                 onItemClick={(e) => {
                   const route = e.detail.item.dataset.route;
                   if (route) navigate(route);
-                }}>
-                <BreadcrumbsItem data-route="/UserDashboard">Home</BreadcrumbsItem>
-                <BreadcrumbsItem> {formDetails[0]?.name?formDetails[0]?.name:"Purchase Order"}
-</BreadcrumbsItem>
+                }}
+              >
+                <BreadcrumbsItem data-route="/UserDashboard">
+                  Home
+                </BreadcrumbsItem>
+                <BreadcrumbsItem>
+                  {" "}
+                  {formDetails[0]?.name
+                    ? formDetails[0]?.name
+                    : "Purchase Order"}
+                </BreadcrumbsItem>
               </Breadcrumbs>
             }
             heading={
@@ -337,13 +413,10 @@ const ManagePurchaseOrder = () => {
                 style={{ fontSize: "var(--sapObjectHeader_Title_FontSize)" }}
               >
                 {/* {formConfig && formConfig.display_name} */}
-                {formDetails[0]?.name?formDetails[0]?.name+" List":"Purchase Order List"}
+                {formDetails[0]?.name
+                  ? formDetails[0]?.name + " List"
+                  : "Purchase Order List"}
               </Title>
-            }
-            navigationBar={
-              <Toolbar design="Transparent">
-                <ToolbarButton onClick={() => navigate("/UserDashboard")} design="Transparent" icon="decline" />
-              </Toolbar>
             }
             snappedHeading={
               <Title
@@ -352,14 +425,15 @@ const ManagePurchaseOrder = () => {
                 }}
               >
                 {/* {formConfig && formConfig.display_name} */}
-                {formDetails[0]?.name?formDetails[0]?.name+" List":"Purchase Order List"}
+                {formDetails[0]?.name
+                  ? formDetails[0]?.name + " List"
+                  : "Purchase Order List"}
               </Title>
             }
           ></DynamicPageTitle>
         }
       >
         <div className="tab">
-
           <div>
             <FlexibleColumnLayout
               // style={{ height: "600px" }}
@@ -367,14 +441,42 @@ const ManagePurchaseOrder = () => {
               startColumn={
                 <FlexBox direction="Column">
                   <div>
-                    <FlexBox direction="Column">{console.log("tableDataanaly", tableData)}
+                    <FlexBox direction="Column">
+                      {console.log("tableDataanaly", tableData)}
                       <AnalyticalTable
                         columns={columns.length > 0 ? columns : []}
-                        data={loading ? placeholderRows : tableData}
-                        header={`(Purchase Order - ${tableData.length})`}
-                        loading={loading}
-                        showOverlay={loading}
-                        noDataText={loading ? "Loading Purchase orders..." : "No Purchase orders found"}
+                        data={tableData}
+                        //header={`(Purchase Order - ${tableData.length})`}
+                        header={
+                          <FlexBox
+                            justifyContent="SpaceBetween"
+                            alignItems="Center"
+                            style={{ width: "100%", padding: "4px 10px" }}
+                          >
+                            <Title
+                              style={{ minWidth: "150px" }}
+                            >{`(Sales Order - ${tableData.length})`}</Title>
+                            <Toolbar
+                              design="Transparent"
+                              style={{ border: "none" }}
+                            >
+                              <ToolbarButton
+                                design="Default"
+                                onClick={() =>
+                                  navigate("/SalesOrder/create/" + formId)
+                                }
+                                text="Create"
+                              />
+                            </Toolbar>
+                          </FlexBox>
+                        }
+                        loading={page === 0 && loading}
+                        showOverlay={page === 0 && loading}
+                        noDataText={
+                          loading
+                            ? "Loading Purchase orders..."
+                            : "No Purchase orders found"
+                        }
                         sortable
                         filterable
                         visibleRows={10}
@@ -385,15 +487,49 @@ const ManagePurchaseOrder = () => {
                         groupable
                         // header="Table Title"
                         infiniteScroll
-                        onGroup={() => { }}
-                        onLoadMore={() => { }}
+                        onGroup={() => {}}
+                        onLoadMore={async () => {
+                          if (isLoadingMore || allLoaded) return;
+
+                          setIsLoadingMore(true);
+
+                          try {
+                            const res = await dispatch(
+                              fetchVendorOrder({
+                                top: pageSize,
+                                skip: page * pageSize,
+                              })
+                            ).unwrap();
+
+                            if (res.length < pageSize) {
+                              setAllLoaded(true);
+                            }
+
+                            const newRecords = res.map((item) => ({
+                              DocEntry: item.DocEntry,
+                              CustomerCode: item.CardCode,
+                              CustomerName: item.CardName,
+                              DocumentNo: item.DocNum,
+                              DocumentLines: item.DocumentLines,
+                              PostingDate: item.CreationDate,
+                              Status: item.DocumentStatus,
+                            }));
+
+                            settableData((prev) => [...prev, ...newRecords]);
+                            setPage((prev) => prev + 1);
+                          } catch (error) {
+                            console.error("Load more failed", error);
+                          } finally {
+                            setIsLoadingMore(false);
+                          }
+                        }}
                         onRowClick={(event) => {
                           console.log("Row::", event.detail.row.original._id);
                           //previewFormInModal(event.detail.row.original._id);
                         }}
-                        onRowExpandChange={() => { }}
-                        onSort={() => { }}
-                        onTableScroll={() => { }}
+                        onRowExpandChange={() => {}}
+                        onSort={() => {}}
+                        onTableScroll={() => {}}
                         // selectedRowIds={{
                         //     3: true,
                         // }}

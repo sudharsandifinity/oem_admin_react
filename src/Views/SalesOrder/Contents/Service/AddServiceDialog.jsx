@@ -123,10 +123,10 @@ const Addservicedialog = (props) => {
         Header: "Service Code",
         accessor: "ServiceCode",
       },
-      {
-        Header: "Foriegn Name",
-        accessor: "ForeignName",
-      },
+      // {
+      //   Header: "Foriegn Name",
+      //   accessor: "ForeignName",
+      // },
       // {
       //   Header: "Quantity",
       //   accessor: "quantity",

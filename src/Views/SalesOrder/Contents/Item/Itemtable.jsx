@@ -47,7 +47,6 @@ const Itemtable = (props) => {
     itemForm,
     dynamcicItemCols,
   } = props;
-  console.log("itemtableitemdata", itemdata);
   const menuRef = useRef();
 
   const handleOpenMenu = (e) => {
@@ -147,7 +146,7 @@ console.log("updated",updated)
  const duplicateRow = () => {
   if (!selectedRow?.original) return;
 
-  console.log("selectedRow", selectedRow.original);
+  console.log("duplicateRow", selectedRow.original);
 
   setitemTableData((prev) => {
     const updated = [...prev];
@@ -163,6 +162,7 @@ console.log("updated",updated)
 
     return [...updated, newRow];
   });
+  setRowSelection({});
 };
 
   const copyRow = () => {
@@ -172,7 +172,7 @@ console.log("updated",updated)
     //setitemTableData([...itemTabledata, copySelectedRow]);
      if (!selectedRow?.original) return;
 
-  console.log("selectedRow", selectedRow.original);
+  console.log("pasteRow", selectedRow.original);
 
   setitemTableData((prev) => {
     const updated = [...prev];
@@ -188,40 +188,78 @@ console.log("updated",updated)
 
     return [...updated, newRow];
   });
-  };
+  setRowSelection({});
 
+  };
 const deleteRow = (itemCodeToRemove) => {
   console.log("delete", itemTabledata, rowSelection, itemCodeToRemove);
 
-  if (itemCodeToRemove) {
-    // ✅ Delete a single row
-    setitemTableData((prev) =>
-      prev.filter(
-        (item) =>
-          item.ItemCode !== itemCodeToRemove.ItemCode &&
-          item.ItemName !== itemCodeToRemove.ItemName
-      )
-    );
-  } else {
-    // ✅ Delete all selected rows (rowSelection = { 0:{}, 1:{} })
-    const selectedRows = Object.values(rowSelection); // convert object → array
+  setitemTableData((prev) => {
+    let updatedData;
 
-    setitemTableData((prev) =>
-      prev.filter(
+    if (itemCodeToRemove) {
+      // ✅ Delete one row
+      updatedData = prev.filter(
+  (item) =>
+    !(
+      item.ItemCode === itemCodeToRemove.ItemCode &&
+      item.ItemName === itemCodeToRemove.ItemName &&
+      item.slno === itemCodeToRemove.slno
+    )
+);
+    } else {
+      // ✅ Delete multiple selected rows
+      const selectedRows = Object.values(rowSelection);
+
+      updatedData = prev.filter(
         (item) =>
           !selectedRows.some(
             (row) =>
               row.ItemCode === item.ItemCode &&
-              row.ItemName === item.ItemName&&
-              row.slno===item.slno
+              row.ItemName === item.ItemName &&
+              row.slno === item.slno
           )
-      )
-    );
-
-    // ✅ Clear selection after deleting
-    setRowSelection({});
-  }
+      );
+      setRowSelection({});
+    }
+    console.log("updatedData",updatedData)
+    // ✅ Reassign serial numbers after deletion
+    return updatedData.map((item, index) => ({
+      ...item,
+      slno: index , // slno starts from 1
+    }));
+  });
 };
+
+// const deleteRow = (itemCodeToRemove) => {
+//   console.log("delete", itemTabledata, rowSelection, itemCodeToRemove);
+
+//   if (itemCodeToRemove) {
+//     setitemTableData((prev) =>
+//       prev.filter(
+//         (item) =>
+//           item.ItemCode !== itemCodeToRemove.ItemCode &&
+//           item.ItemName !== itemCodeToRemove.ItemName
+//       )
+//     );
+//   } else {
+//     const selectedRows = Object.values(rowSelection); // convert object → array
+
+//     setitemTableData((prev) =>
+//       prev.filter(
+//         (item) =>
+//           !selectedRows.some(
+//             (row) =>
+//               row.ItemCode === item.ItemCode &&
+//               row.ItemName === item.ItemName&&
+//               row.slno===item.slno
+//           )
+//       )
+//     );
+
+//     setRowSelection({});
+//   }
+// };
 
   const addRowAfter = () => {
     const newRow = { ItemCode: "", ItemName: "", quantity: 0, amount: 0 };
@@ -530,7 +568,6 @@ const deleteRow = (itemCodeToRemove) => {
           icon="sap-icon://settings"
         ></Button>
       </FlexBox>
-      {console.log("itemTabledata", itemTabledata, dynamicItemColumnslist)}
       <AnalyticalTable
         style={{ borderTop: '1px solid #d6dbe0' }}
         data={itemTabledata}

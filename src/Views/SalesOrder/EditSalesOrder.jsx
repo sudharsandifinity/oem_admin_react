@@ -328,9 +328,12 @@ const EditSalesOrder = () => {
     //       tableItem.ItemName === item.ItemName
     //   )
     // );
+   
+       let payload={}
     try {
-      setLoading(true); 
-      const payload = {
+      setLoading(true);
+      if(type==="Item"){
+        payload = {
         CardCode: formData.CardCode,
         DocDueDate: formData.DocDueDate
           ? new Date(formData.DocDueDate)
@@ -338,13 +341,31 @@ const EditSalesOrder = () => {
               .split("T")[0]
               .replace(/-/g, "")
           : new Date().toISOString().split("T")[0].replace(/-/g, ""),
-        DocumentLines: Object.values(filteredData).map((line) => ({
+        DocumentLines: Object.values(itemTabledata).map((line) => ({
           ItemCode: line.ItemCode,
           ItemDescription: line.ItemName, // ✅ rename to ItemDescription
-          Quantity: line.quantity ? line.quantity : 1,
+          Quantity: line.quantity,
           UnitPrice: line.amount,
         })),
       };
+      }else{
+        payload = {
+        CardCode: formData.CardCode,
+        DocType: "dDocument_Service",
+        DocDueDate: formData.DocDueDate
+          ? new Date(formData.DocDueDate)
+              .toISOString()
+              .split("T")[0]
+              .replace(/-/g, "")
+          : new Date().toISOString().split("T")[0].replace(/-/g, ""),
+        DocumentLines: Object.values(serviceTabledata).map((line) => ({
+          AccountCode: line.ServiceCode,
+          ItemDescription: line.ServiceName, // ✅ rename to ItemDescription        
+          
+          UnitPrice: line.amount,
+        })),
+      };
+      }
       console.log("payload", payload);
       const res = await dispatch(
         updateCustomerOrder({ id, data: payload })

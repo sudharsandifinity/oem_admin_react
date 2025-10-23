@@ -141,7 +141,6 @@ console.log("filteredList",filteredList)
       return (
         <FlexBox direction="Column">
           <Label>{field.DisplayName}</Label>
-          {console.log("itempopupfilterinputval",inputvalue)}
           <Input
             icon={
               <Icon
@@ -151,7 +150,7 @@ console.log("filteredList",filteredList)
             }
             name={field.FieldName}
             value={inputvalue[field.FieldName] || ""}
-            onInput={(e) => {console.log("selectVal",e.target.value);handleChange(e, field.FieldName)}}
+            onInput={(e) => {handleChange(e, field.FieldName)}}
             type={field.inputType}
 
           >
@@ -159,7 +158,6 @@ console.log("filteredList",filteredList)
               <SuggestionItem key={idx} text={item.Name} />
             ))}
           </Input>
-{console.log("fieldName",fieldName,itemData)}
           <ItemPopupFilterDialog
             filterdialogOpen={filterdialogOpen}
             setFilterDialogOpen={setFilterDialogOpen}

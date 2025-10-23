@@ -111,7 +111,7 @@ const Additemdialog = (props) => {
       {
         Header: "SL No",
         accessor: "id", // not used for data, but needed for the column
-        //Cell: ({ row }) => Number(row.id) + 1, // ✅ row.id is 0-based
+        Cell: ({ row }) => Number(row.id) + 1, // ✅ row.id is 0-based
         width: 80,
       },
       {
