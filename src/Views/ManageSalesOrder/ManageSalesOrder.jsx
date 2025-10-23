@@ -177,7 +177,7 @@ const ManageSalesOrder = () => {
             >
               <Button
                 icon="edit"
-                //disabled={isOverlay || isRowDisabled}
+                disabled={isOverlay || isRowDisabled}
                 design="Transparent"
                 onClick={() => {
                   editRow(row.original);
@@ -412,11 +412,11 @@ const ManageSalesOrder = () => {
                 <BreadcrumbsItem data-route="/UserDashboard">
                   Home
                 </BreadcrumbsItem>
-                <BreadcrumbsItem>{formDetails[0]?.name?formDetails[0]?.name:"Sales order List"}</BreadcrumbsItem>
+                <BreadcrumbsItem>{formDetails&&formDetails[0]?.name?formDetails[0]?.name:"Sales order List"}</BreadcrumbsItem>
               </Breadcrumbs>
             }
-            heading={<Title>{formDetails[0]?.name?formDetails[0]?.name:"Sales order List"}</Title>}
-            snappedHeading={<Title>{formDetails[0]?.name?formDetails[0]?.name:"Sales order List"}</Title>}
+            heading={<Title>{formDetails&&formDetails[0]?.name?formDetails[0]?.name:"Sales order List"}</Title>}
+            snappedHeading={<Title>{formDetails&&formDetails[0]?.name?formDetails[0]?.name:"Sales order List"}</Title>}
           ></DynamicPageTitle>
         }
       >
