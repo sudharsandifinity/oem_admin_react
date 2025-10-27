@@ -163,6 +163,7 @@ console.log("updated",updated)
 
     return [...updated, newRow];
   });
+    setRowSelection({});
 };
 
   const copyRow = () => {
@@ -188,40 +189,77 @@ console.log("updated",updated)
 
     return [...updated, newRow];
   });
+  setRowSelection({});
+  
   };
-
 const deleteRow = (serviceCodeToRemove) => {
   console.log("delete", serviceTabledata, rowSelection, serviceCodeToRemove);
 
-  if (serviceCodeToRemove) {
-    // ✅ Delete a single row
-    setserviceTableData((prev) =>
-      prev.filter(
-        (service) =>
-          service.ServiceCode !== serviceCodeToRemove.ServiceCode &&
-          service.ServiceName !== serviceCodeToRemove.ServiceName
-      )
-    );
-  } else {
-    // ✅ Delete all selected rows (rowSelection = { 0:{}, 1:{} })
-    const selectedRows = Object.values(rowSelection); // convert object → array
+  setserviceTableData((prev) => {
+    let updatedData;
 
-    setserviceTableData((prev) =>
-      prev.filter(
-        (service) =>
+    if (serviceCodeToRemove) {
+      // ✅ Delete one row
+      updatedData = prev.filter(
+  (item) =>
+    !(
+      item.ServiceCode === serviceCodeToRemove.ServiceCode &&
+      item.ServiceName === serviceCodeToRemove.ServiceName &&
+      item.slno === serviceCodeToRemove.slno
+    )
+);
+    } else {
+      // ✅ Delete multiple selected rows
+      const selectedRows = Object.values(rowSelection);
+
+      updatedData = prev.filter(
+        (item) =>
           !selectedRows.some(
             (row) =>
-              row.ServiceCode === service.ServiceCode &&
-              row.ServiceName === service.ServiceName&&
-              row.slno===service.slno
+              row.ServiceCode === item.ServiceCode &&
+              row.ServiceName === item.ServiceName &&
+              row.slno === item.slno
           )
-      )
-    );
-
-    // ✅ Clear selection after deleting
-    setRowSelection({});
-  }
+      );
+      setRowSelection({});
+    }
+    console.log("updatedData",updatedData)
+    // ✅ Reassign serial numbers after deletion
+    return updatedData.map((item, index) => ({
+      ...item,
+      slno: index , // slno starts from 1
+    }));
+  });
 };
+// const deleteRow = (serviceCodeToRemove) => {
+//   console.log("delete", serviceTabledata, rowSelection, serviceCodeToRemove);
+
+//   if (serviceCodeToRemove) {
+//     setserviceTableData((prev) =>
+//       prev.filter(
+//         (service) =>
+//           service.ServiceCode !== serviceCodeToRemove.ServiceCode &&
+//           service.ServiceName !== serviceCodeToRemove.ServiceName
+//       )
+//     );
+//   } else {
+//      const selectedRows = Object.values(rowSelection); // convert object → array
+
+//     setserviceTableData((prev) =>
+//       prev.filter(
+//         (service) =>
+//           !selectedRows.some(
+//             (row) =>
+//               row.ServiceCode === service.ServiceCode &&
+//               row.ServiceName === service.ServiceName&&
+//               row.slno===service.slno
+//           )
+//       )
+//     );
+
+//     setRowSelection({});
+//   }
+// };
 
   const addRowAfter = () => {
     const newRow = { ServiceCode: "", ServiceName: "", quantity: 0, amount: 0 };
@@ -272,7 +310,7 @@ const deleteRow = (serviceCodeToRemove) => {
   };
   const totalAmount = useMemo(() => {
     console.log("serviceTabledatatotalamount", serviceTabledata);
-    return serviceTabledata.reduce((sum, service) => {
+    return serviceTabledata!==undefined && serviceTabledata.reduce((sum, service) => {
       const amt = parseFloat(service.amount) || 0;
       return sum + amt;
     }, 0);
@@ -555,7 +593,7 @@ const deleteRow = (serviceCodeToRemove) => {
       >
         <Title level="H5">
           Total Amount:{" "}
-          {totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+          {totalAmount&&totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
         </Title>
       </FlexBox>
       <Dialog

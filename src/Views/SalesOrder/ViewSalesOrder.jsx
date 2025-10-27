@@ -53,6 +53,7 @@ import {
   updateCustomerOrder,
 } from "../../store/slices/CustomerOrderSlice";
 import { fetchOrderItems } from "../../store/slices/CustomerOrderItemsSlice";
+import { fetchOrderServices } from "../../store/slices/CustomerOrderServiceSlice";
 
 const ViewSalesOrder = () => {
   const { id, formId } = useParams();
@@ -63,8 +64,10 @@ const ViewSalesOrder = () => {
   const { orderItems } = useSelector((state) => state.orderItems);
   const [apiError, setApiError] = useState(null);
   const user = useSelector((state) => state.auth.user);
-    const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false);
+    const [type, setType] = useState("Item");
   
+
   const [tabList, setTabList] = useState([]);
   const [formDetails, setFormDetails] = useState([]);
   const [formData, setFormData] = useState({});
@@ -75,6 +78,12 @@ const ViewSalesOrder = () => {
   ]);
   const [itemTabledata, setitemTableData] = useState([
     { slno: 1, ItemCode: "", ItemName: "", quantity: "", amount: "" },
+  ]);
+  const [serviceTabledata, setserviceTableData] = useState([
+    { slno: 1, ServiceCode: "", ServiceName: "", quantity: "", amount: "" },
+  ]);
+  const [servicedata, setserviceData] = useState([
+    { slno: 1, ServiceCode: "", ServiceName: "", quantity: "", amount: "" },
   ]);
   const [form, setForm] = useState({
     CardCode: "",
@@ -93,122 +102,175 @@ const ViewSalesOrder = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const orderListById = await dispatch(fetchCustomerOrderById(id)).unwrap();
-        const orderList = await dispatch(fetchOrderItems()).unwrap();
-        console.log("res,res1", orderListById, orderList);
-        if (orderListById) {
-          // 1. Store order header info
-          setFormData({
-            CardCode: orderListById.CardCode,
-            CardName: orderListById.CardName,
-            DocDueDate: orderListById.CreationDate
-              ? new Date(orderListById.CreationDate).toISOString().split("T")[0]
-              : new Date().toISOString().split("T")[0],
-            DocumentLines: orderListById.DocumentLines || [],
-          });
-
-          // 2. Merge document lines into orderItems
-          if (orderListById.DocumentLines?.length > 0) {
-            // setitemData((prev) =>
-            //   prev.map((item) => {
-            //     const matched = res.DocumentLines.find(
-            //       (line) => line.ItemCode === item.ItemCode
-            //     );
-            //     return matched
-            //       ? {
-            //           ...item,
-            //           quantity: matched.Quantity,
-            //           amount: matched.Amount,
-            //         }
-            //       : item;
-            //   })
-            // );
-             setitemData(
-              () =>
-                orderList.value
-                  .map((item,i) => {
-                    const matched = orderListById.DocumentLines.find(
-                      (line) => line.ItemCode === item.ItemCode
-                    );
-console.log("setitemeditpage",item,matched)
-                    return matched!==undefined
-                      ? {
-                          slno: matched.LineNum + 1, // usually LineNum is 0-based
-                          ItemCode: matched.ItemCode,
-                          ItemName: matched.ItemDescription,
-                          quantity: matched.Quantity,
-                          amount: matched.Amount,
-                        }
-                      :  {
-                          slno: 1, // usually LineNum is 0-based
-                          ItemCode: item.ItemCode,
-                          ItemName: item.ItemName,
-                          quantity: item.Quantity,
-                          amount: item.Amount,
-                        }; // no placeholder
-                  })
-                  .filter(Boolean) // remove nulls
-            );
-            console.log(
-              "itemTabledata:->",
-              itemTabledata,
-              itemdata,
-              orderListById.DocumentLines
-            );
-            setitemTableData(
-              () =>
-                orderList.value
-                  .map((item) => {
-                    const matched = orderListById.DocumentLines.find(
-                      (line) => line.ItemCode === item.ItemCode
-                    );
-
-                    return matched
-                      ? {
-                          slno: matched.LineNum + 1, // usually LineNum is 0-based
-                          ItemCode: matched.ItemCode,
-                          ItemName: matched.ItemDescription,
-                          quantity: matched.Quantity,
-                          amount: matched.Amount,
-                        }
-                      : null; // no placeholder
-                  })
-                  .filter(Boolean) // remove nulls
-            );
-
-            // 3. Preselect rows
-            if (orderList.value?.length > 0) {
-              const preselected = {};
-              orderListById.DocumentLines.forEach((line) => {
-                const idx = orderList.value.findIndex(
-                  (o) => o.ItemCode === line.ItemCode
+      const fetchData = async () => {
+        try {
+          const orderListById = await dispatch(
+            fetchCustomerOrderById(id)
+          ).unwrap();
+          const orderList = await dispatch(fetchOrderItems()).unwrap();
+          const serviceList = await dispatch(fetchOrderServices()).unwrap();
+          console.log("res,res1", orderListById, orderList, serviceList);
+          if (orderListById) {
+            // 1. Store order header info
+            setFormData({
+              CardCode: orderListById.CardCode,
+              CardName: orderListById.CardName,
+              DocDueDate: orderListById.CreationDate
+                ? new Date(orderListById.CreationDate).toISOString().split("T")[0]
+                : new Date().toISOString().split("T")[0],
+              DocumentLines: orderListById.DocumentLines || [],
+            });
+  
+            // 2. Merge document lines into orderItems
+            if (orderListById.DocumentLines?.length > 0) {
+              if (orderListById.DocType === "dDocument_Items") {
+                setType("Item");
+                setitemData(
+                  () =>
+                    orderList.value
+                      .map((item, index) => {
+                        const matched = orderListById.DocumentLines.find(
+                          (line) => line.ItemCode === item.ItemCode
+                        );
+                        console.log("setitemeditpage", item, matched);
+                        return matched !== undefined
+                          ? {
+                              slno: index, // usually LineNum is 0-based
+                              ItemCode: matched.ItemCode,
+                              ItemName: matched.ItemDescription,
+                              quantity: matched.Quantity,
+                              amount: matched.UnitPrice,
+                            }
+                          : {
+                              slno: index, // usually LineNum is 0-based
+                              ItemCode: item.ItemCode,
+                              ItemName: item.ItemName,
+                              quantity: item.Quantity,
+                              amount: item.UnitPrice,
+                            }; // no placeholder
+                      })
+                      .filter(Boolean) // remove nulls
                 );
-                if (idx !== -1) {
-                  preselected[idx] = orderList.value[idx];
+                setitemTableData(
+                  () =>
+                    orderList.value
+                      .map((item) => {
+                        const matched = orderListById.DocumentLines.find(
+                          (line) => line.ItemCode === item.ItemCode
+                        );
+  
+                        return matched
+                          ? {
+                              slno: matched.LineNum + 1, // usually LineNum is 0-based
+                              ItemCode: matched.ItemCode,
+                              ItemName: matched.ItemDescription,
+                              quantity: matched.Quantity,
+                              amount: matched.UnitPrice,
+                            }
+                          : null; // no placeholder
+                      })
+                      .filter(Boolean) // remove nulls
+                );
+                if (orderList.value?.length > 0) {
+                  const preselected = {};
+                  orderListById.DocumentLines.forEach((line) => {
+                    const idx = orderList.value.findIndex(
+                      (o) => o.ItemCode === line.ItemCode
+                    );
+                    if (idx !== -1) {
+                      preselected[idx] = orderList.value[idx];
+                    }
+                  });
+                  setRowSelection(preselected);
                 }
-              });
-              setRowSelection(preselected);
+              } else {
+                console.log("serviceList", serviceList);
+                setType("Service");
+                setserviceData(
+                  () =>
+                    serviceList.value
+                      .map((item, index) => {
+                        const matched = orderListById.DocumentLines.find(
+                          (line) => line.AccountCode === item.Code
+                        );
+                        return matched !== undefined
+                          ? {
+                              slno: index, // usually LineNum is 0-based
+                              ServiceCode: matched.AccountCode,
+                              ServiceName: matched.ItemDescription,
+                              quantity: matched.Quantity,
+                              amount: matched.UnitPrice,
+                            }
+                          : {
+                              slno: index, // usually LineNum is 0-based
+                              ServiceCode: item.AccountCode,
+                              ServiceName: item.ItemDescription,
+                              quantity: item.Quantity,
+                              amount: item.UnitPrice,
+                            }; // no placeholder
+                      })
+                      .filter(Boolean) // remove nulls
+                );
+                setserviceTableData(
+                  () =>
+                    serviceList.value
+                      .map((item) => {
+                        const matched = orderListById.DocumentLines.find(
+                          (line) => line.AccountCode === item.Code
+                        );
+  
+                        return matched
+                          ? {
+                              slno: matched.LineNum + 1, // usually LineNum is 0-based
+                              ServiceCode: matched.AccountCode,
+                              ServiceName: matched.ItemDescription,
+                              quantity: matched.Quantity,
+                              amount: matched.UnitPrice,
+                            }
+                          : null; // no placeholder
+                      })
+                      .filter(Boolean) // remove nulls
+                );
+                if (serviceList.value?.length > 0) {
+                  const preselected = {};
+                  orderListById.DocumentLines.forEach((line) => {
+                    const idx = serviceList.value.findIndex(
+                      (o) => o.Code === line.AccountCode
+                    );
+                    if (idx !== -1) {
+                      preselected[idx] = orderList.value[idx];
+                    }
+                  });
+                  setRowSelection(preselected);
+                }
+              }
+  
+              console.log(
+                "itemTabledata:->",
+                itemTabledata,
+                itemdata,
+                orderListById.DocumentLines
+              );
+  
+              // 3. Preselect rows
             }
+  
+            // set general header edit data
+            setgeneraleditdata({
+              CardCode: orderListById.CardCode,
+              CardName: orderListById.CardName,
+              CreationDate: orderListById.CreationDate,
+            });
           }
-
-          // set general header edit data
-          setgeneraleditdata({
-            CardCode: orderListById.CardCode,
-            CardName: orderListById.CardName,
-            CreationDate: orderListById.CreationDate,
-          });
+        } catch (err) {
+          console.error("Failed to fetch order:", err);
+        } finally {
+          setLoading(false);
         }
-      } catch (err) {
-        console.error("Failed to fetch order:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [dispatch, id, orderItems]);
+      };
+  
+      fetchData();
+    }, [dispatch, id, orderItems]);
 
   const handleChange = (e, name, formName) => {
     const newValue = e.target.value;
@@ -293,7 +355,7 @@ console.log("setitemeditpage",item,matched)
       setOpen(true);
     } catch (err) {
       setApiError(err?.message || "Failed to create branch");
-    }finally {
+    } finally {
       setTimeout(() => {
         setLoading(false);
         setOpen(true); // open success dialog
@@ -317,17 +379,17 @@ console.log("setitemeditpage",item,matched)
   return (
     <>
       <BusyIndicator
-                 style={{
-                   position: "fixed",
-                   top: 0,
-                   left: 0,
-                   width: "100%",
-                   height: "100%",
-                   zIndex: 1000,
-                   backgroundColor: "rgba(241, 243, 248, 0.8)",
-                 }}
-                 active={loading}
-               >
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          zIndex: 1000,
+          backgroundColor: "rgba(241, 243, 248, 0.8)",
+        }}
+        active={loading}
+      >
         <ObjectPage
           footerArea={
             <>
@@ -337,7 +399,6 @@ console.log("setitemeditpage",item,matched)
                 design="FloatingFooter"
                 endContent={
                   <>
-                
                     <Button
                       design="Positive"
                       onClick={() => navigate(`/Sales/${formId}`)}
@@ -412,7 +473,9 @@ console.log("setitemeditpage",item,matched)
                       Sales Order list
                     </BreadcrumbsItem>
                     <BreadcrumbsItem>
-                      {formDetails ? "Create "+formDetails[0]?.name : "Create Sales Order"}
+                      {formDetails
+                        ? "Create " + formDetails[0]?.name
+                        : "Create Sales Order"}
                     </BreadcrumbsItem>
                   </Breadcrumbs>
                 </>
@@ -455,14 +518,16 @@ console.log("setitemeditpage",item,matched)
             style={{ height: "100%" }}
             titleText="General"
           >
-            {!loading&&<General
-              onSubmit={handleSubmit}
-              setFormData={setFormData}
-              formData={formData}
-              defaultValues={formData} // ✅ now passes edit data properly
-              apiError={apiError}
-              mode="view"
-            />}
+            {!loading && (
+              <General
+                onSubmit={handleSubmit}
+                setFormData={setFormData}
+                formData={formData}
+                defaultValues={formData} // ✅ now passes edit data properly
+                apiError={apiError}
+                mode="view"
+              />
+            )}
             {/* <General
                                         onSubmit={handleSubmit}
                                         setFormData={setFormData}
@@ -485,7 +550,8 @@ console.log("setitemeditpage",item,matched)
               height: "100%",
             }}
             titleText="Contents"
-          >{console.log("editpageconytentitemdata",itemdata)}
+          >
+            {console.log("editpageconytentitemdata", itemdata)}
             <Contents
               rowSelection={rowSelection}
               setRowSelection={setRowSelection}
@@ -493,6 +559,10 @@ console.log("setitemeditpage",item,matched)
               setitemData={setitemData}
               setitemTableData={setitemTableData}
               itemTabledata={itemTabledata}
+              servicedata={servicedata}
+              setserviceData={setserviceData}
+              setserviceTableData={setserviceTableData}
+              serviceTabledata={serviceTabledata}
               orderItems={orderItems}
               loading={loading}
               form={form}
@@ -501,6 +571,8 @@ console.log("setitemeditpage",item,matched)
               addRow={addRow}
               SalesOrderRenderInput={SalesOrderRenderInput}
               handleChange={handleChange}
+              type={type}
+              setType={setType}
               mode={"view"}
             />
           </ObjectPageSection>
@@ -566,44 +638,51 @@ console.log("setitemeditpage",item,matched)
         </ObjectPage>
       </BusyIndicator>
       <Dialog open={open} onAfterClose={() => setOpen(false)}>
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  padding: "2rem",
-                  textAlign: "center",
-                }}
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            padding: "2rem",
+            textAlign: "center",
+          }}
+        >
+          {apiError ? (
+            <>
+              <Icon
+                name="message-error"
+                style={{ fontSize: "2rem", color: "red" }}
               >
-               
-                {apiError ? (
-                  <><Icon
-                    name="message-error"
-                    style={{ fontSize: "2rem", color: "red" }}
-                  > </Icon>
-                    <h2 style={{ marginTop: "1rem" }}>Error!</h2>
-                    <p>{apiError}</p>
-                 </>
-                ) : (
-                   <><Icon name="message-success" style={{ fontSize: "2rem", color: "green" }} > </Icon>
-                    <h2 style={{ marginTop: "1rem" }}>Success!</h2>
-                    <p>Your request has been submitted successfully 🎉</p>
-                 </>
-                )}
-                <Button
-                  design="Emphasized"
-                  onClick={() => {
-                    navigate(`/Sales/${formId}`);
-                    setOpen(false);
-                  }}
-                >
-                  OK
-                </Button>
-              </div>
-            </Dialog>
+                {" "}
+              </Icon>
+              <h2 style={{ marginTop: "1rem" }}>Error!</h2>
+              <p>{apiError}</p>
+            </>
+          ) : (
+            <>
+              <Icon
+                name="message-success"
+                style={{ fontSize: "2rem", color: "green" }}
+              >
+                {" "}
+              </Icon>
+              <h2 style={{ marginTop: "1rem" }}>Success!</h2>
+              <p>Your request has been submitted successfully 🎉</p>
+            </>
+          )}
+          <Button
+            design="Emphasized"
+            onClick={() => {
+              navigate(`/Sales/${formId}`);
+              setOpen(false);
+            }}
+          >
+            OK
+          </Button>
+        </div>
+      </Dialog>
     </>
   );
 };
 
-
-export default ViewSalesOrder
+export default ViewSalesOrder;

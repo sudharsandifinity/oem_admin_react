@@ -321,12 +321,19 @@ const Contents = (props) => {
       if (updated[updated.length - 1]?.ServiceCode === "") {
         updated.pop();
       }
+let nextSlno =
+      updated.length > 0 ? updated[updated.length - 1].slno + 1 : 0;
 
       // Convert to array if item is object form like {0: {...}, 1: {...}}
       const newItems = Array.isArray(item) ? item : Object.values(item);
 
-      // ✅ Append new items instead of replacing
-      updated = [...updated, ...newItems];
+      newItems.forEach((newItem) => {
+      updated.push({
+        ...newItem,
+        slno: nextSlno, 
+      });
+      nextSlno++; 
+    });
 
       return updated;
     });
@@ -474,7 +481,7 @@ const saveItem = (item, index) => {
           <FlexBox direction="Column" style={{padding: '40px 30px', gap: '20px'}}>
             <FlexBox alignItems="Center">
               <Label style={{minWidth: "200px"}}>Item/Service Type:</Label>
-              <Select>
+              <Select value={type} style={{width: "200px"}} >
                 <Option onClick={() => setType("Item")}>Item</Option>
                 <Option onClick={() => setType("Service")}>Service</Option>
               </Select>
