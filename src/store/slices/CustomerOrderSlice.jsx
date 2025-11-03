@@ -52,7 +52,7 @@ export const createCustomerOrder = createAsyncThunk(
   async (customerOrderData, thunkApi) => {
     try {
       console.log("🚀 Sending order to API:", customerOrderData);
-      const response = await api.post(API_URL, customerOrderData, { withCredentials: true, timeout: 40000 });
+      const response = await api.post(API_URL, customerOrderData, { withCredentials: true, timeout: 50000 });
       return response.data;
     } catch (error) {
       console.error("❌ API error:", error.response?.data || error.message);

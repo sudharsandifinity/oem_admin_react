@@ -386,7 +386,21 @@ const deleteRow = (itemCodeToRemove) => {
             style={{ textAlign: "right" }}
             type="Number"
             disabled={mode === "view"}
-            value={value || "0"}
+            value={value || ""  }
+             onChange={(e) => {
+              const newValue = e.target.value;
+              const rowIndex = row.index;
+              setitemTableData((prev) => {
+                const updated = [...prev];
+                updated[rowIndex] = {
+                  ...updated[rowIndex],
+                  quantity: newValue.toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                  }),
+                };
+                return updated;
+              });
+            }}
             onInput={(e) => {
               const newValue = e.target.value;
               const rowId = row.original.id;
@@ -401,10 +415,14 @@ const deleteRow = (itemCodeToRemove) => {
               });
 
               // update rowSelection
-              setRowSelection((prev) => ({
-                ...prev,
-                [rowId]: { ...(prev[rowId] || {}), quantity: newValue },
-              }));
+                 setRowSelection((prev) => {
+                const updated = { ...prev };
+                if (updated[row.id]) {
+                  updated[row.id] = { ...updated[row.id], quantity: newValue };
+                }
+                return updated;
+              });
+             
             }}
           />
         ),

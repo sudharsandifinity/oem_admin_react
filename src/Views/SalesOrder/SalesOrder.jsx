@@ -196,6 +196,7 @@ export default function SalesOrder() {
       }
       setOpen(true);
     } catch (err) {
+      console.log("Failed to create branch", err);
       setApiError(err?.message || "Failed to create branch");
     } finally {
       setTimeout(() => {

@@ -33,7 +33,7 @@ export const SalesOrderRenderInput = (
 ) => {
   const value = form[field.field_name] ? form[field.field_name] : "";
   {
-    console.log("inputvalue", inputvalue);
+    console.log("inputvaluesalesorder", inputvalue);
   }
   // Suggestion and dialog items
   const productCollection = [

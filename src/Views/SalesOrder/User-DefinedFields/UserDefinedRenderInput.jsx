@@ -25,14 +25,11 @@ export const UserDefinedRenderInput = (
   handleChange,
   inputvalue,
   setInputValue,
-  dialogOpen,
-  setDialogOpen,
-  selectedKey,
-  setSelectedKey,userdefinedData
+userdefinedData
 ) => {
   const value = form[field.field_name] ? form[field.field_name] : "";
   {
-    console.log("inputvalue", inputvalue,value);
+    console.log("inputvalueuserdefined", inputvalue,value),userdefinedData;
   }
   // Suggestion and dialog items
   const productCollection = [
@@ -63,6 +60,7 @@ export const UserDefinedRenderInput = (
     const selectedOption = e.detail.selectedOption;
     setSelectedKey(selectedOption.innerText); // or use selectedOption.getAttribute("data-key")
   };
+  console.log("userdefinedData",userdefinedData)
   switch (field.input_type) {
     case "text":
     case "number":
