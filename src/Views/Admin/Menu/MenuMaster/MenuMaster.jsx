@@ -173,12 +173,18 @@ const MenuMaster = () => {
     [usermenus]
   );
   return (
-    <Page
-      backgroundDesign="Solid"
-      footer={<div></div>}
-      header={
-        <AppBar
-          design="Header"
+      <>
+        <style>
+            {`
+              ui5-page::part(content) {
+                padding: 15px;
+              }
+            `}
+          </style>
+        <FlexBox direction="Column" style={{width: '100%'}}>
+         <AppBar
+           design="Header"
+              title={"Menu list(" + filteredRows.length + ")"}
           startContent={
             <div style={{ width: "150px" }}>
               <Breadcrumbs
@@ -207,7 +213,41 @@ const MenuMaster = () => {
         >
           <Title level="H4">Menu List</Title>
         </AppBar>
-      }
+    <Page
+      backgroundDesign="Solid"
+      footer={<div></div>}
+      // header={
+      //   <AppBar
+      //     design="Header"
+      //     startContent={
+      //       <div style={{ width: "150px" }}>
+      //         <Breadcrumbs
+      //           design="Standard"
+      //           separators="Slash"
+      //           onItemClick={(e) => {
+      //             const route = e.detail.item.dataset.route;
+      //             if (route) navigate(route);
+      //           }}
+      //         >
+      //           <BreadcrumbsItem data-route="/admin">Admin</BreadcrumbsItem>
+      //           <BreadcrumbsItem data-route="/admin/MenuMaster">
+      //             MenuMaster
+      //           </BreadcrumbsItem>
+      //         </Breadcrumbs>
+      //       </div>
+      //     }
+      //     endContent={
+      //       <Button
+      //         design="Emphasized"
+      //         onClick={() => navigate("/admin/MenuMaster/create")}
+      //       >
+      //         Add Menu
+      //       </Button>
+      //     }
+      //   >
+      //     <Title level="H4">Menu List</Title>
+      //   </AppBar>
+      // }
     >
       <Card
         style={{
@@ -244,8 +284,8 @@ const MenuMaster = () => {
                     <AnalyticalTable
                       columns={columns}
                       data={filteredRows || []}
-                      header={<Title level="H5" style={{ paddingLeft: 5 }}>  {
-                        "Menu list(" + filteredRows.length + ")"}</Title>}
+                      // header={<Title level="H5" style={{ paddingLeft: 5 }}>  {
+                      //   "Menu list(" + filteredRows.length + ")"}</Title>}
                       visibleRows={8}
                       subRowsKey="children" // 👈 enables tree structure
                       filterable
@@ -296,7 +336,7 @@ const MenuMaster = () => {
         </FlexBox>
       </Card>
       
-    </Page>
+    </Page></FlexBox></>
   );
 };
 

@@ -66,27 +66,16 @@ const Companyformdetails = ({
 
 
   return (
-    <Page
-      backgroundDesign="Solid"
-      footer={
-        <Bar
-          style={{ padding: 0.5 }}
-          design="FloatingFooter"
-          endContent={
-            <>
-              <Button
-                design="Emphasized"
-                form="form" /* ← link button to that form id */
-                type="Submit"
-              >
-                {mode === "edit" ? "Update Company" : "Create Company"}
-              </Button>
-            </>
-          }
-        />
-      }
-      header={
-        <AppBar
+    <>
+        <style>
+            {`
+              ui5-page::part(content) {
+                padding: 15px;
+              }
+            `}
+          </style>
+        <FlexBox direction="Column" style={{width: '100%'}}>
+          <AppBar
           design="Header"
           endContent={
             <Button
@@ -122,7 +111,63 @@ const Companyformdetails = ({
             {mode === "edit" ? "Edit Company" : "Create Company"}
           </Title>
         </AppBar>
+    <Page
+      backgroundDesign="Solid"
+      footer={
+        <Bar
+          style={{ padding: 0.5 }}
+          design="FloatingFooter"
+          endContent={
+            <>
+              <Button
+                design="Emphasized"
+                form="form" /* ← link button to that form id */
+                type="Submit"
+              >
+                {mode === "edit" ? "Update Company" : "Create Company"}
+              </Button>
+            </>
+          }
+        />
       }
+      // header={
+      //   <AppBar
+      //     design="Header"
+      //     endContent={
+      //       <Button
+      //         accessibleName="Settings"
+      //         icon="decline"
+      //         title="Go to Settings"
+      //         onClick={() => navigate(-1)} // Go back to previous page
+      //       />
+      //     }
+      //     startContent={
+      //       <div style={{ width: "250px" }}>
+      //         <Breadcrumbs
+      //           design="Standard"
+      //           onItemClick={(e) => {
+      //             const route = e.detail.item.dataset.route;
+      //             if (route) navigate(route);
+      //           }}
+      //           separators="Slash"
+      //         >
+      //           <BreadcrumbsItem data-route="/admin">Admin</BreadcrumbsItem>
+      //           <BreadcrumbsItem data-route="/admin/companies">
+      //             Companies
+      //           </BreadcrumbsItem>
+      //           <BreadcrumbsItem data-route="/admin/companies/create">
+      //             {mode === "edit" ? "Edit Company" : "Create Company"}
+
+      //           </BreadcrumbsItem>
+      //         </Breadcrumbs>
+      //       </div>
+      //     }
+      //   >
+      //     <Title level="h4">
+      //       {mode === "edit" ? "Edit Company" : "Create Company"}
+      //     </Title>
+      //   </AppBar>
+      // }
     >
       {apiError && (
         <MessageStrip
@@ -396,7 +441,7 @@ const Companyformdetails = ({
           </FlexBox> */}
         </FlexBox>
       </form>
-    </Page>
+    </Page></FlexBox></>
   );
 };
 

@@ -93,27 +93,16 @@ const branchList = branches.filter(b => b.companyId === selectedCompany?.value)
   }, [mode, defaultValues]);
 
   return (
-    <Page
-      backgroundDesign="Solid"
-      footer={
-        <Bar
-          style={{ padding: 0.5 }}
-          design="FloatingFooter"
-          endContent={
-            <>
-              <Button
-                design="Emphasized"
-                form="formsubmit" /* ← link button to that form id */
-                type="Submit"
-              >
-                {mode === "edit" ? "Update Form" : "Create Form"}
-              </Button>
-            </>
-          }
-        />
-      }
-      header={
-        <AppBar
+      <>
+        <style>
+            {`
+              ui5-page::part(content) {
+                padding: 15px;
+              }
+            `}
+          </style>
+        <FlexBox direction="Column" style={{width: '100%'}}>
+          <AppBar
           design="Header"
           endContent={
             <Button
@@ -148,7 +137,62 @@ const branchList = branches.filter(b => b.companyId === selectedCompany?.value)
             {mode === "edit" ? "Edit Form" : "Create New Form"}
           </Title>
         </AppBar>
+    <Page
+      backgroundDesign="Solid"
+      footer={
+        <Bar
+          style={{ padding: 0.5 }}
+          design="FloatingFooter"
+          endContent={
+            <>
+              <Button
+                design="Emphasized"
+                form="formsubmit" /* ← link button to that form id */
+                type="Submit"
+              >
+                {mode === "edit" ? "Update Form" : "Create Form"}
+              </Button>
+            </>
+          }
+        />
       }
+      // header={
+      //   <AppBar
+      //     design="Header"
+      //     endContent={
+      //       <Button
+      //         accessibleName="Settings"
+      //         icon="decline"
+      //         title="Go to Settings"
+      //         onClick={() => navigate(-1)} // Go back to previous page
+      //       />
+      //     }
+      //     startContent={
+      //       <div style={{ width: "200px" }}>
+      //         <Breadcrumbs
+      //           design="Standard"
+      //           onItemClick={(e) => {
+      //             const route = e.detail.item.dataset.route;
+      //             if (route) navigate(route);
+      //           }}
+      //           separators="Slash"
+      //         >
+      //           <BreadcrumbsItem data-route="/admin">Admin</BreadcrumbsItem>
+      //           <BreadcrumbsItem data-route="/admin/FormMaster">
+      //             Forms
+      //           </BreadcrumbsItem>
+      //           <BreadcrumbsItem data-route="/admin/FormMaster/create">
+      //             {mode === "edit" ? "Update Form" : "Create Form"}
+      //           </BreadcrumbsItem>
+      //         </Breadcrumbs>
+      //       </div>
+      //     }
+      //   >
+      //     <Title level="h4">
+      //       {mode === "edit" ? "Edit Form" : "Create New Form"}
+      //     </Title>
+      //   </AppBar>
+      // }
     >
       {apiError && (
         <MessageStrip
@@ -289,6 +333,54 @@ const branchList = branches.filter(b => b.companyId === selectedCompany?.value)
             </FlexBox>
 
           </FlexBox>
+                        <FlexBox direction="Column" style={{ flex: "28%" }}>
+                <label>FormTab</label>
+                <FlexBox label={<Label required>tabId</Label>}>
+                  <Controller
+                    name="tabId"
+                    control={control}
+                    render={({ field }) => (
+                      <MultiComboBox
+                        style={{ width: "80%" }}
+                        name="tabId"
+                        value={field.value ?? ""}
+                        onSelectionChange={(e) => {
+                          console.log("e.detail.selectedItems", e.detail.items);
+                          const selectedItems = e.detail.items.map((item) =>
+                            item.getAttribute("value")
+                          );
+                          selectedItems.map((item) =>
+                            handleselectedForm(item)
+                          );
+
+                          field.onChange(selectedItems);
+                        }}
+                        valueState={errors.tabId ? "Error" : "None"}
+                      >
+                        {companies
+                          .filter((r) => r.status) /* active roles only    */
+                          .map((r) => (
+                            <MultiComboBoxItem
+                              key={r.id}
+                              value={r.id}
+                              text={r.name}
+                              selected={field.value?.includes(r.id)}
+                            />
+                          ))}
+                      </MultiComboBox>
+                    )}
+                  />
+
+                  {errors.companyId && (
+                    <span
+                      slot="valueStateMessage"
+                      style={{ color: "var(--sapNegativeColor)" }}
+                    >
+                      {errors.companyId.message}
+                    </span>
+                  )}
+                </FlexBox>
+              </FlexBox>
           <FlexBox direction="Column" style={{ flex: " 28%" }}>
             <Label>Form Name</Label>
             <Controller
@@ -414,7 +506,7 @@ const branchList = branches.filter(b => b.companyId === selectedCompany?.value)
           </FlexBox>
         </FlexBox>
       </form>
-    </Page>
+    </Page></FlexBox></>
   );
 };
 

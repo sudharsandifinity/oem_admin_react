@@ -91,7 +91,7 @@ const ManageSalesOrder = () => {
           fetchCustomerOrder({ top: pageSize, skip: 0 })
         ).unwrap();
         console.log("fetchinitial", res);
-        const initialData = res.map((item) => ({
+        const initialData = res.data.map((item) => ({
           DocEntry: item.DocEntry,
           CustomerCode: item.CardCode,
           CustomerName: item.CardName,

@@ -32,6 +32,8 @@ const FormMaster = () => {
   const [search, setSearch] = useState("");
   const [layout, setLayout] = useState("OneColumn");
   const [ViewId, setViewId] = useState("");
+    const { user } = useSelector((state) => state.auth);
+  
 
   useEffect(() => {
     //dispatch(fetchForm());
@@ -91,6 +93,22 @@ const FormMaster = () => {
         Header: "Display Name",
         accessor: "display_name",
       },
+       {
+        Header: "Company",
+        accessor: "company",
+        Cell: ({ row }) =>
+          row.original.Company?.name|| "N/A",
+        
+        filterable: true,
+      },
+       {
+        Header: "Branch",
+        accessor: "branch",
+        Cell: ({ row }) =>
+          row.original.Branch?.name|| "N/A",
+        
+        filterable: true,
+      },
       {
         Header: "Status",
         accessor: "status",
@@ -146,58 +164,65 @@ const FormMaster = () => {
     ],
     []
   );
+   useEffect(() => {
+      if (user === "null") {
+        navigate("/login");
+      }
+    }, [user])
   return (
-    <Page
+    <>
+        <style>
+            {`
+              ui5-page::part(content) {
+                padding: 15px;
+              }
+            `}
+          </style>
+        <FlexBox direction="Column" style={{width: '100%'}}>
+          <AppBar
+                title={"Form List ("+filteredRows.length+")"}
+                startContent={
+                  <div style={{ width: "150px" }}>
+                    <Breadcrumbs separators="Slash">
+                      <BreadcrumbsItem data-route="/admin">Admin</BreadcrumbsItem>
+                      <BreadcrumbsItem data-route="/admin/FormMaster">Form</BreadcrumbsItem>
+                    </Breadcrumbs>
+                  </div>
+                }
+                endContent={
+                  user &&
+                  user.Roles.some(role =>
+                    role.Permissions.some(f => f.name === "form_create")
+                  ) && (
+                    <Button
+                      //design="Default"
+                      size="Small"
+                      onClick={() => navigate("/admin/FormMaster/create")}
+                    >
+                      Add Form
+                    </Button>
+                  )
+                }
+              >
+              </AppBar><Page
       backgroundDesign="Solid"
       footer={<div></div>}
-      header={
-        <AppBar
-          design="Header"
-          startContent={
-            <div style={{ width: "150px" }}>
-              <Breadcrumbs
-                design="Standard"
-                separators="Slash"
-                onItemClick={(e) => {
-                  const route = e.detail.item.dataset.route;
-                  if (route) navigate(route);
-                }}
-              >
-                <BreadcrumbsItem data-route="/admin">Admin</BreadcrumbsItem>
-                <BreadcrumbsItem data-route="/admin/FormMaster">
-                  FormMaster
-                </BreadcrumbsItem>
-              </Breadcrumbs>
-            </div>
-          }
-          endContent={
-            <Button
-              design="Emphasized"
-              onClick={() => navigate("/admin/FormMaster/create")}
-            >
-              Add Form
-            </Button>
-          }
-        >
-          <Title level="H4">Form List</Title>
-        </AppBar>
-      }
+      
     >
       <Card
         style={{
-          height: "100%",
+          height: "auto",
           width: "100%",
-          //padding: "0.5rem",
-          paddingTop: "0.5rem",
+                     maxHeight: '560px'
+
         }}
       >
-        <FlexBox direction="Column">
+        <FlexBox direction="Column" style={{padding: 0}}>
           <FlexBox
-            justifyContent="SpaceBetween"
-            direction="Row"
-            alignItems="Center"
-            style={{ margin: "1rem" }}
-          >
+                        justifyContent="End"
+                        alignItems="Center"
+                        style={{ margin: "10px" }}
+                      >
             <Search
               onClose={function Xs() {}}
               onInput={function Xs() {}}
@@ -206,7 +231,7 @@ const FormMaster = () => {
               onSearch={(e) => setSearch(e.target.value)}
             />
           </FlexBox>
-          {console.log("filteredRows", filteredRows)}
+          {console.log("filteredRows", filteredRows,user)}
           <FlexibleColumnLayout
             // style={{ height: "600px" }}
             layout={layout}
@@ -215,11 +240,16 @@ const FormMaster = () => {
                 <div>
                   <FlexBox direction="Column">
                     {console.log("filteredRows", filteredRows)}
+                     {user && user.Roles.some(
+                        (role) =>
+                          role.Permissions.some(
+                            (f) => f.name === "form_list"
+                          )) && (
                     <AnalyticalTable
                       columns={columns}
                       data={filteredRows || []}
-                      header={<Title level="H5" style={{ paddingLeft: 5 }}>  {
-                        "FormMaster list(" + filteredRows.length + ")"}</Title>}
+                      // header={<Title level="H5" style={{ paddingLeft: 5 }}>  {
+                      //   "FormMaster list(" + filteredRows.length + ")"}</Title>}
                       visibleRows={8}
                       filterable
                       pagination
@@ -234,6 +264,7 @@ const FormMaster = () => {
                       onSort={() => {}}
                       onTableScroll={() => {}}
                     />
+                      )}
                   </FlexBox>
                 </div>
               </FlexBox>
@@ -270,7 +301,7 @@ const FormMaster = () => {
           />
         </FlexBox>
       </Card>
-    </Page>
+    </Page></FlexBox></>
   );
 };
 

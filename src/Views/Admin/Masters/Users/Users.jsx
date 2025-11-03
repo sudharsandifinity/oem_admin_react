@@ -219,12 +219,19 @@ const Users = () => {
     []
   );
   return (
-    <Page
-      backgroundDesign="Solid"
-      footer={<div></div>}
-      header={
-        <AppBar
+    <>
+                        <style>
+                            {`
+                              ui5-page::part(content) {
+                                padding: 15px;
+                              }
+                            `}
+                          </style>
+                        <FlexBox direction="Column" style={{width: '100%'}}>
+                        <AppBar
           design="Header"
+              title={"Roles list(" + filteredRows.length + ")"}
+
           startContent={
             <div style={{ width: "100px" }}>
               <Breadcrumbs
@@ -253,7 +260,41 @@ const Users = () => {
         >
           <Title level="H4">User List</Title>
         </AppBar>
-      }
+    <Page
+      backgroundDesign="Solid"
+      footer={<div></div>}
+      // header={
+      //   <AppBar
+      //     design="Header"
+      //     startContent={
+      //       <div style={{ width: "100px" }}>
+      //         <Breadcrumbs
+      //           design="Standard"
+      //           separators="Slash"
+      //           onItemClick={(e) => {
+      //             const route = e.detail.item.dataset.route;
+      //             if (route) navigate(route);
+      //           }}
+      //         >
+      //           <BreadcrumbsItem data-route="/admin">Admin</BreadcrumbsItem>
+      //           <BreadcrumbsItem data-route="/admin/users">
+      //             Users
+      //           </BreadcrumbsItem>
+      //         </Breadcrumbs>
+      //       </div>
+      //     }
+      //     endContent={
+      //       <Button
+      //         design="Emphasized"
+      //         onClick={() => navigate("/admin/users/create")}
+      //       >
+      //         Add User
+      //       </Button>
+      //     }
+      //   >
+      //     <Title level="H4">User List</Title>
+      //   </AppBar>
+      // }
     >
       <Card
         style={{
@@ -356,7 +397,7 @@ const Users = () => {
           />
         </FlexBox>
       </Card>
-    </Page>
+    </Page></FlexBox></>
   );
 };
 

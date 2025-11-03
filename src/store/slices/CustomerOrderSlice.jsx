@@ -26,7 +26,7 @@ export const fetchCustomerOrder = createAsyncThunk(
       const response = await api.get(`/sap/orders?top=${top}&skip=${skip}`, {
         withCredentials: true
       });
-      return response.data.value;
+      return response.data;
     } catch (error) {
       return thunkApi.rejectWithValue(error.response?.data || 'Error fetching orders');
     }
