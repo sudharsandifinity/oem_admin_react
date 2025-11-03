@@ -64,27 +64,16 @@ const BranchForm = ({
   const navigate = useNavigate();
 
   return (
-    <Page
-      backgroundDesign="Solid"
-      footer={
-          <Bar
-          style={{ padding:0.5 }}
-            design="FloatingFooter"
-            endContent={
-              <>
-                <Button
-                  design="Emphasized"
-                  form="form" /* ← link button to that form id */
-                  type="Submit"
-                >
-                  {mode === "edit" ? "Update Branch " : "Create Branch"}
-                </Button>
-              </>
-            }
-          />
-      }
-      header={
-        <AppBar
+    <>
+        <style>
+            {`
+              ui5-page::part(content) {
+                padding: 15px;
+              }
+            `}
+          </style>
+        <FlexBox direction="Column" style={{width: '100%'}}>
+          <AppBar
           design="Header"
           endContent={
             <Button
@@ -119,7 +108,62 @@ const BranchForm = ({
             {mode === "edit" ? "Edit Branch" : "Create New Branch"}
           </Title>
         </AppBar>
+    <Page
+      backgroundDesign="Solid"
+      footer={
+          <Bar
+          style={{ padding:0.5 }}
+            design="FloatingFooter"
+            endContent={
+              <>
+                <Button
+                  design="Emphasized"
+                  form="form" /* ← link button to that form id */
+                  type="Submit"
+                >
+                  {mode === "edit" ? "Update Branch " : "Create Branch"}
+                </Button>
+              </>
+            }
+          />
       }
+      // header={
+      //   <AppBar
+      //     design="Header"
+      //     endContent={
+      //       <Button
+      //         accessibleName="Settings"
+      //         icon="decline"
+      //         title="Go to Settings"
+      //         onClick={() => navigate(-1)} // Go back to previous page
+      //       />
+      //     }
+      //     startContent={
+      //       <div style={{ width: "200px" }}>
+      //         <Breadcrumbs
+      //           design="Standard"
+      //           onItemClick={(e) => {
+      //             const route = e.detail.item.dataset.route;
+      //             if (route) navigate(route);
+      //           }}
+      //           separators="Slash"
+      //         >
+      //           <BreadcrumbsItem data-route="/admin">Admin</BreadcrumbsItem>
+      //           <BreadcrumbsItem data-route="/admin/branches">
+      //             Branch
+      //           </BreadcrumbsItem>
+      //           <BreadcrumbsItem data-route="/admin/branches/create">
+      //             {mode === "edit" ? "Edit Branch " : "Create Branch"}
+      //           </BreadcrumbsItem>
+      //         </Breadcrumbs>
+      //       </div>
+      //     }
+      //   >
+      //     <Title level="h4">
+      //       {mode === "edit" ? "Edit Branch" : "Create New Branch"}
+      //     </Title>
+      //   </AppBar>
+      // }
     >
       {apiError && (
         <MessageStrip
@@ -350,7 +394,7 @@ const BranchForm = ({
           </FlexBox>
         </FlexBox>
       </form>
-    </Page>
+    </Page></FlexBox></>
   );
 };
 

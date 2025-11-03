@@ -499,37 +499,16 @@ const RoleForm = ({
     },
   ];
   return (
-    <Page
-      backgroundDesign="Solid"
-      footer={
-          <Bar
-          style={{ padding:0.5 }}
-            design="FloatingFooter"
-            endContent={
-              <>
-                <Button
-                  design="Emphasized"
-                  form="form" /* ← link button to that form id */
-                  type="Submit"
-                >
-                  {defaultValues.id ? "Edit Role" : "Create New Role"}
-                </Button>
-                {apiError && (
-                  <MessageStrip
-                    design="Negative"
-                    hideCloseButton={false}
-                    hideIcon={false}
-                    style={{ marginBottom: "1rem" }}
-                  >
-                    {apiError}
-                  </MessageStrip>
-                )}
-              </>
-            }
-          />
-      }
-      header={
-        <AppBar
+    <>
+                    <style>
+                        {`
+                          ui5-page::part(content) {
+                            padding: 15px;
+                          }
+                        `}
+                      </style>
+                    <FlexBox direction="Column" style={{width: '100%'}}>
+                     <AppBar
           design="Header"
           endContent={
             <Button
@@ -564,7 +543,72 @@ const RoleForm = ({
             {defaultValues.id ? "Edit Role" : "Create New Role"}
           </Title>
         </AppBar>
+    <Page
+      backgroundDesign="Solid"
+      footer={
+          <Bar
+          style={{ padding:0.5 }}
+            design="FloatingFooter"
+            endContent={
+              <>
+                <Button
+                  design="Emphasized"
+                  form="form" /* ← link button to that form id */
+                  type="Submit"
+                >
+                  {defaultValues.id ? "Edit Role" : "Create New Role"}
+                </Button>
+                {apiError && (
+                  <MessageStrip
+                    design="Negative"
+                    hideCloseButton={false}
+                    hideIcon={false}
+                    style={{ marginBottom: "1rem" }}
+                  >
+                    {apiError}
+                  </MessageStrip>
+                )}
+              </>
+            }
+          />
       }
+      // header={
+      //   <AppBar
+      //     design="Header"
+      //     endContent={
+      //       <Button
+      //         accessibleName="Settings"
+      //         icon="decline"
+      //         title="Go to Settings"
+      //         onClick={() => navigate(-1)} // Go back to previous page
+      //       />
+      //     }
+      //     startContent={
+      //       <div style={{ width: "200px" }}>
+      //         <Breadcrumbs
+      //           design="Standard"
+      //           onItemClick={(e) => {
+      //             const route = e.detail.item.dataset.route;
+      //             if (route) navigate(route);
+      //           }}
+      //           separators="Slash"
+      //         >
+      //           <BreadcrumbsItem data-route="/admin">Admin</BreadcrumbsItem>
+      //           <BreadcrumbsItem data-route="/admin/roles">
+      //             Roles
+      //           </BreadcrumbsItem>
+      //           <BreadcrumbsItem data-route="/admin/roles/create">
+      //             {mode === "edit" ? "Edit Branch " : "Create Branch"}
+      //           </BreadcrumbsItem>
+      //         </Breadcrumbs>
+      //       </div>
+      //     }
+      //   >
+      //     <Title level="h4">
+      //       {defaultValues.id ? "Edit Role" : "Create New Role"}
+      //     </Title>
+      //   </AppBar>
+      // }
     >
       {apiError && (
         <MessageStrip
@@ -783,7 +827,7 @@ const RoleForm = ({
           </FlexBox>
         </div>
       </form>
-    </Page>
+    </Page></FlexBox></>
   );
 };
 

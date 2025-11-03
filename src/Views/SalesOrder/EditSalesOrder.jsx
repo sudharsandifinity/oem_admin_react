@@ -71,8 +71,11 @@ const EditSalesOrder = () => {
   const [formData, setFormData] = useState({});
   const [rowSelection, setRowSelection] = useState({});
   const [generaleditdata, setgeneraleditdata] = useState([]);
-  const [type, setType] = useState("Item");
-
+    const[userdefinedData,setUserDefinedData]= useState({})
+  
+  
+    const [type, setType] = useState("Item");
+  
   const [itemdata, setitemData] = useState([
     { slno: 1, ItemCode: "", ItemName: "", quantity: "", amount: "" },
   ]);
@@ -101,175 +104,121 @@ const EditSalesOrder = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const orderListById = await dispatch(
-          fetchCustomerOrderById(id)
-        ).unwrap();
-        const orderList = await dispatch(fetchOrderItems()).unwrap();
-        const serviceList = await dispatch(fetchOrderServices()).unwrap();
-        console.log("res,res1", orderListById, orderList, serviceList);
-        if (orderListById) {
-          // 1. Store order header info
-          setFormData({
-            CardCode: orderListById.CardCode,
-            CardName: orderListById.CardName,
-            DocDueDate: orderListById.CreationDate
-              ? new Date(orderListById.CreationDate).toISOString().split("T")[0]
-              : new Date().toISOString().split("T")[0],
-            DocumentLines: orderListById.DocumentLines || [],
-          });
+  const fetchData = async () => {
+    try {
+      const orderListById = await dispatch(fetchCustomerOrderById(id)).unwrap();
+      const orderList = await dispatch(fetchOrderItems()).unwrap();
+      const serviceList = await dispatch(fetchOrderServices()).unwrap();
 
-          // 2. Merge document lines into orderItems
-          if (orderListById.DocumentLines?.length > 0) {
-            if (orderListById.DocType === "dDocument_Items") {
-              setType("Item");
-              setitemData(
-                () =>
-                  orderList.value
-                    .map((item, index) => {
-                      const matched = orderListById.DocumentLines.find(
-                        (line) => line.ItemCode === item.ItemCode
-                      );
-                      console.log("setitemeditpage", item, matched);
-                      return matched !== undefined
-                        ? {
-                            slno: index, // usually LineNum is 0-based
-                            ItemCode: matched.ItemCode,
-                            ItemName: matched.ItemDescription,
-                            quantity: matched.Quantity,
-                            amount: matched.UnitPrice,
-                          }
-                        : {
-                            slno: index, // usually LineNum is 0-based
-                            ItemCode: item.ItemCode,
-                            ItemName: item.ItemName,
-                            quantity: item.Quantity,
-                            amount: item.UnitPrice,
-                          }; // no placeholder
-                    })
-                    .filter(Boolean) // remove nulls
-              );
-              setitemTableData(
-                () =>
-                  orderList.value
-                    .map((item) => {
-                      const matched = orderListById.DocumentLines.find(
-                        (line) => line.ItemCode === item.ItemCode
-                      );
+      console.log("res,res1", orderListById, orderList, serviceList);
 
-                      return matched
-                        ? {
-                            slno: matched.LineNum + 1, // usually LineNum is 0-based
-                            ItemCode: matched.ItemCode,
-                            ItemName: matched.ItemDescription,
-                            quantity: matched.Quantity,
-                            amount: matched.UnitPrice,
-                          }
-                        : null; // no placeholder
-                    })
-                    .filter(Boolean) // remove nulls
-              );
-              if (orderList.value?.length > 0) {
-                const preselected = {};
-                orderListById.DocumentLines.forEach((line) => {
-                  const idx = orderList.value.findIndex(
-                    (o) => o.ItemCode === line.ItemCode
+      if (orderListById) {
+        // 1️⃣ Store order header info
+        setFormData({
+          CardCode: orderListById.CardCode,
+          CardName: orderListById.CardName,
+          DocDueDate: orderListById.CreationDate
+            ? new Date(orderListById.CreationDate).toISOString().split("T")[0]
+            : new Date().toISOString().split("T")[0],
+          DocumentLines: orderListById.DocumentLines || [],
+          formData: orderListById.formData,
+        });
+
+        // 2️⃣ Merge document lines
+        if (orderListById.DocumentLines?.length > 0) {
+          if (orderListById.DocType === "dDocument_Items") {
+            // 🧩 Handle Item Type
+            setType("Item");
+
+            setitemData(() =>
+              orderList.value
+                .map((item, index) => {
+                  const matched = orderListById.DocumentLines.find(
+                    (line) => line.ItemCode === item.ItemCode
                   );
-                  if (idx !== -1) {
-                    preselected[idx] = orderList.value[idx];
-                  }
-                });
-                setRowSelection(preselected);
-              }
-            } else {
-              console.log("serviceList", serviceList);
-              setType("Service");
-              setserviceData(
-                () =>
-                  serviceList.value
-                    .map((item, index) => {
-                      const matched = orderListById.DocumentLines.find(
-                        (line) => line.AccountCode === item.Code
-                      );
-                      return matched !== undefined
-                        ? {
-                            slno: index, // usually LineNum is 0-based
-                            ServiceCode: matched.AccountCode,
-                            ServiceName: matched.ItemDescription,
-                            quantity: matched.Quantity,
-                            amount: matched.UnitPrice,
-                          }
-                        : {
-                            slno: index, // usually LineNum is 0-based
-                            ServiceCode: item.AccountCode,
-                            ServiceName: item.ItemDescription,
-                            quantity: item.Quantity,
-                            amount: item.UnitPrice,
-                          }; // no placeholder
-                    })
-                    .filter(Boolean) // remove nulls
-              );
-              setserviceTableData(
-                () =>
-                  serviceList.value
-                    .map((item) => {
-                      const matched = orderListById.DocumentLines.find(
-                        (line) => line.AccountCode === item.Code
-                      );
-
-                      return matched
-                        ? {
-                            slno: matched.LineNum + 1, // usually LineNum is 0-based
-                            ServiceCode: matched.AccountCode,
-                            ServiceName: matched.ItemDescription,
-                            quantity: matched.Quantity,
-                            amount: matched.UnitPrice,
-                          }
-                        : null; // no placeholder
-                    })
-                    .filter(Boolean) // remove nulls
-              );
-              if (serviceList.value?.length > 0) {
-                const preselected = {};
-                orderListById.DocumentLines.forEach((line) => {
-                  const idx = serviceList.value.findIndex(
-                    (o) => o.Code === line.AccountCode
-                  );
-                  if (idx !== -1) {
-                    preselected[idx] = orderList.value[idx];
-                  }
-                });
-                setRowSelection(preselected);
-              }
-            }
-
-            console.log(
-              "itemTabledata:->",
-              itemTabledata,
-              itemdata,
-              orderListById.DocumentLines
+                  return matched
+                    ? {
+                        slno: index,
+                        ItemCode: matched.ItemCode,
+                        ItemName: matched.ItemDescription,
+                        quantity: matched.Quantity,
+                        amount: matched.UnitPrice,
+                      }
+                    : {
+                        slno: index,
+                        ItemCode: item.ItemCode,
+                        ItemName: item.ItemName,
+                        quantity: item.Quantity,
+                        amount: item.UnitPrice,
+                      };
+                })
+                .filter(Boolean)
             );
 
-            // 3. Preselect rows
+            // Preselect rows
+            if (orderList.value?.length > 0) {
+              const preselected = {};
+              orderListById.DocumentLines.forEach((line) => {
+                const idx = orderList.value.findIndex(
+                  (o) => o.ItemCode === line.ItemCode
+                );
+                if (idx !== -1) {
+                  preselected[idx] = orderList.value[idx];
+                }
+              });
+              setRowSelection(preselected);
+            }
+          } else {
+            // 🧩 Handle Service Type
+            console.log("serviceList", serviceList);
+            setType("Service");
+
+            setserviceData(() =>
+              serviceList.value
+                .map((item, index) => {
+                  const matched = orderListById.DocumentLines.find(
+                    (line) => line.AccountCode === item.Code
+                  );
+                  return matched
+                    ? {
+                        slno: index,
+                        ServiceCode: matched.AccountCode,
+                        ServiceName: matched.ItemDescription,
+                        quantity: matched.Quantity,
+                        amount: matched.UnitPrice,
+                      }
+                    : {
+                        slno: index,
+                        ServiceCode: item.AccountCode,
+                        ServiceName: item.ItemDescription,
+                        quantity: item.Quantity,
+                        amount: item.UnitPrice,
+                      };
+                })
+                .filter(Boolean)
+            );
           }
-
-          // set general header edit data
-          setgeneraleditdata({
-            CardCode: orderListById.CardCode,
-            CardName: orderListById.CardName,
-            CreationDate: orderListById.CreationDate,
-          });
         }
-      } catch (err) {
-        console.error("Failed to fetch order:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
 
-    fetchData();
-  }, [dispatch, id, orderItems]);
+        // 3️⃣ Set general header and user-defined fields
+        setgeneraleditdata({
+          CardCode: orderListById.CardCode,
+          CardName: orderListById.CardName,
+          CreationDate: orderListById.CreationDate,
+        });
+
+        setUserDefinedData(orderListById.formData);
+      }
+    } catch (err) {
+      console.error("Failed to fetch order:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchData();
+}, [dispatch, id, orderItems]);
+
 
   const handleChange = (e, name, formName) => {
     const newValue = e.target.value;
@@ -622,7 +571,11 @@ const EditSalesOrder = () => {
             }}
             titleText="User-defined Fields"
           >
-            <UserDefinedFields form={form} handleChange={handleChange} />
+            <UserDefinedFields form={form} handleChange={handleChange} userdefinedData={userdefinedData}
+              setUserDefinedData={setUserDefinedData} 
+              setFormData={setFormData}
+
+              formData={formData}/>
           </ObjectPageSection>
         </ObjectPage>
       </BusyIndicator>

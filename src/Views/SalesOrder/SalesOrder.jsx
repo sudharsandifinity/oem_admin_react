@@ -65,6 +65,7 @@ export default function SalesOrder() {
   const [tabList, setTabList] = useState([]);
   const [formDetails, setFormDetails] = useState([]);
   const [formData, setFormData] = useState({});
+  const[userdefinedData,setUserDefinedData]= useState({})
   const [rowSelection, setRowSelection] = useState({});
   const [open, setOpen] = useState(false);
   const [type,setType]= useState("Item")
@@ -133,7 +134,7 @@ export default function SalesOrder() {
   const handleSubmit = async (form) => {
     console.log(
       "Form submitted:",
-      
+      form,formData,
       rowSelection,
       itemTabledata,
       serviceTabledata,
@@ -164,6 +165,7 @@ export default function SalesOrder() {
           Quantity: line.quantity,
           UnitPrice: line.amount,
         })),
+        data:userdefinedData,
       };
       }else{
         payload = {
@@ -181,6 +183,8 @@ export default function SalesOrder() {
           
           UnitPrice: line.amount,
         })),
+        data:userdefinedData,
+
       };
       }
       
@@ -494,7 +498,19 @@ export default function SalesOrder() {
             }}
             titleText="User-defined Fields"
           >
-            <UserDefinedFields form={form} handleChange={handleChange} />
+            <UserDefinedFields form={form} handleChange={handleChange}  
+              defaultValues={{
+                CardCode: "",
+                DocDueDate: "1",
+                DocumentLines: [],
+              }}
+              apiError={apiError}
+              onSubmit={handleSubmit}
+              setFormData={setFormData}
+
+              formData={formData}
+              userdefinedData={userdefinedData}
+              setUserDefinedData={setUserDefinedData} />
           </ObjectPageSection>
           {/* );
         }

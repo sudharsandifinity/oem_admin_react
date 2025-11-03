@@ -167,12 +167,19 @@ const RolesList = () => {
     []
   );
   return (
-    <Page
-      backgroundDesign="Solid"
-      footer={<div></div>}
-      header={
-        <AppBar
+     <>
+                <style>
+                    {`
+                      ui5-page::part(content) {
+                        padding: 15px;
+                      }
+                    `}
+                  </style>
+                <FlexBox direction="Column" style={{width: '100%'}}>
+                 <AppBar
           design="Header"
+              title={"Roles list(" + filteredRows.length + ")"}
+
           startContent={
             <div style={{ width: "100px" }}>
               <Breadcrumbs
@@ -205,7 +212,45 @@ const RolesList = () => {
         >
           <Title level="H4">Role List</Title>
         </AppBar>
-      }
+    <Page
+      backgroundDesign="Solid"
+      footer={<div></div>}
+      // header={
+      //   <AppBar
+      //     design="Header"
+      //     startContent={
+      //       <div style={{ width: "100px" }}>
+      //         <Breadcrumbs
+      //           design="Standard"
+      //           separators="Slash"
+      //           onItemClick={(e) => {
+      //             const route = e.detail.item.dataset.route;
+      //             if (route) navigate(route);
+      //           }}
+      //         >
+      //           <BreadcrumbsItem data-route="/admin">Admin</BreadcrumbsItem>
+      //           <BreadcrumbsItem data-route="/admin/roles">
+      //             Roles
+      //           </BreadcrumbsItem>
+      //         </Breadcrumbs>
+      //       </div>
+      //     }
+      //     endContent={
+      //        user!==null&&user.Roles.some(
+      //           (role) =>
+      //             role.Permissions.some((f) => f.name === "role_create")
+                    
+      //         ) && (<Button
+      //         design="Emphasized"
+      //         onClick={() => navigate("/admin/roles/create")}
+      //       >
+      //         Add Role
+      //       </Button>)
+      //     }
+      //   >
+      //     <Title level="H4">Role List</Title>
+      //   </AppBar>
+      // }
     >
       <Card
         style={{
@@ -246,8 +291,8 @@ const RolesList = () => {
                     <AnalyticalTable
                       columns={columns}
                       data={filteredRows || []}
-                      header={<Title level="H5" style={{ paddingLeft: 5 }}>  {
-                        "Roles list(" + filteredRows.length + ")"}</Title>}
+                      // header={<Title level="H5" style={{ paddingLeft: 5 }}>  {
+                      //   "Roles list(" + filteredRows.length + ")"}</Title>}
                       filterable
                       visibleRows={8}
                       rowHeight={50}
@@ -297,7 +342,8 @@ const RolesList = () => {
           />
         </FlexBox>
       </Card>
-    </Page>
+    </Page></FlexBox>
+    </>
   );
 };
 

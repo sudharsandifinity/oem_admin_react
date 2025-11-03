@@ -12,7 +12,20 @@ const CreateFormField = () => {
     console.log("handlecreate", data);
 
     try {
-      const res = await dispatch(createFormFields(data)).unwrap();
+      const payload = {formId: data.formId,
+    subFormId:data.subFormId,
+    formSectionId: data.formSectionId,
+    field_name: data.field_name,
+    display_name: data.display_name,
+    input_type: data.input_type,
+    field_order: data.field_order,
+    is_visible: data.is_visible,
+    is_field_data_bind: data.is_field_data_bind,
+    bind_data_by: data.bind_data_by,
+    status: data.status
+  }
+  console.log("payloadcreate",payload)
+      const res = await dispatch(createFormFields(payload)).unwrap();
       if (res.message === "Please Login!") {
         navigate("/login");
       } else {
