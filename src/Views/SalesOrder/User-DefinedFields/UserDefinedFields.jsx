@@ -41,7 +41,7 @@ const UserDefinedFields = ({
     const formRef = useRef(null);
   
 
-  const [inputvalue, setInputValue] = useState(userdefinedData);
+  const [inputvalue, setInputValue] = useState([]);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -86,7 +86,7 @@ const UserDefinedFields = ({
       )
     ) || [];
 
-    console.log("formDetails", formDetails);
+    console.log("formDetails", formDetails,user);
 
     // Extract the FormTabs for each matching form and filter for "User-defined-field"
     const formTabs = formDetails
@@ -127,7 +127,7 @@ const UserDefinedFields = ({
             <FormGroup>
               <FlexBox style={{ display: "flex", gap: "2rem" }}>
                 {/* Left Column */}
-                <div style={{ flex: 1 }}>
+                <div style={{ flex: 1 }}>{console.log("userdefined",userdefinedData,formDetails)}
                   {formDetails&&formDetails.map((field) => (
                     <FormItem
                       key={field.field_name}
