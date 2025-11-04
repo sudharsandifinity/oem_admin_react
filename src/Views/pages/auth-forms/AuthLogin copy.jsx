@@ -38,7 +38,7 @@ export default function AuthLogin() {
   useEffect(() => {
     console.log("authlogintoken", token);
     if (token) {
-      navigate("/UserDashboard");
+      navigate("/dashboard");
     }
   }, [token, navigate]);
 

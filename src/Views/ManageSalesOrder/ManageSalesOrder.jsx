@@ -33,7 +33,6 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   fetchCustomerOrder,
 } from "../../store/slices/CustomerOrderSlice";
-import TopNav from "../../Components/Header/TopNav";
 
 const ManageSalesOrder = () => {
   const {
@@ -324,10 +323,7 @@ const ManageSalesOrder = () => {
       }
     }, [formId]);
   return (
-    <div>
-      <TopNav />
-            {/* <Title onClick={() => navigate(`SalesOrder1`)}>sales</Title> */}
-      
+    <div style={{width:"100%"}}>
       <DynamicPage
         footerArea={
           <Bar
@@ -411,7 +407,7 @@ const ManageSalesOrder = () => {
                   if (route) navigate(route);
                 }}
               >
-                <BreadcrumbsItem data-route="/UserDashboard">
+                <BreadcrumbsItem data-route="/dashboard">
                   Home
                 </BreadcrumbsItem>
                 <BreadcrumbsItem>{formDetails&&formDetails[0]?.name?formDetails[0]?.name:"Sales order List"}</BreadcrumbsItem>

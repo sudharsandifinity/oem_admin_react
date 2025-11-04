@@ -1,10 +1,7 @@
 import { Bar, Button, FlexBox, Option, Select, SideNavigation, SideNavigationGroup, SideNavigationItem, SideNavigationSubItem, Text, Title } from "@ui5/webcomponents-react";
 import React, { useContext, useEffect, useRef, useState } from 'react'
 import { useDispatch, useSelector } from "react-redux";
-import { Outlet, useNavigate } from "react-router-dom";
-import UserDashboard from "../../Components/Dashboard/UserDashboard";
-import Dashboard from "../../Views/Admin/Dashboard/Default/Dashboard";
-// import { FormConfigContext } from "../../Components/Context/FormConfigContext";
+import { useNavigate } from "react-router-dom";
 
 function buildMenuTree(menus) {
   const grouped = {};
@@ -105,7 +102,7 @@ const UserSideBar = ({ collapsed, setCollapsed }) => {
     }, {});
   return (
     <FlexBox style={{ height: "100vh" }}>
-        <FlexBox direction="Column" style={{ width:collapsed ? "0px" : "260px" }}>
+        <FlexBox direction="Column" style={{ display:collapsed ? "none" : "flex" }}>
           <Bar
             design="Header"
             style={{width: '256px', height: '180px' }}

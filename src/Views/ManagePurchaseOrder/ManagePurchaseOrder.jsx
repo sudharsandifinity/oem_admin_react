@@ -31,7 +31,6 @@ import { HeaderFilterBar } from "./HeaderFilterBar";
 import ItemViewPage from "../PurchaseOrder/Contents/Item/ItemViewPage";
 import ViewPurchaseOrder from "./ViewPurchaseOrder";
 import { useDispatch, useSelector } from "react-redux";
-import TopNav from "../../Components/Header/TopNav";
 import {
   fetchBusinessPartner,
   fetchVendorOrder,
@@ -318,8 +317,7 @@ const ManagePurchaseOrder = () => {
 
   // if (!formConfig) return <div>Loading form...</div>;
   return (
-    <div>
-      <TopNav />
+    <div style={{width: "100%"}}>
       <DynamicPage
         footerArea={
           <Bar
@@ -398,7 +396,7 @@ const ManagePurchaseOrder = () => {
                   if (route) navigate(route);
                 }}
               >
-                <BreadcrumbsItem data-route="/UserDashboard">
+                <BreadcrumbsItem data-route="/dashboard">
                   Home
                 </BreadcrumbsItem>
                 <BreadcrumbsItem>
