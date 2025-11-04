@@ -4,6 +4,7 @@ import {
   AnalyticalTable,
   Bar,
   Button,
+  Card,
   CheckBox,
   DatePicker,
   Dialog,
@@ -40,8 +41,9 @@ import Itemtable from "./Item/Itemtable";
 import ServiceTable from "./Service/ServiceTable";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { set } from "react-hook-form";
 import { fetchOrderItems } from "../../../store/slices/CustomerOrderItemsSlice";
+import { set } from "react-hook-form";
+import { fetchOrderServices } from "../../../store/slices/CustomerOrderServiceSlice";
 
 const Contents = (props) => {
   const {
@@ -50,10 +52,16 @@ const Contents = (props) => {
     loading,
     rowSelection,
     setRowSelection,
+    mode,
     itemdata,
     setitemData,
     setitemTableData,
-    itemTabledata,mode
+    itemTabledata,
+    servicedata,
+    setserviceData,
+    setserviceTableData,
+    serviceTabledata,
+    type,setType
   } = props;
   const {
     fieldConfig,
@@ -62,7 +70,7 @@ const Contents = (props) => {
     itemTableColumn,
     serviceTableColumn,
     itemData,
-    servicedata,
+    //servicedata,
   } = useContext(FormConfigContext);
   const tableRef = useRef();
   const dispatch = useDispatch();
@@ -75,11 +83,11 @@ const Contents = (props) => {
     amount: "-",
   });
   console.log("orderitem", orderItems);
+ 
   const [addItemdialogOpen, setAddItemDialogOpen] = useState(false);
   const [addServiceDialogOpen, setAddServicedialogOpen] = useState(false);
 
   const [itemForm, setItemForm] = useState([]);
-  const [serviceData, setServiceData] = useState(servicedata);
   const [serviceForm, setserviceForm] = useState([]);
   const [viewItem, setViewItem] = useState([]);
   const [viewService, setViewService] = useState([]);
@@ -99,15 +107,24 @@ const Contents = (props) => {
       try {
         const res = await dispatch(fetchOrderItems()).unwrap();
 
-               console.log("resusersfetchitems", res,itemdata);
-
+        console.log("resusersfetchitems", res, itemdata);
         if (res.value?.length > 0) {
           const tableconfig = res.value.map((item, index) => ({
             slno: index,
             ItemCode: item.ItemCode,
             ItemName: item.ItemName,
           }));
-          mode==="create"&&setitemData(tableconfig);
+          mode === "create" && setitemData(tableconfig);
+        }
+        const serviceorder = await dispatch(fetchOrderServices()).unwrap();
+        console.log("serviceorder",serviceorder)
+         if (res.value?.length > 0) {
+          const tableconfig = serviceorder.value.map((item, index) => ({
+            slno: index,
+            ServiceCode: item.Code,
+            ServiceName: item.Name,
+          }));
+          mode === "create" && setserviceData(tableconfig);
         }
         if (res.message === "Please Login!") {
           navigate("/");
@@ -143,12 +160,23 @@ const Contents = (props) => {
     ...(itemTableColumn &&
       itemTableColumn.length &&
       itemTableColumn
-        .filter(
-          (col) =>
-            col.accessor !== "slno" &&
-            col.accessor !== "ItemCode" &&
-            col.accessor !== "ItemName"
-        )
+        // .filter(
+        //   (col) =>
+        //     col.accessor !== "ItemCode"
+        // )
+        .map((col) => ({
+          Header: col.Header,
+          accessor: col.accessor,
+        }))),
+  ];
+  const dynamcicServiceCols = [
+    ...(serviceTableColumn &&
+      serviceTableColumn.length &&
+      serviceTableColumn
+        // .filter(
+        //   (col) =>
+        //     col.accessor !== "ItemCode"
+        // )
         .map((col) => ({
           Header: col.Header,
           accessor: col.accessor,
@@ -282,48 +310,84 @@ const Contents = (props) => {
     ],
     [setitemData, layout]
   );
+  const [selectedServices, setSelectedServices] = useState({});
+  const saveService = (item) => {
+    setSelectedServices(rowSelection);
+    console.log("itemForm", itemForm, item);
+    setserviceTableData((prev) => {
+      let updated = [...prev];
+      console.log("updated", updated);
+      // Remove the last row if it's an empty placeholder
+      if (updated[updated.length - 1]?.ServiceCode === "") {
+        updated.pop();
+      }
+let nextSlno =
+      updated.length > 0 ? updated[updated.length - 1].slno + 1 : 0;
+
+      // Convert to array if item is object form like {0: {...}, 1: {...}}
+      const newItems = Array.isArray(item) ? item : Object.values(item);
+
+      newItems.forEach((newItem) => {
+      updated.push({
+        ...newItem,
+        slno: nextSlno, 
+      });
+      nextSlno++; 
+    });
+
+      return updated;
+    });
+  };
   const [selectedRowIndex, setSelectedRowIndex] = useState(null);
 
   const [selectedItems, setSelectedItems] = useState({});
-  const saveItem = (item, index) => {
-    setSelectedItems(rowSelection);
-    console.log("itemForm", itemForm, item);
-    // setitemData((prev) => {
-    //   const updated = [...prev];
+  // const saveItem = (item, index) => {
+  //   setSelectedItems(rowSelection);
+  //   console.log("itemForm", itemForm, item);
+  //   setitemTableData((prev) => {
+  //     let updated = [...prev];
 
-    //   if (updated[updated.length - 1]?.ItemCode === "") {
-    //     updated.pop();
-    //   }
+  //     // Remove the last row if it's an empty placeholder
+  //     if (updated[updated.length - 1]?.ItemCode === "") {
+  //       updated.pop();
+  //     }
 
-    //   const newItems = Array.isArray(item) ? item : Object.values(item);
+  //     // Convert to array if item is object form like {0: {...}, 1: {...}}
+  //     const newItems = Array.isArray(item) ? item : Object.values(item);
 
-    //   newItems.forEach((newItem, i) => {
-    //     updated[index + i] = newItem;
-    //   });
+  //     // ✅ Append new items instead of replacing
+  //     updated = [...updated, ...newItems];
 
-    //   return updated;
-    // });
-    setitemTableData((prev) => {
-      const updated = [...prev];
+  //     return updated;
+  //   });
 
-      // Remove the last row if it's an empty placeholder
-      if (updated[updated.length - 1]?.ItemCode === "") {
-        updated.pop();
-      }
+  // };
+const saveItem = (item, index) => {
+  setSelectedItems(rowSelection);
 
-      // Convert to array if item is in object form like {0: {...}, 1: {...}}
-      const newItems = Array.isArray(item) ? item : Object.values(item);
+  setitemTableData((prev) => {
+    let updated = [...prev];
 
-      // Replace the item at the given index
-      newItems.forEach((newItem, i) => {
-        updated[index + i] = newItem; // replaces existing or extends
+    if (updated.length > 0 && updated[updated.length - 1]?.ItemCode === "") {
+      updated.pop();
+    }
+
+    let nextSlno =
+      updated.length > 0 ? updated[updated.length - 1].slno + 1 : 0;
+
+    const newItems = Array.isArray(item) ? item : Object.values(item);
+
+    newItems.forEach((newItem) => {
+      updated.push({
+        ...newItem,
+        slno: nextSlno, 
       });
-
-      return newItems;
-      //return newItems;
+      nextSlno++; 
     });
-  };
 
+    return updated;
+  });
+}
   const handleitemRowChange = (item) => {
     console.log("handleitemRowChange", item);
   };
@@ -400,7 +464,7 @@ const Contents = (props) => {
 
   return (
     <div>
-      <DynamicPage
+      {/* <DynamicPage
         headerArea={
           <DynamicPageHeader>
             <Title level="H4">Type - Items</Title>
@@ -411,84 +475,118 @@ const Contents = (props) => {
         style={{
           height: "600px",
         }}
-      >
-        <div className="tab">
-          <div>
-            <FlexibleColumnLayout
-              // style={{ height: "600px" }}
-              layout={layout}
-              startColumn={
-                <FlexBox direction="Column">
-                  <div>
-                    {/* <AnalyticalTable
-                      data={loading ? placeholderRows : itemdata ? itemdata : []}
-                      columns={itemcolumns}
-                      groupBy={[]}
-                      scaleWidthMode="Smart"
-                      visibleRows={5}
-                      selectionMode="MultiSelect"
-                      selectedRowIds={rowSelection&&Object.keys(rowSelection)}  // 👈 ensures rows are preselected
-                      onRowSelect={(e) => onRowSelect(e)}
-                      rowHeight={44}
-                      headerRowHeight={48}
-                    /> */}
-                    {console.log("itemTabledatapur", itemTabledata, itemdata)}
-                    <Itemtable
-                      addItemdialogOpen={addItemdialogOpen}
-                      setAddItemDialogOpen={setAddItemDialogOpen}
-                      itemTableColumn={itemTableColumn}
-                      renderIteminput={renderIteminput}
-                      form={form}
-                      handleChange={handleChange}
-                      setRowSelection={setRowSelection}
-                      rowSelection={rowSelection}
-                      saveItem={saveItem}
-                      itemdata={itemdata}
-                      setitemData={setitemData}
-                      setitemTableData={setitemTableData}
-                      itemTabledata={itemTabledata}
-                      dynamcicItemCols={dynamcicItemCols}
-                      selectedRowIndex={selectedRowIndex}
-                      setSelectedRowIndex={setSelectedRowIndex}
-                      selectedItems={selectedItems}
-                      mode={mode}
-                    />
-                  </div>
-                </FlexBox>
-              }
-              midColumn={
-                <Page
-                  header={
-                    <Bar
-                      endContent={
-                        <Button
-                          icon="sap-icon://decline"
-                          title="close"
-                          onClick={() => setLayout("OneColumn")}
+      > */}
+      {/* <div className="tab"> */}
+        <Card>
+          <FlexBox direction="Column" style={{padding: '40px 30px', gap: '20px'}}>
+            <FlexBox alignItems="Center">
+              <Label style={{minWidth: "200px"}}>Item/Service Type:</Label>
+              <Select value={type} style={{width: "200px"}} >
+                <Option onClick={() => setType("Item")}>Item</Option>
+                <Option onClick={() => setType("Service")}>Service</Option>
+              </Select>
+            </FlexBox>
+            <div>
+              <FlexibleColumnLayout
+                // style={{ height: "600px" }}
+                layout={layout}
+                startColumn={
+                  <FlexBox direction="Column">
+                    <div>
+                      {/* <AnalyticalTable
+                          data={loading ? placeholderRows : itemdata ? itemdata : []}
+                          columns={itemcolumns}
+                          groupBy={[]}
+                          scaleWidthMode="Smart"
+                          visibleRows={5}
+                          selectionMode="MultiSelect"
+                          selectedRowIds={rowSelection&&Object.keys(rowSelection)}  // 👈 ensures rows are preselected
+                          onRowSelect={(e) => onRowSelect(e)}
+                          rowHeight={44}
+                          headerRowHeight={48}
+                        /> */}
+                      {console.log("itemTabledata", itemTabledata, itemdata)}
+                      {type === "Item" ? (
+                        <Itemtable
+                          addItemdialogOpen={addItemdialogOpen}
+                          setAddItemDialogOpen={setAddItemDialogOpen}
+                          itemTableColumn={itemTableColumn}
+                          renderIteminput={renderIteminput}
+                          form={form}
+                          handleChange={handleChange}
+                          setRowSelection={setRowSelection}
+                          rowSelection={rowSelection}
+                          saveItem={saveItem}
+                          itemdata={itemdata}
+                          setitemData={setitemData}
+                          setitemTableData={setitemTableData}
+                          itemTabledata={itemTabledata}
+                          dynamcicItemCols={dynamcicItemCols}
+                          selectedRowIndex={selectedRowIndex}
+                          setSelectedRowIndex={setSelectedRowIndex}
+                          mode={mode}
+                          selectedItems={selectedItems}
                         />
-                      }
-                      startContent={<Title level="H5">Preview Form</Title>}
-                    ></Bar>
-                  }
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "row",
-                      justifyContent: "center",
-                      alignItems: "start",
-                      height: "90%",
-                      verticalAlign: "middle",
-                    }}
+                      ) : (
+                        <ServiceTable
+                          addServiceDialogOpen={addServiceDialogOpen}
+                          setAddServicedialogOpen={setAddServicedialogOpen}
+                          serviceTableColumn={serviceTableColumn}
+                          renderIteminput={renderIteminput}
+                          form={form}
+                          handleChange={handleChange}
+                          setRowSelection={setRowSelection}
+                          rowSelection={rowSelection}
+                          saveService={saveService}
+                          servicedata={servicedata}
+                          setserviceData={setserviceData}
+                          setserviceTableData={setserviceTableData}
+                          serviceTabledata={serviceTabledata}
+                          dynamcicServiceCols={dynamcicServiceCols}
+                          selectedRowIndex={selectedRowIndex}
+                          setSelectedRowIndex={setSelectedRowIndex}
+                          mode={mode}
+                          selectedServices={selectedServices}
+                        />
+                      )}
+                    </div>
+                  </FlexBox>
+            }
+                midColumn={
+                  <Page
+                    header={
+                      <Bar
+                        endContent={
+                          <Button
+                            icon="sap-icon://decline"
+                            title="close"
+                            onClick={() => setLayout("OneColumn")}
+                          />
+                        }
+                        startContent={<Title level="H5">Preview Form</Title>}
+                      ></Bar>
+                    }
                   >
-                    <ItemViewPage viewItem={viewItem} />
-                  </div>
-                </Page>
-              }
-            />
-          </div>
-        </div>
-      </DynamicPage>
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "row",
+                        justifyContent: "center",
+                        alignItems: "start",
+                        height: "90%",
+                        verticalAlign: "middle",
+                      }}
+                    >
+                      <ItemViewPage viewItem={viewItem} />
+                    </div>
+                  </Page>
+                }
+              />
+            </div>
+          </FlexBox>
+        </Card>
+      {/* </div> */}
+      {/* </DynamicPage> */}
     </div>
   );
 };

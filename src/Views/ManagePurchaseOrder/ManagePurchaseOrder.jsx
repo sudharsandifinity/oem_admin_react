@@ -40,6 +40,7 @@ import {
 const ManagePurchaseOrder = () => {
   const {
     ManageSalesOrderTableColumn,
+    ManagePurchaseOrderTableColumn,
     ManageSalesOrderTableData,
     ManageSalesOderHeaderField,
   } = useContext(FormConfigContext);
@@ -175,9 +176,9 @@ const ManagePurchaseOrder = () => {
     }));
   };
   const ManageSalesOrderTableCols = [
-    ...(ManageSalesOrderTableColumn &&
-      ManageSalesOrderTableColumn.length &&
-      ManageSalesOrderTableColumn.map((col) => {
+    ...(ManagePurchaseOrderTableColumn &&
+      ManagePurchaseOrderTableColumn.length &&
+      ManagePurchaseOrderTableColumn.map((col) => {
         return {
           Header: col.Header,
           accessor: col.accessor,
@@ -454,8 +455,8 @@ const ManagePurchaseOrder = () => {
                             style={{ width: "100%", padding: "4px 10px" }}
                           >
                             <Title
-                              style={{ minWidth: "150px" }}
-                            >{`(Sales Order - ${tableData.length})`}</Title>
+                              style={{ minWidth: "200px" }}
+                            >{`(Purchase Order - ${tableData.length})`}</Title>
                             <Toolbar
                               design="Transparent"
                               style={{ border: "none" }}
@@ -463,7 +464,7 @@ const ManagePurchaseOrder = () => {
                               <ToolbarButton
                                 design="Default"
                                 onClick={() =>
-                                  navigate("/SalesOrder/create/" + formId)
+                                  navigate("/PurchaseOrder/create/" + formId) 
                                 }
                                 text="Create"
                               />

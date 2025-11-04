@@ -327,6 +327,8 @@ const ManageSalesOrder = () => {
   return (
     <div>
       <TopNav />
+            {/* <Title onClick={() => navigate(`SalesOrder1`)}>sales</Title> */}
+      
       <DynamicPage
         footerArea={
           <Bar
@@ -390,6 +392,7 @@ const ManageSalesOrder = () => {
               >
                 Clear Filter
               </Button>
+
             </FlexBox>
           </DynamicPageHeader>
         }
@@ -415,7 +418,7 @@ const ManageSalesOrder = () => {
                 <BreadcrumbsItem>{formDetails&&formDetails[0]?.name?formDetails[0]?.name:"Sales order List"}</BreadcrumbsItem>
               </Breadcrumbs>
             }
-            heading={<Title>{formDetails&&formDetails[0]?.name?formDetails[0]?.name:"Sales order List"}</Title>}
+            heading={<Title >{formDetails&&formDetails[0]?.name?formDetails[0]?.name:"Sales order List"}</Title>}
             snappedHeading={<Title>{formDetails&&formDetails[0]?.name?formDetails[0]?.name:"Sales order List"}</Title>}
           ></DynamicPageTitle>
         }

@@ -215,6 +215,21 @@ const FormConfigProvider = ({ children }) => {
     // },
     // { Header: "User Signature", accessor: "UserSignature", type: "text" },
   ];
+   const ManagePurchaseOrderTableColumn = [
+    { Header: "Document No", accessor: "DocumentNo", type: "text" },
+    { Header: "Vendor Code", accessor: "CustomerCode", type: "text" },
+    { Header: "Vendor Name", accessor: "CustomerName", type: "text" },
+    // { Header: "Customer Ref. No", accessor: "CustomerRefno", type: "text" },
+    { Header: "Posting Date", accessor: "PostingDate", type: "text" },
+    // { Header: "Delivery Date", accessor: "DeliveryDate", type: "text" },
+    { Header: "Status", accessor: "Status", type: "text" },
+    // {
+    //   Header: "Sales Employee Name",
+    //   accessor: "SalesEmployeeName",
+    //   type: "text",
+    // },
+    // { Header: "User Signature", accessor: "UserSignature", type: "text" },
+  ];
   const ManageSalesOrderTableData = [
     {
       DocumentNo: "1315",
@@ -998,6 +1013,7 @@ const FormConfigProvider = ({ children }) => {
         Menuitems,
         ManageSalesOderHeaderField,
         ManageSalesOrderTableColumn,
+        ManagePurchaseOrderTableColumn,
         ManageSalesOrderTableData,
         fieldConfig,
         Accountingdetails,

@@ -1,47 +1,57 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import api from '../../api/axios';
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import api from "../../api/axios";
 
 // API Base URL
-const API_URL = '/sap/orders';
-const BUSINESS_PARTNER_API = '/sap/business-partners/customers';
+const API_URL = "/sap/orders";
+const BUSINESS_PARTNER_API = "/sap/business-partners/customers";
 
 // ✅ Fetch Business Partners
 export const fetchBusinessPartner = createAsyncThunk(
-  'businessPartner/fetchBusinessPartner',
+  "businessPartner/fetchBusinessPartner",
   async (_, thunkApi) => {
     try {
-      const response = await api.get(BUSINESS_PARTNER_API, { withCredentials: true });
+      const response = await api.get(BUSINESS_PARTNER_API, {
+        withCredentials: true,
+      });
       return response.data.value; // usually wrapped in { value: [...] }
     } catch (error) {
-      return thunkApi.rejectWithValue(error.response?.data || 'Error fetching business partners');
+      return thunkApi.rejectWithValue(
+        error.response?.data || "Error fetching business partners"
+      );
     }
   }
 );
 
 // ✅ Fetch All Orders
 export const fetchCustomerOrder = createAsyncThunk(
-  'customerorder/fetchAll',
+  "customerorder/fetchAll",
   async ({ top = 20, skip = 0 }, thunkApi) => {
     try {
       const response = await api.get(`/sap/orders?top=${top}&skip=${skip}`, {
-        withCredentials: true
+        withCredentials: true,
       });
       return response.data;
     } catch (error) {
-      return thunkApi.rejectWithValue(error.response?.data || 'Error fetching orders');
+      return thunkApi.rejectWithValue(
+        error.response?.data || "Error fetching orders"
+      );
     }
   }
 );
 
 // ✅ Fetch Order by ID
 export const fetchCustomerOrderById = createAsyncThunk(
-  'customerorder/fetchById',
+  "customerorder/fetchById",
   async (id, thunkApi) => {
     try {
-      const response = await api.get(`${API_URL}/${id}`, { withCredentials: true });
+      const response = await api.get(`${API_URL}/${id}`, {
+        withCredentials: true,
+      });
       return response.data;
     } catch (error) {
-      return thunkApi.rejectWithValue(error.response?.data || 'Error fetching order by ID');
+      return thunkApi.rejectWithValue(
+        error.response?.data || "Error fetching order by ID"
+      );
     }
   }
 );
@@ -52,53 +62,63 @@ export const createCustomerOrder = createAsyncThunk(
   async (customerOrderData, thunkApi) => {
     try {
       console.log("🚀 Sending order to API:", customerOrderData);
-      const response = await api.post(API_URL, customerOrderData, { withCredentials: true, timeout: 50000 });
+      const response = await api.post(API_URL, customerOrderData, {
+        withCredentials: true,
+        timeout: 50000,
+      });
       return response.data;
     } catch (error) {
       console.error("❌ API error:", error.response?.data || error.message);
-      return thunkApi.rejectWithValue(error.response?.data || "Error creating order");
+      return thunkApi.rejectWithValue(
+        error.response?.data || "Error creating order"
+      );
     }
   }
 );
-
 
 // ✅ Update Order
 export const updateCustomerOrder = createAsyncThunk(
-  'customerorder/update',
+  "customerorder/update",
   async ({ id, data }, thunkApi) => {
     try {
       console.log("🚀 Sending order to API:", data);
-      const response = await api.patch(`${API_URL}/${id}`, data, { withCredentials: true, timeout: 60000 });
+      const response = await api.patch(`${API_URL}/${id}`, data, {
+        withCredentials: true,
+        timeout: 60000,
+      });
       return response.data;
     } catch (error) {
       console.error("❌ API error:", error.response?.data || error.message);
-      return thunkApi.rejectWithValue(error.response?.data || 'Error updating order');
+      return thunkApi.rejectWithValue(
+        error.response?.data || "Error updating order"
+      );
     }
   }
 );
 
-
 // ✅ Delete Order
 export const deleteCustomerOrder = createAsyncThunk(
-  'customerorder/delete',
+  "customerorder/delete",
   async (id, thunkApi) => {
     try {
       await api.delete(`${API_URL}(${id})`, { withCredentials: true });
       return id;
     } catch (error) {
-      return thunkApi.rejectWithValue(error.response?.data || 'Error deleting order');
+      return thunkApi.rejectWithValue(
+        error.response?.data || "Error deleting order"
+      );
     }
   }
 );
 
 // Slice
 const customerorderSlice = createSlice({
-  name: 'customerorder',
+  name: "customerorder",
   initialState: {
     customerorder: [],
     businessPartner: [],
     loading: false,
-    error: null
+    error: null,
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -110,7 +130,10 @@ const customerorderSlice = createSlice({
       })
       .addCase(fetchCustomerOrder.fulfilled, (state, action) => {
         state.loading = false;
-        state.customerorder = action.payload;
+        // If API returns { value: [...] }, handle that
+        state.customerorder = Array.isArray(action.payload)
+          ? action.payload
+          : action.payload?.value || [];
       })
       .addCase(fetchCustomerOrder.rejected, (state, action) => {
         state.loading = false;
@@ -132,20 +155,33 @@ const customerorderSlice = createSlice({
 
       // Create Order
       .addCase(createCustomerOrder.fulfilled, (state, action) => {
-        state.customerorder.push(action.payload);
+        if (Array.isArray(state.customerorder)) {
+          state.customerorder.push(action.payload);
+        } else {
+          state.customerorder = [action.payload];
+        }
       })
 
       // Update Order
+
       .addCase(updateCustomerOrder.fulfilled, (state, action) => {
-        const index = state.customerorder.findIndex((o) => o.DocEntry === action.payload.DocEntry);
-        if (index !== -1) state.customerorder[index] = action.payload;
+        if (Array.isArray(state.customerorder)) {
+          const index = state.customerorder.findIndex(
+            (o) => o.DocEntry === action.payload.DocEntry
+          );
+          if (index !== -1) state.customerorder[index] = action.payload;
+        }
       })
 
       // Delete Order
       .addCase(deleteCustomerOrder.fulfilled, (state, action) => {
-        state.customerorder = state.customerorder.filter((o) => o.DocEntry !== action.payload);
+        if (Array.isArray(state.customerorder)) {
+          state.customerorder = state.customerorder.filter(
+            (o) => o.DocEntry !== action.payload
+          );
+        }
       });
-  }
+  },
 });
 
 export default customerorderSlice.reducer;

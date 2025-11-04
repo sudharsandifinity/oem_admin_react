@@ -612,6 +612,7 @@ const deleteRow = (itemCodeToRemove) => {
           Total Amount:{" "}
           {totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
         </Title>
+        
       </FlexBox>
       <Dialog
         headerText="Select Item"

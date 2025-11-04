@@ -78,6 +78,7 @@ import EditPurchaseOrder from "./Views/PurchaseOrder/EditPurchaseOrder";
 import ViewSalesOrder from "./Views/SalesOrder/ViewSalesOrder";
 import ViewPurchaseOrder from "./Views/PurchaseOrder/ViewPurchaseOrder";
 import UserMainLayout from "./Views/Layouts/UserMainLayout";
+// import SalesOrder1 from "./Views/SalesOrder/SalesOrder1";
 // import Home from "./Home";
 // import AssignFormMenuMaster from "./Views/Admin/Menu/AssignFormToMenu/AssignFormMenuMaster";
 // import CreateAssignFormMenu from "./Views/Admin/Menu/AssignFormToMenu/CreateAssignFormMenu";
@@ -142,7 +143,7 @@ function App() {
                   />
                      <Route path="/Sales/:formId" element={<ManageSalesOrder />} />
                      <Route path="/Purchase/:formId" element={<ManagePurchaseOrder />} />
-
+ {/* <Route path="/Sales/:formId/SalesOrder1" element={<SalesOrder1 />} /> */}
             {/* <Route path="/form/:formId/:childId" element={<ManageSalesOrder />} /> */}
                   <Route path="/Admin" element={<SideNavWrapper />} />
                   <Route path="/admin" element={<SideNavWrapper />}>
@@ -204,7 +205,7 @@ function App() {
 
                     <Route path="sales-orders" element={<SalesOrders />} />
                     <Route path="sales-invoices" element={<SalesInvoices />} />
-
+                   
                     <Route
                       path="purchase-orders"
                       element={<PurchaseOrders />}
