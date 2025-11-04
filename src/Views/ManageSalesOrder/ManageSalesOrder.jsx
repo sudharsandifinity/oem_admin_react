@@ -90,7 +90,6 @@ const ManageSalesOrder = () => {
         const res = await dispatch(
           fetchCustomerOrder({ top: pageSize, skip: 0 })
         ).unwrap();
-        console.log("fetchinitial", res);
         const initialData = res.data.map((item) => ({
           DocEntry: item.DocEntry,
           CustomerCode: item.CardCode,
@@ -469,10 +468,10 @@ const ManageSalesOrder = () => {
                             </Toolbar>
                           </FlexBox>
                         }
-                        loading={page === 0 && loading}
+                        loading={ loading}
                         showOverlay={page === 0 && loading}
                         noDataText={
-                          loading ? "Loading data..." : "No data found!"
+                          !customerorder ? "Loading data..." : "No data found!"
                         }
                         sortable
                         filterable
@@ -500,9 +499,9 @@ const ManageSalesOrder = () => {
 
                             if (res.length < pageSize) {
                               setAllLoaded(true);
-                            }
+                            } 
 
-                            const newRecords = res.map((item) => ({
+                            const newRecords = res.data.map((item) => ({
                               DocEntry: item.DocEntry,
                               CustomerCode: item.CardCode,
                               CustomerName: item.CardName,
