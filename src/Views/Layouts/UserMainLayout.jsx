@@ -1,11 +1,19 @@
 import { FlexBox, Page } from '@ui5/webcomponents-react'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import TopNav from '../../Components/Header/TopNav'
-import UserSideBar from '../../Components/SideBar/UserSideNav'
-import { Outlet } from 'react-router-dom'
+import UserSideBar from '../../Components/SideBar/UserSideBar'
+import { Outlet, useLocation } from 'react-router-dom'
 
 const UserMainLayout = () => {
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(true);
+  const location = useLocation();
+
+ useEffect(() => {
+  if (location.pathname != "/dashboard") {
+    setCollapsed(true);
+  }
+}, [location.pathname]);
+
   return (
     <>
       <style>
@@ -21,9 +29,9 @@ const UserMainLayout = () => {
           height: '650px'
         }}
       > */}
-        <TopNav />
+        <TopNav collapsed={collapsed} setCollapsed={setCollapsed}/>
         <FlexBox>
-          {/* <UserSideBar collapsed={collapsed} setCollapsed={setCollapsed}/> */}
+          <UserSideBar collapsed={collapsed} setCollapsed={setCollapsed}/>
           <Outlet />
         </FlexBox>
       {/* </Page> */}
