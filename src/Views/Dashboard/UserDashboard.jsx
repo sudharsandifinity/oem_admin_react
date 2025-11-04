@@ -218,8 +218,9 @@ const UserDashboard = () => {
           </>
         )} */}
         <div style={{ display: "flex", gap: "0.5rem",padding: "1rem" }}>
+        
           <div style={{ width: "270px" }}>
-            <Text>Company</Text>
+            <Text >Company</Text>
             <Select
               style={{ width: "100%" }}
               onChange={(e) =>
@@ -413,6 +414,8 @@ const UserDashboard = () => {
               header={<CardHeader titleText="User Distribution" />}
               style={{ width: "58%" }}
             >
+          
+
               <div style={{ width: "100%", height: 300, marginTop: "2rem" }}>
                 <ResponsiveContainer>
                   <LineChart data={data}>

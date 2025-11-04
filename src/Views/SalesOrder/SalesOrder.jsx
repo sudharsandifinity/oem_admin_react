@@ -273,6 +273,7 @@ export default function SalesOrder() {
                   active={loading}
                 > */}
         <ObjectPage
+
           footerArea={
             <>
               {" "}
@@ -297,7 +298,7 @@ export default function SalesOrder() {
           }
           headerArea={
             <DynamicPageHeader>
-              {/* <FlexBox wrap="Wrap">
+               <FlexBox wrap="Wrap">
             <FlexBox direction="Column">
               <Label>Customer</Label>
             </FlexBox>
@@ -324,7 +325,7 @@ export default function SalesOrder() {
               //onInput={handleSliderChange}
               />
             </FlexBox>
-          </FlexBox> */}
+          </FlexBox> 
             </DynamicPageHeader>
           }
           // image="https://sap.github.io/ui5-webcomponents-react/v2/assets/Person-B7wHqdJw.png"
@@ -364,7 +365,7 @@ export default function SalesOrder() {
                 </>
               }
               header={
-                <Title level="H2">
+                <Title level="H2" >
                   {formDetails ? formDetails[0]?.name : "Sales Order"}
                 </Title>
               }

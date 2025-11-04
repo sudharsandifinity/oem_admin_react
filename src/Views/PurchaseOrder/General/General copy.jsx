@@ -7,7 +7,7 @@ import {
 } from "@ui5/webcomponents-react";
 import React, { useContext, useEffect, useState } from "react";
 import { FormConfigContext } from "../../../Components/Context/FormConfigContext";
-import { PurchaseOrderRenderInput } from "../PurchaseOrderRenderInput";
+import { SalesOrderRenderInput } from "../SalesOrderRenderInput";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 const General = (props) => {
@@ -92,7 +92,7 @@ const DocumentDetails = SubForms?SubForms.map(SubFormss => SubFormss.name === "d
                         label={field.display_name}
                         labelContent={<Label>{field.display_name}</Label>}
                       >
-                        {PurchaseOrderRenderInput(
+                        {SalesOrderRenderInput(
                           "cusDetail",
                           field,
                           form,
@@ -117,7 +117,7 @@ const DocumentDetails = SubForms?SubForms.map(SubFormss => SubFormss.name === "d
                         label={field.DisplayName}
                         labelContent={<Label>{field.DisplayName}</Label>}
                       >
-                        {PurchaseOrderRenderInput(field, form, handleChange)}
+                        {SalesOrderRenderInput(field, form, handleChange)}
                       </FormItem>
                     ))}
                   </div> */}
@@ -144,7 +144,7 @@ const DocumentDetails = SubForms?SubForms.map(SubFormss => SubFormss.name === "d
                         label={field.DisplayName}
                         labelContent={<Label>{field.DisplayName}</Label>}
                       >
-                        {PurchaseOrderRenderInput(field, form, handleChange)}
+                        {SalesOrderRenderInput(field, form, handleChange)}
                       </FormItem>
                     ))}
                   </div> */}
@@ -162,7 +162,7 @@ const DocumentDetails = SubForms?SubForms.map(SubFormss => SubFormss.name === "d
                         label={field.display_name}
                         labelContent={<Label>{field.display_name}</Label>}
                       >
-                        {PurchaseOrderRenderInput(
+                        {SalesOrderRenderInput(
                           "docDetail",
                           field,
                           form,

@@ -63,6 +63,8 @@ export default function PurchaseOrder() {
   const [tabList, setTabList] = useState([]);
   const [formDetails, setFormDetails] = useState([]);
   const [formData, setFormData] = useState({});
+    const[userdefinedData,setUserDefinedData]= useState({})
+  
   const [rowSelection, setRowSelection] = useState({});
   const [open, setOpen] = useState(false);
   const [itemTabledata, setitemTableData] = useState([
@@ -71,6 +73,12 @@ export default function PurchaseOrder() {
   const [itemdata, setitemData] = useState([
     { slno: 1, ItemCode: "", ItemName: "", quantity: "", amount: "" },
   ]);
+  const [serviceTabledata, setserviceTableData] = useState([
+      { slno: 1, ServiceCode: "", ServiceName: "", quantity: "", amount: "" },
+    ]);
+    const [servicedata, setserviceData] = useState([
+      { slno: 1, ServiceCode: "", ServiceName: "", quantity: "", amount: "" },
+    ]);
   const [form, setForm] = useState({
     CardCode: "",
     CardName: "",
@@ -229,7 +237,7 @@ export default function PurchaseOrder() {
     }
   }, [formId]);
   return (
-    <>
+    <>{console.log("formDetails[0]",formDetails[0])}
       {loading ? (
         <div
           style={{
@@ -272,7 +280,7 @@ export default function PurchaseOrder() {
           }
           headerArea={
             <DynamicPageHeader>
-              {/* <FlexBox wrap="Wrap">
+              <FlexBox wrap="Wrap">
             <FlexBox direction="Column">
               <Label>Customer</Label>
             </FlexBox>
@@ -299,7 +307,7 @@ export default function PurchaseOrder() {
               //onInput={handleSliderChange}
               />
             </FlexBox>
-          </FlexBox> */}
+          </FlexBox>
             </DynamicPageHeader>
           }
           // image="https://sap.github.io/ui5-webcomponents-react/v2/assets/Person-B7wHqdJw.png"
@@ -405,6 +413,10 @@ export default function PurchaseOrder() {
               setitemData={setitemData}
               setitemTableData={setitemTableData}
               itemTabledata={itemTabledata}
+               servicedata={servicedata}
+              setserviceData={setserviceData}
+              setserviceTableData={setserviceTableData}
+              serviceTabledata={serviceTabledata}
               orderItems={orderItems}
               loading={loading}
               form={form}
@@ -468,7 +480,19 @@ export default function PurchaseOrder() {
             }}
             titleText="User-defined Fields"
           >
-            <UserDefinedFields form={form} handleChange={handleChange} />
+            <UserDefinedFields form={form} handleChange={handleChange}  
+              defaultValues={{
+                CardCode: "",
+                DocDueDate: "1",
+                DocumentLines: [],
+              }}
+              apiError={apiError}
+              onSubmit={handleSubmit}
+              setFormData={setFormData}
+
+              formData={formData}
+              userdefinedData={userdefinedData}
+              setUserDefinedData={setUserDefinedData}/>
           </ObjectPageSection>
           {/* );
         }

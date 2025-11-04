@@ -15,6 +15,8 @@ import {
   Label,
   List,
   MessageStrip,
+  MultiComboBox,
+  MultiComboBoxItem,
   Option,
   Page,
   Select,
@@ -82,7 +84,9 @@ const Form = ({
   const navigate = useNavigate();
 const branchList = branches.filter(b => b.companyId === selectedCompany?.value)
 
-
+const handleselectedForm=(e)=>{
+  console.log("handleselectedform",e)
+}
 
   useEffect(() => {
     if (mode === "edit") {
@@ -371,12 +375,12 @@ const branchList = branches.filter(b => b.companyId === selectedCompany?.value)
                     )}
                   />
 
-                  {errors.companyId && (
+                  {errors.tabId && (
                     <span
                       slot="valueStateMessage"
                       style={{ color: "var(--sapNegativeColor)" }}
                     >
-                      {errors.companyId.message}
+                      {errors.tabId.message}
                     </span>
                   )}
                 </FlexBox>
@@ -479,7 +483,7 @@ const branchList = branches.filter(b => b.companyId === selectedCompany?.value)
                 control={control}
                 render={({ field }) => (
                   <Select
-                    style={{ width: "26%" }}
+                    style={{ width: "80%" }}
 
                     name="status"
                     value={field.value ?? ""}

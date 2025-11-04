@@ -55,14 +55,19 @@ const Additemdialog = (props) => {
     selectedRowIndex,
     itemTabledata,
     mode,
+    itempopupdata,
+    isAddnewRow,
+    inputvalue,
+    setInputValue,
   } = props;
+
   const [itemchildrowSelection, setitemChildRowSelection] = useState([]);
   const [rowSelection, setRowSelection] = useState([]);
-  const [tableData, settableData] = useState(itempopupData);
+  const [originalItemData, setOriginalItemData] = useState([]);
   const onitemchildRowSelect = (e) => {
     console.log(
       "onRowSelect",
-      itemdata, 
+      itemdata,
       e.detail.row,
       e.detail.selected,
       e.detail.row.original
@@ -73,6 +78,13 @@ const Additemdialog = (props) => {
       [e.detail.row.original.slno]: e.detail.row.original,
     }));
   };
+  useEffect(() => {
+    console.log("itemdatauseefect1", originalItemData);
+    if (addItemdialogOpen) {
+      console.log("itemdatauseefect", itemdata);
+      setOriginalItemData(itemdata); // backup (for reset/clear filter)
+    }
+  }, [addItemdialogOpen]);
   // useEffect(() => {
   //   if (mode === "edit" && itemTabledata && itemTabledata.length > 0) {
   //     const selected = {};
@@ -99,7 +111,7 @@ const Additemdialog = (props) => {
       {
         Header: "SL No",
         accessor: "id", // not used for data, but needed for the column
-        //Cell: ({ row }) => Number(row.id) + 1, // ✅ row.id is 0-based
+        Cell: ({ row }) => Number(row.id) + 1, // ✅ row.id is 0-based
         width: 80,
       },
       {
@@ -199,24 +211,46 @@ const Additemdialog = (props) => {
           preselected[row.slno] = row;
         }
       });
-
-      setRowSelection(preselected);
+      if (isAddnewRow) {
+        setRowSelection([]);
+      } else {
+        setRowSelection(preselected);
+      }
     }
   }, [itemdata, itemTabledata]);
 
+  const clearFilter = () => {
+    const clearedFilters = {};
+    // ItemPopupFilterList.forEach((field) => {
+    //   clearedFilters[field.name] = ""; // reset each input field
+    // });
+    console.log("originalItemData", originalItemData);
+    setInputValue([]);
+    setitemData(originalItemData);
+  };
   return (
     <Dialog
       headerText="Item Details"
       open={addItemdialogOpen}
       onAfterClose={() => setAddItemDialogOpen(false)}
       footer={
-        <FlexBox direction="Row" gap={2}>
-          <Button onClick={() => setAddItemDialogOpen(false)}>Close</Button>
+        <FlexBox direction="Row" gap={20} style={{marginTop: '10px'}}>
+          <Button
+            onClick={() => {
+              setAddItemDialogOpen(false);
+              setInputValue([]);
+              setitemData(originalItemData);
+            }}
+          >
+            Close
+          </Button>
 
           <Button
             onClick={() => {
               setAddItemDialogOpen(false);
               saveItem(rowSelection, selectedRowIndex);
+              setInputValue([]);
+              setitemData(originalItemData);
             }}
           >
             Choose
@@ -228,25 +262,38 @@ const Additemdialog = (props) => {
       <DynamicPage
         headerArea={
           <DynamicPageHeader>
-            <Grid
-              defaultIndent="XL0 L0 M0 S0"
-              defaultSpan="XL3 L3 M6 S12"
-              hSpacing="1rem"
-              vSpacing="1rem"
-            >
-              {/* Custom Filter Field */}
-              {ItemPopupFilterList.map((field) =>
-                ItemPopupFilter(field, itemdata, setitemData)
-              )}
+                       <FlexBox direction="Row" alignItems="Center" justifyContent="SpaceBetween">
+                        
+              <Grid
+                defaultIndent="XL0 L0 M0 S0"
+                defaultSpan="XL4 L4 M6 S12"
+                hSpacing="1rem"
+                vSpacing="1rem"
+              >
+                {/* Custom Filter Field */}
+                {ItemPopupFilterList.map((field) =>
+                  ItemPopupFilter(
+                    field,
+                    itemdata,
+                    setitemData,
+                    inputvalue,
+                    setInputValue
+                  )
+                )}
 
-              {/* <FlexBox justifyContent="end">
+                {/* <FlexBox justifyContent="end">
                 <Button
                 onClick={clearFilter}
                 >
                   Clear Filter
                 </Button>
               </FlexBox> */}
-            </Grid>
+              </Grid>
+              <Button style={{ width: "100px" }} onClick={clearFilter}>
+                Clear Filter
+              </Button>
+            </FlexBox>
+
             {/* Basic Company Code Search */}
           </DynamicPageHeader>
         }
@@ -288,9 +335,10 @@ const Additemdialog = (props) => {
                 selectionMode="MultiSelect"
                 selectedRowIds={rowSelection}
                 onRowSelect={onitemchildRowSelect}
+                
                 // onRowSelectionChange={(e) =>
                 //   setRowSelection(e.detail.selectedRowIds)
-                  
+
                 // }
               />
             </div>

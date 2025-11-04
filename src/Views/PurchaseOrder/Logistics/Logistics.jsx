@@ -17,7 +17,7 @@ import React, { useState } from "react";
 import "@ui5/webcomponents-icons/dist/map.js";
 
 const Logistics = (props) => {
-  const { fieldConfig, PurchaseOrderRenderInput, form, handleChange } = props;
+  const { fieldConfig, SalesOrderRenderInput, form, handleChange } = props;
   const [inputvalue, setInputValue] = useState([]);
 
   return (
