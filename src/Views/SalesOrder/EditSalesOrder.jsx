@@ -406,13 +406,8 @@ const EditSalesOrder = () => {
     <>
       <BusyIndicator
             style={{
-              position: "fixed",
-              top: 0,
-              left: 0,
               width: "100%",
-              height: "100%",
-              zIndex: 1000,
-              backgroundColor: "rgba(241, 243, 248, 0.8)",
+              height: "100%"
             }}
             active={loading}
           >
