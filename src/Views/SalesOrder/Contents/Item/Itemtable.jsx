@@ -17,6 +17,8 @@ import {
   Menu,
   MenuItem,
   Title,
+  Text,
+  CheckBox,
 } from "@ui5/webcomponents-react";
 import ListItem from "@ui5/webcomponents/dist/ListItem.js";
 import Additemdialog from "./Additemdialog";
@@ -522,7 +524,7 @@ const deleteRow = (itemCodeToRemove) => {
   }, [itemTabledata, mode, dynamicItemColumnslist]);
 
   return (
-    <>
+    <div style={{background: 'white'}}>
       <FlexBox style={{ justifyContent: "end" }}>
         <Button disabled={disable} design="Transparent" onClick={duplicateRow}>
           Duplicate
@@ -587,6 +589,7 @@ const deleteRow = (itemCodeToRemove) => {
         ></Button>
       </FlexBox>
       <AnalyticalTable
+        style={{ borderTop: '1px solid #d6dbe0' }}
         data={itemTabledata}
         columns={columns}
         withNavigationHighlight
@@ -595,7 +598,7 @@ const deleteRow = (itemCodeToRemove) => {
          //selectedRowIds={rowSelection && Object.keys(rowSelection)} // 👈 ensures rows are preselected
          onRowSelect={(e) => onRowSelect(e)}
         // markNavigatedRow={markNavigatedRow}
-        visibleRows={5}
+        visibleRows={10}
       />
       {/* <FlexBox
         justifyContent="end"
@@ -603,16 +606,60 @@ const deleteRow = (itemCodeToRemove) => {
       > */}
       <FlexBox
         style={{
-          justifyContent: "end",
-          marginTop: "1rem",
-          paddingRight: "2rem",
+          marginTop: "3rem"
         }}
       >
-        <Title level="H5">
-          Total Amount:{" "}
-          {totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-        </Title>
-        
+        <FlexBox style={{width: '80%'}}>
+        </FlexBox>
+        <FlexBox 
+          direction="Column"
+          alignItems="FlexStart"
+          style={{width: '30%', gap: '30px'}}
+        >
+          <Title level="H3">
+            Total Summary
+          </Title>
+          <FlexBox>
+            <Label showColon style={{minWidth: '200px'}}>Total Before Discount</Label>
+            <FlexBox style={{width: '100%'}} justifyContent="End">
+              {totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+            </FlexBox>
+          </FlexBox>
+          <FlexBox alignItems="Center">
+            <Label showColon style={{minWidth: '200px'}}>Discount</Label>
+            <FlexBox style={{width: '100%'}} justifyContent="SpaceBetween" alignItems="Center">
+              <FlexBox alignItems="Center">
+                <Input />%
+              </FlexBox>
+              <Text>0.00</Text>
+            </FlexBox>
+          </FlexBox>
+          <FlexBox>
+            <Label showColon style={{minWidth: '200px'}}>Freight</Label>
+            <FlexBox style={{width: '100%'}} justifyContent="End">
+              <Text>0.00</Text>
+            </FlexBox>
+          </FlexBox>
+          <FlexBox>
+            <Label showColon style={{minWidth: '200px'}}>Tax</Label>
+            <FlexBox style={{width: '100%'}} justifyContent="End">
+              <Text>0.00</Text>
+            </FlexBox>
+          </FlexBox>
+          <FlexBox alignItems="Center">
+            <Label showColon style={{minWidth: '200px'}}>Rounding</Label>
+            <FlexBox style={{width: '100%'}} justifyContent="SpaceBetween" alignItems="Center">
+              <CheckBox />
+              <Text>0.00</Text>
+            </FlexBox>
+          </FlexBox>
+          <FlexBox>
+            <Label showColon style={{minWidth: '200px'}}>Total</Label>
+            <FlexBox style={{width: '100%'}} justifyContent="End">
+              <Text>0.00</Text>
+            </FlexBox>
+          </FlexBox>
+        </FlexBox>
       </FlexBox>
       <Dialog
         headerText="Select Item"
@@ -677,7 +724,7 @@ const deleteRow = (itemCodeToRemove) => {
         handleSettingsListClick={handleSettingsListClick}
         dynamicColumnslist={dynamicItemColumnslist}
       />
-    </>
+    </ div>
   );
 };
 
