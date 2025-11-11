@@ -18,7 +18,7 @@ import {
   ObjectPageSection,
   Breadcrumbs,
   BreadcrumbsItem,
-  Label,
+  Label, 
   MessageStrip,
   Title,
   ObjectStatus,
@@ -64,11 +64,14 @@ export default function PurchaseOrder() {
   const [formDetails, setFormDetails] = useState([]);
   const [formData, setFormData] = useState({});
     const[userdefinedData,setUserDefinedData]= useState({})
+    const [type,setType]= useState("Item")
   
   const [rowSelection, setRowSelection] = useState({});
   const [open, setOpen] = useState(false);
+   const [totalFreightAmount,setTotalFreightAmount]= useState(0);
+   
   const [itemTabledata, setitemTableData] = useState([
-    { slno: 1, ItemCode: "", ItemName: "", quantity: "", amount: "" },
+    { slno: 1, ItemCode: "", ItemName: "", quantity: "", amount: "",  TaxCode:"" },
   ]);
   const [itemdata, setitemData] = useState([
     { slno: 1, ItemCode: "", ItemName: "", quantity: "", amount: "" },
@@ -149,9 +152,11 @@ export default function PurchaseOrder() {
           tableItem.ItemName === item.ItemName
       )
     );
+    let payload={}
     try {
       setLoading(true);
-      const payload = {
+      if(type==="Item"){
+       payload = {
         CardCode: formData.CardCode,
         DocDueDate: formData.DocDueDate
           ? new Date(formData.DocDueDate)
@@ -163,10 +168,34 @@ export default function PurchaseOrder() {
           ItemCode: line.ItemCode,
           ItemDescription: line.ItemName, // ✅ rename to ItemDescription
           Quantity: line.quantity,
+          TaxCode: line.TaxCode, 
           UnitPrice: line.amount,
         })),
+        data:userdefinedData,
+        freight: totalFreightAmount,
       };
+ 
+      }else{
+        payload = {
+        CardCode: formData.CardCode,
+        DocType: "dDocument_Service",
+        DocDueDate: formData.DocDueDate
+          ? new Date(formData.DocDueDate)
+              .toISOString()
+              .split("T")[0]
+              .replace(/-/g, "")
+          : new Date().toISOString().split("T")[0].replace(/-/g, ""),
+        DocumentLines: Object.values(serviceTabledata).map((line) => ({
+          AccountCode: line.ServiceCode,
+          ItemDescription: line.ServiceName, // ✅ rename to ItemDescription        
+          TaxCode: line.TaxCode,          
+          UnitPrice: line.amount,
+        })),
+        data:userdefinedData,
+        freight: totalFreightAmount,
 
+      };
+      }
       console.log("payload", payload);
       const res = await dispatch(createVendorOrder(payload)).unwrap();
       if (res.message === "Please Login!") {
@@ -425,7 +454,11 @@ export default function PurchaseOrder() {
               addRow={addRow}
               PurchaseOrderRenderInput={PurchaseOrderRenderInput}
               handleChange={handleChange}
+               type={type}
+              setType={setType}
               mode="create"
+              setTotalFreightAmount={setTotalFreightAmount}
+
             />
           </ObjectPageSection>
           {/* );

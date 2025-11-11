@@ -17,6 +17,8 @@ import {
   Menu,
   MenuItem,
   Title,
+  CheckBox,
+  Text,
 } from "@ui5/webcomponents-react";
 import ListItem from "@ui5/webcomponents/dist/ListItem.js";
 import Addservicedialog from "./Addservicedialog";
@@ -26,6 +28,8 @@ import "@ui5/webcomponents-icons/dist/arrow-bottom.js";
 import "@ui5/webcomponents-icons/dist/settings.js";
 import SettingsDialog from "../SettingsDialog";
 import { Tooltip } from "recharts";
+import TaxDialog from "../Item/TaxPopup/TaxDialog";
+import FreightTable from "../FreightTable";
 
 const Servicetable = (props) => {
   const {
@@ -46,6 +50,11 @@ const Servicetable = (props) => {
     setServiceForm,
     serviceForm,
     dynamcicServiceCols,
+    taxData,
+    setTaxData,
+    freightData,
+    setFreightData,
+    setTotalFreightAmount,
   } = props;
   console.log("servicetableservicedata", servicedata);
   const menuRef = useRef();
@@ -69,8 +78,13 @@ const Servicetable = (props) => {
   const [copySelectedRow, setCopySelectedRow] = useState([]);
 
   const [serviceDialogOpen, setserviceDialogOpen] = useState(false);
-  const [inputvalue, setInputValue] = useState({});
+  const [isTaxDialogOpen, setisTaxDialogOpen] = useState(false);
 
+  const [inputvalue, setInputValue] = useState({});
+  const [selectedTaxRowIndex, setSelectedTaxRowIndex] = useState("");
+  const [freightRowSelection, setFreightRowSelection] = useState([]);
+
+  const [freightdialogOpen, setfreightDialogOpen] = useState(false);
   const [currentField, setCurrentField] = useState(null);
   const [selectedRow, setSelectedRow] = useState([]);
   const [selectedRowIds, setSelectedRowIds] = useState({});
@@ -97,26 +111,34 @@ const Servicetable = (props) => {
     const index = e.detail.row.index;
     setSelectedRowIndex(index);
     setSelectedRowIds(e.detail.selectedRowIds);
-     const selectedIdsArray = Object.keys(e.detail.selectedRowIds); 
-    console.log("onRowSelect",serviceTabledata, e.detail,selectedIdsArray);
+    const selectedIdsArray = Object.keys(e.detail.selectedRowIds);
+    console.log("onRowSelect", serviceTabledata, e.detail, selectedIdsArray);
 
+    setRowSelection((prev) => {
+      const updated = { ...prev }; // keep old selections
 
-   setRowSelection((prev) => {
-    const updated = { ...prev }; // keep old selections
-
-    selectedIdsArray.forEach((id) => {
-      const rowData = serviceTabledata.find((service) => service.slno.toString() === id);
-      if (rowData) {
-        updated[id] = rowData;
-      }
+      selectedIdsArray.forEach((id) => {
+        const rowData = serviceTabledata.find(
+          (service) => service.slno.toString() === id
+        );
+        if (rowData) {
+          updated[id] = rowData;
+        }
+      });
+      console.log("updated", updated);
+      return updated;
     });
-console.log("updated",updated)
-    return updated;
-  });
     // setRowSelection((prev) => ({
     //   ...prev,
     //   [e.detail.row.id]: e.detail.row.original,
     // }));
+  };
+  const onselectFreightRow = (e) => {
+    setFreightRowSelection((prev) => ({
+      ...prev,
+      [e.detail.row.id]: e.detail.row.original,
+    }));
+    console.log("onselectFreightRow", e.detail, freightRowSelection);
   };
   const markNavigatedRow = useCallback(
     (row) => {
@@ -144,122 +166,123 @@ console.log("updated",updated)
       { ServiceCode: "", ServiceName: "", quantity: 0, amount: 0 },
     ]);
   };
- const duplicateRow = () => {
-  if (!selectedRow?.original) return;
+  const duplicateRow = () => {
+    if (!selectedRow?.original) return;
 
-  console.log("selectedRow", selectedRow.original);
+    console.log("selectedRow", selectedRow.original);
 
-  setserviceTableData((prev) => {
-    const updated = [...prev];
+    setserviceTableData((prev) => {
+      const updated = [...prev];
 
-    // ✅ Find last serial number (slno) in table
-    const lastSlno = updated.length > 0 ? updated[updated.length - 1].slno : 0;
+      // ✅ Find last serial number (slno) in table
+      const lastSlno =
+        updated.length > 0 ? updated[updated.length - 1].slno : 0;
 
-    // ✅ Create new duplicated row with incremented slno
-    const newRow = {
-      ...selectedRow.original,
-      slno: lastSlno + 1,
-    };
+      // ✅ Create new duplicated row with incremented slno
+      const newRow = {
+        ...selectedRow.original,
+        slno: lastSlno + 1,
+      };
 
-    return [...updated, newRow];
-  });
+      return [...updated, newRow];
+    });
     setRowSelection({});
-};
+  };
 
   const copyRow = () => {
     setCopySelectedRow(selectedRow.original);
   };
   const pasteRow = () => {
     //setserviceTableData([...serviceTabledata, copySelectedRow]);
-     if (!selectedRow?.original) return;
+    if (!selectedRow?.original) return;
 
-  console.log("selectedRow", selectedRow.original);
+    console.log("selectedRow", selectedRow.original);
 
-  setserviceTableData((prev) => {
-    const updated = [...prev];
+    setserviceTableData((prev) => {
+      const updated = [...prev];
 
-    // ✅ Find last serial number (slno) in table
-    const lastSlno = updated.length > 0 ? updated[updated.length - 1].slno : 0;
+      // ✅ Find last serial number (slno) in table
+      const lastSlno =
+        updated.length > 0 ? updated[updated.length - 1].slno : 0;
 
-    // ✅ Create new duplicated row with incremented slno
-    const newRow = {
-      ...selectedRow.original,
-      slno: lastSlno + 1,
-    };
+      // ✅ Create new duplicated row with incremented slno
+      const newRow = {
+        ...selectedRow.original,
+        slno: lastSlno + 1,
+      };
 
-    return [...updated, newRow];
-  });
-  setRowSelection({});
-  
+      return [...updated, newRow];
+    });
+    setRowSelection({});
   };
-const deleteRow = (serviceCodeToRemove) => {
-  console.log("delete", serviceTabledata, rowSelection, serviceCodeToRemove);
+  const deleteRow = (serviceCodeToRemove) => {
+    console.log("delete", serviceTabledata, rowSelection, serviceCodeToRemove);
 
-  setserviceTableData((prev) => {
-    let updatedData;
+    setserviceTableData((prev) => {
+      let updatedData;
 
-    if (serviceCodeToRemove) {
-      // ✅ Delete one row
-      updatedData = prev.filter(
-  (item) =>
-    !(
-      item.ServiceCode === serviceCodeToRemove.ServiceCode &&
-      item.ServiceName === serviceCodeToRemove.ServiceName &&
-      item.slno === serviceCodeToRemove.slno
-    )
-);
-    } else {
-      // ✅ Delete multiple selected rows
-      const selectedRows = Object.values(rowSelection);
+      if (serviceCodeToRemove) {
+        // ✅ Delete one row
+        updatedData = prev.filter(
+          (item) =>
+            !(
+              item.ServiceCode === serviceCodeToRemove.ServiceCode &&
+              item.ServiceName === serviceCodeToRemove.ServiceName &&
+              item.slno === serviceCodeToRemove.slno
+            )
+        );
+      } else {
+        // ✅ Delete multiple selected rows
+        const selectedRows = Object.values(rowSelection);
 
-      updatedData = prev.filter(
-        (item) =>
-          !selectedRows.some(
-            (row) =>
-              row.ServiceCode === item.ServiceCode &&
-              row.ServiceName === item.ServiceName &&
-              row.slno === item.slno
-          )
-      );
-      setRowSelection({});
-    }
-    console.log("updatedData",updatedData)
-    // ✅ Reassign serial numbers after deletion
-    return updatedData.map((item, index) => ({
-      ...item,
-      slno: index , // slno starts from 1
-    }));
-  });
-};
-// const deleteRow = (serviceCodeToRemove) => {
-//   console.log("delete", serviceTabledata, rowSelection, serviceCodeToRemove);
+        updatedData = prev.filter(
+          (item) =>
+            !selectedRows.some(
+              (row) =>
+                row.ServiceCode === item.ServiceCode &&
+                row.ServiceName === item.ServiceName &&
+                row.slno === item.slno
+            )
+        );
+        setRowSelection({});
+      }
+      console.log("updatedData", updatedData);
+      // ✅ Reassign serial numbers after deletion
+      return updatedData.map((item, index) => ({
+        ...item,
+        slno: index, // slno starts from 1
+      }));
+    });
+  };
+  // const deleteRow = (serviceCodeToRemove) => {
+  //   console.log("delete", serviceTabledata, rowSelection, serviceCodeToRemove);
 
-//   if (serviceCodeToRemove) {
-//     setserviceTableData((prev) =>
-//       prev.filter(
-//         (service) =>
-//           service.ServiceCode !== serviceCodeToRemove.ServiceCode &&
-//           service.ServiceName !== serviceCodeToRemove.ServiceName
-//       )
-//     );
-//   } else {
-//      const selectedRows = Object.values(rowSelection); // convert object → array
+  //   if (serviceCodeToRemove) {
+  //     setserviceTableData((prev) =>
+  //       prev.filter(
+  //         (service) =>
+  //           service.ServiceCode !== serviceCodeToRemove.ServiceCode &&
+  //           service.ServiceName !== serviceCodeToRemove.ServiceName
+  //       )
+  //     );
+  //   } else {
+  //      const selectedRows = Object.values(rowSelection); // convert object → array
 
-//     setserviceTableData((prev) =>
-//       prev.filter(
-//         (service) =>
-//           !selectedRows.some(
-//             (row) =>
-//               row.ServiceCode === service.ServiceCode &&
-//               row.ServiceName === service.ServiceName&&
-//               row.slno===service.slno
-//           )
-//       )
-//     );
+  //     setserviceTableData((prev) =>
+  //       prev.filter(
+  //         (service) =>
+  //           !selectedRows.some(
+  //             (row) =>
+  //               row.ServiceCode === service.ServiceCode &&
+  //               row.ServiceName === service.ServiceName&&
+  //               row.slno===service.slno
+  //           )
+  //       )
+  //     );
 
-//     setRowSelection({});
-//   }
-// };
+  //     setRowSelection({});
+  //   }
+  // };
 
   const addRowAfter = () => {
     const newRow = { ServiceCode: "", ServiceName: "", quantity: 0, amount: 0 };
@@ -310,18 +333,73 @@ const deleteRow = (serviceCodeToRemove) => {
   };
   const totalAmount = useMemo(() => {
     console.log("serviceTabledatatotalamount", serviceTabledata);
-    return serviceTabledata!==undefined && serviceTabledata.reduce((sum, service) => {
-      const amt = parseFloat(service.amount) || 0;
+    return (
+      serviceTabledata !== undefined &&
+      serviceTabledata.reduce((sum, service) => {
+        const amt = parseFloat(service.amount) || 0;
+        return sum + amt;
+      }, 0)
+    );
+  }, [serviceTabledata]);
+  const totaltax = useMemo(() => {
+    console.log("itemTaxCode", serviceTabledata);
+    return serviceTabledata.reduce((sum, item) => {
+      const amt = parseFloat(item.TaxCode) || 0;
       return sum + amt;
     }, 0);
   }, [serviceTabledata]);
+  const totalFreightAmount = useMemo(() => {
+    console.log(
+      " Object.values(freightRowSelection",
+      Object.values(freightRowSelection)
+    );
+
+    const rows = Object.values(freightRowSelection || {});
+
+    return rows.reduce((sum, item) => {
+      const amt = parseFloat(item.ExpenseAccount || 0); // <-- Correct field
+      return sum + amt;
+    }, 0);
+  }, [freightRowSelection]);
+  const taxSelectionRow = (e) => {
+    console.log("taxSelectionRow", serviceTabledata, e);
+    setserviceTableData((prev) =>
+      prev.map((r, idx) =>
+        idx === selectedTaxRowIndex
+          ? {
+              ...r,
+              TaxCode:
+                e.detail.row.original.VatGroups_Lines[
+                  e.detail.row.original.VatGroups_Lines.length - 1
+                ]?.Rate,
+            }
+          : r
+      )
+    );
+    setserviceData((prev) =>
+      prev.map((r, idx) =>
+        idx === Number(e.detail.row.id)
+          ? {
+              ...r,
+              TaxCode:
+                e.detail.row.original.VatGroups_Lines[
+                  e.detail.row.original.VatGroups_Lines.length - 1
+                ]?.Rate,
+            }
+          : r
+      )
+    );
+    setTimeout(() => {
+      setisTaxDialogOpen(false);
+    }, 500);
+  };
   const columns = useMemo(() => {
     // Define all possible columns
     const allColumns = [
       {
         Header: "Sl No",
         accessor: "slno",
-        width:100,
+        width: 100,
         Cell: ({ row }) => (
           <div disabled={mode === "view"}>{row.index + 1}</div>
         ),
@@ -347,7 +425,8 @@ const deleteRow = (serviceCodeToRemove) => {
             onFocus={(e) => (e.target.style.borderBottom = "1px solid #007aff")}
             onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
             onClick={() =>
-              !row.original.ServiceCode && openserviceDialog(row.index, "ServiceCode")
+              !row.original.ServiceCode &&
+              openserviceDialog(row.index, "ServiceCode")
             }
           />
         ),
@@ -372,7 +451,8 @@ const deleteRow = (serviceCodeToRemove) => {
             onFocus={(e) => (e.target.style.borderBottom = "1px solid #007aff")}
             onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
             onClick={() =>
-              !row.original.ServiceName && openserviceDialog(row.index, "ServiceName")
+              !row.original.ServiceName &&
+              openserviceDialog(row.index, "ServiceName")
             }
           />
         ),
@@ -418,7 +498,6 @@ const deleteRow = (serviceCodeToRemove) => {
             style={{ textAlign: "right" }}
             disabled={mode === "view"}
             type="Number"
-
             value={value || ""}
             onChange={(e) => {
               const newValue = e.target.value;
@@ -455,6 +534,35 @@ const deleteRow = (serviceCodeToRemove) => {
         ),
       },
       {
+        Header: "Tax",
+        accessor: "TaxCode",
+        Cell: ({ row }) => (
+          <Input
+            value={row.original.TaxCode}
+            readonly
+            disabled={mode === "view"}
+            style={{
+              border: "none",
+              borderBottom: "1px solid #ccc",
+              backgroundColor: "transparent",
+              outline: "none",
+              padding: "4px 0",
+              fontSize: "14px",
+              transition: "border-color 0.2s",
+            }}
+            onFocus={(e) => (e.target.style.borderBottom = "1px solid #007aff")}
+            onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
+            onClick={() =>
+              // !row.original.TaxCode &&
+              {
+                setSelectedTaxRowIndex(row.index);
+                setisTaxDialogOpen(true);
+              }
+            }
+          />
+        ),
+      },
+      {
         Header: "Actions",
         accessor: "actions",
         disableFilters: true,
@@ -473,13 +581,12 @@ const deleteRow = (serviceCodeToRemove) => {
               direction="Row"
               justifyContent="Center"
             >
-              
               <Button
                 icon="sap-icon://delete"
                 disabled={isOverlay}
                 design="Transparent"
                 onClick={() => {
-                  deleteRow(row.original)
+                  deleteRow(row.original);
                 }}
                 // onClick={() => editRow(row)}
               />
@@ -494,11 +601,9 @@ const deleteRow = (serviceCodeToRemove) => {
       dynamicServiceColumnslist?.map((col) => col.accessor) || [];
 
     // Filter columns based on dynamic list
-   const visibleColumns = allColumns.filter(
-  (col) =>
-    visibleAccessors.includes(col.accessor) ||
-    col.id === "actions" // always include actions
-);
+    const visibleColumns = allColumns.filter(
+      (col) => visibleAccessors.includes(col.accessor) || col.id === "actions" // always include actions
+    );
 
     return visibleColumns;
   }, [serviceTabledata, mode, dynamicServiceColumnslist]);
@@ -556,7 +661,11 @@ const deleteRow = (serviceCodeToRemove) => {
         >
           <Icon design="Information" name="arrow-bottom"></Icon>
         </Button> */}
-        <Button disabled={disable} design="Transparent" onClick={()=>deleteRow()}>
+        <Button
+          disabled={disable}
+          design="Transparent"
+          onClick={() => deleteRow()}
+        >
           <Icon design="Information" name="delete"></Icon>
         </Button>
 
@@ -568,15 +677,19 @@ const deleteRow = (serviceCodeToRemove) => {
           icon="sap-icon://settings"
         ></Button>
       </FlexBox>
-      {console.log("serviceTabledata", serviceTabledata, dynamicServiceColumnslist)}
+      {console.log(
+        "serviceTabledata",
+        serviceTabledata,
+        dynamicServiceColumnslist
+      )}
       <AnalyticalTable
         data={serviceTabledata}
         columns={columns}
         withNavigationHighlight
         getRowId={(row) => row.original.id.toString()}
         selectionMode="Multiple"
-         //selectedRowIds={rowSelection && Object.keys(rowSelection)} // 👈 ensures rows are preselected
-         onRowSelect={(e) => onRowSelect(e)}
+        //selectedRowIds={rowSelection && Object.keys(rowSelection)} // 👈 ensures rows are preselected
+        onRowSelect={(e) => onRowSelect(e)}
         // markNavigatedRow={markNavigatedRow}
         visibleRows={5}
       />
@@ -584,17 +697,102 @@ const deleteRow = (serviceCodeToRemove) => {
         justifyContent="end"
         style={{ marginTop: "1rem", paddingRight: "2rem" }}
       > */}
+      <div style={{ paddingTop: "3rem" }}>
+        <FreightTable
+          freightData={freightData}
+          setFreightData={setFreightData}
+          freightdialogOpen={freightdialogOpen}
+          setfreightDialogOpen={setfreightDialogOpen}
+          onselectFreightRow={onselectFreightRow}
+        />
+      </div>
       <FlexBox
         style={{
-          justifyContent: "end",
-          marginTop: "1rem",
-          paddingRight: "2rem",
+          marginTop: "3rem",
         }}
       >
-        <Title level="H5">
-          Total Amount:{" "}
-          {totalAmount&&totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-        </Title>
+        <FlexBox style={{ width: "80%" }}></FlexBox>
+        <FlexBox
+          direction="Column"
+          alignItems="FlexStart"
+          style={{ width: "30%", gap: "10px" }}
+        >
+          <Title level="H3">Total Summary</Title>
+          <FlexBox>
+            <Label showColon style={{ minWidth: "200px" }}>
+              Total Before Discount
+            </Label>
+            <FlexBox style={{ width: "100%" }} justifyContent="End">
+              {totalAmount.toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+              })}
+            </FlexBox>
+          </FlexBox>
+          <FlexBox alignItems="Center">
+            <Label showColon style={{ minWidth: "200px" }}>
+              Discount
+            </Label>
+            <FlexBox
+              style={{ width: "100%" }}
+              justifyContent="SpaceBetween"
+              alignItems="Center"
+            >
+              <FlexBox alignItems="Center">
+                <Input />%
+              </FlexBox>
+              <Text>0.00</Text>
+            </FlexBox>
+          </FlexBox>
+          <FlexBox>
+            <Label showColon style={{ minWidth: "200px" }}>
+              Freight
+            </Label>
+            <FlexBox style={{ width: "100%" }} justifyContent="End">
+              {console.log("itemFreightAmount", totalFreightAmount)}
+              {setTotalFreightAmount(totalFreightAmount)}{" "}
+              <Text>
+                {" "}
+                {totalFreightAmount.toLocaleString(undefined, {
+                  minimumFractionDigits: 2,
+                })}
+              </Text>
+            </FlexBox>
+          </FlexBox>
+          <FlexBox>
+            <Label showColon style={{ minWidth: "200px" }}>
+              Tax
+            </Label>
+            <FlexBox style={{ width: "100%" }} justifyContent="End">
+              <Text>
+                {" "}
+                {totaltax.toLocaleString(undefined, {
+                  minimumFractionDigits: 2,
+                })}
+              </Text>
+            </FlexBox>
+          </FlexBox>
+          <FlexBox alignItems="Center">
+            <Label showColon style={{ minWidth: "200px" }}>
+              Rounding
+            </Label>
+            <FlexBox
+              style={{ width: "100%" }}
+              justifyContent="SpaceBetween"
+              alignItems="Center"
+            >
+              <CheckBox />
+              <Text>0.00</Text>
+            </FlexBox>
+          </FlexBox>
+          <FlexBox>
+            <Label showColon style={{ minWidth: "200px" }}>
+              Total
+            </Label>
+            <FlexBox style={{ width: "100%" }} justifyContent="End">
+              <Text>0.00</Text>
+            </FlexBox>
+          </FlexBox>
+        </FlexBox>
       </FlexBox>
       <Dialog
         headerText="Select Service"
@@ -633,7 +831,18 @@ const deleteRow = (serviceCodeToRemove) => {
           Save
         </Button>
       </Dialog>
-
+      <TaxDialog
+        isTaxDialogOpen={isTaxDialogOpen}
+        setisTaxDialogOpen={setisTaxDialogOpen}
+        taxData={taxData}
+        setTaxData={setTaxData}
+        itemdata={servicedata}
+        setitemData={setserviceData}
+        setitemTableData={setserviceTableData}
+        inputvalue={inputvalue}
+        setInputValue={setInputValue}
+        taxSelectionRow={taxSelectionRow}
+      />
       <Addservicedialog
         addServicedialogOpen={serviceDialogOpen}
         setAddServiceDialogOpen={setserviceDialogOpen}
@@ -651,7 +860,7 @@ const deleteRow = (serviceCodeToRemove) => {
         mode={mode}
         isAddnewRow={isAddnewRow}
         inputvalue={inputvalue}
-         setInputValue={setInputValue}
+        setInputValue={setInputValue}
       />
       <SettingsDialog
         settingsDialogOpen={settingsDialogOpen}

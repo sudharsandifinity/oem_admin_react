@@ -17,6 +17,8 @@ import {
   Menu,
   MenuItem,
   Title,
+  CheckBox,
+  Text,
 } from "@ui5/webcomponents-react";
 import ListItem from "@ui5/webcomponents/dist/ListItem.js";
 import Additemdialog from "./Additemdialog";
@@ -26,6 +28,10 @@ import "@ui5/webcomponents-icons/dist/arrow-bottom.js";
 import "@ui5/webcomponents-icons/dist/settings.js";
 import SettingsDialog from "../SettingsDialog";
 import { Tooltip } from "recharts";
+import TaxDialogOpen from "./TaxPopup/TaxDialog";
+import { set } from "react-hook-form";
+import TaxDialog from "./TaxPopup/TaxDialog";
+import FreightTable from "../FreightTable";
 
 const Itemtable = (props) => {
   const {
@@ -46,6 +52,13 @@ const Itemtable = (props) => {
     setItemForm,
     itemForm,
     dynamcicItemCols,
+    taxData,
+    setTaxData,
+    freightData,
+    setFreightData,
+    setIsFreightTableVisible,
+    isFreightTableVisible,
+    setTotalFreightAmount
   } = props;
   const menuRef = useRef();
 
@@ -68,8 +81,13 @@ const Itemtable = (props) => {
   const [copySelectedRow, setCopySelectedRow] = useState([]);
 
   const [itemDialogOpen, setitemDialogOpen] = useState(false);
+  const [isTaxDialogOpen, setisTaxDialogOpen] = useState(false);
   const [inputvalue, setInputValue] = useState({});
+const [selectedTaxRowIndex, setSelectedTaxRowIndex] = useState("");
+const [freightRowSelection, setFreightRowSelection] = useState([]);
 
+ const [freightdialogOpen, setfreightDialogOpen] = useState(false);
+  
   const [currentField, setCurrentField] = useState(null);
   const [selectedRow, setSelectedRow] = useState([]);
   const [selectedRowIds, setSelectedRowIds] = useState({});
@@ -96,26 +114,36 @@ const Itemtable = (props) => {
     const index = e.detail.row.index;
     setSelectedRowIndex(index);
     setSelectedRowIds(e.detail.selectedRowIds);
-     const selectedIdsArray = Object.keys(e.detail.selectedRowIds); 
-    console.log("onRowSelect",itemTabledata, e.detail,selectedIdsArray);
+    const selectedIdsArray = Object.keys(e.detail.selectedRowIds);
+    console.log("onRowSelect", itemTabledata, e.detail, selectedIdsArray);
 
+    setRowSelection((prev) => {
+      const updated = { ...prev }; // keep old selections
 
-   setRowSelection((prev) => {
-    const updated = { ...prev }; // keep old selections
-
-    selectedIdsArray.forEach((id) => {
-      const rowData = itemTabledata.find((item) => item.slno.toString() === id);
-      if (rowData) {
-        updated[id] = rowData;
-      }
+      selectedIdsArray.forEach((id) => {
+        const rowData = itemTabledata.find(
+          (item) => item.slno.toString() === id
+        );
+        if (rowData) {
+          updated[id] = rowData;
+        }
+      });
+      console.log("updated", updated);
+      return updated;
     });
-console.log("updated",updated)
-    return updated;
-  });
     // setRowSelection((prev) => ({
     //   ...prev,
     //   [e.detail.row.id]: e.detail.row.original,
     // }));
+  };
+    const onselectFreightRow=(e)=>{    
+
+    setFreightRowSelection((prev) => ({
+      ...prev,
+      [e.detail.row.id]: e.detail.row.original,
+    }));
+    console.log("onselectFreightRow", e.detail, freightRowSelection);
+  
   };
   const markNavigatedRow = useCallback(
     (row) => {
@@ -140,126 +168,127 @@ console.log("updated",updated)
     setIsAddNewRow(true);
     setitemTableData([
       ...itemTabledata,
-      { ItemCode: "", ItemName: "", quantity: 0, amount: 0 },
+      { ItemCode: "", ItemName: "", quantity: 0, amount: 0, TaxCode: 0 },
     ]);
   };
- const duplicateRow = () => {
-  if (!selectedRow?.original) return;
+  const duplicateRow = () => {
+    if (!selectedRow?.original) return;
 
-  console.log("duplicateRow", selectedRow.original);
+    console.log("duplicateRow", selectedRow.original);
 
-  setitemTableData((prev) => {
-    const updated = [...prev];
+    setitemTableData((prev) => {
+      const updated = [...prev];
 
-    // ✅ Find last serial number (slno) in table
-    const lastSlno = updated.length > 0 ? updated[updated.length - 1].slno : 0;
+      // ✅ Find last serial number (slno) in table
+      const lastSlno =
+        updated.length > 0 ? updated[updated.length - 1].slno : 0;
 
-    // ✅ Create new duplicated row with incremented slno
-    const newRow = {
-      ...selectedRow.original,
-      slno: lastSlno + 1,
-    };
+      // ✅ Create new duplicated row with incremented slno
+      const newRow = {
+        ...selectedRow.original,
+        slno: lastSlno + 1,
+      };
 
-    return [...updated, newRow];
-  });
-  setRowSelection({});
-};
+      return [...updated, newRow];
+    });
+    setRowSelection({});
+  };
 
   const copyRow = () => {
     setCopySelectedRow(selectedRow.original);
   };
   const pasteRow = () => {
     //setitemTableData([...itemTabledata, copySelectedRow]);
-     if (!selectedRow?.original) return;
+    if (!selectedRow?.original) return;
 
-  console.log("pasteRow", selectedRow.original);
+    console.log("pasteRow", selectedRow.original);
 
-  setitemTableData((prev) => {
-    const updated = [...prev];
+    setitemTableData((prev) => {
+      const updated = [...prev];
 
-    // ✅ Find last serial number (slno) in table
-    const lastSlno = updated.length > 0 ? updated[updated.length - 1].slno : 0;
+      // ✅ Find last serial number (slno) in table
+      const lastSlno =
+        updated.length > 0 ? updated[updated.length - 1].slno : 0;
 
-    // ✅ Create new duplicated row with incremented slno
-    const newRow = {
-      ...selectedRow.original,
-      slno: lastSlno + 1,
-    };
+      // ✅ Create new duplicated row with incremented slno
+      const newRow = {
+        ...selectedRow.original,
+        slno: lastSlno + 1,
+      };
 
-    return [...updated, newRow];
-  });
-  setRowSelection({});
-
+      return [...updated, newRow];
+    });
+    setRowSelection({});
   };
-const deleteRow = (itemCodeToRemove) => {
-  console.log("delete", itemTabledata, rowSelection, itemCodeToRemove);
+  const deleteRow = (itemCodeToRemove) => {
+    console.log("delete", itemTabledata, rowSelection, itemCodeToRemove);
 
-  setitemTableData((prev) => {
-    let updatedData;
+    setitemTableData((prev) => {
+      let updatedData;
 
-    if (itemCodeToRemove) {
-      // ✅ Delete one row
-      updatedData = prev.filter(
-  (item) =>
-    !(
-      item.ItemCode === itemCodeToRemove.ItemCode &&
-      item.ItemName === itemCodeToRemove.ItemName &&
-      item.slno === itemCodeToRemove.slno
-    )
-);
-    } else {
-      // ✅ Delete multiple selected rows
-      const selectedRows = Object.values(rowSelection);
+      if (itemCodeToRemove) {
+        // ✅ Delete one row
+        updatedData = prev.filter(
+          (item) =>
+            !(
+              item.ItemCode === itemCodeToRemove.ItemCode &&
+              item.ItemName === itemCodeToRemove.ItemName &&
+              item.slno === itemCodeToRemove.slno
+            )
+        );
+      } else {
+        // ✅ Delete multiple selected rows
+        const selectedRows = Object.values(rowSelection);
 
-      updatedData = prev.filter(
-        (item) =>
-          !selectedRows.some(
-            (row) =>
-              row.ItemCode === item.ItemCode &&
-              row.ItemName === item.ItemName &&
-              row.slno === item.slno
-          )
-      );
-      setRowSelection({});
-    }
-    console.log("updatedData",updatedData)
-    // ✅ Reassign serial numbers after deletion
-    return updatedData.map((item, index) => ({
-      ...item,
-      slno: index , // slno starts from 1
-    }));
-  });
-};
+        updatedData = prev.filter(
+          (item) =>
+            !selectedRows.some(
+              (row) =>
+                row.ItemCode === item.ItemCode &&
+                row.ItemName === item.ItemName &&
+                row.slno === item.slno
+            )
+        );
+        setRowSelection({});
+      }
+      console.log("updatedData", updatedData);
+      // ✅ Reassign serial numbers after deletion
+      return updatedData.map((item, index) => ({
+        ...item,
+        slno: index, // slno starts from 1
+      }));
+    });
+  };
 
-// const deleteRow = (itemCodeToRemove) => {
-//   console.log("delete", itemTabledata, rowSelection, itemCodeToRemove);
+  // const deleteRow = (itemCodeToRemove) => {
+  //   console.log("delete", itemTabledata, rowSelection, itemCodeToRemove);
 
-//   if (itemCodeToRemove) {
-//     setitemTableData((prev) =>
-//       prev.filter(
-//         (item) =>
-//           item.ItemCode !== itemCodeToRemove.ItemCode &&
-//           item.ItemName !== itemCodeToRemove.ItemName
-//       )
-//     );
-//   } else {
-//     const selectedRows = Object.values(rowSelection); // convert object → array
+  //   if (itemCodeToRemove) {
+  //     setitemTableData((prev) =>
+  //       prev.filter(
+  //         (item) =>
+  //           item.ItemCode !== itemCodeToRemove.ItemCode &&
+  //           item.ItemName !== itemCodeToRemove.ItemName
+  //       )
+  //     );
+  //   } else {
+  //     const selectedRows = Object.values(rowSelection); // convert object → array
 
-//     setitemTableData((prev) =>
-//       prev.filter(
-//         (item) =>
-//           !selectedRows.some(
-//             (row) =>
-//               row.ItemCode === item.ItemCode &&
-//               row.ItemName === item.ItemName&&
-//               row.slno===item.slno
-//           )
-//       )
-//     );
+  //     setitemTableData((prev) =>
+  //       prev.filter(
+  //         (item) =>
+  //           !selectedRows.some(
+  //             (row) =>
+  //               row.ItemCode === item.ItemCode &&
+  //               row.ItemName === item.ItemName&&
+  //               row.slno===item.slno
+  //           )
+  //       )
+  //     );
 
-//     setRowSelection({});
-//   }
-// };
+  //     setRowSelection({});
+  //   }
+  // };
 
   const addRowAfter = () => {
     const newRow = { ItemCode: "", ItemName: "", quantity: 0, amount: 0 };
@@ -315,13 +344,50 @@ const deleteRow = (itemCodeToRemove) => {
       return sum + amt;
     }, 0);
   }, [itemTabledata]);
+  const totaltax = useMemo(() => {
+      console.log("itemTaxCode", itemTabledata);
+      return itemTabledata.reduce((sum, item) => {
+        const amt = parseFloat(item.TaxCode) || 0;
+        return sum + amt;
+      }, 0);
+    }, [itemTabledata]);
+    const totalFreightAmount = useMemo(() => {
+      console.log(" Object.values(freightRowSelection", Object.values(freightRowSelection))
+  
+    const rows = Object.values(freightRowSelection || {});
+  
+    return rows.reduce((sum, item) => {
+      const amt = parseFloat(item.ExpenseAccount || 0); // <-- Correct field
+      return sum + amt;
+    }, 0);
+  }, [freightRowSelection]);
+  const taxSelectionRow=(e)=>{
+  console.log("taxSelectionRow",itemTabledata,e);
+  setitemTableData((prev) =>
+        prev.map((r, idx) =>
+          idx === selectedTaxRowIndex   
+            ? { ...r, TaxCode: e.detail.row.original.VatGroups_Lines[e.detail.row.original.VatGroups_Lines.length - 1]?.Rate }
+            : r
+        )
+      );
+      setitemData((prev) =>
+        prev.map((r, idx) =>
+          idx === Number(e.detail.row.id)
+            ? { ...r, TaxCode: e.detail.row.original.VatGroups_Lines[e.detail.row.original.VatGroups_Lines.length - 1]?.Rate }
+            : r
+        )
+      );
+      setTimeout(() => {
+        setisTaxDialogOpen(false);
+      }, 500);
+  }
   const columns = useMemo(() => {
     // Define all possible columns
     const allColumns = [
       {
         Header: "Sl No",
         accessor: "slno",
-        width:100,
+        width: 100,
         Cell: ({ row }) => (
           <div disabled={mode === "view"}>{row.index + 1}</div>
         ),
@@ -380,14 +446,14 @@ const deleteRow = (itemCodeToRemove) => {
       {
         Header: "Quantity",
         accessor: "quantity",
-       // width: 250,
+        // width: 250,
         Cell: ({ row, value }) => (
           <Input
             style={{ textAlign: "right" }}
             type="Number"
             disabled={mode === "view"}
-            value={value || ""  }
-             onChange={(e) => {
+            value={value || ""}
+            onChange={(e) => {
               const newValue = e.target.value;
               const rowIndex = row.index;
               setitemTableData((prev) => {
@@ -415,14 +481,13 @@ const deleteRow = (itemCodeToRemove) => {
               });
 
               // update rowSelection
-                 setRowSelection((prev) => {
+              setRowSelection((prev) => {
                 const updated = { ...prev };
                 if (updated[row.id]) {
                   updated[row.id] = { ...updated[row.id], quantity: newValue };
                 }
                 return updated;
               });
-             
             }}
           />
         ),
@@ -436,7 +501,6 @@ const deleteRow = (itemCodeToRemove) => {
             style={{ textAlign: "right" }}
             disabled={mode === "view"}
             type="Number"
-
             value={value || ""}
             onChange={(e) => {
               const newValue = e.target.value;
@@ -472,6 +536,30 @@ const deleteRow = (itemCodeToRemove) => {
           />
         ),
       },
+      
+      {
+        Header: "Tax",
+        accessor: "TaxCode",
+        Cell: ({ row }) => (
+          <Input
+            value={row.original.TaxCode}
+            readonly
+            disabled={mode === "view"}
+            style={{
+              border: "none",
+              borderBottom: "1px solid #ccc",
+              backgroundColor: "transparent",
+              outline: "none",
+              padding: "4px 0",
+              fontSize: "14px",
+              transition: "border-color 0.2s",
+            }}
+            onFocus={(e) => (e.target.style.borderBottom = "1px solid #007aff")}
+            onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
+            onClick={() => {setSelectedTaxRowIndex(row.index);setisTaxDialogOpen(true)}
+            } />
+        ),
+      },
       {
         Header: "Actions",
         accessor: "actions",
@@ -491,16 +579,21 @@ const deleteRow = (itemCodeToRemove) => {
               direction="Row"
               justifyContent="Center"
             >
-              
               <Button
                 icon="sap-icon://delete"
                 disabled={isOverlay}
                 design="Transparent"
                 onClick={() => {
-                  deleteRow(row.original)
+                  deleteRow(row.original);
                 }}
                 // onClick={() => editRow(row)}
               />
+              {/* <Button
+                icon="sap-icon://add"
+                disabled={isOverlay}
+                design="Transparent"
+                onClick={() => setisTaxDialogOpen(true) }
+              /> */}
             </FlexBox>
           );
         },
@@ -512,11 +605,9 @@ const deleteRow = (itemCodeToRemove) => {
       dynamicItemColumnslist?.map((col) => col.accessor) || [];
 
     // Filter columns based on dynamic list
-   const visibleColumns = allColumns.filter(
-  (col) =>
-    visibleAccessors.includes(col.accessor) ||
-    col.id === "actions" // always include actions
-);
+    const visibleColumns = allColumns.filter(
+      (col) => visibleAccessors.includes(col.accessor) || col.id === "actions" // always include actions
+    );
 
     return visibleColumns;
   }, [itemTabledata, mode, dynamicItemColumnslist]);
@@ -574,7 +665,11 @@ const deleteRow = (itemCodeToRemove) => {
         >
           <Icon design="Information" name="arrow-bottom"></Icon>
         </Button> */}
-        <Button disabled={disable} design="Transparent" onClick={()=>deleteRow()}>
+        <Button
+          disabled={disable}
+          design="Transparent"
+          onClick={() => deleteRow()}
+        >
           <Icon design="Information" name="delete"></Icon>
         </Button>
 
@@ -586,14 +681,15 @@ const deleteRow = (itemCodeToRemove) => {
           icon="sap-icon://settings"
         ></Button>
       </FlexBox>
+      {console.log("  itemTabledata render", itemTabledata)}
       <AnalyticalTable
         data={itemTabledata}
         columns={columns}
         withNavigationHighlight
         getRowId={(row) => row.original.id.toString()}
         selectionMode="Multiple"
-         //selectedRowIds={rowSelection && Object.keys(rowSelection)} // 👈 ensures rows are preselected
-         onRowSelect={(e) => onRowSelect(e)}
+        //selectedRowIds={rowSelection && Object.keys(rowSelection)} // 👈 ensures rows are preselected
+        onRowSelect={(e) => onRowSelect(e)}
         // markNavigatedRow={markNavigatedRow}
         visibleRows={5}
       />
@@ -601,18 +697,72 @@ const deleteRow = (itemCodeToRemove) => {
         justifyContent="end"
         style={{ marginTop: "1rem", paddingRight: "2rem" }}
       > */}
+       <div style={{paddingTop:"3rem"}}>
+        <FreightTable
+        freightData={freightData}
+        setFreightData={setFreightData}
+        freightdialogOpen={freightdialogOpen}
+        setfreightDialogOpen={setfreightDialogOpen}
+        onselectFreightRow={onselectFreightRow}
+      /></div>
       <FlexBox
         style={{
-          justifyContent: "end",
-          marginTop: "1rem",
-          paddingRight: "2rem",
+          marginTop: "3rem"
         }}
       >
-        <Title level="H5">
-          Total Amount:{" "}
-          {totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-        </Title>
-        
+        <FlexBox style={{width: '80%'}}>
+        </FlexBox>
+        <FlexBox 
+          direction="Column"
+          alignItems="FlexStart"
+          style={{width: '30%', gap: '10px'}}
+        >
+          <Title level="H3">
+            Total Summary
+          </Title>
+          <FlexBox>
+            <Label showColon style={{minWidth: '200px'}}>Total Before Discount</Label>
+            <FlexBox style={{width: '100%'}} justifyContent="End">
+              {totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+            </FlexBox>
+          </FlexBox>
+          <FlexBox alignItems="Center">
+            <Label showColon style={{minWidth: '200px'}}>Discount</Label>
+            <FlexBox style={{width: '100%'}} justifyContent="SpaceBetween" alignItems="Center">
+              <FlexBox alignItems="Center">
+                <Input />%
+              </FlexBox>
+              <Text>0.00</Text>
+            </FlexBox>
+          </FlexBox>
+          <FlexBox>
+            <Label showColon style={{minWidth: '200px'}}>Freight</Label>
+            <FlexBox style={{width: '100%'}} justifyContent="End">{console.log("itemFreightAmount",totalFreightAmount)}
+             {setTotalFreightAmount(totalFreightAmount)} <Text> {totalFreightAmount.toLocaleString(undefined, {
+                                  minimumFractionDigits: 2,
+                                })}</Text>
+            </FlexBox>
+          </FlexBox>
+          <FlexBox>
+            <Label showColon style={{minWidth: '200px'}}>Tax</Label>
+            <FlexBox style={{width: '100%'}} justifyContent="End">
+              <Text> {totaltax.toLocaleString(undefined, { minimumFractionDigits: 2 })}</Text>
+            </FlexBox>
+          </FlexBox>
+          <FlexBox alignItems="Center">
+            <Label showColon style={{minWidth: '200px'}}>Rounding</Label>
+            <FlexBox style={{width: '100%'}} justifyContent="SpaceBetween" alignItems="Center">
+              <CheckBox />
+              <Text>0.00</Text>
+            </FlexBox>
+          </FlexBox>
+          <FlexBox>
+            <Label showColon style={{minWidth: '200px'}}>Total</Label>
+            <FlexBox style={{width: '100%'}} justifyContent="End">
+              <Text>0.00</Text>
+            </FlexBox>
+          </FlexBox>
+        </FlexBox>
       </FlexBox>
       <Dialog
         headerText="Select Item"
@@ -651,7 +801,18 @@ const deleteRow = (itemCodeToRemove) => {
           Save
         </Button>
       </Dialog>
-
+      <TaxDialog
+        isTaxDialogOpen={isTaxDialogOpen}
+        setisTaxDialogOpen={setisTaxDialogOpen}
+        taxData={taxData}
+        setTaxData={setTaxData}
+        itemdata={itemdata}
+        setitemData={setitemData}
+        setitemTableData={setitemTableData}
+        inputvalue={inputvalue}
+        setInputValue={setInputValue}
+         taxSelectionRow={taxSelectionRow}
+      />
       <Additemdialog
         addItemdialogOpen={itemDialogOpen}
         setAddItemDialogOpen={setitemDialogOpen}
@@ -669,7 +830,7 @@ const deleteRow = (itemCodeToRemove) => {
         mode={mode}
         isAddnewRow={isAddnewRow}
         inputvalue={inputvalue}
-         setInputValue={setInputValue}
+        setInputValue={setInputValue}
       />
       <SettingsDialog
         settingsDialogOpen={settingsDialogOpen}

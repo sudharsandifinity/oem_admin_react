@@ -44,6 +44,8 @@ import { useNavigate } from "react-router-dom";
 import { fetchOrderItems } from "../../../store/slices/CustomerOrderItemsSlice";
 import { set } from "react-hook-form";
 import { fetchOrderServices } from "../../../store/slices/CustomerOrderServiceSlice";
+import { fetchfreightDetails, fetchPurOrderAddDetails, fetchSalesOrderAddDetails } from "../../../store/slices/salesAdditionalDetailsSlice";
+
 
 const Contents = (props) => {
   const {
@@ -61,7 +63,7 @@ const Contents = (props) => {
     setserviceData,
     setserviceTableData,
     serviceTabledata,
-    type,setType
+    type,setType,setTotalFreightAmount
   } = props;
   const {
     fieldConfig,
@@ -86,6 +88,9 @@ const Contents = (props) => {
  
   const [addItemdialogOpen, setAddItemDialogOpen] = useState(false);
   const [addServiceDialogOpen, setAddServicedialogOpen] = useState(false);
+  const [taxData,setTaxData]=useState([]);
+  const [freightData,setFreightData]=useState([]);
+  const [isFreightTableVisible, setIsFreightTableVisible] = useState(false);
 
   const [itemForm, setItemForm] = useState([]);
   const [serviceForm, setserviceForm] = useState([]);
@@ -106,8 +111,10 @@ const Contents = (props) => {
     const fetchData = async () => {
       try {
         const res = await dispatch(fetchOrderItems()).unwrap();
-
-        console.log("resusersfetchitems", res, itemdata);
+          const salesTaxCode = await dispatch(fetchSalesOrderAddDetails()).unwrap();
+          const freightData = await dispatch(fetchfreightDetails()).unwrap();
+          setFreightData(freightData.value);
+        console.log("resusersfetchitems", res, itemdata,salesTaxCode,freightData);
         if (res.value?.length > 0) {
           const tableconfig = res.value.map((item, index) => ({
             slno: index,
@@ -116,6 +123,10 @@ const Contents = (props) => {
           }));
           mode === "create" && setitemData(tableconfig);
         }
+        if(salesTaxCode.value?.length>0){
+          setTaxData(salesTaxCode.value);
+        }
+       
         const serviceorder = await dispatch(fetchOrderServices()).unwrap();
         console.log("serviceorder",serviceorder)
          if (res.value?.length > 0) {
@@ -526,6 +537,13 @@ const saveItem = (item, index) => {
                           setSelectedRowIndex={setSelectedRowIndex}
                           mode={mode}
                           selectedItems={selectedItems}
+                          taxData={taxData}
+                          setTaxData={setTaxData}
+                          freightData={freightData}
+                          setFreightData={setFreightData}
+                          setIsFreightTableVisible={setIsFreightTableVisible}
+                          isFreightTableVisible={isFreightTableVisible}
+                          setTotalFreightAmount={setTotalFreightAmount}
                         />
                       ) : (
                         <ServiceTable
@@ -547,9 +565,21 @@ const saveItem = (item, index) => {
                           setSelectedRowIndex={setSelectedRowIndex}
                           mode={mode}
                           selectedServices={selectedServices}
+                           taxData={taxData}
+                          setTaxData={setTaxData}
+                          freightData={freightData}
+                          setFreightData={setFreightData}
+                          setIsFreightTableVisible={setIsFreightTableVisible}
+                          isFreightTableVisible={isFreightTableVisible}
+                          setTotalFreightAmount={setTotalFreightAmount}
                         />
                       )}
                     </div>
+{/* <div>
+                                          <FreightTable
+                                          freightData={freightData}
+                                          setFreightData={setFreightData}/>
+                                        </div> */}
                   </FlexBox>
             }
                 midColumn={

@@ -69,13 +69,16 @@ const EditSalesOrder = () => {
   const [tabList, setTabList] = useState([]);
   const [formDetails, setFormDetails] = useState([]);
   const [formData, setFormData] = useState({});
+    const[userdefinedData,setUserDefinedData]= useState({})
+  
   const [rowSelection, setRowSelection] = useState({});
   const [generaleditdata, setgeneraleditdata] = useState([]);
     const [type, setType] = useState("Item");
-    const[userdefinedData,setUserDefinedData]= useState({})
+      const [totalFreightAmount,setTotalFreightAmount]= useState(0);
+    
   
   const [itemdata, setitemData] = useState([
-    { slno: 1, ItemCode: "", ItemName: "", quantity: "", amount: "" },
+    { slno: 1, ItemCode: "", ItemName: "", quantity: "", amount: "",  TaxCode:""  },
   ]);
   const [itemTabledata, setitemTableData] = useState([
     { slno: 1, ItemCode: "", ItemName: "", quantity: "", amount: "" },
@@ -140,6 +143,7 @@ const EditSalesOrder = () => {
                                     ItemCode: matched.ItemCode,
                                     ItemName: matched.ItemDescription,
                                     quantity: matched.Quantity,
+                                    TaxCode:matched.TaxCode,
                                     amount: matched.UnitPrice,
                                   }
                                 : {
@@ -147,6 +151,7 @@ const EditSalesOrder = () => {
                                     ItemCode: item.ItemCode,
                                     ItemName: item.ItemName,
                                     quantity: item.Quantity,
+                                    TaxCode:item.TaxCode,
                                     amount: item.UnitPrice,
                                   }; // no placeholder
                             })
@@ -166,6 +171,7 @@ const EditSalesOrder = () => {
                                     ItemCode: matched.ItemCode,
                                     ItemName: matched.ItemDescription,
                                     quantity: matched.Quantity,
+                                    TaxCode:matched.TaxCode,
                                     amount: matched.UnitPrice,
                                   }
                                 : null; // no placeholder
@@ -200,6 +206,7 @@ const EditSalesOrder = () => {
                                     ServiceCode: matched.AccountCode,
                                     ServiceName: matched.ItemDescription,
                                     quantity: matched.Quantity,
+                                    TaxCode:matched.TaxCode,
                                     amount: matched.UnitPrice
 ,
                                   }
@@ -208,6 +215,7 @@ const EditSalesOrder = () => {
                                     ServiceCode: item.AccountCode,
                                     ServiceName: item.ItemDescription,
                                     quantity: item.Quantity,
+                                    TaxCode:item.TaxCode,
                                     amount: item.UnitPrice,
                                   }; // no placeholder
                             })
@@ -227,6 +235,7 @@ const EditSalesOrder = () => {
                                     ServiceCode: matched.AccountCode,
                                     ServiceName: matched.ItemDescription,
                                     quantity: matched.Quantity,
+                                    TaxCode:matched.TaxCode,
                                     amount: matched.UnitPrice,
                                   }
                                 : null; // no placeholder
@@ -349,8 +358,12 @@ const EditSalesOrder = () => {
           ItemDescription: line.ItemName, // ✅ rename to ItemDescription
           Quantity: line.quantity,
           UnitPrice: line.amount,
+          TaxCode: line.TaxCode,
+
         })),
         data:userdefinedData,
+        freight: totalFreightAmount,
+
       };
       }else{
         payload = {
@@ -365,10 +378,13 @@ const EditSalesOrder = () => {
         DocumentLines: Object.values(serviceTabledata).map((line) => ({
           AccountCode: line.ServiceCode,
           ItemDescription: line.ServiceName, // ✅ rename to ItemDescription        
+          TaxCode: line.TaxCode,
           
           UnitPrice: line.amount,
         })),
         data:userdefinedData,
+        freight: totalFreightAmount,
+
       };
       }
       console.log("payload", payload);
@@ -576,6 +592,8 @@ const EditSalesOrder = () => {
               type={type}
               setType={setType}
               mode={"edit"}
+              setTotalFreightAmount={setTotalFreightAmount}
+              totalFreightAmount={totalFreightAmount} 
             />
           </ObjectPageSection>
          

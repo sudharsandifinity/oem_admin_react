@@ -14,15 +14,15 @@ import SelectedAttachmentDialog from "./SelectedAttachmentDialog";
 const data = [
   {
     id: 1,
-    fileName: "invoice.pdf",
-    mimeType: "application/pdf",
-    fileSize: "254 KB",
+    name: "invoice.pdf",
+    type: "application/pdf",
+    size: "254 KB",
   },
   {
     id: 2,
-    fileName: "photo.jpg",
-    mimeType: "image/jpeg",
-    fileSize: "1.2 MB",
+    name: "photo.jpg",
+    type: "image/jpeg",
+    size: "1.2 MB",
   },
 ];
 const Attachments = () => {
@@ -38,8 +38,13 @@ const Attachments = () => {
     setAttachments(fileId);
     setOpenAttachmentDialog(true);
   };
-  const handleAddAttachment = () => {
-    setOpenAddAttachmentDialog(true);
+  const handleAddAttachment = (e) => {
+    console.log("handleadd",e)
+    
+    setAttachmentsList((prev)=>{
+      return [...prev, ...e.detail.files]
+    })
+    //setOpenAddAttachmentDialog(true);
   };
 
   return (
@@ -57,24 +62,33 @@ const Attachments = () => {
             display: "block", // needed for textAlign to work
           }}
         >Attachments</label>
-        <Button icon="add" design="Emphasized" onClick={handleAddAttachment}>
-          Add
-        </Button>
+        {/* */}
+       <FileUploader
+          hideInput
+          value="Add Attachment"
+          tooltip="Add Attachment"
+          design="Emphasized"
+          icon="add"
+          onChange={handleAddAttachment}
+        >
+         <Button design="Emphasized">Add New</Button> 
+        </FileUploader> 
       </FlexBox>
       <UploadCollection noDataDescription="No files uploaded">
         {attachmentsList.map((file) => (
           <UploadCollectionItem
             key={file.id}
-            fileName={file.fileName}
-            fileType={file.mimeType}
-            fileSize={file.fileSize}
+            fileName={file.name}
+            fileType={file.type}
+            fileSize={file.size}
             uploadState="Complete"
             deletable={false} // You can make it true and handle onDelete
             onClick={OpenAttachment}
           />
         ))}
       </UploadCollection>
-     <SelectedAttachmentDialog
+      
+     {/* <SelectedAttachmentDialog
         openAttachmentDialog={openAttachmentDialog}   
         setOpenAttachmentDialog={setOpenAttachmentDialog}
         attachments={attachments}
@@ -82,7 +96,7 @@ const Attachments = () => {
       />
       <AddAttachmentDialogPage
       openAddAttachmentDialog={openAddAttachmentDialog}
-      setOpenAddAttachmentDialog={setOpenAddAttachmentDialog}/>
+      setOpenAddAttachmentDialog={setOpenAddAttachmentDialog}/> */}
     </div>
   );
 };
