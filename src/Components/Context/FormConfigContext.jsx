@@ -355,6 +355,28 @@ const FormConfigProvider = ({ children }) => {
     //   is_visible: "1",
     // },
   ];
+  const taxPopupFilterList = [
+    {
+      FieldName: "Name",
+      DisplayName: "Name",
+      DataType: "nvarchar(50)",
+      inputType: "select",
+      Position: "Header",
+      DisplayType: "Left",
+      field_order: "1",
+      is_visible: "1",
+    },
+    {
+      FieldName: "TaxRegion",
+      DisplayName: "Tax Region",
+      DataType: "nvarchar(50)",
+      inputType: "select",
+      Position: "Header",
+      DisplayType: "Left",
+      field_order: "1",
+      is_visible: "1",
+    },
+  ];
   const ItemPopupFilterList = [
     // {
     //   FieldName: "Search",
@@ -486,6 +508,8 @@ const FormConfigProvider = ({ children }) => {
     { Header: "Item Description", accessor: "ItemName", type: "text" },
     { Header: "Quantity", accessor: "quantity", type: "number" },
     { Header: "Amount", accessor: "amount", type: "number" },
+    { Header: "Tax", accessor: "TaxCode", type: "number" },
+
   ];
   const itemPopupTableColumn = [
     { Header: "Item Number", accessor: "itemnumber", type: "text" },
@@ -612,6 +636,8 @@ const FormConfigProvider = ({ children }) => {
     { Header: "Service Description", accessor: "ServiceName", type: "text" },
     { Header: "Quantity", accessor: "quantity", type: "number" },
     { Header: "Amount", accessor: "amount", type: "number" },
+    { Header: "TaxCode", accessor: "TaxCode", type: "number" },
+
   ];
   const fieldConfig = [
     {
@@ -1029,6 +1055,7 @@ const FormConfigProvider = ({ children }) => {
         customerTableValues,
         customerpopupFilter,
         ItemPopupFilterList,
+        taxPopupFilterList,
         ServicePopupFilterList,
         itempopupData,
         servicepopupData,

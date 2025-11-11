@@ -138,7 +138,7 @@ const General = ({
         <Card>
           <FlexBox justifyContent="SpaceBetween" style={{padding: '40px 30px', gap: '150px'}}>
             <FlexBox direction="Column" style={{width: "100%", gap: '8px'}}>
-              <FlexBox alignItems="Center">
+              <FlexBox alignItems="Center"> 
                 <Label style={{minWidth: "200px"}}>Card Code:</Label>
                   <Controller
                     name="CardCode"

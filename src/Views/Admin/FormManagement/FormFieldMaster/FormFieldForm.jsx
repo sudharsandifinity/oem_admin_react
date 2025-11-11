@@ -29,6 +29,8 @@ import {
 } from "../../../../store/slices/formmasterSlice";
 import { fetchFormSection } from "../../../../store/slices/formsectionSlice";
 import AppBar from "../../../../Components/Module/Appbar";
+import { fetchCompanies } from "../../../../store/slices/companiesSlice";
+import { fetchBranch } from "../../../../store/slices/branchesSlice";
 
 // Validation schema
 const schema = yup.object().shape({
@@ -95,7 +97,9 @@ const FormFieldForm = ({
       try {
         const res = await dispatch(fetchForm()).unwrap();
         const res1 = await dispatch(fetchGlobalForms()).unwrap();
-        console.log("resusers", res, res1, globalForms);
+        const companyRes=await dispatch(fetchCompanies()).unwrap()
+        const branchres=await dispatch(fetchBranch()).unwrap();
+        console.log("resusers", res, res1, globalForms,companyRes);
         dispatch(fetchFormSection());
         if (res.message === "Please Login!") {
           navigate("/");
@@ -303,7 +307,7 @@ const FormFieldForm = ({
                         <Option key="" value="">
                           Select
                         </Option>
-
+{console.log("companies"  ,companies)}
                         {companies.map((company) => (
                           <Option key={company.id} value={company.id}>
                             {company.name}

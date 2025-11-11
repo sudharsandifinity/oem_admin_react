@@ -50,7 +50,19 @@ const EditFormField = () => {
     console.log("handleUpdate", data);
 
     try {
-      const res = await dispatch(updateFormFields({ id, data })).unwrap();
+       const payload = {formId: data.formId,
+    subFormId:data.subFormId,
+    formSectionId: data.formSectionId,
+    field_name: data.field_name,
+    display_name: data.display_name,
+    input_type: data.input_type,
+    field_order: data.field_order,
+    is_visible: data.is_visible?1:0,
+    is_field_data_bind: data.is_field_data_bind,
+    bind_data_by: data.bind_data_by,
+    status: data.status
+  }
+      const res = await dispatch(updateFormFields({ id, data:payload })).unwrap();
       if (res.message === "Please Login!") {
         navigate("/login");
       } else {

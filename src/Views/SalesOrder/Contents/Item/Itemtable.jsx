@@ -28,6 +28,8 @@ import "@ui5/webcomponents-icons/dist/arrow-bottom.js";
 import "@ui5/webcomponents-icons/dist/settings.js";
 import SettingsDialog from "../SettingsDialog";
 import { Tooltip } from "recharts";
+import TaxDialog from "./TaxPopup/TaxDialog";
+import FreightTable from "../FreightTable";
 
 const Itemtable = (props) => {
   const {
@@ -47,7 +49,13 @@ const Itemtable = (props) => {
     rowSelection,
     setItemForm,
     itemForm,
-    dynamcicItemCols,
+    dynamcicItemCols, taxData,
+    setTaxData,
+    freightData,
+    setFreightData,
+    setIsFreightTableVisible,
+    isFreightTableVisible,
+    setTotalFreightAmount
   } = props;
   const menuRef = useRef();
 
@@ -71,7 +79,11 @@ const Itemtable = (props) => {
 
   const [itemDialogOpen, setitemDialogOpen] = useState(false);
   const [inputvalue, setInputValue] = useState({});
+const [isTaxDialogOpen, setisTaxDialogOpen] = useState(false);
+const [selectedTaxRowIndex, setSelectedTaxRowIndex] = useState("");
+const [freightRowSelection, setFreightRowSelection] = useState([]);
 
+ const [freightdialogOpen, setfreightDialogOpen] = useState(false);
   const [currentField, setCurrentField] = useState(null);
   const [selectedRow, setSelectedRow] = useState([]);
   const [selectedRowIds, setSelectedRowIds] = useState({});
@@ -111,13 +123,18 @@ const Itemtable = (props) => {
         updated[id] = rowData;
       }
     });
-console.log("updated",updated)
+    console.log("updated",updated)
     return updated;
   });
-    // setRowSelection((prev) => ({
-    //   ...prev,
-    //   [e.detail.row.id]: e.detail.row.original,
-    // }));
+};
+  const onselectFreightRow=(e)=>{    
+
+    setFreightRowSelection((prev) => ({
+      ...prev,
+      [e.detail.row.id]: e.detail.row.original,
+    }));
+    console.log("onselectFreightRow", e.detail, freightRowSelection);
+  
   };
   const markNavigatedRow = useCallback(
     (row) => {
@@ -317,6 +334,43 @@ const deleteRow = (itemCodeToRemove) => {
       return sum + amt;
     }, 0);
   }, [itemTabledata]);
+  const totaltax = useMemo(() => {
+    console.log("itemTaxCode", itemTabledata);
+    return itemTabledata.reduce((sum, item) => {
+      const amt = parseFloat(item.TaxCode) || 0;
+      return sum + amt;
+    }, 0);
+  }, [itemTabledata]);
+  const totalFreightAmount = useMemo(() => {
+    console.log(" Object.values(freightRowSelection", Object.values(freightRowSelection))
+
+  const rows = Object.values(freightRowSelection || {});
+
+  return rows.reduce((sum, item) => {
+    const amt = parseFloat(item.ExpenseAccount || 0); // <-- Correct field
+    return sum + amt;
+  }, 0);
+}, [freightRowSelection]);
+const taxSelectionRow=(e)=>{
+console.log("taxSelectionRow",itemTabledata,e);
+setitemTableData((prev) =>
+      prev.map((r, idx) =>
+        idx === selectedTaxRowIndex   
+          ? { ...r, TaxCode: e.detail.row.original.VatGroups_Lines[e.detail.row.original.VatGroups_Lines.length - 1]?.Rate }
+          : r
+      )
+    );
+    setitemData((prev) =>
+      prev.map((r, idx) =>
+        idx === Number(e.detail.row.id)
+          ? { ...r, TaxCode: e.detail.row.original.VatGroups_Lines[e.detail.row.original.VatGroups_Lines.length - 1]?.Rate }
+          : r
+      )
+    );
+    setTimeout(() => {
+      setisTaxDialogOpen(false);
+    }, 500);
+}
   const columns = useMemo(() => {
     // Define all possible columns
     const allColumns = [
@@ -429,6 +483,7 @@ const deleteRow = (itemCodeToRemove) => {
           />
         ),
       },
+      
       {
         Header: "Amount",
         accessor: "amount",
@@ -471,6 +526,31 @@ const deleteRow = (itemCodeToRemove) => {
                 return updated;
               });
             }}
+          />
+        ),
+      },
+      {
+        Header: "Tax",
+        accessor: "TaxCode",
+        Cell: ({ row }) => (
+          <Input
+            value={row.original.TaxCode}
+            readonly
+            disabled={mode === "view"}
+            style={{
+              border: "none",
+              borderBottom: "1px solid #ccc",
+              backgroundColor: "transparent",
+              outline: "none",
+              padding: "4px 0",
+              fontSize: "14px",
+              transition: "border-color 0.2s",
+            }}
+            onFocus={(e) => (e.target.style.borderBottom = "1px solid #007aff")}
+            onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
+            onClick={() =>// !row.original.TaxCode && 
+              {setSelectedTaxRowIndex(row.index);setisTaxDialogOpen(true)}
+            }
           />
         ),
       },
@@ -604,6 +684,16 @@ const deleteRow = (itemCodeToRemove) => {
         justifyContent="end"
         style={{ marginTop: "1rem", paddingRight: "2rem" }}
       > */}
+      <div style={{paddingTop:"3rem"}}>
+        <FreightTable
+        freightData={freightData}
+        setFreightData={setFreightData}
+        freightdialogOpen={freightdialogOpen}
+        setfreightDialogOpen={setfreightDialogOpen}
+        onselectFreightRow={onselectFreightRow}
+      /></div>
+       
+
       <FlexBox
         style={{
           marginTop: "3rem"
@@ -614,7 +704,7 @@ const deleteRow = (itemCodeToRemove) => {
         <FlexBox 
           direction="Column"
           alignItems="FlexStart"
-          style={{width: '30%', gap: '30px'}}
+          style={{width: '30%', gap: '10px'}}
         >
           <Title level="H3">
             Total Summary
@@ -636,14 +726,16 @@ const deleteRow = (itemCodeToRemove) => {
           </FlexBox>
           <FlexBox>
             <Label showColon style={{minWidth: '200px'}}>Freight</Label>
-            <FlexBox style={{width: '100%'}} justifyContent="End">
-              <Text>0.00</Text>
+            <FlexBox style={{width: '100%'}} justifyContent="End">{console.log("itemFreightAmount",totalFreightAmount)}
+             {setTotalFreightAmount(totalFreightAmount)} <Text> {totalFreightAmount.toLocaleString(undefined, {
+                                  minimumFractionDigits: 2,
+                                })}</Text>
             </FlexBox>
           </FlexBox>
           <FlexBox>
             <Label showColon style={{minWidth: '200px'}}>Tax</Label>
             <FlexBox style={{width: '100%'}} justifyContent="End">
-              <Text>0.00</Text>
+              <Text> {totaltax.toLocaleString(undefined, { minimumFractionDigits: 2 })}</Text>
             </FlexBox>
           </FlexBox>
           <FlexBox alignItems="Center">
@@ -698,7 +790,18 @@ const deleteRow = (itemCodeToRemove) => {
           Save
         </Button>
       </Dialog>
-
+  <TaxDialog
+        isTaxDialogOpen={isTaxDialogOpen}
+        setisTaxDialogOpen={setisTaxDialogOpen}
+        taxData={taxData}
+        setTaxData={setTaxData}
+        itemdata={itemdata}
+        setitemData={setitemData}
+        setitemTableData={setitemTableData}
+        inputvalue={inputvalue}
+        setInputValue={setInputValue}
+        taxSelectionRow={taxSelectionRow}
+      />
       <Additemdialog
         addItemdialogOpen={itemDialogOpen}
         setAddItemDialogOpen={setitemDialogOpen}
@@ -713,6 +816,7 @@ const deleteRow = (itemCodeToRemove) => {
         itemdata={itemdata}
         setitemData={setitemData}
         itemTabledata={itemTabledata}
+        setitemTableData={setitemTableData}
         mode={mode}
         isAddnewRow={isAddnewRow}
         inputvalue={inputvalue}
@@ -724,7 +828,7 @@ const deleteRow = (itemCodeToRemove) => {
         handleSettingsListClick={handleSettingsListClick}
         dynamicColumnslist={dynamicItemColumnslist}
       />
-    </ div>
+    </div>
   );
 };
 

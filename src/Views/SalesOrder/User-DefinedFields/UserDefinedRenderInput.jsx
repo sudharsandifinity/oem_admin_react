@@ -17,6 +17,7 @@ import {
 } from "@ui5/webcomponents-react";
 import React, { useEffect, useState } from "react";
 import "@ui5/webcomponents-icons/dist/value-help.js";
+import CardDialog from "./CardCodeDialog/CardDialog";
 
 export const UserDefinedRenderInput = (
   formName,
@@ -25,11 +26,26 @@ export const UserDefinedRenderInput = (
   handleChange,
   inputvalue,
   setInputValue,
-userdefinedData
+  userdefinedData,
+  setUserDefinedData,
+  dialogOpen,
+  setDialogOpen,
+  selectedKey,
+  setSelectedKey,
+  setFormData,
+  setValue,
+  generalData,
+  setgeneralData,
+  originalGeneralData,
+  setOriginalgeneralData,
+  selectedcardcode,
+  setSelectedCardCode,
+  selectedCard,
+  setSelectedCard
 ) => {
   const value = form[field.field_name] ? form[field.field_name] : "";
   {
-    console.log("inputvalueuserdefined", inputvalue,value),userdefinedData;
+    console.log("inputvalueuserdefined", inputvalue, value), userdefinedData;
   }
   // Suggestion and dialog items
   const productCollection = [
@@ -40,7 +56,6 @@ userdefinedData
   ];
 
   // Handle typing suggestion selection
-
 
   // Handle value help button click
   const handleValueHelpRequest = (field_name) => {
@@ -56,22 +71,23 @@ userdefinedData
   };
 
   const handleSelectChange = (e) => {
-    console.log("handleselecchange", e,e.detail.selectedOption.innerText);
+    console.log("handleselecchange", e, e.detail.selectedOption.innerText);
     const selectedOption = e.detail.selectedOption;
     setSelectedKey(selectedOption.innerText); // or use selectedOption.getAttribute("data-key")
   };
-  console.log("userdefinedData",userdefinedData)
+  console.log("userdefinedData", userdefinedData);
   switch (field.input_type) {
     case "text":
     case "number":
       return (
-          <Input
-           value={userdefinedData?.[field?.field_name] || ""}
-            name={field.field_name}
-            style={{width:"300px"}}
-            onInput={(e) => handleChange(e, field.field_name, formName)}
-            type={field.input_type}
-          ></Input>
+        <Input
+          value={userdefinedData?.[field?.field_name] || ""}
+          name={field.field_name}
+          //style={{width:"300px"}}
+          //style={{ width: "100%" }}
+          onInput={(e) => handleChange(e, field.field_name, formName)}
+          type={field.input_type}
+        ></Input>
       );
     case "search":
       return (
@@ -79,6 +95,7 @@ userdefinedData
           placeholder="Search..."
           name={field.field_name}
           type="Search"
+          style={{ width: "100%" }}
           onInput={(e) => console.log("Search input:", e.target.value)}
           onChange={(e) => console.log("Search committed:", e.target.value)}
         />
@@ -94,20 +111,37 @@ userdefinedData
               />
             }
             name={field.field_name}
-           value={userdefinedData?.[field?.field_name] || ""}
-
+            value={userdefinedData?.[field?.field_name] || ""}
             //onInput={(e) => handleChange(e, field.field_name,formName)}
             type={field.input_type}
-            style={{
-              width: "380px",
-            }}
+            style={{ width: "100%" }}
           >
             {productCollection.map((item, idx) => (
               <SuggestionItem key={idx} text={item.Name} />
             ))}
           </Input>
-
-          <Dialog
+          <CardDialog
+            open={dialogOpen}
+            handleCardDialogClose={setDialogOpen}
+            generalData={generalData}
+            setgeneralData={setgeneralData}
+            setSelectedCardCode={setSelectedCardCode}
+            setFormData={setFormData}
+            originalGeneralData={originalGeneralData}
+            setOriginalgeneralData={setOriginalgeneralData}
+            inputValue={inputvalue}
+            setInputValue={setInputValue}
+            userdefinedData={userdefinedData}
+            setUserDefinedData={setUserDefinedData}
+            setSelectedCard={(card) => {
+              setSelectedCard(card);
+              setValue("CardCode", card.CardCode); // update RHF field
+              setValue("CardName", card.CardName); // fill another field automatically
+              setValue("ContactPerson", card.ContactPerson);
+              setValue("Series", card.Series);
+            }}
+          />
+          {/* <Dialog
             headerText="Select Person"
             open={dialogOpen}
             // style={{ width: "100px" }}
@@ -121,7 +155,7 @@ userdefinedData
                 </ListItemStandard>
               ))}
             </List>
-          </Dialog>
+          </Dialog> */}
           {/* <RenderCustomerDialog
             customerdialogOpen={customerdialogOpen}
             setCustomerDialogOpen={setCustomerDialogOpen}
@@ -132,8 +166,9 @@ userdefinedData
     case "date":
       return (
         <DatePicker
-         value={userdefinedData?.[field?.field_name] || ""}
+          value={userdefinedData?.[field?.field_name] || ""}
           name={field.field_name}
+          style={{ width: "100%" }}
           onChange={(e) => handleChange(e, field.field_name, formName)}
         />
       );
@@ -153,8 +188,7 @@ userdefinedData
           <Select
             onClose={function Xs() {}}
             name={field.field_name}
-           value={userdefinedData?.[field?.field_name] || ""}
-
+            value={userdefinedData?.[field?.field_name] || ""}
             onLiveChange={function Xs() {}}
             onOpen={function Xs() {}}
             valueState="None"
@@ -162,12 +196,13 @@ userdefinedData
               handleSelectChange(e);
               handleChange(e, field.field_name, formName);
             }}
-            style={{
-              width: "300px", // fixed width
-              marginLeft: "0", // no left margin
-              display: "block", // ensure it takes its own line
-              textAlign: "left", // text starts from left inside input
-            }}
+            style={{ width: "100%" }}
+            // style={{
+            //   width: "300px", // fixed width
+            //   marginLeft: "0", // no left margin
+            //   display: "block", // ensure it takes its own line
+            //   textAlign: "left", // text starts from left inside input
+            // }}
           >
             <Option>Option 1</Option>
             <Option>Option 2</Option>
@@ -181,8 +216,8 @@ userdefinedData
     case "textarea":
       return (
         <TextArea
-         value={userdefinedData?.[field?.field_name] || ""}
-
+          value={userdefinedData?.[field?.field_name] || ""}
+          style={{ width: "100%" }}
           name={field.field_name}
           onChange={(e) => handleChange(e, field.field_name, formName)}
           onInput={(e) => handleChange(e, field.field_name, formName)}

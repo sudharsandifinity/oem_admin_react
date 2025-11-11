@@ -68,9 +68,11 @@ export default function SalesOrder() {
   const[userdefinedData,setUserDefinedData]= useState({})
   const [rowSelection, setRowSelection] = useState({});
   const [open, setOpen] = useState(false);
-  const [type,setType]= useState("Item")
+  const [type,setType]= useState("Item");
+  const [totalFreightAmount,setTotalFreightAmount]= useState(0);
+ 
   const [itemTabledata, setitemTableData] = useState([
-    { slno: 1, ItemCode: "", ItemName: "", quantity: "", amount: "" },
+    { slno: 1, ItemCode: "", ItemName: "", quantity: "", amount: "",  TaxCode:"" },
   ]);
   const [itemdata, setitemData] = useState([
     { slno: 1, ItemCode: "", ItemName: "", quantity: "", amount: "" },
@@ -164,8 +166,10 @@ export default function SalesOrder() {
           ItemDescription: line.ItemName, // ✅ rename to ItemDescription
           Quantity: line.quantity,
           UnitPrice: line.amount,
+          TaxCode: line.TaxCode,
         })),
         data:userdefinedData,
+        freight: totalFreightAmount,
       };
       }else{
         payload = {
@@ -180,10 +184,11 @@ export default function SalesOrder() {
         DocumentLines: Object.values(serviceTabledata).map((line) => ({
           AccountCode: line.ServiceCode,
           ItemDescription: line.ServiceName, // ✅ rename to ItemDescription        
-          
+          TaxCode: line.TaxCode,          
           UnitPrice: line.amount,
         })),
         data:userdefinedData,
+        freight: totalFreightAmount,
 
       };
       }
@@ -202,8 +207,8 @@ export default function SalesOrder() {
       setTimeout(() => {
         setLoading(false);
         setOpen(true); // open success dialog
-      }, 2000); // ✅ stop loader
-    }
+     }, 2000); // ✅ stop loader
+   }
   };
   const renderInput = (field) => {
     const value = form[field.FieldName] || "";
@@ -356,7 +361,7 @@ export default function SalesOrder() {
                       Home
                     </BreadcrumbsItem>
                     <BreadcrumbsItem data-route={`/Sales/${formId}`}>
-                      Sales Orders
+                       {formDetails[0]?.name?formDetails[0]?.name:"Sales Orders"}
                     </BreadcrumbsItem>
                     <BreadcrumbsItem>
                       {formDetails ? "Create "+formDetails[0]?.name : "Create Sales Order"}
@@ -446,6 +451,7 @@ export default function SalesOrder() {
               type={type}
               setType={setType}
               mode={"create"}
+              setTotalFreightAmount={setTotalFreightAmount}
             />
           </ObjectPageSection>
           {/* );
