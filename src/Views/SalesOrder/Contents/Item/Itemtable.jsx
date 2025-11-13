@@ -250,6 +250,26 @@ const deleteRow = (itemCodeToRemove) => {
   });
 };
 
+const calculateRowTotals = (row) => {
+  const quantity = parseFloat(row.quantity) || 0;
+  const unitPrice = parseFloat(row.unitPrice || row.amount) || 0;
+  const discount = parseFloat(row.discount) || 0;
+  const taxPercent = parseFloat(row.TaxCode) || 0;
+
+  const baseAmount = quantity * unitPrice;
+  const discountAmt = baseAmount * (discount / 100);
+  const taxable = baseAmount - discountAmt;
+  const taxAmt = taxable * (taxPercent / 100);
+  const grossTotal = taxable + taxAmt;
+
+  return {
+    ...row,
+    amount: baseAmount.toFixed(2),
+    TaxAmount: taxAmt.toFixed(2),
+    total: grossTotal.toFixed(2),
+  };
+};
+
 // const deleteRow = (itemCodeToRemove) => {
 //   console.log("delete", itemTabledata, rowSelection, itemCodeToRemove);
 
@@ -459,31 +479,18 @@ setitemTableData((prev) =>
             }}
             onInput={(e) => {
               const newValue = e.target.value;
-              const rowId = row.original.id;
+              const rowIndex = row.index;
 
-              // update itemData
-              setitemData((prev) => {
+              setitemTableData((prev) => {
                 const updated = [...prev];
-                const idx = updated.findIndex((r) => r.id === rowId);
-                if (idx > -1)
-                  updated[idx] = { ...updated[idx], quantity: newValue };
+                const newRow = { ...updated[rowIndex], quantity: newValue };
+                updated[rowIndex] = calculateRowTotals(newRow);
                 return updated;
               });
-
-              // update rowSelection
-                 setRowSelection((prev) => {
-                const updated = { ...prev };
-                if (updated[row.id]) {
-                  updated[row.id] = { ...updated[row.id], quantity: newValue };
-                }
-                return updated;
-              });
-             
             }}
           />
         ),
       },
-      
       {
         Header: "Amount",
         accessor: "amount",
@@ -530,7 +537,7 @@ setitemTableData((prev) =>
         ),
       },
       {
-        Header: "Tax",
+        Header: "Tax Code",
         accessor: "TaxCode",
         Cell: ({ row }) => (
           <Input
@@ -551,6 +558,99 @@ setitemTableData((prev) =>
             onClick={() =>// !row.original.TaxCode && 
               {setSelectedTaxRowIndex(row.index);setisTaxDialogOpen(true)}
             }
+          />
+        ),
+      },
+      {
+        Header: "Tax Amount",
+        accessor: "TaxAmount",
+        Cell: ({ row }) => (
+          <Input
+            value={row.original.TaxAmount}
+            readonly
+            disabled={mode === "view"}
+            style={{
+              border: "none",
+              borderBottom: "1px solid #ccc",
+              backgroundColor: "transparent",
+              outline: "none",
+              padding: "4px 0",
+              fontSize: "14px",
+              transition: "border-color 0.2s",
+            }}
+            onFocus={(e) => (e.target.style.borderBottom = "1px solid #007aff")}
+            onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
+          />
+        ),
+      },
+            {
+        Header: "Discount (%)",
+        accessor: "discount",
+        Cell: ({ row, value }) => (
+          <Input
+            style={{ textAlign: "right" }}
+            type="number"
+            disabled={mode === "view"}
+            value={value || ""}
+            onChange={(e) => {
+              const newValue = e.target.value;
+              const rowIndex = row.index;
+              setitemTableData((prev) => {
+                const updated = [...prev];
+                updated[rowIndex] = {
+                  ...updated[rowIndex],
+                  discount: newValue,
+                };
+                return updated;
+              });
+            }}
+            onInput={(e) => {
+              const newValue = e.target.value;
+              const rowIndex = row.index;
+
+              setitemTableData((prev) => {
+                const updated = [...prev];
+                const newRow = { ...updated[rowIndex], discount: newValue };
+                updated[rowIndex] = calculateRowTotals(newRow);
+                return updated;
+              });
+            }}
+          />
+        ),
+      },
+            {
+        Header: "Gross Total",
+        accessor: "total",
+        Cell: ({ row, value }) => (
+          <Input
+            style={{ textAlign: "right" }}
+            readonly
+            type="number"
+            disabled={mode === "view"}
+            value={value || ""}
+            onChange={(e) => {
+              const newValue = e.target.value;
+              const rowIndex = row.index;
+              setitemTableData((prev) => {
+                const updated = [...prev];
+                updated[rowIndex] = {
+                  ...updated[rowIndex],
+                  discount: newValue,
+                };
+                return updated;
+              });
+            }}
+            onInput={(e) => {
+              const newValue = e.target.value;
+              const rowId = row.original.id;
+              setitemData((prev) => {
+                const updated = [...prev];
+                const idx = updated.findIndex((r) => r.id === rowId);
+                if (idx > -1)
+                  updated[idx] = { ...updated[idx], discount: newValue };
+                return updated;
+              });
+            }}
           />
         ),
       },
@@ -592,14 +692,14 @@ setitemTableData((prev) =>
     // Create an array of accessors that should be visible
     const visibleAccessors =
       dynamicItemColumnslist?.map((col) => col.accessor) || [];
-
+      
     // Filter columns based on dynamic list
    const visibleColumns = allColumns.filter(
   (col) =>
     visibleAccessors.includes(col.accessor) ||
     col.id === "actions" // always include actions
 );
-
+  
     return visibleColumns;
   }, [itemTabledata, mode, dynamicItemColumnslist]);
 
