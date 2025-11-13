@@ -264,7 +264,6 @@ const calculateRowTotals = (row) => {
 
   return {
     ...row,
-    amount: baseAmount.toFixed(2),
     TaxAmount: taxAmt.toFixed(2),
     total: grossTotal.toFixed(2),
   };
@@ -591,7 +590,7 @@ setitemTableData((prev) =>
             style={{ textAlign: "right" }}
             type="number"
             disabled={mode === "view"}
-            value={value || ""}
+            value={value || 0}
             onChange={(e) => {
               const newValue = e.target.value;
               const rowIndex = row.index;
@@ -701,7 +700,7 @@ setitemTableData((prev) =>
 );
   
     return visibleColumns;
-  }, [itemTabledata, mode, dynamicItemColumnslist]);
+  }, [mode, dynamicItemColumnslist]);
 
   return (
     <div style={{background: 'white'}}>
