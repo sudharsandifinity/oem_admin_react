@@ -159,7 +159,7 @@ const [freightRowSelection, setFreightRowSelection] = useState([]);
     setIsAddNewRow(true);
     setitemTableData([
       ...itemTabledata,
-      { ItemCode: "", ItemName: "", quantity: 0, amount: 0 },
+      { ItemCode: "", ItemName: "", quantity: 0, amount: 0, discount: 0, TaxCode: ''  },
     ]);
   };
  const duplicateRow = () => {
@@ -254,7 +254,7 @@ const calculateRowTotals = (row) => {
   const quantity = parseFloat(row.quantity) || 0;
   const unitPrice = parseFloat(row.unitPrice || row.amount) || 0;
   const discount = parseFloat(row.discount) || 0;
-  const taxPercent = parseFloat(row.TaxCode) || 0;
+  const taxPercent = parseFloat(row.TaxRate) || 0;
 
   const baseAmount = quantity * unitPrice;
   const discountAmt = baseAmount * (discount / 100);
@@ -372,13 +372,24 @@ const calculateRowTotals = (row) => {
 }, [freightRowSelection]);
 const taxSelectionRow=(e)=>{
 console.log("taxSelectionRow",itemTabledata,e);
-setitemTableData((prev) =>
-      prev.map((r, idx) =>
-        idx === selectedTaxRowIndex   
-          ? { ...r, TaxCode: e.detail.row.original.VatGroups_Lines[e.detail.row.original.VatGroups_Lines.length - 1]?.Rate }
-          : r
-      )
-    );
+   // setitemTableData((prev) =>
+//       prev.map((r, idx) =>
+//         idx === selectedTaxRowIndex   
+//           ? { ...r, TaxCode: e.detail.row.original.VatGroups_Lines[e.detail.row.original.VatGroups_Lines.length - 1]?.Rate }
+//           : r
+//       )
+//     );
+    const rate = e.detail.row.original.VatGroups_Lines.at(-1)?.Rate;
+    const code = e.detail.row.original.Code;
+
+  setitemTableData((prev) =>
+    prev.map((row, idx) =>
+      idx === selectedTaxRowIndex
+        ? calculateRowTotals({ ...row, TaxCode: code, TaxRate: rate })
+        : row
+    )
+  );
+    
     setitemData((prev) =>
       prev.map((r, idx) =>
         idx === Number(e.detail.row.id)
@@ -491,7 +502,7 @@ setitemTableData((prev) =>
         ),
       },
       {
-        Header: "Amount",
+        Header: "Unit Price",
         accessor: "amount",
         //width: 250,
         Cell: ({ row, value }) => (
@@ -529,6 +540,41 @@ setitemTableData((prev) =>
                 if (updated[row.id]) {
                   updated[row.id] = { ...updated[row.id], amount: newValue };
                 }
+                return updated;
+              });
+            }}
+          />
+        ),
+      },
+      {
+        Header: "Discount (%)",
+        accessor: "discount",
+        Cell: ({ row, value }) => (
+          <Input
+            style={{ textAlign: "right" }}
+            type="number"
+            disabled={mode === "view"}
+            value={value}
+            onChange={(e) => {
+              const newValue = e.target.value;
+              const rowIndex = row.index;
+              setitemTableData((prev) => {
+                const updated = [...prev];
+                updated[rowIndex] = {
+                  ...updated[rowIndex],
+                  discount: newValue,
+                };
+                return updated;
+              });
+            }}
+            onInput={(e) => {
+              const newValue = e.target.value;
+              const rowIndex = row.index;
+
+              setitemTableData((prev) => {
+                const updated = [...prev];
+                const newRow = { ...updated[rowIndex], discount: newValue };
+                updated[rowIndex] = calculateRowTotals(newRow);
                 return updated;
               });
             }}
@@ -579,41 +625,6 @@ setitemTableData((prev) =>
             }}
             onFocus={(e) => (e.target.style.borderBottom = "1px solid #007aff")}
             onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
-          />
-        ),
-      },
-            {
-        Header: "Discount (%)",
-        accessor: "discount",
-        Cell: ({ row, value }) => (
-          <Input
-            style={{ textAlign: "right" }}
-            type="number"
-            disabled={mode === "view"}
-            value={value || 0}
-            onChange={(e) => {
-              const newValue = e.target.value;
-              const rowIndex = row.index;
-              setitemTableData((prev) => {
-                const updated = [...prev];
-                updated[rowIndex] = {
-                  ...updated[rowIndex],
-                  discount: newValue,
-                };
-                return updated;
-              });
-            }}
-            onInput={(e) => {
-              const newValue = e.target.value;
-              const rowIndex = row.index;
-
-              setitemTableData((prev) => {
-                const updated = [...prev];
-                const newRow = { ...updated[rowIndex], discount: newValue };
-                updated[rowIndex] = calculateRowTotals(newRow);
-                return updated;
-              });
-            }}
           />
         ),
       },
