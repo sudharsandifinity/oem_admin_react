@@ -529,17 +529,11 @@ console.log("taxSelectionRow",itemTabledata,e);
             onInput={(e) => {
               const newValue = e.target.value;
               const rowIndex = row.index;
-              setitemData((prev) =>
-                prev.map((r, idx) =>
-                  idx === Number(row.id) ? { ...r, amount: newValue } : r
-                )
-              );
 
-              setRowSelection((prev) => {
-                const updated = { ...prev };
-                if (updated[row.id]) {
-                  updated[row.id] = { ...updated[row.id], amount: newValue };
-                }
+              setitemTableData((prev) => {
+                const updated = [...prev];
+                const newRow = { ...updated[rowIndex], amount: newValue };
+                updated[rowIndex] = calculateRowTotals(newRow);
                 return updated;
               });
             }}
