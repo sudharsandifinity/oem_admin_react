@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, useRef } from "react";
+import React, { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import {
   AnalyticalTable,
   Input,
@@ -273,9 +273,15 @@ const calculateRowTotals = (row) => {
     ...row,
     BaseAmount: taxable.toFixed(2),
     TaxAmount: taxAmt.toFixed(2),
-    total: grossTotal.toFixed(2),
+    grosstotal: grossTotal.toFixed(2),
   };
 };
+
+useEffect(() => {
+  setitemTableData(prev => 
+    prev.map(row => calculateRowTotals(row))
+  );
+}, [summaryDiscountPercent])
 
 // const deleteRow = (itemCodeToRemove) => {
 //   console.log("delete", itemTabledata, rowSelection, itemCodeToRemove);
