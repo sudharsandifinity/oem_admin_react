@@ -76,6 +76,11 @@ const Itemtable = (props) => {
   const [disable, setDisable] = useState(true);
   const [settingsDialogOpen, setSettingsDialogOpen] = useState(false);
   const [copySelectedRow, setCopySelectedRow] = useState([]);
+  const [summaryDiscountPercent, setSummaryDiscountPercent] = useState(0);
+  const [summaryDiscountAmount, setSummaryDiscountAmount] = useState(0);
+  const [roundingEnabled, setRoundingEnabled] = useState(false);
+  const [roundOff, setRoundOff] = useState(0);
+  const [finalTotal, setFinalTotal] = useState("0.00");
 
   const [itemDialogOpen, setitemDialogOpen] = useState(false);
   const [inputvalue, setInputValue] = useState({});
@@ -256,14 +261,17 @@ const calculateRowTotals = (row) => {
   const discount = parseFloat(row.discount) || 0;
   const taxPercent = parseFloat(row.TaxRate) || 0;
 
+   const effectiveDiscount = discount + summaryDiscountPercent;
+
   const baseAmount = quantity * unitPrice;
-  const discountAmt = baseAmount * (discount / 100);
+  const discountAmt = baseAmount * (effectiveDiscount / 100);
   const taxable = baseAmount - discountAmt;
   const taxAmt = taxable * (taxPercent / 100);
   const grossTotal = taxable + taxAmt;
 
   return {
     ...row,
+    BaseAmount: taxable.toFixed(2),
     TaxAmount: taxAmt.toFixed(2),
     total: grossTotal.toFixed(2),
   };
@@ -346,13 +354,42 @@ const calculateRowTotals = (row) => {
     setitemData(updatedRows);
     setDialogOpen(false);
   };
-  const totalAmount = useMemo(() => {
-    console.log("itemTabledatatotalamount", itemTabledata);
-    return itemTabledata.reduce((sum, item) => {
-      const amt = parseFloat(item.amount) || 0;
-      return sum + amt;
-    }, 0);
-  }, [itemTabledata]);
+
+const summaryCalculation = useMemo(() => {
+  const cal = itemTabledata.reduce(
+    (acc, item) => {
+      const bdTotal = parseFloat(item.total) || 0;
+      const taxTotal = parseFloat(item.TaxAmount) || 0;
+      acc.totalBeforeDiscount += bdTotal;
+      acc.totalTaxAmount += taxTotal;
+      return acc;
+    },
+    {
+      totalBeforeDiscount: 0,
+      totalTaxAmount: 0
+    });
+    return {
+    totalBeforeDiscount: cal.totalBeforeDiscount.toFixed(2),
+    totalTaxAmount: cal.totalTaxAmount.toFixed(2)
+  };
+  
+}, [itemTabledata]);
+
+useMemo(() => {
+  const total = parseFloat(summaryCalculation.totalBeforeDiscount) || 0;
+  const discountAmount = (total * summaryDiscountPercent) / 100;
+  setSummaryDiscountAmount(discountAmount.toFixed(2));
+}, [summaryDiscountPercent, summaryCalculation.totalBeforeDiscount]);
+
+useMemo(() => {
+  const bdTotal = parseFloat(summaryCalculation.totalBeforeDiscount) || 0;
+  const discount = parseFloat(summaryDiscountAmount) || 0;
+  const r = roundingEnabled ? parseFloat(roundOff) || 0 : 0;
+
+  const result = bdTotal - discount + r;
+  setFinalTotal(result.toFixed(2));
+}, [summaryCalculation.totalBeforeDiscount, summaryDiscountAmount, roundOff, roundingEnabled]);
+
   const totaltax = useMemo(() => {
     console.log("itemTaxCode", itemTabledata);
     return itemTabledata.reduce((sum, item) => {
@@ -576,6 +613,28 @@ console.log("taxSelectionRow",itemTabledata,e);
         ),
       },
       {
+        Header: "Total",
+        accessor: "total",
+        Cell: ({ row, value }) => (
+          <Input
+            value={row.original.BaseAmount}
+            readonly
+            disabled={mode === "view"}
+            style={{
+              border: "none",
+              borderBottom: "1px solid #ccc",
+              backgroundColor: "transparent",
+              outline: "none",
+              padding: "4px 0",
+              fontSize: "14px",
+              transition: "border-color 0.2s",
+            }}
+            onFocus={(e) => (e.target.style.borderBottom = "1px solid #007aff")}
+            onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
+          />
+        ),
+      },
+      {
         Header: "Tax Code",
         accessor: "TaxCode",
         Cell: ({ row }) => (
@@ -624,7 +683,7 @@ console.log("taxSelectionRow",itemTabledata,e);
       },
             {
         Header: "Gross Total",
-        accessor: "total",
+        accessor: "grosstotal",
         Cell: ({ row, value }) => (
           <Input
             style={{ textAlign: "right" }}
@@ -810,26 +869,34 @@ console.log("taxSelectionRow",itemTabledata,e);
           alignItems="FlexStart"
           style={{width: '30%', gap: '10px'}}
         >
-          <Title level="H3">
+          <Title level="H3" style={{marginBottom: "16px"}}>
             Total Summary
           </Title>
           <FlexBox>
             <Label showColon style={{minWidth: '200px'}}>Total Before Discount</Label>
             <FlexBox style={{width: '100%'}} justifyContent="End">
-              {totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+              {summaryCalculation.totalBeforeDiscount}
             </FlexBox>
           </FlexBox>
           <FlexBox alignItems="Center">
             <Label showColon style={{minWidth: '200px'}}>Discount</Label>
             <FlexBox style={{width: '100%'}} justifyContent="SpaceBetween" alignItems="Center">
               <FlexBox alignItems="Center">
-                <Input />%
+                <Input
+                  type="Number"
+                  style={{ textAlign: "right" }}
+                  value={summaryDiscountPercent}
+                  onInput={(e) => {
+                    const value = parseFloat(e.target.value) || 0;
+                    setSummaryDiscountPercent(value);
+                  }}
+                />%
               </FlexBox>
-              <Text>0.00</Text>
+              <Text>{summaryDiscountAmount}</Text>
             </FlexBox>
           </FlexBox>
           <FlexBox>
-            <Label showColon style={{minWidth: '200px'}}>Freight</Label>
+            <Label showColon style={{minWidth: '200px', marginBottom: "10px"}}>Freight</Label>
             <FlexBox style={{width: '100%'}} justifyContent="End">{console.log("itemFreightAmount",totalFreightAmount)}
              {setTotalFreightAmount(totalFreightAmount)} <Text> {totalFreightAmount.toLocaleString(undefined, {
                                   minimumFractionDigits: 2,
@@ -839,20 +906,38 @@ console.log("taxSelectionRow",itemTabledata,e);
           <FlexBox>
             <Label showColon style={{minWidth: '200px'}}>Tax</Label>
             <FlexBox style={{width: '100%'}} justifyContent="End">
-              <Text> {totaltax.toLocaleString(undefined, { minimumFractionDigits: 2 })}</Text>
+              <Text> {summaryCalculation.totalTaxAmount}</Text>
             </FlexBox>
           </FlexBox>
           <FlexBox alignItems="Center">
             <Label showColon style={{minWidth: '200px'}}>Rounding</Label>
             <FlexBox style={{width: '100%'}} justifyContent="SpaceBetween" alignItems="Center">
-              <CheckBox />
-              <Text>0.00</Text>
+              <CheckBox
+                checked={roundingEnabled}
+                onChange={(e) => {
+                  const checked = e.target.checked;
+                  setRoundingEnabled(checked);
+                  if (!checked) {
+                    setRoundOff(0);
+                  }
+                }}
+              />
+              {roundingEnabled ? (
+                <Input
+                  type="number"
+                  value={roundOff}
+                  style={{ textAlign: "right" }}
+                  onInput={(e) => setRoundOff(parseFloat(e.target.value) || 0)}
+                />
+              ) : (
+                <Text>{roundOff.toFixed(2)}</Text>
+              )}
             </FlexBox>
           </FlexBox>
           <FlexBox>
             <Label showColon style={{minWidth: '200px'}}>Total</Label>
-            <FlexBox style={{width: '100%'}} justifyContent="End">
-              <Text>0.00</Text>
+            <FlexBox style={{width: '100%', fontWeight: "bold"}} justifyContent="End">
+              <Text>{finalTotal}</Text>
             </FlexBox>
           </FlexBox>
         </FlexBox>
