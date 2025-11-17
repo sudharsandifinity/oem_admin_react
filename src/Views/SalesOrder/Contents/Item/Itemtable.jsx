@@ -30,6 +30,7 @@ import SettingsDialog from "../SettingsDialog";
 import { Tooltip } from "recharts";
 import TaxDialog from "./TaxPopup/TaxDialog";
 import FreightTable from "../FreightTable";
+import Freight from "../Freight/Freight";
 
 const Itemtable = (props) => {
   const {
@@ -855,13 +856,23 @@ console.log("taxSelectionRow",itemTabledata,e);
         style={{ marginTop: "1rem", paddingRight: "2rem" }}
       > */}
       <div style={{paddingTop:"3rem"}}>
-        <FreightTable
+        {/* <FreightTable
         freightData={freightData}
         setFreightData={setFreightData}
         freightdialogOpen={freightdialogOpen}
         setfreightDialogOpen={setfreightDialogOpen}
         onselectFreightRow={onselectFreightRow}
-      /></div>
+      /> */}
+      <Freight mode={mode}
+      freightData={freightData}
+        setFreightData={setFreightData}
+        freightdialogOpen={freightdialogOpen}
+        setfreightDialogOpen={setfreightDialogOpen}
+        onselectFreightRow={onselectFreightRow}
+        freightRowSelection={freightRowSelection}
+        setFreightRowSelection={ setFreightRowSelection}
+       />
+      </div>
        
 
       <FlexBox

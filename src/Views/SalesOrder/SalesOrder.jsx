@@ -37,6 +37,7 @@ import {
   BusyIndicator,
 } from "@ui5/webcomponents-react";
 import { FormConfigContext } from "../../Components/Context/FormConfigContext";
+import api from "../../api/axios";
 
 import { SalesOrderRenderInput } from "./SalesOrderRenderInput";
 import General from "./General/General";
@@ -66,6 +67,8 @@ export default function SalesOrder() {
   const [formDetails, setFormDetails] = useState([]);
   const [formData, setFormData] = useState({});
   const[userdefinedData,setUserDefinedData]= useState({})
+ const[ attachmentsList, setAttachmentsList]= useState([]);
+ const[attachments,setAttachments]= useState([]);
   const [rowSelection, setRowSelection] = useState({});
   const [open, setOpen] = useState(false);
   const [type,setType]= useState("Item");
@@ -133,10 +136,20 @@ export default function SalesOrder() {
     const newRows = form[key].filter((_, idx) => idx !== i);
     setForm({ ...form, [key]: newRows });
   };
+  useEffect(()=>{
+    if(attachmentsList.length>0){
+      console.log("attachmentsList changed",attachmentsList);
+      setAttachments(attachmentsList.map((file)=>{return {name:file.name,
+  size:file.size,
+  type:file.type, lastModified:file.lastModified, 
+
+      }}) );
+    }
+  },[attachmentsList])
   const handleSubmit = async (form) => {
     console.log(
       "Form submitted:",
-      form,formData,
+      form,
       rowSelection,
       itemTabledata,
       serviceTabledata,
@@ -151,7 +164,9 @@ export default function SalesOrder() {
     );
     let payload={}
     try {
+       const fd = new FormData();
       setLoading(true);
+  
       if(type==="Item"){
         payload = {
         CardCode: formData.CardCode,
@@ -175,6 +190,7 @@ export default function SalesOrder() {
           LineTotal: line.total,
         })),
         data:userdefinedData,
+        Attachments2_Lines: attachmentsList,
         freight: totalFreightAmount,
       };
       }else{
@@ -194,6 +210,7 @@ export default function SalesOrder() {
           UnitPrice: line.amount,
         })),
         data:userdefinedData,
+        Attachments2_Lines: attachmentsList,
         freight: totalFreightAmount,
 
       };
@@ -201,6 +218,26 @@ export default function SalesOrder() {
       
 
       console.log("payload", payload);
+     
+
+fd.append("CardCode", payload.CardCode);
+fd.append("DocDueDate", payload.DocDueDate);
+fd.append("freight", payload.freight);
+fd.append("DocType", payload.DocType || "dDocument_Items");
+
+fd.append("DocumentLines", JSON.stringify(payload.DocumentLines));  
+fd.append("data", JSON.stringify(payload.data));
+
+console.log("<payload.Attachments2_Lines.length",payload.Attachments2_Lines.length)
+for(let i=0;i<payload.Attachments2_Lines.length;i++){
+  console.log("file names",payload.Attachments2_Lines[i].name);
+  fd.append(`Attachments2_Lines`,payload.Attachments2_Lines[i])
+}
+
+ for (let p of fd.entries()) {
+    console.log(p);
+  }
+
       const res = await dispatch(createCustomerOrder(payload)).unwrap();
       if (res.message === "Please Login!") {
         navigate("/login");
@@ -208,7 +245,7 @@ export default function SalesOrder() {
       setOpen(true);
     } catch (err) {
       console.log("Failed to create branch", err);
-      setApiError(err?.message || "Failed to create branch");
+      setApiError(err?.message || "Failed to create sales order");
     } finally {
       setTimeout(() => {
         setLoading(false);
@@ -499,8 +536,9 @@ export default function SalesOrder() {
               height: "100%",
             }}
             titleText="Attachments"
-          >
-            <Attachments />
+          >{console.log("attachmentsList",attachmentsList)}
+            <Attachments attachmentsList={attachmentsList}
+            setAttachmentsList={setAttachmentsList}/>
           </ObjectPageSection>
           {/* );
         } else if (tab.name === "user-defined-field") {

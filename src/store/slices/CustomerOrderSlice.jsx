@@ -62,7 +62,9 @@ export const createCustomerOrder = createAsyncThunk(
   async (customerOrderData, thunkApi) => {
     try {
       console.log("🚀 Sending order to API:", customerOrderData);
+  
       const response = await api.post(API_URL, customerOrderData, {
+        headers: { "Content-Type": "multipart/form-data" },
         withCredentials: true,
         timeout: 50000,
       });

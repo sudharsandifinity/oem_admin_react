@@ -4,6 +4,7 @@ import api from "../../api/axios";
 const API_SALES_URL = "/sap/tax-code/sales-order";
 const API_PURCHASE_URL = "/sap/tax-code/purchase-order";
 const API_FREIGHT_URL = "/sap/others/freights";
+const API_ATTACHMENTS_URL = "/sap/attachments";
 
 
 export const fetchSalesOrderAddDetails = createAsyncThunk(
@@ -46,12 +47,26 @@ export const fetchfreightDetails= createAsyncThunk(
     }
   }
 );
+export const fetchAttachmentDetailsById= createAsyncThunk(
+  "attachmentdetails/fetchAttachmentDetailsById",
+  async (id, thunkApi) => {
+    try {
+      const response = await api.get(`${API_ATTACHMENTS_URL}/${id}`, { withCredentials: true });
+      return response.data;
+    } catch (error) {
+      return thunkApi.rejectWithValue(
+        error.response?.data || "Error fetching attachments details"
+      );
+    }
+  }
+);
 const salesAdditionalDetailsSlice = createSlice({
   name: "salesadddetails",
   initialState: {
     salesadddetails: [],
     puradddetails:[],
     freightdetails:[],
+    attachmentdetails:[],
     loading: false,
     error: null,
   },
@@ -97,7 +112,20 @@ const salesAdditionalDetailsSlice = createSlice({
         state.loading = false;
         state.error = action.error?.message;
       })
-    
+
+    .addCase(fetchAttachmentDetailsById.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchAttachmentDetailsById.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        state.attachmentdetails = action.payload;
+      })
+      .addCase(fetchAttachmentDetailsById.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error?.message;
+      })
   },
 });
 

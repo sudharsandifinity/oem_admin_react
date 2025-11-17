@@ -1,8 +1,8 @@
 import { AnalyticalTable, Button, Dialog } from '@ui5/webcomponents-react';
-import React, { useMemo } from 'react'
+import React, { useEffect, useMemo } from 'react'
 
 const FreightTable = (props) => {
-    const { freightData, setFreightData,setfreightDialogOpen,freightdialogOpen,onselectFreightRow } = props;
+    const { freightData, setFreightData,setfreightDialogOpen,freightdialogOpen,onselectFreightRow,freightRowSelection,setFreightRowSelection } = props;
     const Column = useMemo(
         () => [
           {
@@ -30,14 +30,17 @@ const FreightTable = (props) => {
         ],
         []
       );
+     
   return (
-    <div>
+    <div>{console.log("freightDatatable",freightData)}
        <AnalyticalTable
                 data={freightData}
                 columns={Column}
                 header={`Freights (${freightData.length})`}
                 selectionMode="Multiple"
                onRowClick={onselectFreightRow}
+                selectedRowIds={freightRowSelection}
+
               />
       {/* <Dialog
               headerText="Select Item"

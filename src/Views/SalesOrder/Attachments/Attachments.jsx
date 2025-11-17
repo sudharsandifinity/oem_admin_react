@@ -25,8 +25,8 @@ const data = [
     size: "1.2 MB",
   },
 ];
-const Attachments = () => {
-  const [attachmentsList, setAttachmentsList] = React.useState(data);
+const Attachments = (props) => {
+  const {attachmentsList, setAttachmentsList}=props
   const [attachments, setAttachments] = React.useState("");
   const [openAttachmentDialog, setOpenAttachmentDialog] = React.useState(false);
   const [openAddAttachmentDialog, setOpenAddAttachmentDialog] =
@@ -74,7 +74,7 @@ const Attachments = () => {
          <Button design="Emphasized">Add New</Button> 
         </FileUploader> 
       </FlexBox>
-      <UploadCollection noDataDescription="No files uploaded">
+      <UploadCollection noDataDescription="No files uploaded">{console.log("attachmentsList",attachmentsList)}
         {attachmentsList.map((file) => (
           <UploadCollectionItem
             key={file.id}
@@ -82,7 +82,15 @@ const Attachments = () => {
             fileType={file.type}
             fileSize={file.size}
             uploadState="Complete"
-            deletable={false} // You can make it true and handle onDelete
+            deletable={false} // You can make it true and handle onDelete            onI
+            onItemDelete={(e) => {
+              const fileId = e.detail.item.getAttribute("data-id");
+              console.log("fileId",fileId)
+              setAttachmentsList((prev) =>
+                prev.filter((file) => file.id !== parseInt(fileId))
+              );
+            }}
+            data-id={file.id}
             onClick={OpenAttachment}
           />
         ))}
