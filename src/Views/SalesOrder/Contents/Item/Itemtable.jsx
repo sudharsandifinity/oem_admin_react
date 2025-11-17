@@ -364,7 +364,7 @@ useEffect(() => {
 const summaryCalculation = useMemo(() => {
   const cal = itemTabledata.reduce(
     (acc, item) => {
-      const bdTotal = parseFloat(item.total) || 0;
+      const bdTotal = parseFloat(item.BaseAmount) || 0;
       const taxTotal = parseFloat(item.TaxAmount) || 0;
       acc.totalBeforeDiscount += bdTotal;
       acc.totalTaxAmount += taxTotal;
@@ -390,11 +390,12 @@ useMemo(() => {
 useMemo(() => {
   const bdTotal = parseFloat(summaryCalculation.totalBeforeDiscount) || 0;
   const discount = parseFloat(summaryDiscountAmount) || 0;
+  const totalTax = parseFloat(summaryCalculation.totalTaxAmount) || 0;
   const r = roundingEnabled ? parseFloat(roundOff) || 0 : 0;
 
-  const result = bdTotal - discount + r;
+  const result = bdTotal - discount + totalTax + r;
   setFinalTotal(result.toFixed(2));
-}, [summaryCalculation.totalBeforeDiscount, summaryDiscountAmount, roundOff, roundingEnabled]);
+}, [summaryCalculation.totalBeforeDiscount, summaryCalculation.totalTaxAmount, summaryDiscountAmount, roundOff, roundingEnabled]);
 
   const totaltax = useMemo(() => {
     console.log("itemTaxCode", itemTabledata);
