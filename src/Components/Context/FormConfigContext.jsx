@@ -504,11 +504,14 @@ const FormConfigProvider = ({ children }) => {
   const itemTableColumn = [
     { Header: "SL No", accessor: "slno", type: "text" },
     { Header: "Item No", accessor: "ItemCode", type: "text" },
-
     { Header: "Item Description", accessor: "ItemName", type: "text" },
     { Header: "Quantity", accessor: "quantity", type: "number" },
     { Header: "Amount", accessor: "amount", type: "number" },
-    { Header: "Tax", accessor: "TaxCode", type: "number" },
+    { Header: "Total", accessor: "total", type: "number" },
+    { Header: "Tax Code", accessor: "TaxCode", type: "number" },
+    { Header: "Tax Amount", accessor: "TaxAmount", type: "number" },
+    { Header: "Discount", accessor: "discount", type: "number" },
+    { Header: "Gross Total", accessor: "grosstotal", type: "number" },
 
   ];
   const itemPopupTableColumn = [
@@ -636,7 +639,11 @@ const FormConfigProvider = ({ children }) => {
     { Header: "Service Description", accessor: "ServiceName", type: "text" },
     { Header: "Quantity", accessor: "quantity", type: "number" },
     { Header: "Amount", accessor: "amount", type: "number" },
-    { Header: "TaxCode", accessor: "TaxCode", type: "number" },
+    { Header: "Total", accessor: "total", type: "number" },
+    { Header: "Tax Code", accessor: "TaxCode", type: "number" },
+    { Header: "Tax Amount", accessor: "TaxAmount", type: "number" },
+    { Header: "Discount", accessor: "discount", type: "number" },
+    { Header: "Gross Total", accessor: "grosstotal", type: "number" },
 
   ];
   const fieldConfig = [

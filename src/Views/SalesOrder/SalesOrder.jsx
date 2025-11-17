@@ -163,10 +163,16 @@ export default function SalesOrder() {
           : new Date().toISOString().split("T")[0].replace(/-/g, ""),
         DocumentLines: Object.values(itemTabledata).map((line) => ({
           ItemCode: line.ItemCode,
-          ItemDescription: line.ItemName, // ✅ rename to ItemDescription
+          ItemDescription: line.ItemName,
           Quantity: line.quantity,
           UnitPrice: line.amount,
           TaxCode: line.TaxCode,
+          VatGroup: line.TaxCode,
+          DiscountPercent: line.discount,
+          // PriceAfterVAT: line.TaxCode,
+          // TaxPerUnit: line.TaxCode,
+          // TaxTotal: line.TaxCode,
+          LineTotal: line.total,
         })),
         data:userdefinedData,
         freight: totalFreightAmount,
