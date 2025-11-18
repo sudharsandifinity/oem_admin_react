@@ -19,6 +19,7 @@ import {
   Title,
   Text,
   CheckBox,
+  TextArea,
 } from "@ui5/webcomponents-react";
 import ListItem from "@ui5/webcomponents/dist/ListItem.js";
 import Additemdialog from "./Additemdialog";
@@ -44,6 +45,8 @@ const Itemtable = (props) => {
     setitemData,
     setitemTableData,
     itemTabledata,
+    summaryData,
+    setSummaryData,
     setRowSelection,
     mode,
     rowSelection,
@@ -397,6 +400,15 @@ useMemo(() => {
   setFinalTotal(result.toFixed(2));
 }, [summaryCalculation.totalBeforeDiscount, summaryCalculation.totalTaxAmount, summaryDiscountAmount, roundOff, roundingEnabled]);
 
+useEffect(() => {
+  setSummaryData((prev) => ({
+    ...prev,
+    TotalDiscount: summaryDiscountAmount,
+    VatSum: summaryCalculation.totalTaxAmount,
+    DocTotal: finalTotal
+  }))
+}, [summaryCalculation.totalTaxAmount, finalTotal])
+
   const totaltax = useMemo(() => {
     console.log("itemTaxCode", itemTabledata);
     return itemTabledata.reduce((sum, item) => {
@@ -415,7 +427,6 @@ useMemo(() => {
   }, 0);
 }, [freightRowSelection]);
 const taxSelectionRow=(e)=>{
-console.log("taxSelectionRow",itemTabledata,e);
    // setitemTableData((prev) =>
 //       prev.map((r, idx) =>
 //         idx === selectedTaxRowIndex   
@@ -865,16 +876,31 @@ console.log("taxSelectionRow",itemTabledata,e);
        
 
       <FlexBox
+        justifyContent="SpaceBetween"
         style={{
           marginTop: "3rem"
         }}
       >
-        <FlexBox style={{width: '80%'}}>
+        <FlexBox direction="Column" style={{width: '50%'}}>
+          <Text>Remark</Text>
+          <TextArea
+            growing
+            name="Remarks"
+           onInput={(e) => {
+              setSummaryData((prev) => ({
+                ...prev,
+                Remark: e.target.value
+              }));
+            }}
+            onScroll={function Xne(){}}
+            onSelect={function Xne(){}}
+            valueState="None"
+          />
         </FlexBox>
         <FlexBox 
           direction="Column"
           alignItems="FlexStart"
-          style={{width: '30%', gap: '10px'}}
+          style={{width: '40%', gap: '10px'}}
         >
           <Title level="H3" style={{marginBottom: "16px"}}>
             Total Summary
@@ -896,6 +922,10 @@ console.log("taxSelectionRow",itemTabledata,e);
                   onInput={(e) => {
                     const value = parseFloat(e.target.value) || 0;
                     setSummaryDiscountPercent(value);
+                    setSummaryData((prev) => ({
+                      ...prev,
+                      DiscountPercent: value,
+                    }));
                   }}
                 />%
               </FlexBox>
@@ -927,6 +957,10 @@ console.log("taxSelectionRow",itemTabledata,e);
                   if (!checked) {
                     setRoundOff(0);
                   }
+                  setSummaryData((prev) => ({
+                    ...prev,
+                    Rounding: checked ? "tYES":"tNO"
+                  }))
                 }}
               />
               {roundingEnabled ? (
@@ -934,7 +968,13 @@ console.log("taxSelectionRow",itemTabledata,e);
                   type="number"
                   value={roundOff}
                   style={{ textAlign: "right" }}
-                  onInput={(e) => setRoundOff(parseFloat(e.target.value) || 0)}
+                  onInput={(e) => {
+                    setRoundOff(parseFloat(e.target.value) || 0)
+                    setSummaryData((prev) => ({
+                      ...prev,
+                      RoundingDiffAmount: e.target.value
+                    }))
+                  }}
                 />
               ) : (
                 <Text>{roundOff.toFixed(2)}</Text>

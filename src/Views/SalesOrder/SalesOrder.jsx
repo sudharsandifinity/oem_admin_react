@@ -74,6 +74,7 @@ export default function SalesOrder() {
   const [itemTabledata, setitemTableData] = useState([
     { slno: 1, ItemCode: "", ItemName: "", quantity: "", amount: "",  TaxCode:"" },
   ]);
+  const [summaryData, setSummaryData] = useState({});
   const [itemdata, setitemData] = useState([
     { slno: 1, ItemCode: "", ItemName: "", quantity: "", amount: "" },
   ]);
@@ -175,6 +176,13 @@ export default function SalesOrder() {
           LineTotal: line.total,
         })),
         data:userdefinedData,
+        DocTotal: summaryData.DocTotal,
+        Rounding: summaryData.Rounding,
+        RoundingDiffAmount: summaryData.RoundingDiffAmount,
+        DiscountPercent: summaryData.DiscountPercent,
+        TotalDiscount: summaryData.TotalDiscount,
+        Comments: summaryData.Remark,
+        VatSum: summaryData.VatSum,
         freight: totalFreightAmount,
       };
       }else{
@@ -442,7 +450,9 @@ export default function SalesOrder() {
               setitemData={setitemData}
               setitemTableData={setitemTableData}
               itemTabledata={itemTabledata}
-               servicedata={servicedata}
+              summaryData = {summaryData}
+              setSummaryData = {setSummaryData}
+              servicedata={servicedata}
               setserviceData={setserviceData}
               setserviceTableData={setserviceTableData}
               serviceTabledata={serviceTabledata}
@@ -458,6 +468,7 @@ export default function SalesOrder() {
               setType={setType}
               mode={"create"}
               setTotalFreightAmount={setTotalFreightAmount}
+              onSubmit={handleSubmit}
             />
           </ObjectPageSection>
           {/* );
