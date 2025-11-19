@@ -37,6 +37,7 @@ import {
   BusyIndicator,
 } from "@ui5/webcomponents-react";
 import { FormConfigContext } from "../../Components/Context/FormConfigContext";
+import api from "../../api/axios";
 
 import { SalesOrderRenderInput } from "./SalesOrderRenderInput";
 import General from "./General/General";
@@ -48,9 +49,7 @@ import Accounting from "./Accounting/Accounting";
 import Attachments from "./Attachments/Attachments";
 import UserDefinedFields from "./User-DefinedFields/UserDefinedFields";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  createCustomerOrder,
-} from "../../store/slices/CustomerOrderSlice";
+import { createCustomerOrder } from "../../store/slices/CustomerOrderSlice";
 
 export default function SalesOrder() {
   const { fieldConfig, CustomerDetails, DocumentDetails } =
@@ -66,6 +65,8 @@ export default function SalesOrder() {
   const [formDetails, setFormDetails] = useState([]);
   const [formData, setFormData] = useState({});
   const[userdefinedData,setUserDefinedData]= useState({})
+ const[ attachmentsList, setAttachmentsList]= useState([]);
+ const[attachments,setAttachments]= useState([]);
   const [rowSelection, setRowSelection] = useState({});
   const [open, setOpen] = useState(false);
   const [type,setType]= useState("Item");
@@ -76,14 +77,28 @@ export default function SalesOrder() {
 
  
   const [itemTabledata, setitemTableData] = useState([
-    { slno: 1, ItemCode: "", ItemName: "", quantity: "", amount: "",  TaxCode:"" },
+    {
+      slno: 1,
+      ItemCode: "",
+      ItemName: "",
+      quantity: "",
+      amount: "",
+      TaxCode: "",
+    },
   ]);
   const [summaryData, setSummaryData] = useState({});
   const [itemdata, setitemData] = useState([
     { slno: 1, ItemCode: "", ItemName: "", quantity: "", amount: "" },
   ]);
   const [serviceTabledata, setserviceTableData] = useState([
-    { slno: 1, ServiceCode: "", ServiceName: "", quantity: "", amount: "" },
+    {
+      slno: 1,
+      ServiceCode: "",
+      ServiceName: "",
+      quantity: "",
+      amount: "",
+      TaxCode: "",
+    },
   ]);
   const [servicedata, setserviceData] = useState([
     { slno: 1, ServiceCode: "", ServiceName: "", quantity: "", amount: "" },
@@ -101,7 +116,6 @@ export default function SalesOrder() {
     U_Test1: "",
     U_Test2: "",
   });
-
 
   const handleChange = (e, name, formName) => {
     const newValue = e.target.value;
@@ -141,6 +155,7 @@ export default function SalesOrder() {
 
   const handleSubmit = async () => {
     try {
+       const fd = new FormData();
       setLoading(true);
       let payload = {};
 
@@ -298,149 +313,154 @@ export default function SalesOrder() {
                   }}
                   active={loading}
                 > */}
-        <ObjectPage
-
-          footerArea={
-            <>
-              {" "}
-              <Bar
-                style={{ padding: 0.5 }}
-                design="FloatingFooter"
-                endContent={
-                  <>
-                    <Button design="Positive" onClick={() => handleSubmit()}>
-                      Submit
-                    </Button>
-                    <Button
-                      design="Positive"
-                      onClick={() => navigate(`/Sales/${formId}`)}
-                    >
-                      Cancel
-                    </Button>
-                  </>
-                }
-              />
-            </>
-          }
-          headerArea={
-            <DynamicPageHeader>
-               <FlexBox wrap="Wrap">
-            <FlexBox direction="Column">
-              <Label>Customer</Label>
-            </FlexBox>
-            <span style={{ width: "4rem" }} />
-            <FlexBox direction="Column">
-              <Label>Total:</Label>
-              <ObjectStatus state="None">GBP 0.00</ObjectStatus>
-            </FlexBox>
-            <span style={{ width: "4rem" }} />
-            <FlexBox direction="Column">
-              <Label>Status</Label>
-              <ObjectStatus state="Positive">Open</ObjectStatus>
-            </FlexBox>
-            <span style={{ width: "4rem" }} />
-            <FlexBox direction="Column">
-              <Label>Credit Limit Utilization</Label>
-              <Slider
-                min={0}
-                max={100}
-                step={1}
-                //value={value}
-                showTickmarks
-                showTooltip
-              //onInput={handleSliderChange}
-              />
-            </FlexBox>
-          </FlexBox> 
-            </DynamicPageHeader>
-          }
-          // image="https://sap.github.io/ui5-webcomponents-react/v2/assets/Person-B7wHqdJw.png"
-          imageShapeCircle
-          mode="IconTabBar"
-          onBeforeNavigate={function Xs() {}}
-          onPinButtonToggle={function Xs() {}}
-          onSelectedSectionChange={function Xs() {}}
-          onToggleHeaderArea={function Xs() {}}
-          selectedSectionId="section1"
-          style={{
-            height: "700px",
-            maxHeight: "90vh",
-          }}
-          titleArea={
-            <ObjectPageTitle
-              breadcrumbs={
+      <ObjectPage
+        footerArea={
+          <>
+            {" "}
+            <Bar
+              style={{ padding: 0.5 }}
+              design="FloatingFooter"
+              endContent={
                 <>
-                  <Breadcrumbs
-                    design="Standard"
-                    separators="Slash"
-                    onItemClick={(e) => {
-                      const route = e.detail.item.dataset.route;
-                      if (route) navigate(route);
-                    }}
+                  <Button design="Positive" onClick={() => handleSubmit()}>
+                    Submit
+                  </Button>
+                  <Button
+                    design="Positive"
+                    onClick={() => navigate(`/Sales/${formId}`)}
                   >
-                    <BreadcrumbsItem data-route="/dashboard">
-                      Home
-                    </BreadcrumbsItem>
-                    <BreadcrumbsItem data-route={`/Sales/${formId}`}>
-                       {formDetails[0]?.name?formDetails[0]?.name:"Sales Orders"}
-                    </BreadcrumbsItem>
-                    <BreadcrumbsItem>
-                      {formDetails ? "Create "+formDetails[0]?.name : "Create Sales Order"}
-                    </BreadcrumbsItem>
-                  </Breadcrumbs>
+                    Cancel
+                  </Button>
                 </>
               }
-              header={
-                <Title level="H2" >
-                  {formDetails ? formDetails[0]?.name : "Sales Order"}
-                </Title>
-              }
-              navigationBar={
-                <Toolbar design="Transparent">
-                  {/* <ToolbarButton design="Transparent" icon="full-screen" />
+            />
+          </>
+        }
+        headerArea={
+          <DynamicPageHeader>
+            <FlexBox wrap="Wrap">
+              <FlexBox direction="Column">
+                <Label>Customer</Label>
+              </FlexBox>
+              <span style={{ width: "4rem" }} />
+              <FlexBox direction="Column">
+                <Label>Total:</Label>
+                <ObjectStatus state="None">GBP 0.00</ObjectStatus>
+              </FlexBox>
+              <span style={{ width: "4rem" }} />
+              <FlexBox direction="Column">
+                <Label>Status</Label>
+                <ObjectStatus state="Positive">Open</ObjectStatus>
+              </FlexBox>
+              <span style={{ width: "4rem" }} />
+              <FlexBox direction="Column">
+                <Label>Credit Limit Utilization</Label>
+                <Slider
+                  min={0}
+                  max={100}
+                  step={1}
+                  //value={value}
+                  showTickmarks
+                  showTooltip
+                  //onInput={handleSliderChange}
+                />
+              </FlexBox>
+            </FlexBox>
+          </DynamicPageHeader>
+        }
+        // image="https://sap.github.io/ui5-webcomponents-react/v2/assets/Person-B7wHqdJw.png"
+        imageShapeCircle
+        mode="IconTabBar"
+        onBeforeNavigate={function Xs() {}}
+        onPinButtonToggle={function Xs() {}}
+        onSelectedSectionChange={function Xs() {}}
+        onToggleHeaderArea={function Xs() {}}
+        selectedSectionId="section1"
+        style={{
+          height: "700px",
+          maxHeight: "90vh",
+        }}
+        titleArea={
+          <ObjectPageTitle
+            breadcrumbs={
+              <>
+                <Breadcrumbs
+                  design="Standard"
+                  separators="Slash"
+                  onItemClick={(e) => {
+                    const route = e.detail.item.dataset.route;
+                    if (route) navigate(route);
+                  }}
+                >
+                  <BreadcrumbsItem data-route="/dashboard">
+                    Home
+                  </BreadcrumbsItem>
+                  <BreadcrumbsItem data-route={`/Sales/${formId}`}>
+                    {formDetails[0]?.name
+                      ? formDetails[0]?.name
+                      : "Sales Orders"}
+                  </BreadcrumbsItem>
+                  <BreadcrumbsItem>
+                    {formDetails
+                      ? "Create " + formDetails[0]?.name
+                      : "Create Sales Order"}
+                  </BreadcrumbsItem>
+                </Breadcrumbs>
+              </>
+            }
+            header={
+              <Title level="H2">
+                {formDetails ? formDetails[0]?.name : "Sales Order"}
+              </Title>
+            }
+            navigationBar={
+              <Toolbar design="Transparent">
+                {/* <ToolbarButton design="Transparent" icon="full-screen" />
               <ToolbarButton design="Transparent" icon="exit-full-screen" /> */}
 
-                  <ToolbarButton
-                    onClick={() => navigate(`/Sales/${formId}`)}
-                    design="Transparent"
-                    icon="decline"
-                  />
-                </Toolbar>
-              }
-            >
-              <ObjectStatus>
-                {/* <Button design="Transparent" icon="navigation-right-arrow"  onClick={openMenu} >
+                <ToolbarButton
+                  onClick={() => navigate(`/Sales/${formId}`)}
+                  design="Transparent"
+                  icon="decline"
+                />
+              </Toolbar>
+            }
+          >
+            <ObjectStatus>
+              {/* <Button design="Transparent" icon="navigation-right-arrow"  onClick={openMenu} >
                  Company
               </Button>
             <CustomerSelection menuRef={menuRef}/> */}
-              </ObjectStatus>
-            </ObjectPageTitle>
-          }
-        >
-          {/* {
+            </ObjectStatus>
+          </ObjectPageTitle>
+        }
+      >
+        {/* {
       tabList.length > 0 && tabList.map((tab) => {
         console.log("object", tab);
         if (tab.name === "general") {
           return ( */}
-          <ObjectPageSection
-            id="section1"
-            style={{ height: "100%" }}
-            titleText="General"
-          >
-            {/* <General form={form} SubForms={tab.SubForms} handleChange={handleChange} /> */}
-            <General
-              onSubmit={handleSubmit}
-              setFormData={setFormData}
-              formData={formData}
-              defaultValues={{
-                CardCode: "",
-                DocDueDate: "1",
-                DocumentLines: [],
-              }}
-              apiError={apiError}
-            />
-          </ObjectPageSection>
-          {/* );
+        <ObjectPageSection
+          id="section1"
+          style={{ height: "100%" }}
+          titleText="General"
+        >
+          {/* <General form={form} SubForms={tab.SubForms} handleChange={handleChange} /> */}
+          <General
+            onSubmit={handleSubmit}
+            setFormData={setFormData}
+            formData={formData}
+            defaultValues={{
+              CardCode: "",
+              DocDueDate: "1",
+              DeliveryDate: "",
+              DocDate: "",
+              DocumentLines: [],
+            }}
+            apiError={apiError}
+          />
+        </ObjectPageSection>
+        {/* );
         } else if (tab.name === "contents") {
           return ( */}
           <ObjectPageSection
@@ -481,34 +501,34 @@ export default function SalesOrder() {
           {/* );
         } else if (tab.name === "logistics") {
           return ( */}
-          <ObjectPageSection
-            id="section3"
-            style={{
-              height: "100%",
-            }}
-            titleText="Logistics"
-          >
-            <Logistics
-              fieldConfig={fieldConfig}
-              SalesOrderRenderInput={SalesOrderRenderInput}
-              form={form}
-              handleChange={handleChange}
-            />
-          </ObjectPageSection>
-          {/* );
+        <ObjectPageSection
+          id="section3"
+          style={{
+            height: "100%",
+          }}
+          titleText="Logistics"
+        >
+          <Logistics
+            fieldConfig={fieldConfig}
+            SalesOrderRenderInput={SalesOrderRenderInput}
+            form={form}
+            handleChange={handleChange}
+          />
+        </ObjectPageSection>
+        {/* );
         }
         else if (tab.name === "accounting") {
           return ( */}
-          <ObjectPageSection
-            id="section4"
-            style={{
-              height: "100%",
-            }}
-            titleText="Accounting"
-          >
-            <Accounting />
-          </ObjectPageSection>
-          {/* );
+        <ObjectPageSection
+          id="section4"
+          style={{
+            height: "100%",
+          }}
+          titleText="Accounting"
+        >
+          <Accounting />
+        </ObjectPageSection>
+        {/* );
         } else if (tab.name === "attachments") {
           return ( */}
           <ObjectPageSection
@@ -523,32 +543,34 @@ export default function SalesOrder() {
           {/* );
         } else if (tab.name === "user-defined-field") {
           return ( */}
-          <ObjectPageSection
-            id="section6"
-            style={{
-              height: "100%",
+        <ObjectPageSection
+          id="section6"
+          style={{
+            height: "100%",
+          }}
+          titleText="User-defined Fields"
+        >
+          <UserDefinedFields
+            form={form}
+            handleChange={handleChange}
+            defaultValues={{
+              CardCode: "",
+              DocDueDate: "1",
+              DocumentLines: [],
             }}
-            titleText="User-defined Fields"
-          >
-            <UserDefinedFields form={form} handleChange={handleChange}  
-              defaultValues={{
-                CardCode: "",
-                DocDueDate: "1",
-                DocumentLines: [],
-              }}
-              apiError={apiError}
-              onSubmit={handleSubmit}
-              setFormData={setFormData}
-
-              formData={formData}
-              userdefinedData={userdefinedData}
-              setUserDefinedData={setUserDefinedData} />
-          </ObjectPageSection>
-          {/* );
+            apiError={apiError}
+            onSubmit={handleSubmit}
+            setFormData={setFormData}
+            formData={formData}
+            userdefinedData={userdefinedData}
+            setUserDefinedData={setUserDefinedData}
+          />
+        </ObjectPageSection>
+        {/* );
         }
       }) */}
-        </ObjectPage>
-     {/* </BusyIndicator> */}
+      </ObjectPage>
+      {/* </BusyIndicator> */}
       <Dialog open={open} onAfterClose={() => setOpen(false)}>
         <div
           style={{
@@ -559,17 +581,21 @@ export default function SalesOrder() {
             textAlign: "center",
           }}
         >
-         
           {apiError ? (
-            <><Icon
-              name="message-error"
-              style={{ fontSize: "2rem", color: "red" }}
-            ></Icon>
+            <>
+              <Icon
+                name="message-error"
+                style={{ fontSize: "2rem", color: "red" }}
+              ></Icon>
               <h2 style={{ marginTop: "1rem" }}>Error!</h2>
               <p>{apiError}</p>
             </>
           ) : (
-             <><Icon name="message-success" style={{ fontSize: "2rem", color: "green" }} ></Icon>
+            <>
+              <Icon
+                name="message-success"
+                style={{ fontSize: "2rem", color: "green" }}
+              ></Icon>
               <h2 style={{ marginTop: "1rem" }}>Success!</h2>
               <p>Your request has been submitted successfully 🎉</p>
             </>

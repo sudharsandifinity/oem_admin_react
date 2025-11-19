@@ -20,6 +20,7 @@ const CardDialog = ({
   setSelectedCardCode,
   setgeneralData,
   originalGeneralData,
+  setUserDefinedData,
   setOriginalgeneralData,
   inputValue,
   setInputValue,userdefinedData
@@ -44,6 +45,10 @@ const CardDialog = ({
       setSelected(selectedRow.original);
       setSelectedCardCode(selectedRow.original.CardCode);
       setFormData((prev) => ({
+        ...prev,
+        CardCode: selectedRow.original.CardCode,
+      }));
+      setUserDefinedData((prev) => ({
         ...prev,
         CardCode: selectedRow.original.CardCode,
       }));

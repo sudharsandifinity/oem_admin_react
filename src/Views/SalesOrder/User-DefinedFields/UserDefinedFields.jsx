@@ -4,6 +4,8 @@ import {
   Form,
   FormGroup,
   FormItem,
+  Icon,
+  Input,
   Label,
 } from "@ui5/webcomponents-react";
 import React, { useContext, useEffect, useRef, useState } from "react";
@@ -15,6 +17,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { Schema } from "yup";
 import { UserDefinedRenderInput } from "./UserDefinedRenderInput";
 import { fetchBusinessPartner } from "../../../store/slices/CustomerOrderSlice";
+import CardDialog from "./CardCodeDialog/CardDialog";
 
 const UserDefinedFields = ({
   onSubmit,
@@ -41,12 +44,12 @@ const UserDefinedFields = ({
   const user = useSelector((state) => state.auth.user);
   const { formId } = useParams();
   const [formDetails, setFormDetails] = useState([]);
-   const [dialogOpen, setDialogOpen] = useState(false);
-     const [generalData, setgeneralData] = useState([]);
-     const [originalGeneralData,setOriginalgeneralData ] = useState([]);
-   const [selectedcardcode, setSelectedCardCode] = useState("");
-     const [selectedCard, setSelectedCard] = useState(null);
-   const [selectedKey, setSelectedKey] = useState("");
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [generalData, setgeneralData] = useState([]);
+  const [originalGeneralData, setOriginalgeneralData] = useState([]);
+  const [selectedcardcode, setSelectedCardCode] = useState("");
+  const [selectedCard, setSelectedCard] = useState(null);
+  const [selectedKey, setSelectedKey] = useState("");
   const formRef = useRef(null);
 
   const [inputvalue, setInputValue] = useState([]);
@@ -84,33 +87,33 @@ const UserDefinedFields = ({
       [name]: value,
     }));
   };
-    useEffect(() => {
-      const fetchData = async () => {
-        try {
-          const res = await dispatch(fetchBusinessPartner()).unwrap();
-          console.log("resusersbusinesspartner", res);
-  
-          if (res?.length > 0) {
-            const dataconfig = res.map((item) => ({
-              CardCode: item.CardCode,
-              CardName: item.CardName,
-              ContactPerson: item.ContactPerson,
-              Series: item.Series,
-            }));
-            setgeneralData(res);
-          }
-  
-          if (res.message === "Please Login!") {
-            navigate("/");
-          }
-        } catch (err) {
-          console.log("Failed to fetch user", err.message);
-          err.message && navigate("/");
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await dispatch(fetchBusinessPartner()).unwrap();
+        console.log("resusersbusinesspartner", res);
+
+        if (res?.length > 0) {
+          const dataconfig = res.map((item) => ({
+            CardCode: item.CardCode,
+            CardName: item.CardName,
+            ContactPerson: item.ContactPerson,
+            Series: item.Series,
+          }));
+          setgeneralData(res);
         }
-      };
-  
-      fetchData();
-    }, [dispatch]);
+
+        if (res.message === "Please Login!") {
+          navigate("/");
+        }
+      } catch (err) {
+        console.log("Failed to fetch user", err.message);
+        err.message && navigate("/");
+      }
+    };
+
+    fetchData();
+  }, [dispatch]);
   useEffect(() => {
     if (formId) {
       // Fetch form data based on formId
@@ -148,54 +151,62 @@ const UserDefinedFields = ({
 
   return (
     <div>
-  <form
-    ref={formRef}
-    id="form"
-    onSubmit={handleSubmit((formData) => {
-      onSubmit({ ...formData });
-    })}
-  >
-    <Card >
-      {/* LEFT SIDE FORM INSIDE FULL-WIDTH CARD */}
-       <FlexBox justifyContent="SpaceBetween" style={{padding: '30px 10px', gap: '150px'}}>
-       <FlexBox direction="Column" style={{width: "100%", gap: '8px'}}>
-                              
-      <div style={{ width: "25%", minWidth: "100px" }}>
-        {formDetails &&
-          formDetails.map((field) => (
-            <FormItem
-            style={{minWidth:"100px",alignItems:"flex-start" }}
-              key={field.field_name}
-              label={field.display_name}
-              labelContent={<Label>{field.display_name}</Label>}
-            >
-              {UserDefinedRenderInput(
-                "userDefinedFields",
-                field,
-                form,
-                handleChange,
-                inputvalue,
-                setInputValue,userdefinedData,setUserDefinedData,
-                 dialogOpen, setDialogOpen,
-                          selectedKey, 
-                          setSelectedKey,setFormData,
-                          setValue,generalData, 
-                          setgeneralData,originalGeneralData,
-                          setOriginalgeneralData ,
-                          selectedcardcode, setSelectedCardCode,
-                          selectedCard, setSelectedCard
-              )}
-            </FormItem>
-          ))}
-          </div>
+      <form
+        ref={formRef}
+        id="form"
+        onSubmit={handleSubmit((formData) => {
+          onSubmit({ ...formData });
+        })}
+      >
+        <Card>
+          <FlexBox
+            justifyContent="SpaceBetween"
+            style={{ padding: "40px 30px", gap: "150px" }}
+          >
+            {console.log(" o ", userdefinedData)}
+            <FlexBox direction="Column" style={{ width: "100%", gap: "8px" }}>
+             
+              {formDetails &&
+                formDetails.map((field) => (
+                  <FlexBox alignItems="Center">
+                    <Label style={{ minWidth: "200px" }}>
+                      {field.display_name}
+                    </Label>
+                    {UserDefinedRenderInput(
+                      "userDefinedFields",
+                      field,    
+                      form,
+                      handleChange,
+                      inputvalue,
+                      setInputValue,
+                      userdefinedData,
+                      setUserDefinedData, 
+                      dialogOpen,
+                      setDialogOpen,
+                      selectedKey,  
+                      
+                      setSelectedKey,
+                      setFormData,
+                      setValue,
+                      generalData,
+                      setgeneralData,
+                      originalGeneralData,
+                      setOriginalgeneralData,
+                      selectedcardcode,
+                      setSelectedCardCode,
+                      selectedCard,
+                      setSelectedCard
+                    )     
+                    }
+                   
+                  </FlexBox>
+                ))}
+            </FlexBox>
+            
           </FlexBox>
-
-      </FlexBox>
-    </Card>
-  </form>
-</div>
-
-
+        </Card>
+      </form>
+    </div>
   );
 };
 

@@ -1,4 +1,10 @@
-import React, { useState, useMemo, useCallback, useRef, useEffect } from "react";
+import React, {
+  useState,
+  useMemo,
+  useCallback,
+  useRef,
+  useEffect,
+} from "react";
 import {
   AnalyticalTable,
   Input,
@@ -31,6 +37,9 @@ import SettingsDialog from "../SettingsDialog";
 import { Tooltip } from "recharts";
 import TaxDialog from "./TaxPopup/TaxDialog";
 import FreightTable from "../FreightTable";
+import Freight from "../Freight/Freight";
+
+import "@ui5/webcomponents-icons/dist/navigation-right-arrow.js"; // or arrow-right
 
 const Itemtable = (props) => {
   const {
@@ -52,13 +61,14 @@ const Itemtable = (props) => {
     rowSelection,
     setItemForm,
     itemForm,
-    dynamcicItemCols, taxData,
+    dynamcicItemCols,
+    taxData,
     setTaxData,
     freightData,
     setFreightData,
     setIsFreightTableVisible,
     isFreightTableVisible,
-    setTotalFreightAmount
+    setTotalFreightAmount,
   } = props;
   const menuRef = useRef();
 
@@ -87,11 +97,11 @@ const Itemtable = (props) => {
 
   const [itemDialogOpen, setitemDialogOpen] = useState(false);
   const [inputvalue, setInputValue] = useState({});
-const [isTaxDialogOpen, setisTaxDialogOpen] = useState(false);
-const [selectedTaxRowIndex, setSelectedTaxRowIndex] = useState("");
-const [freightRowSelection, setFreightRowSelection] = useState([]);
+  const [isTaxDialogOpen, setisTaxDialogOpen] = useState(false);
+  const [selectedTaxRowIndex, setSelectedTaxRowIndex] = useState("");
+  const [freightRowSelection, setFreightRowSelection] = useState([]);
 
- const [freightdialogOpen, setfreightDialogOpen] = useState(false);
+  const [freightdialogOpen, setfreightDialogOpen] = useState(false);
   const [currentField, setCurrentField] = useState(null);
   const [selectedRow, setSelectedRow] = useState([]);
   const [selectedRowIds, setSelectedRowIds] = useState({});
@@ -118,31 +128,30 @@ const [freightRowSelection, setFreightRowSelection] = useState([]);
     const index = e.detail.row.index;
     setSelectedRowIndex(index);
     setSelectedRowIds(e.detail.selectedRowIds);
-     const selectedIdsArray = Object.keys(e.detail.selectedRowIds); 
-    console.log("onRowSelect",itemTabledata, e.detail,selectedIdsArray);
+    const selectedIdsArray = Object.keys(e.detail.selectedRowIds);
+    console.log("onRowSelect", itemTabledata, e.detail, selectedIdsArray);
 
+    setRowSelection((prev) => {
+      const updated = { ...prev }; // keep old selections
 
-   setRowSelection((prev) => {
-    const updated = { ...prev }; // keep old selections
-
-    selectedIdsArray.forEach((id) => {
-      const rowData = itemTabledata.find((item) => item.slno.toString() === id);
-      if (rowData) {
-        updated[id] = rowData;
-      }
+      selectedIdsArray.forEach((id) => {
+        const rowData = itemTabledata.find(
+          (item) => item.slno.toString() === id
+        );
+        if (rowData) {
+          updated[id] = rowData;
+        }
+      });
+      console.log("updated", updated);
+      return updated;
     });
-    console.log("updated",updated)
-    return updated;
-  });
-};
-  const onselectFreightRow=(e)=>{    
-
+  };
+  const onselectFreightRow = (e) => {
     setFreightRowSelection((prev) => ({
       ...prev,
       [e.detail.row.id]: e.detail.row.original,
     }));
     console.log("onselectFreightRow", e.detail, freightRowSelection);
-  
   };
   const markNavigatedRow = useCallback(
     (row) => {
@@ -167,154 +176,160 @@ const [freightRowSelection, setFreightRowSelection] = useState([]);
     setIsAddNewRow(true);
     setitemTableData([
       ...itemTabledata,
-      { ItemCode: "", ItemName: "", quantity: 0, amount: 0, discount: 0, TaxCode: ''  },
+      {
+        ItemCode: "",
+        ItemName: "",
+        quantity: 0,
+        amount: 0,
+        discount: 0,
+        TaxCode: "",
+      },
     ]);
   };
- const duplicateRow = () => {
-  if (!selectedRow?.original) return;
+  const duplicateRow = () => {
+    if (!selectedRow?.original) return;
 
-  console.log("duplicateRow", selectedRow.original);
+    console.log("duplicateRow", selectedRow.original);
 
-  setitemTableData((prev) => {
-    const updated = [...prev];
+    setitemTableData((prev) => {
+      const updated = [...prev];
 
-    // ✅ Find last serial number (slno) in table
-    const lastSlno = updated.length > 0 ? updated[updated.length - 1].slno : 0;
+      // ✅ Find last serial number (slno) in table
+      const lastSlno =
+        updated.length > 0 ? updated[updated.length - 1].slno : 0;
 
-    // ✅ Create new duplicated row with incremented slno
-    const newRow = {
-      ...selectedRow.original,
-      slno: lastSlno + 1,
-    };
+      // ✅ Create new duplicated row with incremented slno
+      const newRow = {
+        ...selectedRow.original,
+        slno: lastSlno + 1,
+      };
 
-    return [...updated, newRow];
-  });
-  setRowSelection({});
-};
+      return [...updated, newRow];
+    });
+    setRowSelection({});
+  };
 
   const copyRow = () => {
     setCopySelectedRow(selectedRow.original);
   };
   const pasteRow = () => {
     //setitemTableData([...itemTabledata, copySelectedRow]);
-     if (!selectedRow?.original) return;
+    if (!selectedRow?.original) return;
 
-  console.log("pasteRow", selectedRow.original);
+    console.log("pasteRow", selectedRow.original);
 
-  setitemTableData((prev) => {
-    const updated = [...prev];
+    setitemTableData((prev) => {
+      const updated = [...prev];
 
-    // ✅ Find last serial number (slno) in table
-    const lastSlno = updated.length > 0 ? updated[updated.length - 1].slno : 0;
+      // ✅ Find last serial number (slno) in table
+      const lastSlno =
+        updated.length > 0 ? updated[updated.length - 1].slno : 0;
 
-    // ✅ Create new duplicated row with incremented slno
-    const newRow = {
-      ...selectedRow.original,
-      slno: lastSlno + 1,
+      // ✅ Create new duplicated row with incremented slno
+      const newRow = {
+        ...selectedRow.original,
+        slno: lastSlno + 1,
+      };
+
+      return [...updated, newRow];
+    });
+    setRowSelection({});
+  };
+  const deleteRow = (itemCodeToRemove) => {
+    console.log("delete", itemTabledata, rowSelection, itemCodeToRemove);
+
+    setitemTableData((prev) => {
+      let updatedData;
+
+      if (itemCodeToRemove) {
+        // ✅ Delete one row
+        updatedData = prev.filter(
+          (item) =>
+            !(
+              item.ItemCode === itemCodeToRemove.ItemCode &&
+              item.ItemName === itemCodeToRemove.ItemName &&
+              item.slno === itemCodeToRemove.slno
+            )
+        );
+      } else {
+        // ✅ Delete multiple selected rows
+        const selectedRows = Object.values(rowSelection);
+
+        updatedData = prev.filter(
+          (item) =>
+            !selectedRows.some(
+              (row) =>
+                row.ItemCode === item.ItemCode &&
+                row.ItemName === item.ItemName &&
+                row.slno === item.slno
+            )
+        );
+        setRowSelection({});
+      }
+      console.log("updatedData", updatedData);
+      // ✅ Reassign serial numbers after deletion
+      return updatedData.map((item, index) => ({
+        ...item,
+        slno: index, // slno starts from 1
+      }));
+    });
+  };
+
+  const calculateRowTotals = (row) => {
+    const quantity = parseFloat(row.quantity) || 0;
+    const unitPrice = parseFloat(row.unitPrice || row.amount) || 0;
+    const discount = parseFloat(row.discount) || 0;
+    const taxPercent = parseFloat(row.TaxRate) || 0;
+
+    const effectiveDiscount = discount + summaryDiscountPercent;
+
+    const baseAmount = quantity * unitPrice;
+    const discountAmt = baseAmount * (effectiveDiscount / 100);
+    const taxable = baseAmount - discountAmt;
+    const taxAmt = taxable * (taxPercent / 100);
+    const grossTotal = taxable + taxAmt;
+
+    return {
+      ...row,
+      BaseAmount: taxable.toFixed(2),
+      TaxRate: taxAmt.toFixed(2),
+      grosstotal: grossTotal.toFixed(2),
     };
-
-    return [...updated, newRow];
-  });
-  setRowSelection({});
-
   };
-const deleteRow = (itemCodeToRemove) => {
-  console.log("delete", itemTabledata, rowSelection, itemCodeToRemove);
 
-  setitemTableData((prev) => {
-    let updatedData;
+  useEffect(() => {
+    setitemTableData((prev) => prev.map((row) => calculateRowTotals(row)));
+  }, [summaryDiscountPercent]);
 
-    if (itemCodeToRemove) {
-      // ✅ Delete one row
-      updatedData = prev.filter(
-  (item) =>
-    !(
-      item.ItemCode === itemCodeToRemove.ItemCode &&
-      item.ItemName === itemCodeToRemove.ItemName &&
-      item.slno === itemCodeToRemove.slno
-    )
-);
-    } else {
-      // ✅ Delete multiple selected rows
-      const selectedRows = Object.values(rowSelection);
+  // const deleteRow = (itemCodeToRemove) => {
+  //   console.log("delete", itemTabledata, rowSelection, itemCodeToRemove);
 
-      updatedData = prev.filter(
-        (item) =>
-          !selectedRows.some(
-            (row) =>
-              row.ItemCode === item.ItemCode &&
-              row.ItemName === item.ItemName &&
-              row.slno === item.slno
-          )
-      );
-      setRowSelection({});
-    }
-    console.log("updatedData",updatedData)
-    // ✅ Reassign serial numbers after deletion
-    return updatedData.map((item, index) => ({
-      ...item,
-      slno: index , // slno starts from 1
-    }));
-  });
-};
+  //   if (itemCodeToRemove) {
+  //     setitemTableData((prev) =>
+  //       prev.filter(
+  //         (item) =>
+  //           item.ItemCode !== itemCodeToRemove.ItemCode &&
+  //           item.ItemName !== itemCodeToRemove.ItemName
+  //       )
+  //     );
+  //   } else {
+  //     const selectedRows = Object.values(rowSelection); // convert object → array
 
-const calculateRowTotals = (row) => {
-  const quantity = parseFloat(row.quantity) || 0;
-  const unitPrice = parseFloat(row.unitPrice || row.amount) || 0;
-  const discount = parseFloat(row.discount) || 0;
-  const taxPercent = parseFloat(row.TaxRate) || 0;
+  //     setitemTableData((prev) =>
+  //       prev.filter(
+  //         (item) =>
+  //           !selectedRows.some(
+  //             (row) =>
+  //               row.ItemCode === item.ItemCode &&
+  //               row.ItemName === item.ItemName&&
+  //               row.slno===item.slno
+  //           )
+  //       )
+  //     );
 
-   const effectiveDiscount = discount + summaryDiscountPercent;
-
-  const baseAmount = quantity * unitPrice;
-  const discountAmt = baseAmount * (effectiveDiscount / 100);
-  const taxable = baseAmount - discountAmt;
-  const taxAmt = taxable * (taxPercent / 100);
-  const grossTotal = taxable + taxAmt;
-
-  return {
-    ...row,
-    BaseAmount: taxable.toFixed(2),
-    TaxAmount: taxAmt.toFixed(2),
-    grosstotal: grossTotal.toFixed(2),
-  };
-};
-
-useEffect(() => {
-  setitemTableData(prev => 
-    prev.map(row => calculateRowTotals(row))
-  );
-}, [summaryDiscountPercent])
-
-// const deleteRow = (itemCodeToRemove) => {
-//   console.log("delete", itemTabledata, rowSelection, itemCodeToRemove);
-
-//   if (itemCodeToRemove) {
-//     setitemTableData((prev) =>
-//       prev.filter(
-//         (item) =>
-//           item.ItemCode !== itemCodeToRemove.ItemCode &&
-//           item.ItemName !== itemCodeToRemove.ItemName
-//       )
-//     );
-//   } else {
-//     const selectedRows = Object.values(rowSelection); // convert object → array
-
-//     setitemTableData((prev) =>
-//       prev.filter(
-//         (item) =>
-//           !selectedRows.some(
-//             (row) =>
-//               row.ItemCode === item.ItemCode &&
-//               row.ItemName === item.ItemName&&
-//               row.slno===item.slno
-//           )
-//       )
-//     );
-
-//     setRowSelection({});
-//   }
-// };
+  //     setRowSelection({});
+  //   }
+  // };
 
   const addRowAfter = () => {
     const newRow = { ItemCode: "", ItemName: "", quantity: 0, amount: 0 };
@@ -364,41 +379,47 @@ useEffect(() => {
     setDialogOpen(false);
   };
 
-const summaryCalculation = useMemo(() => {
-  const cal = itemTabledata.reduce(
-    (acc, item) => {
-      const bdTotal = parseFloat(item.BaseAmount) || 0;
-      const taxTotal = parseFloat(item.TaxAmount) || 0;
-      acc.totalBeforeDiscount += bdTotal;
-      acc.totalTaxAmount += taxTotal;
-      return acc;
-    },
-    {
-      totalBeforeDiscount: 0,
-      totalTaxAmount: 0
-    });
+  const summaryCalculation = useMemo(() => {
+    const cal = itemTabledata.reduce(
+      (acc, item) => {
+        const bdTotal = parseFloat(item.BaseAmount) || 0;
+        const taxTotal = parseFloat(item.TaxRate) || 0;
+        acc.totalBeforeDiscount += bdTotal;
+        acc.totalTaxAmount += taxTotal;
+        return acc;
+      },
+      {
+        totalBeforeDiscount: 0,
+        totalTaxAmount: 0,
+      }
+    );
     return {
-    totalBeforeDiscount: cal.totalBeforeDiscount.toFixed(2),
-    totalTaxAmount: cal.totalTaxAmount.toFixed(2)
-  };
-  
-}, [itemTabledata]);
+      totalBeforeDiscount: cal.totalBeforeDiscount.toFixed(2),
+      totalTaxAmount: cal.totalTaxAmount.toFixed(2),
+    };
+  }, [itemTabledata]);
 
-useMemo(() => {
-  const total = parseFloat(summaryCalculation.totalBeforeDiscount) || 0;
-  const discountAmount = (total * summaryDiscountPercent) / 100;
-  setSummaryDiscountAmount(discountAmount.toFixed(2));
-}, [summaryDiscountPercent, summaryCalculation.totalBeforeDiscount]);
+  useMemo(() => {
+    const total = parseFloat(summaryCalculation.totalBeforeDiscount) || 0;
+    const discountAmount = (total * summaryDiscountPercent) / 100;
+    setSummaryDiscountAmount(discountAmount.toFixed(2));
+  }, [summaryDiscountPercent, summaryCalculation.totalBeforeDiscount]);
 
-useMemo(() => {
-  const bdTotal = parseFloat(summaryCalculation.totalBeforeDiscount) || 0;
-  const discount = parseFloat(summaryDiscountAmount) || 0;
-  const totalTax = parseFloat(summaryCalculation.totalTaxAmount) || 0;
-  const r = roundingEnabled ? parseFloat(roundOff) || 0 : 0;
+  useMemo(() => {
+    const bdTotal = parseFloat(summaryCalculation.totalBeforeDiscount) || 0;
+    const discount = parseFloat(summaryDiscountAmount) || 0;
+    const totalTax = parseFloat(summaryCalculation.totalTaxAmount) || 0;
+    const r = roundingEnabled ? parseFloat(roundOff) || 0 : 0;
 
-  const result = bdTotal - discount + totalTax + r;
-  setFinalTotal(result.toFixed(2));
-}, [summaryCalculation.totalBeforeDiscount, summaryCalculation.totalTaxAmount, summaryDiscountAmount, roundOff, roundingEnabled]);
+    const result = bdTotal - discount + totalTax + r;
+    setFinalTotal(result.toFixed(2));
+  }, [
+    summaryCalculation.totalBeforeDiscount,
+    summaryCalculation.totalTaxAmount,
+    summaryDiscountAmount,
+    roundOff,
+    roundingEnabled,
+  ]);
 
 useEffect(() => {
   setSummaryData((prev) => ({
@@ -417,52 +438,62 @@ useEffect(() => {
     }, 0);
   }, [itemTabledata]);
   const totalFreightAmount = useMemo(() => {
-    console.log(" Object.values(freightRowSelection", Object.values(freightRowSelection))
+    console.log(
+      " Object.values(freightRowSelection",
+      Object.values(freightRowSelection)
+    );
 
-  const rows = Object.values(freightRowSelection || {});
+    const rows = Object.values(freightRowSelection || {});
 
-  return rows.reduce((sum, item) => {
-    const amt = parseFloat(item.ExpenseAccount || 0); // <-- Correct field
-    return sum + amt;
-  }, 0);
-}, [freightRowSelection]);
-const taxSelectionRow=(e)=>{
-   // setitemTableData((prev) =>
-//       prev.map((r, idx) =>
-//         idx === selectedTaxRowIndex   
-//           ? { ...r, TaxCode: e.detail.row.original.VatGroups_Lines[e.detail.row.original.VatGroups_Lines.length - 1]?.Rate }
-//           : r
-//       )
-//     );
+    return rows.reduce((sum, item) => {
+      const amt = parseFloat(item.grossTotal || 0); // <-- Correct field
+      return sum + amt;
+    }, 0);
+  }, [freightRowSelection]);
+  const taxSelectionRow = (e) => {
+    console.log("taxSelectionRow", itemTabledata, e);
+    // setitemTableData((prev) =>
+    //       prev.map((r, idx) =>
+    //         idx === selectedTaxRowIndex
+    //           ? { ...r, TaxCode: e.detail.row.original.VatGroups_Lines[e.detail.row.original.VatGroups_Lines.length - 1]?.Rate }
+    //           : r
+    //       )
+    //     );
     const rate = e.detail.row.original.VatGroups_Lines.at(-1)?.Rate;
     const code = e.detail.row.original.Code;
 
-  setitemTableData((prev) =>
-    prev.map((row, idx) =>
-      idx === selectedTaxRowIndex
-        ? calculateRowTotals({ ...row, TaxCode: code, TaxRate: rate })
-        : row
-    )
-  );
-    
+    setitemTableData((prev) =>
+      prev.map((row, idx) =>
+        idx === selectedTaxRowIndex
+          ? calculateRowTotals({ ...row, TaxCode: code, TaxRate: rate })
+          : row
+      )
+    );
+
     setitemData((prev) =>
       prev.map((r, idx) =>
         idx === Number(e.detail.row.id)
-          ? { ...r, TaxCode: e.detail.row.original.VatGroups_Lines[e.detail.row.original.VatGroups_Lines.length - 1]?.Rate }
+          ? {
+              ...r,
+              TaxCode:
+                e.detail.row.original.VatGroups_Lines[
+                  e.detail.row.original.VatGroups_Lines.length - 1
+                ]?.Rate,
+            }
           : r
       )
     );
     setTimeout(() => {
       setisTaxDialogOpen(false);
     }, 500);
-}
+  };
   const columns = useMemo(() => {
     // Define all possible columns
     const allColumns = [
       {
         Header: "Sl No",
         accessor: "slno",
-        width:100,
+        width: 100,
         Cell: ({ row }) => (
           <div disabled={mode === "view"}>{row.index + 1}</div>
         ),
@@ -521,14 +552,14 @@ const taxSelectionRow=(e)=>{
       {
         Header: "Quantity",
         accessor: "quantity",
-       // width: 250,
+        // width: 250,
         Cell: ({ row, value }) => (
           <Input
             style={{ textAlign: "right" }}
             type="Number"
             disabled={mode === "view"}
-            value={value || ""  }
-             onChange={(e) => {
+            value={value || ""}
+            onChange={(e) => {
               const newValue = e.target.value;
               const rowIndex = row.index;
               setitemTableData((prev) => {
@@ -565,7 +596,6 @@ const taxSelectionRow=(e)=>{
             style={{ textAlign: "right" }}
             disabled={mode === "view"}
             type="Number"
-
             value={value || ""}
             onChange={(e) => {
               const newValue = e.target.value;
@@ -671,18 +701,22 @@ const taxSelectionRow=(e)=>{
             }}
             onFocus={(e) => (e.target.style.borderBottom = "1px solid #007aff")}
             onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
-            onClick={() =>// !row.original.TaxCode && 
-              {setSelectedTaxRowIndex(row.index);setisTaxDialogOpen(true)}
+            onClick={() =>
+              // !row.original.TaxCode &&
+              {
+                setSelectedTaxRowIndex(row.index);
+                setisTaxDialogOpen(true);
+              }
             }
           />
         ),
       },
       {
         Header: "Tax Amount",
-        accessor: "TaxAmount",
+        accessor: "TaxRate",
         Cell: ({ row }) => (
           <Input
-            value={row.original.TaxAmount}
+            value={row.original.TaxRate}
             readonly
             disabled={mode === "view"}
             style={{
@@ -696,10 +730,17 @@ const taxSelectionRow=(e)=>{
             }}
             onFocus={(e) => (e.target.style.borderBottom = "1px solid #007aff")}
             onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
+            onClick={() =>
+              // !row.original.TaxCode &&
+              {
+                setSelectedTaxRowIndex(row.index);
+                setisTaxDialogOpen(true);
+              }
+            }
           />
         ),
       },
-            {
+      {
         Header: "Gross Total",
         accessor: "grosstotal",
         Cell: ({ row, value }) => (
@@ -754,13 +795,12 @@ const taxSelectionRow=(e)=>{
               direction="Row"
               justifyContent="Center"
             >
-              
               <Button
                 icon="sap-icon://delete"
                 disabled={isOverlay}
                 design="Transparent"
                 onClick={() => {
-                  deleteRow(row.original)
+                  deleteRow(row.original);
                 }}
                 // onClick={() => editRow(row)}
               />
@@ -773,19 +813,17 @@ const taxSelectionRow=(e)=>{
     // Create an array of accessors that should be visible
     const visibleAccessors =
       dynamicItemColumnslist?.map((col) => col.accessor) || [];
-      
+
     // Filter columns based on dynamic list
-   const visibleColumns = allColumns.filter(
-  (col) =>
-    visibleAccessors.includes(col.accessor) ||
-    col.id === "actions" // always include actions
-);
-  
+    const visibleColumns = allColumns.filter(
+      (col) => visibleAccessors.includes(col.accessor) || col.id === "actions" // always include actions
+    );
+
     return visibleColumns;
   }, [mode, dynamicItemColumnslist]);
 
   return (
-    <div style={{background: 'white'}}>
+    <div style={{ background: "white" }}>
       <FlexBox style={{ justifyContent: "end" }}>
         <Button disabled={disable} design="Transparent" onClick={duplicateRow}>
           Duplicate
@@ -837,7 +875,11 @@ const taxSelectionRow=(e)=>{
         >
           <Icon design="Information" name="arrow-bottom"></Icon>
         </Button> */}
-        <Button disabled={disable} design="Transparent" onClick={()=>deleteRow()}>
+        <Button
+          disabled={disable}
+          design="Transparent"
+          onClick={() => deleteRow()}
+        >
           <Icon design="Information" name="delete"></Icon>
         </Button>
 
@@ -848,16 +890,16 @@ const taxSelectionRow=(e)=>{
           tooltip="Column Settings"
           icon="sap-icon://settings"
         ></Button>
-      </FlexBox>
+      </FlexBox>{console.log("itemtableupdatedvaal",itemTabledata)}
       <AnalyticalTable
-        style={{ borderTop: '1px solid #d6dbe0' }}
+        style={{ borderTop: "1px solid #d6dbe0" }}
         data={itemTabledata}
         columns={columns}
         withNavigationHighlight
         getRowId={(row) => row.original.id.toString()}
         selectionMode="Multiple"
-         //selectedRowIds={rowSelection && Object.keys(rowSelection)} // 👈 ensures rows are preselected
-         onRowSelect={(e) => onRowSelect(e)}
+        //selectedRowIds={rowSelection && Object.keys(rowSelection)} // 👈 ensures rows are preselected
+        onRowSelect={(e) => onRowSelect(e)}
         // markNavigatedRow={markNavigatedRow}
         visibleRows={10}
       />
@@ -865,20 +907,27 @@ const taxSelectionRow=(e)=>{
         justifyContent="end"
         style={{ marginTop: "1rem", paddingRight: "2rem" }}
       > */}
-      <div style={{paddingTop:"3rem"}}>
-        <FreightTable
-        freightData={freightData}
-        setFreightData={setFreightData}
-        freightdialogOpen={freightdialogOpen}
-        setfreightDialogOpen={setfreightDialogOpen}
-        onselectFreightRow={onselectFreightRow}
-      /></div>
-       
+      <div style={{ paddingTop: "3rem" }}>       
+        <Freight
+          mode={mode}
+          freightData={freightData}
+          setFreightData={setFreightData}
+          freightdialogOpen={freightdialogOpen}
+          setfreightDialogOpen={setfreightDialogOpen}
+          onselectFreightRow={onselectFreightRow}
+          freightRowSelection={freightRowSelection}
+          setFreightRowSelection={setFreightRowSelection}
+           taxData={taxData}
+        setTaxData={setTaxData}
+         inputvalue={inputvalue}
+        setInputValue={setInputValue}
+        />
+      </div>
 
       <FlexBox
         justifyContent="SpaceBetween"
         style={{
-          marginTop: "3rem"
+          marginTop: "3rem",
         }}
       >
         <FlexBox direction="Column" style={{width: '50%'}}>
@@ -902,18 +951,26 @@ const taxSelectionRow=(e)=>{
           alignItems="FlexStart"
           style={{width: '40%', gap: '10px'}}
         >
-          <Title level="H3" style={{marginBottom: "16px"}}>
+          <Title level="H3" style={{ marginBottom: "16px" }}>
             Total Summary
           </Title>
           <FlexBox>
-            <Label showColon style={{minWidth: '200px'}}>Total Before Discount</Label>
-            <FlexBox style={{width: '100%'}} justifyContent="End">
+            <Label showColon style={{ minWidth: "200px" }}>
+              Total Before Discount
+            </Label>
+            <FlexBox style={{ width: "100%" }} justifyContent="End">
               {summaryCalculation.totalBeforeDiscount}
             </FlexBox>
           </FlexBox>
           <FlexBox alignItems="Center">
-            <Label showColon style={{minWidth: '200px'}}>Discount</Label>
-            <FlexBox style={{width: '100%'}} justifyContent="SpaceBetween" alignItems="Center">
+            <Label showColon style={{ minWidth: "200px" }}>
+              Discount
+            </Label>
+            <FlexBox
+              style={{ width: "100%" }}
+              justifyContent="SpaceBetween"
+              alignItems="Center"
+            >
               <FlexBox alignItems="Center">
                 <Input
                   type="Number"
@@ -927,28 +984,64 @@ const taxSelectionRow=(e)=>{
                       DiscountPercent: value,
                     }));
                   }}
-                />%
+                />
+                %
               </FlexBox>
               <Text>{summaryDiscountAmount}</Text>
             </FlexBox>
-          </FlexBox>
+          </FlexBox> 
           <FlexBox>
-            <Label showColon style={{minWidth: '200px', marginBottom: "10px"}}>Freight</Label>
-            <FlexBox style={{width: '100%'}} justifyContent="End">{console.log("itemFreightAmount",totalFreightAmount)}
-             {setTotalFreightAmount(totalFreightAmount)} <Text> {totalFreightAmount.toLocaleString(undefined, {
-                                  minimumFractionDigits: 2,
-                                })}</Text>
+            <Label
+              showColon
+              style={{ minWidth: "200px", marginBottom: "10px" }}
+            >
+              Freight
+            </Label>
+            <Button
+              design="Default"
+              onClick={()=>setfreightDialogOpen(true)}
+              tooltip="Freight"
+              // make the button compact so only icon shows visually:
+            >
+              <Icon
+              tooltip="Add Freight"
+                name="arrow-right"
+                style={{
+                  color: "#ff9e00",
+                  width: "18px",
+                  height: "18px",
+                  fontSize: "18px",
+                }}
+              />
+            </Button>
+            <FlexBox style={{ width: "100%" }} justifyContent="End">
+              {console.log("itemFreightAmount", totalFreightAmount)}
+              {setTotalFreightAmount(totalFreightAmount)}{" "}
+              <Text>
+                {" "}
+                {totalFreightAmount.toLocaleString(undefined, {
+                  minimumFractionDigits: 2,
+                })}
+              </Text>
             </FlexBox>
           </FlexBox>
           <FlexBox>
-            <Label showColon style={{minWidth: '200px'}}>Tax</Label>
-            <FlexBox style={{width: '100%'}} justifyContent="End">
+            <Label showColon style={{ minWidth: "200px" }}>
+              Tax
+            </Label>
+            <FlexBox style={{ width: "100%" }} justifyContent="End">
               <Text> {summaryCalculation.totalTaxAmount}</Text>
             </FlexBox>
           </FlexBox>
           <FlexBox alignItems="Center">
-            <Label showColon style={{minWidth: '200px'}}>Rounding</Label>
-            <FlexBox style={{width: '100%'}} justifyContent="SpaceBetween" alignItems="Center">
+            <Label showColon style={{ minWidth: "200px" }}>
+              Rounding
+            </Label>
+            <FlexBox
+              style={{ width: "100%" }}
+              justifyContent="SpaceBetween"
+              alignItems="Center"
+            >
               <CheckBox
                 checked={roundingEnabled}
                 onChange={(e) => {
@@ -982,8 +1075,13 @@ const taxSelectionRow=(e)=>{
             </FlexBox>
           </FlexBox>
           <FlexBox>
-            <Label showColon style={{minWidth: '200px'}}>Total</Label>
-            <FlexBox style={{width: '100%', fontWeight: "bold"}} justifyContent="End">
+            <Label showColon style={{ minWidth: "200px" }}>
+              Total
+            </Label>
+            <FlexBox
+              style={{ width: "100%", fontWeight: "bold" }}
+              justifyContent="End"
+            >
               <Text>{finalTotal}</Text>
             </FlexBox>
           </FlexBox>
@@ -1026,7 +1124,7 @@ const taxSelectionRow=(e)=>{
           Save
         </Button>
       </Dialog>
-  <TaxDialog
+      <TaxDialog
         isTaxDialogOpen={isTaxDialogOpen}
         setisTaxDialogOpen={setisTaxDialogOpen}
         taxData={taxData}
@@ -1056,7 +1154,7 @@ const taxSelectionRow=(e)=>{
         mode={mode}
         isAddnewRow={isAddnewRow}
         inputvalue={inputvalue}
-         setInputValue={setInputValue}
+        setInputValue={setInputValue}
       />
       <SettingsDialog
         settingsDialogOpen={settingsDialogOpen}

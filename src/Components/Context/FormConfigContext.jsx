@@ -509,7 +509,7 @@ const FormConfigProvider = ({ children }) => {
     { Header: "Amount", accessor: "amount", type: "number" },
     { Header: "Total", accessor: "total", type: "number" },
     { Header: "Tax Code", accessor: "TaxCode", type: "number" },
-    { Header: "Tax Amount", accessor: "TaxAmount", type: "number" },
+    { Header: "Tax Amount", accessor: "TaxRate", type: "number" },
     { Header: "Discount", accessor: "discount", type: "number" },
     { Header: "Gross Total", accessor: "grosstotal", type: "number" },
 
@@ -641,7 +641,7 @@ const FormConfigProvider = ({ children }) => {
     { Header: "Amount", accessor: "amount", type: "number" },
     { Header: "Total", accessor: "total", type: "number" },
     { Header: "Tax Code", accessor: "TaxCode", type: "number" },
-    { Header: "Tax Amount", accessor: "TaxAmount", type: "number" },
+    { Header: "Tax Amount", accessor: "TaxRate", type: "number" },
     { Header: "Discount", accessor: "discount", type: "number" },
     { Header: "Gross Total", accessor: "grosstotal", type: "number" },
 

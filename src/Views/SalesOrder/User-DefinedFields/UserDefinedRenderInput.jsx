@@ -9,6 +9,8 @@ import {
   Label,
   List,
   ListItemStandard,
+  MultiComboBox,
+  MultiComboBoxItem,
   Option,
   Select,
   SuggestionItem,
@@ -111,10 +113,10 @@ export const UserDefinedRenderInput = (
               />
             }
             name={field.field_name}
-            value={userdefinedData?.[field?.field_name] || ""}
+            value={userdefinedData?.CardCode || ""}
             //onInput={(e) => handleChange(e, field.field_name,formName)}
             type={field.input_type}
-            style={{ width: "100%" }}
+            //style={{ width: "100%" }}
           >
             {productCollection.map((item, idx) => (
               <SuggestionItem key={idx} text={item.Name} />
@@ -184,34 +186,37 @@ export const UserDefinedRenderInput = (
       );
     case "selectdropdown":
       return (
-        <>
-          <Select
-            onClose={function Xs() {}}
-            name={field.field_name}
-            value={userdefinedData?.[field?.field_name] || ""}
-            onLiveChange={function Xs() {}}
-            onOpen={function Xs() {}}
-            valueState="None"
-            onChange={(e) => {
-              handleSelectChange(e);
-              handleChange(e, field.field_name, formName);
-            }}
-            style={{ width: "100%" }}
-            // style={{
-            //   width: "300px", // fixed width
-            //   marginLeft: "0", // no left margin
-            //   display: "block", // ensure it takes its own line
-            //   textAlign: "left", // text starts from left inside input
-            // }}
-          >
-            <Option>Option 1</Option>
-            <Option>Option 2</Option>
-            <Option>Option 3</Option>
-            <Option>Option 4</Option>
-            <Option>Option 5</Option>
-          </Select>{" "}
-          <Label>{selectedKey}</Label>
-        </>
+     <MultiComboBox
+        onChange={(e) => {
+          const selected = e.detail.items.map(i => i.getAttribute("data-value"));
+         handleChange(e, field.field_name, formName);
+        }}
+      >
+        <MultiComboBoxItem data-value="us" text="United States" />
+        <MultiComboBoxItem data-value="ca" text="Canada" />
+        <MultiComboBoxItem data-value="ae" text="UAE" />
+      </MultiComboBox>
+          // <Select
+          //   onClose={function Xs() {}}
+          //   name={field.field_name}
+          //   value={userdefinedData?.[field?.field_name] || ""}
+          //   onLiveChange={function Xs() {}}
+          //   onOpen={function Xs() {}}
+          //   valueState="None"
+          // style={{ width: "100%" }}
+
+          //   onChange={(e) => {
+          //     handleSelectChange(e);
+          //     handleChange(e, field.field_name, formName);
+          //   }}
+          // >
+          //   <Option>Option 1</Option>
+          //   <Option>Option 2</Option>
+          //   <Option>Option 3</Option>
+          //   <Option>Option 4</Option>
+          //   <Option>Option 5</Option>
+          // </Select>
+    
       );
     case "textarea":
       return (
