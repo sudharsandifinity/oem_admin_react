@@ -37,6 +37,7 @@ import {
   BusyIndicator,
 } from "@ui5/webcomponents-react";
 import { FormConfigContext } from "../../Components/Context/FormConfigContext";
+import api from "../../api/axios";
 
 import { SalesOrderRenderInput } from "./SalesOrderRenderInput";
 import General from "./General/General";
@@ -64,6 +65,8 @@ export default function SalesOrder() {
   const [formDetails, setFormDetails] = useState([]);
   const [formData, setFormData] = useState({});
   const[userdefinedData,setUserDefinedData]= useState({})
+ const[ attachmentsList, setAttachmentsList]= useState([]);
+ const[attachments,setAttachments]= useState([]);
   const [rowSelection, setRowSelection] = useState({});
   const [open, setOpen] = useState(false);
   const [type,setType]= useState("Item");
@@ -152,6 +155,7 @@ export default function SalesOrder() {
 
   const handleSubmit = async () => {
     try {
+       const fd = new FormData();
       setLoading(true);
       let payload = {};
 

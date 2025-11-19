@@ -907,8 +907,7 @@ useEffect(() => {
         justifyContent="end"
         style={{ marginTop: "1rem", paddingRight: "2rem" }}
       > */}
-      <div style={{ paddingTop: "3rem" }}>
-       
+      <div style={{ paddingTop: "3rem" }}>       
         <Freight
           mode={mode}
           freightData={freightData}
