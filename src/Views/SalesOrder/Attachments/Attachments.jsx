@@ -8,25 +8,9 @@ import {
   UploadCollection,
   UploadCollectionItem,
 } from "@ui5/webcomponents-react";
-import AddAttachmentDialogPage from "./AddAttachmentDialogPage";
-import SelectedAttachmentDialog from "./SelectedAttachmentDialog";
 
-const data = [
-  {
-    id: 1,
-    name: "invoice.pdf",
-    type: "application/pdf",
-    size: "254 KB",
-  },
-  {
-    id: 2,
-    name: "photo.jpg",
-    type: "image/jpeg",
-    size: "1.2 MB",
-  },
-];
-const Attachments = () => {
-  const [attachmentsList, setAttachmentsList] = React.useState(data);
+const Attachments = (props) => {
+  const {attachmentsList, setAttachmentsList}=props
   const [attachments, setAttachments] = React.useState("");
   const [openAttachmentDialog, setOpenAttachmentDialog] = React.useState(false);
   const [openAddAttachmentDialog, setOpenAddAttachmentDialog] =
@@ -34,18 +18,23 @@ const Attachments = () => {
 
   const OpenAttachment = (e) => {
     const fileId = e.detail;
-    console.log("fileId", e, e.detail, e.detail.item);
     setAttachments(fileId);
     setOpenAttachmentDialog(true);
   };
   const handleAddAttachment = (e) => {
-    console.log("handleadd",e)
-    
-    setAttachmentsList((prev)=>{
-      return [...prev, ...e.detail.files]
-    })
-    //setOpenAddAttachmentDialog(true);
-  };
+  const files = Array.from(e.detail.files).map(file => ({
+    id: Date.now() + file.name,
+    name: file.name,
+    type: file.type,
+    size: file.size,
+    rawFile: file
+  }));
+
+  setAttachmentsList(prev => {
+      const updatedList = [...prev, ...files];
+      return updatedList;
+    });
+};
 
   return (
     <div>
@@ -74,7 +63,7 @@ const Attachments = () => {
          <Button design="Emphasized">Add New</Button> 
         </FileUploader> 
       </FlexBox>
-      <UploadCollection noDataDescription="No files uploaded">
+      <UploadCollection noDataDescription="No files uploaded">{console.log("attachmentsList",attachmentsList)}
         {attachmentsList.map((file) => (
           <UploadCollectionItem
             key={file.id}
@@ -82,23 +71,21 @@ const Attachments = () => {
             fileType={file.type}
             fileSize={file.size}
             uploadState="Complete"
-            deletable={false} // You can make it true and handle onDelete
+            deletable={false} // You can make it true and handle onDelete            onI
+            onItemDelete={(e) => {
+              const fileId = e.detail.item.getAttribute("data-id");
+              setAttachmentsList((prev) =>
+                prev.filter((file) => file.id !== parseInt(fileId))
+              );
+            }}
+            data-id={file.id}
             onClick={OpenAttachment}
           />
         ))}
       </UploadCollection>
-      
-     {/* <SelectedAttachmentDialog
-        openAttachmentDialog={openAttachmentDialog}   
-        setOpenAttachmentDialog={setOpenAttachmentDialog}
-        attachments={attachments}
-        setAttachments={setAttachments}
-      />
-      <AddAttachmentDialogPage
-      openAddAttachmentDialog={openAddAttachmentDialog}
-      setOpenAddAttachmentDialog={setOpenAddAttachmentDialog}/> */}
     </div>
   );
 };
 
 export default Attachments;
+

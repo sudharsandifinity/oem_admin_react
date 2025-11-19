@@ -59,6 +59,8 @@ const Contents = (props) => {
     setitemData,
     setitemTableData,
     itemTabledata,
+    summaryData,
+    setSummaryData,
     servicedata,
     setserviceData,
     setserviceTableData,
@@ -475,19 +477,6 @@ const saveItem = (item, index) => {
 
   return (
     <div>
-      {/* <DynamicPage
-        headerArea={
-          <DynamicPageHeader>
-            <Title level="H4">Type - Items</Title>
-          </DynamicPageHeader>
-        }
-        onPinButtonToggle={function Xs() {}}
-        onTitleToggle={function Xs() {}}
-        style={{
-          height: "600px",
-        }}
-      > */}
-      {/* <div className="tab"> */}
         <Card>
           <FlexBox direction="Column" style={{padding: '40px 30px', gap: '20px'}}>
             <FlexBox alignItems="Center">
@@ -504,19 +493,6 @@ const saveItem = (item, index) => {
                 startColumn={
                   <FlexBox direction="Column">
                     <div>
-                      {/* <AnalyticalTable
-                          data={loading ? placeholderRows : itemdata ? itemdata : []}
-                          columns={itemcolumns}
-                          groupBy={[]}
-                          scaleWidthMode="Smart"
-                          visibleRows={5}
-                          selectionMode="MultiSelect"
-                          selectedRowIds={rowSelection&&Object.keys(rowSelection)}  // 👈 ensures rows are preselected
-                          onRowSelect={(e) => onRowSelect(e)}
-                          rowHeight={44}
-                          headerRowHeight={48}
-                        /> */}
-                      {console.log("itemTabledata", itemTabledata, itemdata)}
                       {type === "Item" ? (
                         <Itemtable
                           addItemdialogOpen={addItemdialogOpen}
@@ -532,6 +508,8 @@ const saveItem = (item, index) => {
                           setitemData={setitemData}
                           setitemTableData={setitemTableData}
                           itemTabledata={itemTabledata}
+                          summaryData = {summaryData}
+                          setSummaryData = {setSummaryData}
                           dynamcicItemCols={dynamcicItemCols}
                           selectedRowIndex={selectedRowIndex}
                           setSelectedRowIndex={setSelectedRowIndex}
@@ -558,6 +536,8 @@ const saveItem = (item, index) => {
                           saveService={saveService}
                           servicedata={servicedata}
                           setserviceData={setserviceData}
+                          summaryData = {summaryData}
+                          setSummaryData = {setSummaryData}
                           setserviceTableData={setserviceTableData}
                           serviceTabledata={serviceTabledata}
                           dynamcicServiceCols={dynamcicServiceCols}
@@ -575,11 +555,6 @@ const saveItem = (item, index) => {
                         />
                       )}
                     </div>
-{/* <div>
-                                          <FreightTable
-                                          freightData={freightData}
-                                          setFreightData={setFreightData}/>
-                                        </div> */}
                   </FlexBox>
             }
                 midColumn={
@@ -615,8 +590,6 @@ const saveItem = (item, index) => {
             </div>
           </FlexBox>
         </Card>
-      {/* </div> */}
-      {/* </DynamicPage> */}
     </div>
   );
 };

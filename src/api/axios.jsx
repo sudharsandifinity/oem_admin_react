@@ -5,9 +5,6 @@ const api = axios.create({
   //baseURL: "http://192.168.100.82:3002/api/v1",
   baseURL: "http://localhost:3002/api/v1",
   timeout: 10000,
-  headers: {
-    "Content-Type": "application/json",
-  },
 });
 
 // SAP B1 Service Layer API

@@ -70,10 +70,15 @@ export default function SalesOrder() {
   const [open, setOpen] = useState(false);
   const [type,setType]= useState("Item");
   const [totalFreightAmount,setTotalFreightAmount]= useState(0);
+  const [attachmentFiles, setAttachmentFiles] = useState([]);
+    const [attachmentsList, setAttachmentsList] = useState([]);
+
+
  
   const [itemTabledata, setitemTableData] = useState([
     { slno: 1, ItemCode: "", ItemName: "", quantity: "", amount: "",  TaxCode:"" },
   ]);
+  const [summaryData, setSummaryData] = useState({});
   const [itemdata, setitemData] = useState([
     { slno: 1, ItemCode: "", ItemName: "", quantity: "", amount: "" },
   ]);
@@ -133,89 +138,99 @@ export default function SalesOrder() {
     const newRows = form[key].filter((_, idx) => idx !== i);
     setForm({ ...form, [key]: newRows });
   };
-  const handleSubmit = async (form) => {
-    console.log(
-      "Form submitted:",
-      form,formData,
-      rowSelection,
-      itemTabledata,
-      serviceTabledata,
-      itemdata
-    );
-    const filteredData = itemdata.filter((item) =>
-      itemTabledata.some(
-        (tableItem) =>
-          tableItem.ItemCode === item.ItemCode &&
-          tableItem.ItemName === item.ItemName
-      )
-    );
-    let payload={}
+
+  const handleSubmit = async () => {
     try {
       setLoading(true);
-      if(type==="Item"){
-        payload = {
-        CardCode: formData.CardCode,
-        DocDueDate: formData.DocDueDate
-          ? new Date(formData.DocDueDate)
-              .toISOString()
-              .split("T")[0]
-              .replace(/-/g, "")
-          : new Date().toISOString().split("T")[0].replace(/-/g, ""),
-        DocumentLines: Object.values(itemTabledata).map((line) => ({
-          ItemCode: line.ItemCode,
-          ItemDescription: line.ItemName,
-          Quantity: line.quantity,
-          UnitPrice: line.amount,
-          TaxCode: line.TaxCode,
-          VatGroup: line.TaxCode,
-          DiscountPercent: line.discount,
-          // PriceAfterVAT: line.TaxCode,
-          // TaxPerUnit: line.TaxCode,
-          // TaxTotal: line.TaxCode,
-          LineTotal: line.total,
-        })),
-        data:userdefinedData,
-        freight: totalFreightAmount,
-      };
-      }else{
-        payload = {
-        CardCode: formData.CardCode,
-        DocType: "dDocument_Service",
-        DocDueDate: formData.DocDueDate
-          ? new Date(formData.DocDueDate)
-              .toISOString()
-              .split("T")[0]
-              .replace(/-/g, "")
-          : new Date().toISOString().split("T")[0].replace(/-/g, ""),
-        DocumentLines: Object.values(serviceTabledata).map((line) => ({
-          AccountCode: line.ServiceCode,
-          ItemDescription: line.ServiceName, // ✅ rename to ItemDescription        
-          TaxCode: line.TaxCode,          
-          UnitPrice: line.amount,
-        })),
-        data:userdefinedData,
-        freight: totalFreightAmount,
+      let payload = {};
 
-      };
+      if (type === "Item") {
+        payload = {
+          CardCode: formData.CardCode,
+          DocDueDate:
+            formData.DocDueDate
+              ? new Date(formData.DocDueDate).toISOString().split("T")[0].replace(/-/g, "")
+              : new Date().toISOString().split("T")[0].replace(/-/g, ""),
+
+          DocumentLines: itemTabledata.map((line) => ({
+            ItemCode: line.ItemCode,
+            ItemDescription: line.ItemName,
+            Quantity: line.quantity,
+            UnitPrice: line.amount,
+            TaxCode: line.TaxCode,
+            VatGroup: line.TaxCode,
+            DiscountPercent: line.discount,
+            LineTotal: line.total,
+          })),
+
+          data: userdefinedData,
+
+          DocTotal: summaryData.DocTotal,
+          Rounding: summaryData.Rounding,
+          RoundingDiffAmount: summaryData.RoundingDiffAmount,
+          DiscountPercent: summaryData.DiscountPercent,
+          TotalDiscount: summaryData.TotalDiscount,
+          Comments: summaryData.Remark,
+          VatSum: summaryData.VatSum,
+          freight: totalFreightAmount,
+        };
+      } else {
+        payload = {
+          CardCode: formData.CardCode,
+          DocType: "dDocument_Service",
+          DocDueDate:
+            formData.DocDueDate
+              ? new Date(formData.DocDueDate).toISOString().split("T")[0].replace(/-/g, "")
+              : new Date().toISOString().split("T")[0].replace(/-/g, ""),
+
+          DocumentLines: serviceTabledata.map((line) => ({
+            AccountCode: line.ServiceCode,
+            ItemDescription: line.ServiceName,
+            TaxCode: line.TaxCode,
+            UnitPrice: line.amount,
+          })),
+
+          data: userdefinedData,
+          freight: totalFreightAmount,
+        };
       }
-      
 
-      console.log("payload", payload);
-      const res = await dispatch(createCustomerOrder(payload)).unwrap();
+      const formDataToSend = new FormData();
+        attachmentsList.forEach(f => {
+        if (f.rawFile) {
+          return formDataToSend.append("Attachments2_Lines", f.rawFile);
+        }
+      });
+
+      formDataToSend.append("DocumentLines", JSON.stringify(payload.DocumentLines));
+      formDataToSend.append("data", JSON.stringify(payload.data));
+
+      Object.keys(payload).forEach((key) => {
+        if (key !== "DocumentLines" && key !== "data") {
+          formDataToSend.append(key, payload[key]);
+        }
+      });
+      
+      const res = await dispatch(createCustomerOrder(formDataToSend)).unwrap();
+
       if (res.message === "Please Login!") {
         navigate("/login");
+        return;
       }
+
       setOpen(true);
+
     } catch (err) {
-      console.log("Failed to create branch", err);
-      setApiError(err?.message || "Failed to create branch");
+      console.error("Failed to create order:", err);
+      setApiError(err.message || "Error creating order");
     } finally {
       setTimeout(() => {
         setLoading(false);
-        setOpen(true); // open success dialog
-     }, 2000); // ✅ stop loader
-   }
+        setOpen(true);
+     }, 2000);
+    }
   };
+
   const renderInput = (field) => {
     const value = form[field.FieldName] || "";
 
@@ -442,7 +457,9 @@ export default function SalesOrder() {
               setitemData={setitemData}
               setitemTableData={setitemTableData}
               itemTabledata={itemTabledata}
-               servicedata={servicedata}
+              summaryData = {summaryData}
+              setSummaryData = {setSummaryData}
+              servicedata={servicedata}
               setserviceData={setserviceData}
               setserviceTableData={setserviceTableData}
               serviceTabledata={serviceTabledata}
@@ -458,6 +475,7 @@ export default function SalesOrder() {
               setType={setType}
               mode={"create"}
               setTotalFreightAmount={setTotalFreightAmount}
+              onSubmit={handleSubmit}
             />
           </ObjectPageSection>
           {/* );
@@ -500,7 +518,7 @@ export default function SalesOrder() {
             }}
             titleText="Attachments"
           >
-            <Attachments />
+            <Attachments onFilesChange={setAttachmentFiles} attachmentsList={attachmentsList} setAttachmentsList={setAttachmentsList}/>
           </ObjectPageSection>
           {/* );
         } else if (tab.name === "user-defined-field") {
