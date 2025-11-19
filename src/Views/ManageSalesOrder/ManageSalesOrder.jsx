@@ -457,7 +457,7 @@ const ManageSalesOrder = () => {
                               <ToolbarButton
                                 design="Default"
                                 onClick={() =>
-                                  navigate("/SalesOrder/create/" + formId)
+                                  navigate("/SalesOrder/create/" + formId+"/"+(tableData.length>0&&tableData[0]?.DocEntry+1))
                                 }
                                 text="Create"
                               />

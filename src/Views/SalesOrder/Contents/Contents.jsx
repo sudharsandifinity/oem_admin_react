@@ -44,8 +44,11 @@ import { useNavigate } from "react-router-dom";
 import { fetchOrderItems } from "../../../store/slices/CustomerOrderItemsSlice";
 import { set } from "react-hook-form";
 import { fetchOrderServices } from "../../../store/slices/CustomerOrderServiceSlice";
-import { fetchfreightDetails, fetchPurOrderAddDetails, fetchSalesOrderAddDetails } from "../../../store/slices/salesAdditionalDetailsSlice";
-
+import {
+  fetchfreightDetails,
+  fetchPurOrderAddDetails,
+  fetchSalesOrderAddDetails,
+} from "../../../store/slices/salesAdditionalDetailsSlice";
 
 const Contents = (props) => {
   const {
@@ -65,7 +68,9 @@ const Contents = (props) => {
     setserviceData,
     setserviceTableData,
     serviceTabledata,
-    type,setType,setTotalFreightAmount
+    type,
+    setType,
+    setTotalFreightAmount,
   } = props;
   const {
     fieldConfig,
@@ -87,11 +92,11 @@ const Contents = (props) => {
     amount: "-",
   });
   console.log("orderitem", orderItems);
- 
+
   const [addItemdialogOpen, setAddItemDialogOpen] = useState(false);
   const [addServiceDialogOpen, setAddServicedialogOpen] = useState(false);
-  const [taxData,setTaxData]=useState([]);
-  const [freightData,setFreightData]=useState([]);
+  const [taxData, setTaxData] = useState([]);
+  const [freightData, setFreightData] = useState([]);
   const [isFreightTableVisible, setIsFreightTableVisible] = useState(false);
 
   const [itemForm, setItemForm] = useState([]);
@@ -113,10 +118,18 @@ const Contents = (props) => {
     const fetchData = async () => {
       try {
         const res = await dispatch(fetchOrderItems()).unwrap();
-          const salesTaxCode = await dispatch(fetchSalesOrderAddDetails()).unwrap();
-          const freightData = await dispatch(fetchfreightDetails()).unwrap();
-          setFreightData(freightData.value);
-        console.log("resusersfetchitems", res, itemdata,salesTaxCode,freightData);
+        const salesTaxCode = await dispatch(
+          fetchSalesOrderAddDetails()
+        ).unwrap();
+        const freightData = await dispatch(fetchfreightDetails()).unwrap();
+        setFreightData(freightData.value);
+        console.log(
+          "resusersfetchitems",
+          res,
+          itemdata,
+          salesTaxCode,
+          freightData
+        );
         if (res.value?.length > 0) {
           const tableconfig = res.value.map((item, index) => ({
             slno: index,
@@ -125,13 +138,13 @@ const Contents = (props) => {
           }));
           mode === "create" && setitemData(tableconfig);
         }
-        if(salesTaxCode.value?.length>0){
+        if (salesTaxCode.value?.length > 0) {
           setTaxData(salesTaxCode.value);
         }
-       
+
         const serviceorder = await dispatch(fetchOrderServices()).unwrap();
-        console.log("serviceorder",serviceorder)
-         if (res.value?.length > 0) {
+        console.log("serviceorder", serviceorder);
+        if (res.value?.length > 0) {
           const tableconfig = serviceorder.value.map((item, index) => ({
             slno: index,
             ServiceCode: item.Code,
@@ -334,19 +347,19 @@ const Contents = (props) => {
       if (updated[updated.length - 1]?.ServiceCode === "") {
         updated.pop();
       }
-let nextSlno =
-      updated.length > 0 ? updated[updated.length - 1].slno + 1 : 0;
+      let nextSlno =
+        updated.length > 0 ? updated[updated.length - 1].slno + 1 : 0;
 
       // Convert to array if item is object form like {0: {...}, 1: {...}}
       const newItems = Array.isArray(item) ? item : Object.values(item);
 
       newItems.forEach((newItem) => {
-      updated.push({
-        ...newItem,
-        slno: nextSlno, 
+        updated.push({
+          ...newItem,
+          slno: nextSlno,
+        });
+        nextSlno++;
       });
-      nextSlno++; 
-    });
 
       return updated;
     });
@@ -375,32 +388,32 @@ let nextSlno =
   //   });
 
   // };
-const saveItem = (item, index) => {
-  setSelectedItems(rowSelection);
+  const saveItem = (item, index) => {
+    setSelectedItems(rowSelection);
 
-  setitemTableData((prev) => {
-    let updated = [...prev];
+    setitemTableData((prev) => {
+      let updated = [...prev];
 
-    if (updated.length > 0 && updated[updated.length - 1]?.ItemCode === "") {
-      updated.pop();
-    }
+      if (updated.length > 0 && updated[updated.length - 1]?.ItemCode === "") {
+        updated.pop();
+      }
 
-    let nextSlno =
-      updated.length > 0 ? updated[updated.length - 1].slno + 1 : 0;
+      let nextSlno =
+        updated.length > 0 ? updated[updated.length - 1].slno + 1 : 0;
 
-    const newItems = Array.isArray(item) ? item : Object.values(item);
+      const newItems = Array.isArray(item) ? item : Object.values(item);
 
-    newItems.forEach((newItem) => {
-      updated.push({
-        ...newItem,
-        slno: nextSlno, 
+      newItems.forEach((newItem) => {
+        updated.push({
+          ...newItem,
+          slno: nextSlno,
+        });
+        nextSlno++;
       });
-      nextSlno++; 
-    });
 
-    return updated;
-  });
-}
+      return updated;
+    });
+  };
   const handleitemRowChange = (item) => {
     console.log("handleitemRowChange", item);
   };
@@ -477,119 +490,151 @@ const saveItem = (item, index) => {
 
   return (
     <div>
-        <Card>
-          <FlexBox direction="Column" style={{padding: '40px 30px', gap: '20px'}}>
-            <FlexBox alignItems="Center">
-              <Label style={{minWidth: "200px"}}>Item/Service Type:</Label>
-              <Select value={type} style={{width: "200px"}} >
-                <Option onClick={() => setType("Item")}>Item</Option>
-                <Option onClick={() => setType("Service")}>Service</Option>
-              </Select>
-            </FlexBox>
-            <div>
-              <FlexibleColumnLayout
-                // style={{ height: "600px" }}
-                layout={layout}
-                startColumn={
-                  <FlexBox direction="Column">
-                    <div>
-                      {type === "Item" ? (
-                        <Itemtable
-                          addItemdialogOpen={addItemdialogOpen}
-                          setAddItemDialogOpen={setAddItemDialogOpen}
-                          itemTableColumn={itemTableColumn}
-                          renderIteminput={renderIteminput}
-                          form={form}
-                          handleChange={handleChange}
-                          setRowSelection={setRowSelection}
-                          rowSelection={rowSelection}
-                          saveItem={saveItem}
-                          itemdata={itemdata}
-                          setitemData={setitemData}
-                          setitemTableData={setitemTableData}
-                          itemTabledata={itemTabledata}
-                          summaryData = {summaryData}
-                          setSummaryData = {setSummaryData}
-                          dynamcicItemCols={dynamcicItemCols}
-                          selectedRowIndex={selectedRowIndex}
-                          setSelectedRowIndex={setSelectedRowIndex}
-                          mode={mode}
-                          selectedItems={selectedItems}
-                          taxData={taxData}
-                          setTaxData={setTaxData}
-                          freightData={freightData}
-                          setFreightData={setFreightData}
-                          setIsFreightTableVisible={setIsFreightTableVisible}
-                          isFreightTableVisible={isFreightTableVisible}
-                          setTotalFreightAmount={setTotalFreightAmount}
-                        />
-                      ) : (
-                        <ServiceTable
-                          addServiceDialogOpen={addServiceDialogOpen}
-                          setAddServicedialogOpen={setAddServicedialogOpen}
-                          serviceTableColumn={serviceTableColumn}
-                          renderIteminput={renderIteminput}
-                          form={form}
-                          handleChange={handleChange}
-                          setRowSelection={setRowSelection}
-                          rowSelection={rowSelection}
-                          saveService={saveService}
-                          servicedata={servicedata}
-                          setserviceData={setserviceData}
-                          summaryData = {summaryData}
-                          setSummaryData = {setSummaryData}
-                          setserviceTableData={setserviceTableData}
-                          serviceTabledata={serviceTabledata}
-                          dynamcicServiceCols={dynamcicServiceCols}
-                          selectedRowIndex={selectedRowIndex}
-                          setSelectedRowIndex={setSelectedRowIndex}
-                          mode={mode}
-                          selectedServices={selectedServices}
-                           taxData={taxData}
-                          setTaxData={setTaxData}
-                          freightData={freightData}
-                          setFreightData={setFreightData}
-                          setIsFreightTableVisible={setIsFreightTableVisible}
-                          isFreightTableVisible={isFreightTableVisible}
-                          setTotalFreightAmount={setTotalFreightAmount}
-                        />
-                      )}
-                    </div>
-                  </FlexBox>
-            }
-                midColumn={
-                  <Page
-                    header={
-                      <Bar
-                        endContent={
-                          <Button
-                            icon="sap-icon://decline"
-                            title="close"
-                            onClick={() => setLayout("OneColumn")}
-                          />
-                        }
-                        startContent={<Title level="H5">Preview Form</Title>}
-                      ></Bar>
-                    }
-                  >
-                    <div
-                      style={{
-                        display: "flex",
-                        flexDirection: "row",
-                        justifyContent: "center",
-                        alignItems: "start",
-                        height: "90%",
-                        verticalAlign: "middle",
-                      }}
-                    >
-                      <ItemViewPage viewItem={viewItem} />
-                    </div>
-                  </Page>
-                }
-              />
-            </div>
+      {/* <DynamicPage
+        headerArea={
+          <DynamicPageHeader>
+            <Title level="H4">Type - Items</Title>
+          </DynamicPageHeader>
+        }
+        onPinButtonToggle={function Xs() {}}
+        onTitleToggle={function Xs() {}}
+        style={{
+          height: "600px",
+        }}
+      > */}
+      {/* <div className="tab"> */}
+      <Card>
+        <FlexBox
+          direction="Column"
+          style={{ padding: "40px 30px", gap: "20px" }}
+        >
+          <FlexBox alignItems="Center">
+            <Label style={{ minWidth: "200px" }}>Item/Service Type:</Label>
+            <Select value={type} style={{ width: "200px" }}>
+              <Option onClick={() => setType("Item")}>Item</Option>
+              <Option onClick={() => setType("Service")}>Service</Option>
+            </Select>
           </FlexBox>
-        </Card>
+          <div>
+            <FlexibleColumnLayout
+              // style={{ height: "600px" }}
+              layout={layout}
+              startColumn={
+                <FlexBox direction="Column">
+                  <div>
+                    {/* <AnalyticalTable
+                          data={loading ? placeholderRows : itemdata ? itemdata : []}
+                          columns={itemcolumns}
+                          groupBy={[]}
+                          scaleWidthMode="Smart"
+                          visibleRows={5}
+                          selectionMode="MultiSelect"
+                          selectedRowIds={rowSelection&&Object.keys(rowSelection)}  // 👈 ensures rows are preselected
+                          onRowSelect={(e) => onRowSelect(e)}
+                          rowHeight={44}
+                          headerRowHeight={48}
+                        /> */}
+                    {console.log("itemTabledata", itemTabledata, itemdata)}
+                    {type === "Item" ? (
+                      <Itemtable
+                        addItemdialogOpen={addItemdialogOpen}
+                        setAddItemDialogOpen={setAddItemDialogOpen}
+                        itemTableColumn={itemTableColumn}
+                        renderIteminput={renderIteminput}
+                        form={form}
+                        handleChange={handleChange}
+                        setRowSelection={setRowSelection}
+                        rowSelection={rowSelection}
+                        saveItem={saveItem}
+                        itemdata={itemdata}
+                        setitemData={setitemData}
+                        setitemTableData={setitemTableData}
+                        itemTabledata={itemTabledata}
+                        dynamcicItemCols={dynamcicItemCols}
+                        selectedRowIndex={selectedRowIndex}
+                        setSelectedRowIndex={setSelectedRowIndex}
+                        mode={mode}
+                        selectedItems={selectedItems}
+                        taxData={taxData}
+                        setTaxData={setTaxData}
+                        freightData={freightData}
+                        setFreightData={setFreightData}
+                        setIsFreightTableVisible={setIsFreightTableVisible}
+                        isFreightTableVisible={isFreightTableVisible}
+                        setTotalFreightAmount={setTotalFreightAmount}
+                      />
+                    ) : (
+                      <ServiceTable
+                        addServiceDialogOpen={addServiceDialogOpen}
+                        setAddServicedialogOpen={setAddServicedialogOpen}
+                        serviceTableColumn={serviceTableColumn}
+                        renderIteminput={renderIteminput}
+                        form={form}
+                        handleChange={handleChange}
+                        setRowSelection={setRowSelection}
+                        rowSelection={rowSelection}
+                        saveService={saveService}
+                        servicedata={servicedata}
+                        setserviceData={setserviceData}
+                        setserviceTableData={setserviceTableData}
+                        serviceTabledata={serviceTabledata}
+                        dynamcicServiceCols={dynamcicServiceCols}
+                        selectedRowIndex={selectedRowIndex}
+                        setSelectedRowIndex={setSelectedRowIndex}
+                        mode={mode}
+                        selectedServices={selectedServices}
+                        taxData={taxData}
+                        setTaxData={setTaxData}
+                        freightData={freightData}
+                        setFreightData={setFreightData}
+                        setIsFreightTableVisible={setIsFreightTableVisible}
+                        isFreightTableVisible={isFreightTableVisible}
+                        setTotalFreightAmount={setTotalFreightAmount}
+                      />
+                    )}
+                  </div>
+                  {/* <div>
+                    <FreightTable
+                    freightData={freightData}
+                    setFreightData={setFreightData}/>
+                  </div> */}
+                </FlexBox>
+              }
+              midColumn={
+                <Page
+                  header={
+                    <Bar
+                      endContent={
+                        <Button
+                          icon="sap-icon://decline"
+                          title="close"
+                          onClick={() => setLayout("OneColumn")}
+                        />
+                      }
+                      startContent={<Title level="H5">Preview Form</Title>}
+                    ></Bar>
+                  }
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "row",
+                      justifyContent: "center",
+                      alignItems: "start",
+                      height: "90%",
+                      verticalAlign: "middle",
+                    }}
+                  >
+                    <ItemViewPage viewItem={viewItem} />
+                  </div>
+                </Page>
+              }
+            />
+          </div>
+        </FlexBox>
+      </Card>
+      {/* </div> */}
+      {/* </DynamicPage> */}
     </div>
   );
 };

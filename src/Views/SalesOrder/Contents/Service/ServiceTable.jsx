@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, useRef } from "react";
+import React, { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import {
   AnalyticalTable,
   Input,
@@ -30,6 +30,7 @@ import SettingsDialog from "../SettingsDialog";
 import { Tooltip } from "recharts";
 import TaxDialog from "../Item/TaxPopup/TaxDialog";
 import FreightTable from "../FreightTable";
+import Freight from "../Freight/Freight";
 
 const Servicetable = (props) => {
   const {
@@ -77,6 +78,12 @@ const Servicetable = (props) => {
   const [settingsDialogOpen, setSettingsDialogOpen] = useState(false);
   const [copySelectedRow, setCopySelectedRow] = useState([]);
 
+  const [summaryDiscountPercent, setSummaryDiscountPercent] = useState(0);
+    const [summaryDiscountAmount, setSummaryDiscountAmount] = useState(0);
+    const [roundingEnabled, setRoundingEnabled] = useState(false);
+    const [roundOff, setRoundOff] = useState(0);
+    const [finalTotal, setFinalTotal] = useState("0.00");
+  
   const [serviceDialogOpen, setserviceDialogOpen] = useState(false);
   const [isTaxDialogOpen, setisTaxDialogOpen] = useState(false);
 
@@ -163,7 +170,8 @@ const Servicetable = (props) => {
     setIsAddNewRow(true);
     setserviceTableData([
       ...serviceTabledata,
-      { ServiceCode: "", ServiceName: "", quantity: 0, amount: 0 },
+      { ServiceCode: "", ServiceName: "", quantity: 0, amount: 0,discount: 0,
+        TaxCode: "", },
     ]);
   };
   const duplicateRow = () => {
@@ -254,6 +262,32 @@ const Servicetable = (props) => {
       }));
     });
   };
+  const calculateRowTotals = (row) => {
+    console.log("calculateRowTotalsrow",row)
+      const quantity = parseFloat(row.quantity) || 1;
+      const unitPrice = parseFloat(row.unitPrice || row.amount) || 0;
+      const discount = parseFloat(row.discount) || 0;
+      const taxPercent = parseFloat(row.TaxRate) || 0;
+  
+      const effectiveDiscount = discount + summaryDiscountPercent;
+  
+      const baseAmount = quantity * unitPrice;
+      const discountAmt = baseAmount * (effectiveDiscount / 100);
+      const taxable = baseAmount - discountAmt;
+      const taxAmt = taxable * (taxPercent / 100);
+      const grossTotal = taxable + taxAmt;
+  
+      return {
+        ...row,
+        BaseAmount: taxable.toFixed(2),
+        TaxRate: taxAmt.toFixed(2),
+        grosstotal: grossTotal.toFixed(2),
+      };
+    };
+  
+    useEffect(() => {
+      setserviceTableData((prev) => prev.map((row) => calculateRowTotals(row)));
+    }, [summaryDiscountPercent]);
   // const deleteRow = (serviceCodeToRemove) => {
   //   console.log("delete", serviceTabledata, rowSelection, serviceCodeToRemove);
 
@@ -331,6 +365,46 @@ const Servicetable = (props) => {
     setserviceData(updatedRows);
     setDialogOpen(false);
   };
+    const summaryCalculation = useMemo(() => {
+      const cal = serviceTabledata.reduce(
+        (acc, item) => {
+          const bdTotal = parseFloat(item.BaseAmount) || 0;
+          const taxTotal = parseFloat(item.TaxRate) || 0;
+          acc.totalBeforeDiscount += bdTotal;
+          acc.totalTaxAmount += taxTotal;
+          return acc;
+        },
+        {
+          totalBeforeDiscount: 0,
+          totalTaxAmount: 0,
+        }
+      );
+      return {
+        totalBeforeDiscount: cal.totalBeforeDiscount.toFixed(2),
+        totalTaxAmount: cal.totalTaxAmount.toFixed(2),
+      };
+    }, [serviceTabledata]);
+     useMemo(() => {
+        const total = parseFloat(summaryCalculation.totalBeforeDiscount) || 0;
+        const discountAmount = (total * summaryDiscountPercent) / 100;
+        setSummaryDiscountAmount(discountAmount.toFixed(2));
+      }, [summaryDiscountPercent, summaryCalculation.totalBeforeDiscount]);
+    
+      useMemo(() => {
+        const bdTotal = parseFloat(summaryCalculation.totalBeforeDiscount) || 0;
+        const discount = parseFloat(summaryDiscountAmount) || 0;
+        const totalTax = parseFloat(summaryCalculation.totalTaxAmount) || 0;
+        const r = roundingEnabled ? parseFloat(roundOff) || 0 : 0;
+    
+        const result = bdTotal - discount + totalTax + r;
+        setFinalTotal(result.toFixed(2));
+      }, [
+        summaryCalculation.totalBeforeDiscount,
+        summaryCalculation.totalTaxAmount,
+        summaryDiscountAmount,
+        roundOff,
+        roundingEnabled,
+      ]);
   const totalAmount = useMemo(() => {
     console.log("serviceTabledatatotalamount", serviceTabledata);
     return (
@@ -357,23 +431,19 @@ const Servicetable = (props) => {
     const rows = Object.values(freightRowSelection || {});
 
     return rows.reduce((sum, item) => {
-      const amt = parseFloat(item.ExpenseAccount || 0); // <-- Correct field
+      const amt = parseFloat(item.grossTotal || 0); // <-- Correct field
       return sum + amt;
     }, 0);
   }, [freightRowSelection]);
   const taxSelectionRow = (e) => {
     console.log("taxSelectionRow", serviceTabledata, e);
-    setserviceTableData((prev) =>
-      prev.map((r, idx) =>
+     const rate = e.detail.row.original.VatGroups_Lines.at(-1)?.Rate;
+    const code = e.detail.row.original.Code;
+ setserviceTableData((prev) =>
+      prev.map((row, idx) =>
         idx === selectedTaxRowIndex
-          ? {
-              ...r,
-              TaxCode:
-                e.detail.row.original.VatGroups_Lines[
-                  e.detail.row.original.VatGroups_Lines.length - 1
-                ]?.Rate,
-            }
-          : r
+          ? calculateRowTotals({ ...row, TaxCode: code, TaxRate: rate })
+          : row
       )
     );
     setserviceData((prev) =>
@@ -534,7 +604,64 @@ const Servicetable = (props) => {
         ),
       },
       {
-        Header: "Tax",
+              Header: "Discount (%)",
+              accessor: "discount",
+              Cell: ({ row, value }) => (
+                <Input
+                  style={{ textAlign: "right" }}
+                  type="number"
+                  disabled={mode === "view"}
+                  value={value}
+                  onChange={(e) => {
+                    const newValue = e.target.value;
+                    const rowIndex = row.index;
+                    setserviceTableData((prev) => {
+                      const updated = [...prev];
+                      updated[rowIndex] = {
+                        ...updated[rowIndex],
+                        discount: newValue,
+                      };
+                      return updated;
+                    });
+                  }}
+                  onInput={(e) => {
+                    const newValue = e.target.value;
+                    const rowIndex = row.index;
+      
+                    setserviceTableData((prev) => {
+                      const updated = [...prev];
+                      const newRow = { ...updated[rowIndex], discount: newValue };
+                      updated[rowIndex] = calculateRowTotals(newRow);
+                      return updated;
+                    });
+                  }}
+                />
+              ),
+            },
+            {
+              Header: "Total",
+              accessor: "total",
+              Cell: ({ row, value }) => (
+                <Input
+                  value={row.original.BaseAmount}
+                  readonly
+                  disabled={mode === "view"}
+                  style={{
+                    border: "none",
+                    borderBottom: "1px solid #ccc",
+                    backgroundColor: "transparent",
+                    outline: "none",
+                    padding: "4px 0",
+                    fontSize: "14px",
+                    transition: "border-color 0.2s",
+                  }}
+                  onFocus={(e) => (e.target.style.borderBottom = "1px solid #007aff")}
+                  onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
+                />
+              ),
+            },
+      {
+        Header: "Tax Code",
         accessor: "TaxCode",
         Cell: ({ row }) => (
           <Input
@@ -562,6 +689,71 @@ const Servicetable = (props) => {
           />
         ),
       },
+      {
+              Header: "Tax Amount",
+              accessor: "TaxRate",
+              Cell: ({ row }) => (
+                <Input
+                  value={row.original.TaxRate}
+                  readonly
+                  disabled={mode === "view"}
+                  style={{
+                    border: "none",
+                    borderBottom: "1px solid #ccc",
+                    backgroundColor: "transparent",
+                    outline: "none",
+                    padding: "4px 0",
+                    fontSize: "14px",
+                    transition: "border-color 0.2s",
+                  }}
+                  onFocus={(e) => (e.target.style.borderBottom = "1px solid #007aff")}
+                  onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
+                  onClick={() =>
+                    // !row.original.TaxCode &&
+                    {
+                      setSelectedTaxRowIndex(row.index);
+                      setisTaxDialogOpen(true);
+                    }
+                  }
+                />
+              ),
+            },
+            {
+              Header: "Gross Total",
+              accessor: "grosstotal",
+              Cell: ({ row, value }) => (
+                <Input
+                  style={{ textAlign: "right" }}
+                  readonly
+                  type="number"
+                  disabled={mode === "view"}
+                  value={value || ""}
+                  onChange={(e) => {
+                    const newValue = e.target.value;
+                    const rowIndex = row.index;
+                    setserviceTableData((prev) => {
+                      const updated = [...prev];
+                      updated[rowIndex] = {
+                        ...updated[rowIndex],
+                        discount: newValue,
+                      };
+                      return updated;
+                    });
+                  }}
+                  onInput={(e) => {
+                    const newValue = e.target.value;
+                    const rowId = row.original.id;
+                    setserviceData((prev) => {
+                      const updated = [...prev];
+                      const idx = updated.findIndex((r) => r.id === rowId);
+                      if (idx > -1)
+                        updated[idx] = { ...updated[idx], discount: newValue };
+                      return updated;
+                    });
+                  }}
+                />
+              ),
+            },
       {
         Header: "Actions",
         accessor: "actions",
@@ -698,102 +890,154 @@ const Servicetable = (props) => {
         style={{ marginTop: "1rem", paddingRight: "2rem" }}
       > */}
       <div style={{ paddingTop: "3rem" }}>
-        <FreightTable
+        <Freight
+          mode={mode}
           freightData={freightData}
           setFreightData={setFreightData}
           freightdialogOpen={freightdialogOpen}
           setfreightDialogOpen={setfreightDialogOpen}
           onselectFreightRow={onselectFreightRow}
+          freightRowSelection={freightRowSelection}
+          setFreightRowSelection={setFreightRowSelection}
+           taxData={taxData}
+        setTaxData={setTaxData}
+         inputvalue={inputvalue}
+        setInputValue={setInputValue}
         />
       </div>
-      <FlexBox
-        style={{
-          marginTop: "3rem",
-        }}
-      >
-        <FlexBox style={{ width: "80%" }}></FlexBox>
-        <FlexBox
-          direction="Column"
-          alignItems="FlexStart"
-          style={{ width: "30%", gap: "10px" }}
-        >
-          <Title level="H3">Total Summary</Title>
-          <FlexBox>
-            <Label showColon style={{ minWidth: "200px" }}>
-              Total Before Discount
-            </Label>
-            <FlexBox style={{ width: "100%" }} justifyContent="End">
-              {totalAmount.toLocaleString(undefined, {
-                minimumFractionDigits: 2,
-              })}
-            </FlexBox>
-          </FlexBox>
-          <FlexBox alignItems="Center">
-            <Label showColon style={{ minWidth: "200px" }}>
-              Discount
-            </Label>
-            <FlexBox
-              style={{ width: "100%" }}
-              justifyContent="SpaceBetween"
-              alignItems="Center"
-            >
-              <FlexBox alignItems="Center">
-                <Input />%
-              </FlexBox>
-              <Text>0.00</Text>
-            </FlexBox>
-          </FlexBox>
-          <FlexBox>
-            <Label showColon style={{ minWidth: "200px" }}>
-              Freight
-            </Label>
-            <FlexBox style={{ width: "100%" }} justifyContent="End">
-              {console.log("itemFreightAmount", totalFreightAmount)}
-              {setTotalFreightAmount(totalFreightAmount)}{" "}
-              <Text>
-                {" "}
-                {totalFreightAmount.toLocaleString(undefined, {
-                  minimumFractionDigits: 2,
-                })}
-              </Text>
-            </FlexBox>
-          </FlexBox>
-          <FlexBox>
-            <Label showColon style={{ minWidth: "200px" }}>
-              Tax
-            </Label>
-            <FlexBox style={{ width: "100%" }} justifyContent="End">
-              <Text>
-                {" "}
-                {totaltax.toLocaleString(undefined, {
-                  minimumFractionDigits: 2,
-                })}
-              </Text>
-            </FlexBox>
-          </FlexBox>
-          <FlexBox alignItems="Center">
-            <Label showColon style={{ minWidth: "200px" }}>
-              Rounding
-            </Label>
-            <FlexBox
-              style={{ width: "100%" }}
-              justifyContent="SpaceBetween"
-              alignItems="Center"
-            >
-              <CheckBox />
-              <Text>0.00</Text>
-            </FlexBox>
-          </FlexBox>
-          <FlexBox>
-            <Label showColon style={{ minWidth: "200px" }}>
-              Total
-            </Label>
-            <FlexBox style={{ width: "100%" }} justifyContent="End">
-              <Text>0.00</Text>
-            </FlexBox>
-          </FlexBox>
-        </FlexBox>
-      </FlexBox>
+     <FlexBox
+             style={{
+               marginTop: "3rem",
+             }}
+           >
+             <FlexBox style={{ width: "80%" }}></FlexBox>
+             <FlexBox
+               direction="Column"
+               alignItems="FlexStart"
+               style={{ width: "30%", gap: "10px" }}
+             >
+               <Title level="H3" style={{ marginBottom: "16px" }}>
+                 Total Summary
+               </Title>
+               <FlexBox>
+                 <Label showColon style={{ minWidth: "200px" }}>
+                   Total Before Discount
+                 </Label>
+                 <FlexBox style={{ width: "100%" }} justifyContent="End">
+                   {summaryCalculation.totalBeforeDiscount}
+                 </FlexBox>
+               </FlexBox>
+               <FlexBox alignItems="Center">
+                 <Label showColon style={{ minWidth: "200px" }}>
+                   Discount
+                 </Label>
+                 <FlexBox
+                   style={{ width: "100%" }}
+                   justifyContent="SpaceBetween"
+                   alignItems="Center"
+                 >
+                   <FlexBox alignItems="Center">
+                     <Input
+                       type="Number"
+                       style={{ textAlign: "right" }}
+                       value={summaryDiscountPercent}
+                       onInput={(e) => {
+                         const value = parseFloat(e.target.value) || 0;
+                         setSummaryDiscountPercent(value);
+                       }}
+                     />
+                     %
+                   </FlexBox>
+                   <Text>{summaryDiscountAmount}</Text>
+                 </FlexBox>
+               </FlexBox> 
+               <FlexBox>
+                 <Label
+                   showColon
+                   style={{ minWidth: "200px", marginBottom: "10px" }}
+                 >
+                   Freight
+                 </Label>
+                 <Button
+                   design="Default"
+                   onClick={()=>setfreightDialogOpen(true)}
+                   tooltip="Freight"
+                   // make the button compact so only icon shows visually:
+                 >
+                   <Icon
+                   tooltip="Add Freight"
+                     name="arrow-right"
+                     style={{
+                       color: "#ff9e00",
+                       width: "18px",
+                       height: "18px",
+                       fontSize: "18px",
+                     }}
+                   />
+                 </Button>
+                 <FlexBox style={{ width: "100%" }} justifyContent="End">
+                   {console.log("itemFreightAmount", totalFreightAmount)}
+                   {setTotalFreightAmount(totalFreightAmount)}{" "}
+                   <Text>
+                     {" "}
+                     {totalFreightAmount.toLocaleString(undefined, {
+                       minimumFractionDigits: 2,
+                     })}
+                   </Text>
+                 </FlexBox>
+               </FlexBox>
+               <FlexBox>
+                 <Label showColon style={{ minWidth: "200px" }}>
+                   Tax
+                 </Label>
+                 <FlexBox style={{ width: "100%" }} justifyContent="End">
+                   <Text> {summaryCalculation.totalTaxAmount}</Text>
+                 </FlexBox>
+               </FlexBox>
+               <FlexBox alignItems="Center">
+                 <Label showColon style={{ minWidth: "200px" }}>
+                   Rounding
+                 </Label>
+                 <FlexBox
+                   style={{ width: "100%" }}
+                   justifyContent="SpaceBetween"
+                   alignItems="Center"
+                 >
+                   <CheckBox
+                     checked={roundingEnabled}
+                     onChange={(e) => {
+                       const checked = e.target.checked;
+                       setRoundingEnabled(checked);
+                       if (!checked) {
+                         setRoundOff(0);
+                       }
+                     }}
+                   />
+                   {roundingEnabled ? (
+                     <Input
+                       type="number"
+                       value={roundOff}
+                       style={{ textAlign: "right" }}
+                       onInput={(e) => setRoundOff(parseFloat(e.target.value) || 0)}
+                     />
+                   ) : (
+                     <Text>{roundOff.toFixed(2)}</Text>
+                   )}
+                 </FlexBox>
+               </FlexBox>
+               <FlexBox>
+                 <Label showColon style={{ minWidth: "200px" }}>
+                   Total
+                 </Label>
+                 <FlexBox
+                   style={{ width: "100%", fontWeight: "bold" }}
+                   justifyContent="End"
+                 >
+                   <Text>{finalTotal}</Text>
+                 </FlexBox>
+               </FlexBox>
+             </FlexBox>
+           </FlexBox>
       <Dialog
         headerText="Select Service"
         open={dialogOpen}
