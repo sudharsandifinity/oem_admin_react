@@ -67,6 +67,8 @@ const EditSalesOrder = () => {
   const user = useSelector((state) => state.auth.user);
   const [open, setOpen] = useState(false);
   const [attachmentsList, setAttachmentsList] = useState([]);
+  const [attachmentFiles, setAttachmentFiles] = useState([]);
+  const [oldAttachmentFiles, setOldAttachmentFiles] = useState([]);
 
   const [tabList, setTabList] = useState([]);
   const [formDetails, setFormDetails] = useState([]);
@@ -125,13 +127,10 @@ const EditSalesOrder = () => {
           fetchAttachmentDetailsById(orderListById.AttachmentEntry)
         ).unwrap();
         console.log("attachmentListById", attachmentListById);
-        setAttachmentsList(
-          attachmentListById.Attachments2_Lines.map((line) => ({
-              name: line.FileName,
-              type: line.FileExtension,
-              size: line.FileSize,
-            }))
-          )
+        setOldAttachmentFiles(prev => ({
+          ...prev,
+          Attachments2_Lines: attachmentListById.Attachments2_Lines
+        }));
         if (orderListById) {
           // 1. Store order header info
           setFormData({
@@ -402,7 +401,21 @@ const EditSalesOrder = () => {
           freight: totalFreightAmount,
         };
       }
-      console.log("payload", payload);
+      const formDataToSend = new FormData();
+        attachmentsList.forEach(f => {
+        if (f.rawFile) {
+          return formDataToSend.append("Attachments2_Lines", f.rawFile);
+        }
+      });
+
+      formDataToSend.append("DocumentLines", JSON.stringify(payload.DocumentLines));
+      formDataToSend.append("data", JSON.stringify(payload.data));
+
+      Object.keys(payload).forEach((key) => {
+        if (key !== "DocumentLines" && key !== "data") {
+          formDataToSend.append(key, payload[key]);
+        }
+      });
       const res = await dispatch(
         updateCustomerOrder({ id, data: payload })
       ).unwrap();
@@ -647,10 +660,7 @@ const EditSalesOrder = () => {
             }}
             titleText="Attachments"
           >
-            <Attachments
-              attachmentsList={attachmentsList}
-              setAttachmentsList={setAttachmentsList}
-            />
+            <Attachments onFilesChange={setAttachmentFiles} attachmentsList={attachmentsList} setAttachmentsList={setAttachmentsList} oldAttachmentFiles={oldAttachmentFiles} setOldAttachmentFiles={setOldAttachmentFiles} />
           </ObjectPageSection>
 
           <ObjectPageSection
