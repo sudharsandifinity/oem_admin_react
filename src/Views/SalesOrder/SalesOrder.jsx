@@ -72,10 +72,6 @@ export default function SalesOrder() {
   const [type,setType]= useState("Item");
   const [totalFreightAmount,setTotalFreightAmount]= useState(0);
   const [attachmentFiles, setAttachmentFiles] = useState([]);
-    const [attachmentsList, setAttachmentsList] = useState([]);
-
-
- 
   const [itemTabledata, setitemTableData] = useState([
     {
       slno: 1,
