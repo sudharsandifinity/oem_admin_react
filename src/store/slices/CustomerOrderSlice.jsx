@@ -85,6 +85,7 @@ export const updateCustomerOrder = createAsyncThunk(
     try {
       console.log("🚀 Sending order to API:", data);
       const response = await api.patch(`${API_URL}/${id}`, data, {
+         headers: { "Content-Type": "multipart/form-data" },
         withCredentials: true,
         timeout: 60000,
       });
