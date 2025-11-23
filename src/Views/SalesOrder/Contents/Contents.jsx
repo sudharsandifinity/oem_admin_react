@@ -71,6 +71,14 @@ const Contents = (props) => {
     type,
     setType,
     setTotalFreightAmount,
+    freightRowSelection,
+    setFreightRowSelection,
+    summaryDiscountAmount,
+    setSummaryDiscountAmount,
+    summaryDiscountPercent,
+    setSummaryDiscountPercent,
+    roundingEnabled, setRoundingEnabled,
+    roundOff, setRoundOff
   } = props;
   const {
     fieldConfig,
@@ -79,6 +87,7 @@ const Contents = (props) => {
     itemTableColumn,
     serviceTableColumn,
     itemData,
+
     //servicedata,
   } = useContext(FormConfigContext);
   const tableRef = useRef();
@@ -562,6 +571,17 @@ const Contents = (props) => {
                         setIsFreightTableVisible={setIsFreightTableVisible}
                         isFreightTableVisible={isFreightTableVisible}
                         setTotalFreightAmount={setTotalFreightAmount}
+                        setSummaryData={setSummaryData}
+                        freightRowSelection={freightRowSelection}
+                        setFreightRowSelection={setFreightRowSelection}
+                        summaryDiscountAmount={summaryDiscountAmount}
+            setSummaryDiscountAmount={setSummaryDiscountAmount}
+            summaryDiscountPercent={summaryDiscountPercent}
+            setSummaryDiscountPercent={setSummaryDiscountPercent}
+            roundingEnabled={roundingEnabled} 
+            setRoundingEnabled={setRoundingEnabled}
+            roundOff={roundOff} 
+            setRoundOff={setRoundOff}
                       />
                     ) : (
                       <ServiceTable
@@ -590,6 +610,16 @@ const Contents = (props) => {
                         setIsFreightTableVisible={setIsFreightTableVisible}
                         isFreightTableVisible={isFreightTableVisible}
                         setTotalFreightAmount={setTotalFreightAmount}
+                        freightRowSelection={freightRowSelection}
+                        setFreightRowSelection={setFreightRowSelection}
+                        summaryDiscountAmount={summaryDiscountAmount}
+            setSummaryDiscountAmount={setSummaryDiscountAmount}
+            summaryDiscountPercent={summaryDiscountPercent}
+            setSummaryDiscountPercent={setSummaryDiscountPercent}
+            roundingEnabled={roundingEnabled} 
+            setRoundingEnabled={setRoundingEnabled}
+            roundOff={roundOff} 
+            setRoundOff={setRoundOff}
                       />
                     )}
                   </div>
