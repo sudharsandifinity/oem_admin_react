@@ -1,4 +1,4 @@
-import menu2Icon from '@ui5/webcomponents-icons/dist/menu2.js';
+import menu2Icon from "@ui5/webcomponents-icons/dist/menu2.js";
 import {
   Avatar,
   Button,
@@ -6,21 +6,29 @@ import {
   Select,
   ShellBar,
   ShellBarBranding,
-  ShellBarSearch
-} from '@ui5/webcomponents-react';
+  ShellBarSearch,
+} from "@ui5/webcomponents-react";
 
-import { useRef, useState } from 'react';
-import avatarPng from '../../assets/Image/no-profile.png';
-import SapLogoSvg from '../../assets/Image/hamtinfotech-logo.webp';
-import ManageUser from '../ManageUser/ManageUser';
-import { useSelector } from 'react-redux';
+import { useRef, useState } from "react";
+import avatarPng from "../../assets/Image/no-profile.png";
+import SapLogoSvg from "../../assets/Image/hamtinfotech-logo.webp";
+import ManageUser from "../ManageUser/ManageUser";
+import { useSelector } from "react-redux";
 
-export default function TopNav({ collapsed, setCollapsed, selectedCompany, setSelectedCompany, selectedBranch, setSelectedBranch, ...rest }) {
+export default function TopNav({
+  collapsed,
+  setCollapsed,
+  selectedCompany,
+  setSelectedCompany,
+  selectedBranch,
+  setSelectedBranch,
+  ...rest
+}) {
   const userMenuRef = useRef(null);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
-   const handleMenuBtnClick = () => {
-    setCollapsed(prev => !prev);
+  const handleMenuBtnClick = () => {
+    setCollapsed((prev) => !prev);
   };
 
   const handleProfileClick = (e) => {
@@ -38,62 +46,105 @@ export default function TopNav({ collapsed, setCollapsed, selectedCompany, setSe
   const handleBranchClick = (branchname) => {
     setSelectedBranch(branchname);
   };
-  
+  // Remove duplicate companies by Company.id
+  const uniqueCompanies = companies
+    ? Object.values(
+        companies.reduce((acc, item) => {
+          acc[item.Company.id] = item.Company; // store only company
+          return acc;
+        }, {})
+      )
+    : [];
+
+  // Remove duplicate branches by branch.id
+const uniqueBranches = selectedCompany
+  ? Object.values(
+      companies
+        .filter((c) => c.companyId === selectedCompany) // ✔ get only selected company branches
+        .reduce((acc, item) => {
+          acc[item.id] = { id: item.id, name: item.name }; // ✔ remove duplicates
+          return acc;
+        }, {})
+    )
+  : [];
+  console.log("selectedCompany",uniqueBranches)
+
   return (
     <>
       <ShellBar
         {...rest}
         id="shellbar"
-        style={{padding: '0 1rem'}}
+        style={{ padding: "0 1rem" }}
         notificationsCount=""
         onProfileClick={handleProfileClick}
         startButton={
-            <Button
-              id="menu-button"
-              icon={menu2Icon}
-              style={{color:collapsed ? '':'#006d86'}}
-              tooltip="Toggle side navigation"
-              accessibleName="Toggle side navigation"
-              onClick={handleMenuBtnClick}
-            />
+          <Button
+            id="menu-button"
+            icon={menu2Icon}
+            style={{ color: collapsed ? "" : "#006d86" }}
+            tooltip="Toggle side navigation"
+            accessibleName="Toggle side navigation"
+            onClick={handleMenuBtnClick}
+          />
         }
         branding={
-          <ShellBarBranding logo={<div style={{height: '40px', maxHeight: 'max-content', maxWidth: 'max-content'}}>
-            <img src={SapLogoSvg} alt="SAP Logo" style={{width: '100%', height: '100%'}} />
-          </div>}>
-          </ShellBarBranding>
+          <ShellBarBranding
+            logo={
+              <div
+                style={{
+                  height: "40px",
+                  maxHeight: "max-content",
+                  maxWidth: "max-content",
+                }}
+              >
+                <img
+                  src={SapLogoSvg}
+                  alt="SAP Logo"
+                  style={{ width: "100%", height: "100%" }}
+                />
+              </div>
+            }
+          ></ShellBarBranding>
         }
-         content={
-          <div style={{width:'100%', display:'flex', gap:'16px', marginLeft:'15%'}}>
-              <Select
-                  style={{ width: "100%", minWidth: '250px' }}
-                  onChange={(e) =>
-                  handleCompanyClick(e.detail.selectedOption.value)
-                  }
-              >
-                  <Option key="" value="">
-                  Select Company
-                  </Option>
-                  {companies&&companies.map((branch) => (
-                  <Option key={branch.Company.id} value={branch.Company.id}>
-                      {branch.Company.name}
-                  </Option>
-                  ))}
-              </Select>
-              <Select
-                  style={{ width: "100%", minWidth: '250px' }}
-                  disabled={!selectedCompany}
-                  onChange={(e) =>
-                  handleBranchClick(e.detail.selectedOption.value)
-                  }
-              >
-                  <Option>Select Branch</Option>
-                  {companies&&companies.map((branch) => (
-                  <Option key={branch.id} value={branch.id}>
-                      {branch.name}
-                  </Option>
-                  ))}
-              </Select>
+        content={
+          <div
+            style={{
+              width: "100%",
+              display: "flex",
+              gap: "16px",
+              marginLeft: "15%",
+            }}
+          >
+            {/* Company Dropdown */}
+            <Select
+              style={{ width: "100%", minWidth: "250px" }}
+              onChange={(e) =>
+                handleCompanyClick(e.detail.selectedOption.value)
+              }
+            >
+              <Option value="">Select Company</Option>
+
+              {uniqueCompanies.map((company) => (
+                <Option key={company.id} value={company.id}>
+                  {company.name}
+                </Option>
+              ))}
+            </Select>
+
+            {/* Branch Dropdown */}
+            <Select
+              style={{ width: "100%", minWidth: "250px" }}
+              disabled={!selectedCompany}
+              onChange={(e) => handleBranchClick(e.detail.selectedOption.value)}
+            >
+              <Option value="">Select Branch</Option>
+
+              {uniqueBranches.map((branch) => (
+                <Option key={branch.id} value={branch.id}>
+                  {branch.name}
+                </Option>
+              ))}
+            </Select>
           </div>
         }
         searchField={
@@ -101,18 +152,19 @@ export default function TopNav({ collapsed, setCollapsed, selectedCompany, setSe
             id="search-scope"
             showClearIcon
             placeholder="Search"
-          >
-          </ShellBarSearch>
+          ></ShellBarSearch>
         }
         profile={
           <Avatar>
             <img src={avatarPng} alt="User Avatar" />
           </Avatar>
         }
-      >
-      </ShellBar>
-      <ManageUser open={userMenuOpen} ref={userMenuRef} setOpen={setUserMenuOpen} />
-
+      ></ShellBar>
+      <ManageUser
+        open={userMenuOpen}
+        ref={userMenuRef}
+        setOpen={setUserMenuOpen}
+      />
     </>
   );
 }

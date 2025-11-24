@@ -486,10 +486,14 @@ const EditSalesOrder = () => {
         "DocumentLines",
         JSON.stringify(payload.DocumentLines)
       );
+       formDataToSend.append(
+        "DocumentAdditionalExpenses",
+        JSON.stringify(payload.DocumentAdditionalExpenses)
+      );
       formDataToSend.append("data", JSON.stringify(payload.data));
 
       Object.keys(payload).forEach((key) => {
-        if (key !== "DocumentLines" && key !== "data") {
+        if (key !== "DocumentLines" && key !== "data"&& key !== "DocumentAdditionalExpenses") {
           formDataToSend.append(key, payload[key]);
         }
       });
@@ -663,6 +667,7 @@ const EditSalesOrder = () => {
                 onSubmit={handleSubmit}
                 setFormData={setFormData}
                 formData={formData}
+                mode={"edit"}
                 defaultValues={formData} // ✅ now passes edit data properly
                 apiError={apiError}
               />
@@ -688,6 +693,7 @@ const EditSalesOrder = () => {
               setserviceData={setserviceData}
               setserviceTableData={setserviceTableData}
               serviceTabledata={serviceTabledata}
+              summaryData={summaryData}
               setSummaryData={setSummaryData}
               orderItems={orderItems}
               loading={loading}
@@ -768,6 +774,7 @@ freightRowSelection={freightRowSelection}
               handleChange={handleChange}
               userdefinedData={userdefinedData}
               setUserDefinedData={setUserDefinedData}
+              mode={"edit"}
               setFormData={setFormData}
               formData={formData}
             />
