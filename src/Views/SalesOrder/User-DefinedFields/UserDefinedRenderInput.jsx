@@ -33,6 +33,7 @@ export const UserDefinedRenderInput = (
   dialogOpen,
   setDialogOpen,
   selectedKey,
+  mode,
   setSelectedKey,
   setFormData,
   setValue,
@@ -43,7 +44,7 @@ export const UserDefinedRenderInput = (
   selectedcardcode,
   setSelectedCardCode,
   selectedCard,
-  setSelectedCard
+  setSelectedCard,
 ) => {
   const value = form[field.field_name] ? form[field.field_name] : "";
   {
@@ -78,6 +79,7 @@ export const UserDefinedRenderInput = (
     setSelectedKey(selectedOption.innerText); // or use selectedOption.getAttribute("data-key")
   };
   console.log("userdefinedData", userdefinedData);
+  
   switch (field.input_type) {
     case "text":
     case "number":
@@ -85,6 +87,7 @@ export const UserDefinedRenderInput = (
         <Input
           value={userdefinedData?.[field?.field_name] || ""}
           name={field.field_name}
+          disabled={mode === "view"}
           //style={{width:"300px"}}
           //style={{ width: "100%" }}
           onInput={(e) => handleChange(e, field.field_name, formName)}
@@ -96,6 +99,7 @@ export const UserDefinedRenderInput = (
         <Input
           placeholder="Search..."
           name={field.field_name}
+          disabled={mode === "view"}
           type="Search"
           style={{ width: "100%" }}
           onInput={(e) => console.log("Search input:", e.target.value)}
@@ -112,6 +116,7 @@ export const UserDefinedRenderInput = (
                 onClick={() => handleValueHelpRequest(field.field_name)}
               />
             }
+            disabled={mode === "view"}
             name={field.field_name}
             value={userdefinedData?.CardCode || ""}
             //onInput={(e) => handleChange(e, field.field_name,formName)}
@@ -122,7 +127,7 @@ export const UserDefinedRenderInput = (
               <SuggestionItem key={idx} text={item.Name} />
             ))}
           </Input>
-          <CardDialog
+         {originalGeneralData.length>0? <CardDialog
             open={dialogOpen}
             handleCardDialogClose={setDialogOpen}
             generalData={generalData}
@@ -142,7 +147,7 @@ export const UserDefinedRenderInput = (
               setValue("ContactPerson", card.ContactPerson);
               setValue("Series", card.Series);
             }}
-          />
+          />: null}
           {/* <Dialog
             headerText="Select Person"
             open={dialogOpen}
@@ -170,6 +175,7 @@ export const UserDefinedRenderInput = (
         <DatePicker
           value={userdefinedData?.[field?.field_name] || ""}
           name={field.field_name}
+          disabled={mode === "view"}
           style={{ width: "100%" }}
           onChange={(e) => handleChange(e, field.field_name, formName)}
         />
@@ -178,6 +184,7 @@ export const UserDefinedRenderInput = (
       return (
         <CheckBox
           checked={value}
+          disabled={mode === "view"}
           name={field.field_name}
           onChange={(e) => handleChange(e, field.field_name, formName)}
           text="CheckBox"
@@ -186,43 +193,45 @@ export const UserDefinedRenderInput = (
       );
     case "selectdropdown":
       return (
-     <MultiComboBox
-        onChange={(e) => {
-          const selected = e.detail.items.map(i => i.getAttribute("data-value"));
-         handleChange(e, field.field_name, formName);
-        }}
-      >
-        <MultiComboBoxItem data-value="us" text="United States" />
-        <MultiComboBoxItem data-value="ca" text="Canada" />
-        <MultiComboBoxItem data-value="ae" text="UAE" />
-      </MultiComboBox>
-          // <Select
-          //   onClose={function Xs() {}}
-          //   name={field.field_name}
-          //   value={userdefinedData?.[field?.field_name] || ""}
-          //   onLiveChange={function Xs() {}}
-          //   onOpen={function Xs() {}}
-          //   valueState="None"
-          // style={{ width: "100%" }}
+        <MultiComboBox
+          onChange={(e) => {
+            const selected = e.detail.items.map((i) =>
+              i.getAttribute("data-value")
+            );
+            handleChange(e, field.field_name, formName);
+          }}
+        >
+          <MultiComboBoxItem data-value="us" text="United States" />
+          <MultiComboBoxItem data-value="ca" text="Canada" />
+          <MultiComboBoxItem data-value="ae" text="UAE" />
+        </MultiComboBox>
+        // <Select
+        //   onClose={function Xs() {}}
+        //   name={field.field_name}
+        //   value={userdefinedData?.[field?.field_name] || ""}
+        //   onLiveChange={function Xs() {}}
+        //   onOpen={function Xs() {}}
+        //   valueState="None"
+        // style={{ width: "100%" }}
 
-          //   onChange={(e) => {
-          //     handleSelectChange(e);
-          //     handleChange(e, field.field_name, formName);
-          //   }}
-          // >
-          //   <Option>Option 1</Option>
-          //   <Option>Option 2</Option>
-          //   <Option>Option 3</Option>
-          //   <Option>Option 4</Option>
-          //   <Option>Option 5</Option>
-          // </Select>
-    
+        //   onChange={(e) => {
+        //     handleSelectChange(e);
+        //     handleChange(e, field.field_name, formName);
+        //   }}
+        // >
+        //   <Option>Option 1</Option>
+        //   <Option>Option 2</Option>
+        //   <Option>Option 3</Option>
+        //   <Option>Option 4</Option>
+        //   <Option>Option 5</Option>
+        // </Select>
       );
     case "textarea":
       return (
         <TextArea
           value={userdefinedData?.[field?.field_name] || ""}
           style={{ width: "100%" }}
+          disabled={mode === "view"}
           name={field.field_name}
           onChange={(e) => handleChange(e, field.field_name, formName)}
           onInput={(e) => handleChange(e, field.field_name, formName)}

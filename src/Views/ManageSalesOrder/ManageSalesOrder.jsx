@@ -30,9 +30,8 @@ import { HeaderFilterBar } from "./HeaderFilterBar";
 import ItemViewPage from "../SalesOrder/Contents/Item/ItemViewPage";
 import ViewSalesOrder from "./ViewSalesOrder";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  fetchCustomerOrder,
-} from "../../store/slices/CustomerOrderSlice";
+import { fetchCustomerOrder } from "../../store/slices/CustomerOrderSlice";
+import "@ui5/webcomponents-icons/dist/show.js";
 
 const ManageSalesOrder = () => {
   const {
@@ -48,8 +47,8 @@ const ManageSalesOrder = () => {
   });
 
   const [isClearFilter, setisClearFilter] = useState(false);
-    const user = useSelector((state) => state.auth.user);
-  
+  const user = useSelector((state) => state.auth.user);
+
   const { companyformfield } = useSelector((state) => state.companyformfield);
   const { companyformfielddata } = useSelector(
     (state) => state.companyformfielddata
@@ -58,8 +57,8 @@ const ManageSalesOrder = () => {
     (state) => state.customerorder
   );
   const [tableData, settableData] = useState([]);
-    const [formDetails, setFormDetails] = useState([]);
-  
+  const [formDetails, setFormDetails] = useState([]);
+
   const placeholderRows = Array(5).fill({
     CustomerCode: "Loading...",
     CustomerName: "Loading...",
@@ -108,7 +107,6 @@ const ManageSalesOrder = () => {
     fetchInitial();
   }, []);
 
- 
   const [viewItem, setViewItem] = useState([]);
 
   const navigate = useNavigate();
@@ -193,14 +191,8 @@ const ManageSalesOrder = () => {
               /> */}
               <Button
                 icon="sap-icon://show"
-                //disabled={isOverlay || isRowDisabled}
                 design="Transparent"
-                onClick={() => {
-                  //setLayout("TwoColumnsMidExpanded");
-                  viewRow(row.original);
-                  //setViewItem(row.original);
-                }}
-                // onClick={() => editRow(row)}
+                onClick={() => viewRow(row.original)}
               />
               <Button
                 icon="sap-icon://navigation-right-arrow"
@@ -308,22 +300,22 @@ const ManageSalesOrder = () => {
   const [formConfig, setFormConfig] = useState(null);
 
   // if (!formConfig) return <div>Loading form...</div>;
-    useEffect(() => {
-      if (formId) {
-        // Fetch form data based on formId
-        const formDetails = user?.Roles?.flatMap((role) =>
-          role.UserMenus.flatMap((menu) =>
-            menu.children.filter((submenu) => submenu.Form.id === formId)
-          )
-        );
-        //setTabList((formDetails && formDetails[0]?.Form.FormTabs) || []);
-        setFormDetails(formDetails);
-      } else {
-        navigate("/");
-      }
-    }, [formId]);
+  useEffect(() => {
+    if (formId) {
+      // Fetch form data based on formId
+      const formDetails = user?.Roles?.flatMap((role) =>
+        role.UserMenus.flatMap((menu) =>
+          menu.children.filter((submenu) => submenu.Form.id === formId)
+        )
+      );
+      //setTabList((formDetails && formDetails[0]?.Form.FormTabs) || []);
+      setFormDetails(formDetails);
+    } else {
+      navigate("/");
+    }
+  }, [formId]);
   return (
-    <div style={{width:"100%"}}>
+    <div style={{ width: "100%" }}>
       <DynamicPage
         footerArea={
           <Bar
@@ -387,7 +379,6 @@ const ManageSalesOrder = () => {
               >
                 Clear Filter
               </Button>
-
             </FlexBox>
           </DynamicPageHeader>
         }
@@ -407,14 +398,28 @@ const ManageSalesOrder = () => {
                   if (route) navigate(route);
                 }}
               >
-                <BreadcrumbsItem data-route="/dashboard">
-                  Home
+                <BreadcrumbsItem data-route="/dashboard">Home</BreadcrumbsItem>
+                <BreadcrumbsItem>
+                  {formDetails && formDetails[0]?.name
+                    ? formDetails[0]?.name
+                    : "Sales order List"}
                 </BreadcrumbsItem>
-                <BreadcrumbsItem>{formDetails&&formDetails[0]?.name?formDetails[0]?.name:"Sales order List"}</BreadcrumbsItem>
               </Breadcrumbs>
             }
-            heading={<Title >{formDetails&&formDetails[0]?.name?formDetails[0]?.name:"Sales order List"}</Title>}
-            snappedHeading={<Title>{formDetails&&formDetails[0]?.name?formDetails[0]?.name:"Sales order List"}</Title>}
+            heading={
+              <Title>
+                {formDetails && formDetails[0]?.name
+                  ? formDetails[0]?.name
+                  : "Sales order List"}
+              </Title>
+            }
+            snappedHeading={
+              <Title>
+                {formDetails && formDetails[0]?.name
+                  ? formDetails[0]?.name
+                  : "Sales order List"}
+              </Title>
+            }
           ></DynamicPageTitle>
         }
       >
@@ -457,14 +462,20 @@ const ManageSalesOrder = () => {
                               <ToolbarButton
                                 design="Default"
                                 onClick={() =>
-                                  navigate("/SalesOrder/create/" + formId+"/"+(tableData.length>0&&tableData[0]?.DocEntry+1))
+                                  navigate(
+                                    "/SalesOrder/create/" +
+                                      formId +
+                                      "/" +
+                                      (tableData.length > 0 &&
+                                        tableData[0]?.DocEntry + 1)
+                                  )
                                 }
                                 text="Create"
                               />
                             </Toolbar>
                           </FlexBox>
                         }
-                        loading={ loading}
+                        loading={loading}
                         showOverlay={page === 0 && loading}
                         noDataText={
                           !customerorder ? "Loading data..." : "No data found!"
@@ -495,7 +506,7 @@ const ManageSalesOrder = () => {
 
                             if (res.length < pageSize) {
                               setAllLoaded(true);
-                            } 
+                            }
 
                             const newRecords = res.data.map((item) => ({
                               DocEntry: item.DocEntry,

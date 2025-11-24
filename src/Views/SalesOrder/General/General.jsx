@@ -42,6 +42,7 @@ const General = ({
   formData,
   defaultValues,
   mode = "create",
+  selectedcardcode, setSelectedCardCode,
   apiError,
 }) => {
   const {
@@ -65,7 +66,6 @@ const General = ({
 
   const [generalData, setgeneralData] = useState([]);
   const [originalGeneralData, setOriginalgeneralData] = useState([]);
-  const [selectedcardcode, setSelectedCardCode] = useState("");
   const [inputValue, setInputValue] = useState([
     {
       CardCode: "",
@@ -353,8 +353,8 @@ const General = ({
                       min="2025-01-01"
                       style={{ width: "100%" }}
                       value={
-                        field.value
-                          ? new Date(field.value).toISOString().split("T")[0]
+                        formData.PostingDate
+                          ? new Date(formData.PostingDate).toISOString().split("T")[0]
                           : new Date().toISOString().split("T")[0]
                       }
                       onInput={(e) => field.onChange(e.target.value)}
@@ -373,28 +373,28 @@ const General = ({
               <FlexBox alignItems="Center">
                 <Label style={{ minWidth: "200px" }}>Delivery Date:</Label>
                 <Controller
-                  name="DeliveryDate"
+                  name="DocDueDate"
                   control={control}
                   render={({ field }) => (
                     <Input
                       placeholder="Delivery Date"
-                      name="DeliveryDate"
+                      name="DocDueDate"
                       type="date"
                       disabled={mode === "view"}
                       min="2025-01-01"
                       style={{ width: "100%" }}
                       value={
-                        field.value
-                          ? new Date(field.value).toISOString().split("T")[0]
+                        formData.DocDueDate
+                          ? new Date(formData.DocDueDate).toISOString().split("T")[0]
                           : new Date().toISOString().split("T")[0]
                       }
                       onInput={(e) => field.onChange(e.target.value)}
                       onChange={handleChange}
-                      valueState={errors.DeliveryDate ? "Error" : "None"}
+                      valueState={errors.DocDueDate ? "Error" : "None"}
                     >
-                      {errors.DeliveryDate && (
+                      {errors.DocDueDate && (
                         <span slot="valueStateMessage">
-                          {errors.DeliveryDate.message}
+                          {errors.DocDueDate.message}
                         </span>
                       )}
                     </Input>
@@ -415,8 +415,8 @@ const General = ({
                       min="2025-01-01"
                       style={{ width: "100%" }}
                       value={
-                        field.value
-                          ? new Date(field.value).toISOString().split("T")[0]
+                        formData.DocDate
+                          ? new Date(formData.DocDate).toISOString().split("T")[0]
                           : new Date().toISOString().split("T")[0]
                       }
                       onInput={(e) => field.onChange(e.target.value)}

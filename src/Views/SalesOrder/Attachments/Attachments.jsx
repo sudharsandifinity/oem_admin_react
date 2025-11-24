@@ -64,7 +64,7 @@ const Attachments = (props) => {
         </FileUploader> 
       </FlexBox>
       <UploadCollection noDataDescription="No files uploaded">{console.log("attachmentsList",attachmentsList)}
-        {attachmentsList.map((file) => (
+        {attachmentsList.length>0&&attachmentsList.map((file) => (
           <UploadCollectionItem
             key={file.id}
             fileName={file.name}

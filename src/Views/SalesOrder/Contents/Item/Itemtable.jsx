@@ -934,13 +934,13 @@ const Itemtable = (props) => {
         style={{
           marginTop: "3rem",
         }}
-      >
+      >{console.log("summaryDataremark",summaryData)}
         <FlexBox direction="Column" style={{ width: "50%" }}>
           <Text>Remark</Text>
           <TextArea
             growing
             name="Remark"
-            value={summaryData?.Remark}
+            value={summaryData?.Remark!=="undefined"?summaryData?.Remark:""}
             onInput={(e) => {
               setSummaryData((prev) => ({
                 ...prev,

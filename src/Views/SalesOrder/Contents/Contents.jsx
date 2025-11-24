@@ -571,6 +571,7 @@ const Contents = (props) => {
                         setIsFreightTableVisible={setIsFreightTableVisible}
                         isFreightTableVisible={isFreightTableVisible}
                         setTotalFreightAmount={setTotalFreightAmount}
+                        summaryData={summaryData}
                         setSummaryData={setSummaryData}
                         freightRowSelection={freightRowSelection}
                         setFreightRowSelection={setFreightRowSelection}
@@ -612,6 +613,8 @@ const Contents = (props) => {
                         setTotalFreightAmount={setTotalFreightAmount}
                         freightRowSelection={freightRowSelection}
                         setFreightRowSelection={setFreightRowSelection}
+                        summaryData={summaryData}
+                        setSummaryData={setSummaryData}
                         summaryDiscountAmount={summaryDiscountAmount}
             setSummaryDiscountAmount={setSummaryDiscountAmount}
             summaryDiscountPercent={summaryDiscountPercent}
