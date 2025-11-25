@@ -138,7 +138,7 @@ const CardDialog = ({
               value={inputValue.CardCode || ""}
               onChange={(e) => handleFilterChange(e, "CardCode")}
               placeholder="Search Card Code..."
-            >
+            >{console.log("originalGeneralData",originalGeneralData)}
               {originalGeneralData.map((data, idx) => (
                 <ComboBoxItem key={idx} text={data.CardCode} />
               ))}

@@ -77,6 +77,7 @@ export default function SalesOrder() {
   const [summaryDiscountAmount, setSummaryDiscountAmount] = useState(0);
    const [roundingEnabled, setRoundingEnabled] = useState(false);
    const [roundOff, setRoundOff] = useState(0);
+   const [selectedcardcode, setSelectedCardCode] = useState([]);
 
   const [itemTabledata, setitemTableData] = useState([
     {
@@ -219,11 +220,18 @@ export default function SalesOrder() {
         }
       });
 
-      formDataToSend.append("DocumentLines", JSON.stringify(payload.DocumentLines));
+      formDataToSend.append(
+        "DocumentLines",
+        JSON.stringify(payload.DocumentLines)
+      );
+       formDataToSend.append(
+        "DocumentAdditionalExpenses",
+        JSON.stringify(payload.DocumentAdditionalExpenses)
+      );
       formDataToSend.append("data", JSON.stringify(payload.data));
 
       Object.keys(payload).forEach((key) => {
-        if (key !== "DocumentLines" && key !== "data") {
+        if (key !== "DocumentLines" && key !== "data"&& key !== "DocumentAdditionalExpenses") {
           formDataToSend.append(key, payload[key]);
         }
       });
@@ -448,10 +456,14 @@ export default function SalesOrder() {
           titleText="General"
         >
           {/* <General form={form} SubForms={tab.SubForms} handleChange={handleChange} /> */}
+          {console.log("generalformdata",formData)}
           <General
             onSubmit={handleSubmit}
             setFormData={setFormData}
             formData={formData}
+             mode={"create"}
+             selectedcardcode={selectedcardcode}
+              setSelectedCardCode={setSelectedCardCode}
             defaultValues={{
               CardCode: "",
               DocDueDate: "1",
@@ -564,6 +576,7 @@ export default function SalesOrder() {
             onSubmit={handleSubmit}
             setFormData={setFormData}
             formData={formData}
+             mode={"create"}
             userdefinedData={userdefinedData}
             setUserDefinedData={setUserDefinedData}
           />

@@ -929,13 +929,14 @@ useEffect(() => {
         style={{
           marginTop: "3rem",
         }}
-      >
-        <FlexBox direction="Column" style={{width: '50%'}}>
+      >{console.log("summaryDataremark",summaryData)}
+        <FlexBox direction="Column" style={{ width: "50%" }}>
           <Text>Remark</Text>
           <TextArea
             growing
-            name="Remarks"
-           onInput={(e) => {
+            name="Remark"
+            value={summaryData?.Remark!=="undefined"?summaryData?.Remark:""}
+            onInput={(e) => {
               setSummaryData((prev) => ({
                 ...prev,
                 Remark: e.target.value

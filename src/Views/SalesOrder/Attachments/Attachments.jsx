@@ -75,8 +75,8 @@ const Attachments = (props) => {
          <Button design="Emphasized">Add New</Button> 
         </FileUploader> 
       </FlexBox>
-      <UploadCollection noDataDescription="No files uploaded">
-        {combinedAttachments.map((file) => (
+      <UploadCollection noDataDescription="No files uploaded">{console.log("attachmentsList",attachmentsList)}
+        {attachmentsList.length>0&&attachmentsList.map((file) => (
           <UploadCollectionItem
             key={file.id}
             fileName={file.name}

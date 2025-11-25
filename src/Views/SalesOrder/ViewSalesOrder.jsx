@@ -67,6 +67,17 @@ const ViewSalesOrder = () => {
   const [open, setOpen] = useState(false);
     const [type, setType] = useState("Item");
   
+ const [attachmentsList, setAttachmentsList] = useState([]);
+  const [freightRowSelection, setFreightRowSelection] = useState([]);
+
+  const [userdefinedData, setUserDefinedData] = useState({});
+
+  const [totalFreightAmount, setTotalFreightAmount] = useState(0);
+  const [summaryData, setSummaryData] = useState({});
+  const [summaryDiscountPercent, setSummaryDiscountPercent] = useState(0);
+    const [summaryDiscountAmount, setSummaryDiscountAmount] = useState(0);
+     const [roundingEnabled, setRoundingEnabled] = useState(false);
+     const [roundOff, setRoundOff] = useState(0);
 
   const [tabList, setTabList] = useState([]);
   const [formDetails, setFormDetails] = useState([]);
@@ -74,7 +85,8 @@ const ViewSalesOrder = () => {
   const [rowSelection, setRowSelection] = useState({});
   const [generaleditdata, setgeneraleditdata] = useState([]);
   const [itemdata, setitemData] = useState([
-    { slno: 1, ItemCode: "", ItemName: "", quantity: "", amount: "" },
+    { slno: 1, ItemCode: "", ItemName: "", quantity: "", amount: "",
+      TaxCode: "", },
   ]);
   const [itemTabledata, setitemTableData] = useState([
     { slno: 1, ItemCode: "", ItemName: "", quantity: "", amount: "" },
@@ -110,6 +122,15 @@ const ViewSalesOrder = () => {
           const orderList = await dispatch(fetchOrderItems()).unwrap();
           const serviceList = await dispatch(fetchOrderServices()).unwrap();
           console.log("res,res1", orderListById, orderList, serviceList);
+          const attachmentListById ="" //await dispatch(fetchAttachmentDetailsById(orderListById.AttachmentEntry)).unwrap();
+        console.log("attachmentListById", attachmentListById);
+        setAttachmentsList(
+          attachmentListById&&attachmentListById.Attachments2_Lines?.map((line) => ({
+            name: line.FileName,
+            type: line.FileExtension,
+            size: line.FileSize,
+          }))
+        );
           if (orderListById) {
             // 1. Store order header info
             setFormData({
@@ -119,6 +140,8 @@ const ViewSalesOrder = () => {
                 ? new Date(orderListById.CreationDate).toISOString().split("T")[0]
                 : new Date().toISOString().split("T")[0],
               DocumentLines: orderListById.DocumentLines || [],
+            formData: orderListById.formData,
+            
             });
   
             // 2. Merge document lines into orderItems
@@ -135,18 +158,24 @@ const ViewSalesOrder = () => {
                         console.log("setitemeditpage", item, matched);
                         return matched !== undefined
                           ? {
-                              slno: index, // usually LineNum is 0-based
-                              ItemCode: matched.ItemCode,
-                              ItemName: matched.ItemDescription,
-                              quantity: matched.Quantity,
-                              amount: matched.UnitPrice,
+                             slno: index, // usually LineNum is 0-based
+                            ItemCode: matched.ItemCode,
+                            ItemName: matched.ItemDescription,
+                            quantity: matched.Quantity,
+                            TaxCode: matched.TaxCode,
+                            amount: matched.UnitPrice,
+                            discount: matched.DiscountPercent,
+                            TaxRate:matched.TaxTotal,
                             }
                           : {
                               slno: index, // usually LineNum is 0-based
-                              ItemCode: item.ItemCode,
-                              ItemName: item.ItemName,
-                              quantity: item.Quantity,
-                              amount: item.UnitPrice,
+                            ItemCode: item.ItemCode,
+                            ItemName: item.ItemName,
+                            quantity: item.Quantity,
+                            TaxCode: item.TaxCode,
+                            amount: item.UnitPrice,
+                            discount: item.DiscountPercent,
+                            TaxRate:item.TaxTotal
                             }; // no placeholder
                       })
                       .filter(Boolean) // remove nulls
@@ -162,10 +191,13 @@ const ViewSalesOrder = () => {
                         return matched
                           ? {
                               slno: matched.LineNum + 1, // usually LineNum is 0-based
-                              ItemCode: matched.ItemCode,
-                              ItemName: matched.ItemDescription,
-                              quantity: matched.Quantity,
-                              amount: matched.UnitPrice,
+                            ItemCode: matched.ItemCode,
+                            ItemName: matched.ItemDescription,
+                            quantity: matched.Quantity,
+                            TaxCode: matched.TaxCode,
+                            amount: matched.UnitPrice,
+                            discount: matched.DiscountPercent,
+                            TaxRate:matched.TaxTotal
                             }
                           : null; // no placeholder
                       })
@@ -195,18 +227,24 @@ const ViewSalesOrder = () => {
                         );
                         return matched !== undefined
                           ? {
-                              slno: index, // usually LineNum is 0-based
-                              ServiceCode: matched.AccountCode,
-                              ServiceName: matched.ItemDescription,
-                              quantity: matched.Quantity,
-                              amount: matched.UnitPrice,
+                               slno: index, // usually LineNum is 0-based
+                            ServiceCode: matched.AccountCode,
+                            ServiceName: matched.ItemDescription,
+                            quantity: matched.Quantity,
+                            TaxCode: matched.TaxCode,
+                            amount: matched.UnitPrice,
+                            discount: matched.DiscountPercent,
+                            TaxRate:matched.TaxTotal,
                             }
                           : {
                               slno: index, // usually LineNum is 0-based
-                              ServiceCode: item.AccountCode,
-                              ServiceName: item.ItemDescription,
-                              quantity: item.Quantity,
-                              amount: item.UnitPrice,
+                            ServiceCode: item.AccountCode,
+                            ServiceName: item.ItemDescription,
+                            quantity: item.Quantity,
+                            TaxCode: item.TaxCode,
+                            amount: item.UnitPrice,
+                            discount: item.DiscountPercent,
+                            TaxRate:item.TaxTotal,
                             }; // no placeholder
                       })
                       .filter(Boolean) // remove nulls
@@ -221,11 +259,14 @@ const ViewSalesOrder = () => {
   
                         return matched
                           ? {
-                              slno: matched.LineNum + 1, // usually LineNum is 0-based
-                              ServiceCode: matched.AccountCode,
-                              ServiceName: matched.ItemDescription,
-                              quantity: matched.Quantity,
-                              amount: matched.UnitPrice,
+                             slno: matched.LineNum + 1, // usually LineNum is 0-based
+                            ServiceCode: matched.AccountCode,
+                            ServiceName: matched.ItemDescription,
+                            quantity: matched.Quantity,
+                            TaxCode: matched.TaxCode,
+                            amount: matched.UnitPrice,
+                            discount: matched.DiscountPercent,
+                            TaxRate:matched.TaxTotal,
                             }
                           : null; // no placeholder
                       })
@@ -256,12 +297,27 @@ const ViewSalesOrder = () => {
             }
   
             // set general header edit data
-            setgeneraleditdata({
-              CardCode: orderListById.CardCode,
-              CardName: orderListById.CardName,
-              CreationDate: orderListById.CreationDate,
-            });
-          }
+          setSummaryData((prev) => ({
+                ...prev,
+                Remark: orderListById.Comments
+              }));
+          // set general header edit data
+          setSummaryDiscountPercent(orderListById.DiscountPercent)
+          setRoundingEnabled(orderListById.Rounding==="tYES")
+          setRoundOff(orderListById.RoundingDiffAmount)
+          setgeneraleditdata({
+            CardCode: orderListById.CardCode,
+            CardName: orderListById.CardName,
+            PostingDate: orderListById.CreationDate,
+            DocDate:orderListById.DocDate?new Date(orderListById.DocDate).toISOString().split("T")[0]:"",
+            DeliveryDate: orderListById.DocDueDate
+              ? new Date(orderListById.DocDueDate).toISOString().split("T")[0]
+              : "",
+              DocEntry:orderListById.DocEntry,
+              DocumentStatus:orderListById.DocumentStatus,
+          });
+          setUserDefinedData(orderListById.formData);
+        }
         } catch (err) {
           console.error("Failed to fetch order:", err);
         } finally {
@@ -379,14 +435,9 @@ const ViewSalesOrder = () => {
   return (
     <>
       <BusyIndicator
-        style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
+       style={{
           width: "100%",
           height: "100%",
-          zIndex: 1000,
-          backgroundColor: "rgba(241, 243, 248, 0.8)",
         }}
         active={loading}
       >
@@ -411,36 +462,36 @@ const ViewSalesOrder = () => {
             </>
           }
           headerArea={
-            <DynamicPageHeader>
-              {/* <FlexBox wrap="Wrap">
-            <FlexBox direction="Column">
-              <Label>Customer</Label>
-            </FlexBox>
-            <span style={{ width: "4rem" }} />
-            <FlexBox direction="Column">
-              <Label>Total:</Label>
-              <ObjectStatus state="None">GBP 0.00</ObjectStatus>
-            </FlexBox>
-            <span style={{ width: "4rem" }} />
-            <FlexBox direction="Column">
-              <Label>Status</Label>
-              <ObjectStatus state="Positive">Open</ObjectStatus>
-            </FlexBox>
-            <span style={{ width: "4rem" }} />
-            <FlexBox direction="Column">
-              <Label>Credit Limit Utilization</Label>
-              <Slider
-                min={0}
-                max={100}
-                step={1}
-                //value={value}
-                showTickmarks
-                showTooltip
-              //onInput={handleSliderChange}
-              />
-            </FlexBox>
-          </FlexBox> */}
-            </DynamicPageHeader>
+             <DynamicPageHeader>
+                          <FlexBox wrap="Wrap">
+                            <FlexBox direction="Column">
+                              <Label>Customer</Label>
+                            </FlexBox>
+                            <span style={{ width: "4rem" }} />
+                            <FlexBox direction="Column">
+                              <Label>Total:</Label>
+                              <ObjectStatus state="None">GBP 0.00</ObjectStatus>
+                            </FlexBox>
+                            <span style={{ width: "4rem" }} />
+                            <FlexBox direction="Column">
+                              <Label>Status</Label>
+                              <ObjectStatus state="Positive">Open</ObjectStatus>
+                            </FlexBox>
+                            <span style={{ width: "4rem" }} />
+                            <FlexBox direction="Column">
+                              <Label>Credit Limit Utilization</Label>
+                              <Slider
+                                min={0}
+                                max={100}
+                                step={1}
+                                //value={value}
+                                showTickmarks
+                                showTooltip
+                                //onInput={handleSliderChange}
+                              />
+                            </FlexBox>
+                          </FlexBox>
+                        </DynamicPageHeader>
           }
           // image="https://sap.github.io/ui5-webcomponents-react/v2/assets/Person-B7wHqdJw.png"
           imageShapeCircle
@@ -574,6 +625,20 @@ const ViewSalesOrder = () => {
               type={type}
               setType={setType}
               mode={"view"}
+              setTotalFreightAmount={setTotalFreightAmount}
+              totalFreightAmount={totalFreightAmount}
+              summaryData={summaryData}
+              setSummaryData={setSummaryData}
+               summaryDiscountAmount={summaryDiscountAmount}
+            setSummaryDiscountAmount={setSummaryDiscountAmount}
+            summaryDiscountPercent={summaryDiscountPercent}
+            setSummaryDiscountPercent={setSummaryDiscountPercent}
+            roundingEnabled={roundingEnabled} 
+            setRoundingEnabled={setRoundingEnabled}
+            roundOff={roundOff} 
+            setRoundOff={setRoundOff}
+freightRowSelection={freightRowSelection}
+            setFreightRowSelection={setFreightRowSelection}
             />
           </ObjectPageSection>
           {/* );
@@ -616,7 +681,9 @@ const ViewSalesOrder = () => {
             }}
             titleText="Attachments"
           >
-            <Attachments />
+            <Attachments
+             attachmentsList={attachmentsList}
+              setAttachmentsList={setAttachmentsList} />
           </ObjectPageSection>
           {/* );
                     } else if (tab.name === "user-defined-field") {
@@ -628,7 +695,14 @@ const ViewSalesOrder = () => {
             }}
             titleText="User-defined Fields"
           >
-            <UserDefinedFields form={form} handleChange={handleChange} />
+            <UserDefinedFields
+            form={form}
+              handleChange={handleChange}
+              userdefinedData={userdefinedData}
+              setUserDefinedData={setUserDefinedData}
+              mode={"view"}
+              setFormData={setFormData}
+              formData={formData} />
           </ObjectPageSection>
           {/* );
                     }

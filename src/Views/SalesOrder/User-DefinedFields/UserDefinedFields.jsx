@@ -148,7 +148,12 @@ const UserDefinedFields = ({
       navigate("/");
     }
   }, [formId, user, navigate]);
-
+ useEffect(() => {
+     if (dialogOpen) {
+       console.log("itemdatauseefect", generalData);
+       setOriginalgeneralData(generalData); // backup (for reset/clear filter)
+     }
+   }, [dialogOpen]);
   return (
     <div>
       <form
@@ -184,7 +189,7 @@ const UserDefinedFields = ({
                       dialogOpen,
                       setDialogOpen,
                       selectedKey,  
-                      
+                      mode,
                       setSelectedKey,
                       setFormData,
                       setValue,
