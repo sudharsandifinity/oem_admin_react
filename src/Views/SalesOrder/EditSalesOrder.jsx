@@ -69,6 +69,7 @@ const EditSalesOrder = () => {
   const [attachmentsList, setAttachmentsList] = useState([]);
   const [attachmentFiles, setAttachmentFiles] = useState([]);
   const [oldAttachmentFiles, setOldAttachmentFiles] = useState([]);
+  const [freightRowSelection, setFreightRowSelection] = useState([]);
 
   const [tabList, setTabList] = useState([]);
   const [formDetails, setFormDetails] = useState([]);
@@ -79,6 +80,11 @@ const EditSalesOrder = () => {
   const [generaleditdata, setgeneraleditdata] = useState([]);
   const [type, setType] = useState("Item");
   const [totalFreightAmount, setTotalFreightAmount] = useState(0);
+  const [summaryData, setSummaryData] = useState({});
+  const [summaryDiscountPercent, setSummaryDiscountPercent] = useState(0);
+    const [summaryDiscountAmount, setSummaryDiscountAmount] = useState(0);
+     const [roundingEnabled, setRoundingEnabled] = useState(false);
+     const [roundOff, setRoundOff] = useState(0);
 
   const [itemdata, setitemData] = useState([
     {
@@ -123,14 +129,14 @@ const EditSalesOrder = () => {
         const orderList = await dispatch(fetchOrderItems()).unwrap();
         const serviceList = await dispatch(fetchOrderServices()).unwrap();
         console.log("res,res1", orderListById, orderList, serviceList);
-        const attachmentListById = await dispatch(
-          fetchAttachmentDetailsById(orderListById.AttachmentEntry)
-        ).unwrap();
-        console.log("attachmentListById", attachmentListById);
-        setOldAttachmentFiles(prev => ({
-          ...prev,
-          Attachments2_Lines: attachmentListById.Attachments2_Lines
-        }));
+        if(orderListById.AttachmentEntry){
+          const attachmentListById = await dispatch(fetchAttachmentDetailsById(orderListById.AttachmentEntry)).unwrap();
+          console.log("attachmentListById", attachmentListById);
+          setOldAttachmentFiles(prev => ({
+            ...prev,
+            Attachments2_Lines: attachmentListById.Attachments2_Lines
+          }));
+        }
         if (orderListById) {
           // 1. Store order header info
           setFormData({
@@ -140,7 +146,7 @@ const EditSalesOrder = () => {
               ? new Date(orderListById.CreationDate).toISOString().split("T")[0]
               : new Date().toISOString().split("T")[0],
             DocumentLines: orderListById.DocumentLines || [],
-            ormData: orderListById.formData,
+            formData: orderListById.formData,
           });
 
           // 2. Merge document lines into orderItems
@@ -163,6 +169,8 @@ const EditSalesOrder = () => {
                             quantity: matched.Quantity,
                             TaxCode: matched.TaxCode,
                             amount: matched.UnitPrice,
+                            discount: matched.DiscountPercent,
+                            TaxRate:matched.TaxTotal,
                           }
                         : {
                             slno: index, // usually LineNum is 0-based
@@ -171,9 +179,12 @@ const EditSalesOrder = () => {
                             quantity: item.Quantity,
                             TaxCode: item.TaxCode,
                             amount: item.UnitPrice,
+                            discount: item.DiscountPercent,
+                            TaxRate:item.TaxTotal
                           }; // no placeholder
                     })
                     .filter(Boolean) // remove nulls
+
               );
               setitemTableData(
                 () =>
@@ -191,6 +202,8 @@ const EditSalesOrder = () => {
                             quantity: matched.Quantity,
                             TaxCode: matched.TaxCode,
                             amount: matched.UnitPrice,
+                            discount: matched.DiscountPercent,
+                            TaxRate:matched.TaxTotal
                           }
                         : null; // no placeholder
                     })
@@ -226,6 +239,8 @@ const EditSalesOrder = () => {
                             quantity: matched.Quantity,
                             TaxCode: matched.TaxCode,
                             amount: matched.UnitPrice,
+                            discount: matched.DiscountPercent,
+                            TaxRate:matched.TaxTotal,
                           }
                         : {
                             slno: index, // usually LineNum is 0-based
@@ -234,6 +249,8 @@ const EditSalesOrder = () => {
                             quantity: item.Quantity,
                             TaxCode: item.TaxCode,
                             amount: item.UnitPrice,
+                            discount: item.DiscountPercent,
+                            TaxRate:item.TaxTotal,
                           }; // no placeholder
                     })
                     .filter(Boolean) // remove nulls
@@ -254,6 +271,8 @@ const EditSalesOrder = () => {
                             quantity: matched.Quantity,
                             TaxCode: matched.TaxCode,
                             amount: matched.UnitPrice,
+                            discount: matched.DiscountPercent,
+                            TaxRate:matched.TaxTotal,
                           }
                         : null; // no placeholder
                     })
@@ -277,17 +296,32 @@ const EditSalesOrder = () => {
               "itemTabledata:->",
               itemTabledata,
               itemdata,
-              orderListById.DocumentLines
+              orderListById.DocumentLines,
+              orderListById,
+              "formData",
+              formData
             );
 
             // 3. Preselect rows
           }
-
+           setSummaryData((prev) => ({
+                ...prev,
+                Remark: orderListById.Comments
+              }));
           // set general header edit data
+          setSummaryDiscountPercent(orderListById.DiscountPercent)
+          setRoundingEnabled(orderListById.Rounding==="tYES")
+          setRoundOff(orderListById.RoundingDiffAmount)
           setgeneraleditdata({
             CardCode: orderListById.CardCode,
             CardName: orderListById.CardName,
-            CreationDate: orderListById.CreationDate,
+            PostingDate: orderListById.CreationDate,
+            DocDate:orderListById.DocDate?new Date(orderListById.DocDate).toISOString().split("T")[0]:"",
+            DeliveryDate: orderListById.DocDueDate
+              ? new Date(orderListById.DocDueDate).toISOString().split("T")[0]
+              : "",
+              DocEntry:orderListById.DocEntry,
+              DocumentStatus:orderListById.DocumentStatus,
           });
           setUserDefinedData(orderListById.formData);
         }
@@ -370,15 +404,38 @@ const EditSalesOrder = () => {
                 .split("T")[0]
                 .replace(/-/g, "")
             : new Date().toISOString().split("T")[0].replace(/-/g, ""),
-          DocumentLines: Object.values(itemTabledata).map((line) => ({
+          DocType: "dDocument_Items",
+            DocumentLines: Object.values(itemTabledata).map((line) => ({
             ItemCode: line.ItemCode,
             ItemDescription: line.ItemName, // ✅ rename to ItemDescription
             Quantity: line.quantity,
             UnitPrice: line.amount,
             TaxCode: line.TaxCode,
+             VatGroup: line.TaxCode,
+            DiscountPercent: line.discount,
+            LineTotal: line.total,
           })),
           data: userdefinedData,
-          freight: totalFreightAmount,
+          DocTotal: summaryData.DocTotal,
+          Rounding: summaryData.Rounding,
+          RoundingDiffAmount: summaryData.RoundingDiffAmount,
+          DiscountPercent: summaryData.DiscountPercent,
+          TotalDiscount: summaryData.TotalDiscount,
+          Comments: summaryData.Remark,
+          VatSum: summaryData.VatSum,
+          //freight: totalFreightAmount,
+          DocumentAdditionalExpenses: Object.values(freightRowSelection).map(
+            (freight) => ({
+              ExpenseCode: freight.ExpensCode,
+              LineTotal: freight.grossTotal,
+              Remarks: freight.quantity,
+              TaxCode: freight.TaxGroup,
+              TaxPercent: freight.TaxCode,
+              TaxSum: freight.TotalTaxAmount,
+              LineGross: freight.amount,
+            })
+          ),
+        
         };
       } else {
         payload = {
@@ -394,11 +451,28 @@ const EditSalesOrder = () => {
             AccountCode: line.ServiceCode,
             ItemDescription: line.ServiceName, // ✅ rename to ItemDescription
             TaxCode: line.TaxCode,
-
             UnitPrice: line.amount,
           })),
           data: userdefinedData,
-          freight: totalFreightAmount,
+          DocTotal: summaryData.DocTotal,
+          Rounding: summaryData.Rounding,
+          RoundingDiffAmount: summaryData.RoundingDiffAmount,
+          DiscountPercent: summaryData.DiscountPercent,
+          TotalDiscount: summaryData.TotalDiscount,
+          Comments: summaryData.Remark,
+          VatSum: summaryData.VatSum,
+          //freight: totalFreightAmount,
+          DocumentAdditionalExpenses: Object.values(freightRowSelection).map(
+            (freight) => ({
+              ExpenseCode: freight.ExpensCode,
+              LineTotal: freight.grossTotal,
+              Remarks: freight.quantity,
+              TaxCode: freight.TaxGroup,
+              TaxPercent: freight.TaxCode,
+              TaxSum: freight.TotalTaxAmount,
+              LineGross: freight.amount,
+            })
+          ),
         };
       }
       const formDataToSend = new FormData();
@@ -416,8 +490,9 @@ const EditSalesOrder = () => {
           formDataToSend.append(key, payload[key]);
         }
       });
+      console.log('formdata to sent', formDataToSend)
       const res = await dispatch(
-        updateCustomerOrder({ id, data: payload })
+        updateCustomerOrder({ id, data: formDataToSend })
       ).unwrap();
       if (res.message === "Please Login!") {
         navigate("/login");
@@ -610,6 +685,7 @@ const EditSalesOrder = () => {
               setserviceData={setserviceData}
               setserviceTableData={setserviceTableData}
               serviceTabledata={serviceTabledata}
+              setSummaryData={setSummaryData}
               orderItems={orderItems}
               loading={loading}
               form={form}
@@ -623,6 +699,16 @@ const EditSalesOrder = () => {
               mode={"edit"}
               setTotalFreightAmount={setTotalFreightAmount}
               totalFreightAmount={totalFreightAmount}
+               summaryDiscountAmount={summaryDiscountAmount}
+            setSummaryDiscountAmount={setSummaryDiscountAmount}
+            summaryDiscountPercent={summaryDiscountPercent}
+            setSummaryDiscountPercent={setSummaryDiscountPercent}
+            roundingEnabled={roundingEnabled} 
+            setRoundingEnabled={setRoundingEnabled}
+            roundOff={roundOff} 
+            setRoundOff={setRoundOff}
+freightRowSelection={freightRowSelection}
+            setFreightRowSelection={setFreightRowSelection}
             />
           </ObjectPageSection>
 

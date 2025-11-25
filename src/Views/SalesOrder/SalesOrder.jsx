@@ -72,6 +72,12 @@ export default function SalesOrder() {
   const [type,setType]= useState("Item");
   const [totalFreightAmount,setTotalFreightAmount]= useState(0);
   const [attachmentFiles, setAttachmentFiles] = useState([]);
+  const [attachmentsList, setAttachmentsList] = useState([]);
+  const [summaryDiscountPercent, setSummaryDiscountPercent] = useState(0);
+  const [summaryDiscountAmount, setSummaryDiscountAmount] = useState(0);
+   const [roundingEnabled, setRoundingEnabled] = useState(false);
+   const [roundOff, setRoundOff] = useState(0);
+
   const [itemTabledata, setitemTableData] = useState([
     {
       slno: 1,

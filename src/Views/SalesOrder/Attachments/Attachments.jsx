@@ -13,7 +13,17 @@ const Attachments = (props) => {
   const {attachmentsList, setAttachmentsList, oldAttachmentFiles, setOldAttachmentFiles}=props
   const [attachments, setAttachments] = React.useState("");
   const [openAttachmentDialog, setOpenAttachmentDialog] = React.useState(false);
-  const combinedAttachments = [...oldAttachmentFiles, ...attachmentsList];
+
+  const modifiedAttay = (oldAttachmentFiles?.Attachments2_Lines ?? [])
+      .filter((item) => !item.hasOwnProperty('isNew'))
+      .map((item) => ({
+        ...item, 
+        name: item.FileName,
+        size: item.FileSize,
+        type: item.FileExtension
+      }));
+  
+  const combinedAttachments = [  ...modifiedAttay, ...attachmentsList];
   const [openAddAttachmentDialog, setOpenAddAttachmentDialog] =
     React.useState(false);
 
@@ -97,4 +107,3 @@ const Attachments = (props) => {
 };
 
 export default Attachments;
-
