@@ -56,7 +56,7 @@ const General = ({
     resolver: yupResolver(schema, { context: { mode } }),
   });
   const formRef = useRef(null);
-  const { id } = useParams();
+  const { docNo } = useParams();
 
   const {
     fieldConfig,
@@ -291,22 +291,22 @@ const General = ({
               <FlexBox alignItems="Center">
                 <Label style={{ minWidth: "200px" }}>Document Number:</Label>
                 <Controller
-                  name="DocEntry"
+                  name="docnum"
                   control={control}
                   render={({ field }) => (
                     <Input
-                      placeholder="Document Entry"
-                      name="DocEntry"
+                      placeholder="DocNum"
+                      name="docnum"
                       disabled={"true"}
                       style={{ width: "100%" }}
-                      value={id}
+                      value={docNo}
                       onInput={(e) => field.onChange(e.target.value)}
                       onChange={handleChange}
-                      valueState={errors.DocEntry ? "Error" : "None"}
+                      valueState={errors.docnum ? "Error" : "None"}
                     >
-                      {errors.DocEntry && (
+                      {errors.docnum && (
                         <span slot="valueStateMessage">
-                          {errors.DocEntry.message}
+                          {errors.docnum.message}
                         </span>
                       )}
                     </Input>
@@ -316,22 +316,22 @@ const General = ({
               <FlexBox alignItems="Center">
                 <Label style={{ minWidth: "200px" }}>Status</Label>
                 <Controller
-                  name="DocumentStatus"
+                  name="status"
                   control={control}
                   render={({ field }) => (
                     <Input
                       placeholder="status"
-                      name="DocumentStatus"
+                      name="status"
                       disabled={true}
                       style={{ width: "100%" }}
                       value={"open"}
                       onInput={(e) => field.onChange(e.target.value)}
                       onChange={handleChange}
-                      valueState={errors.DocumentStatus ? "Error" : "None"}
+                      valueState={errors.status ? "Error" : "None"}
                     >
-                      {errors.DocumentStatus && (
+                      {errors.status && (
                         <span slot="valueStateMessage">
-                          {errors.DocumentStatus.message}
+                          {errors.status.message}
                         </span>
                       )}
                     </Input>
@@ -342,12 +342,12 @@ const General = ({
               <FlexBox alignItems="Center">
                 <Label style={{ minWidth: "200px" }}>Posting Date:</Label>
                 <Controller
-                  name="PostingDate"
+                  name="DocDueDate"
                   control={control}
                   render={({ field }) => (
                     <Input
-                      placeholder="Posting Date"
-                      name="PostingDate"
+                      placeholder="Current Date"
+                      name="DocDueDate"
                       type="date"
                       disabled={mode === "view"}
                       min="2025-01-01"
@@ -359,11 +359,11 @@ const General = ({
                       }
                       onInput={(e) => field.onChange(e.target.value)}
                       onChange={handleChange}
-                      valueState={errors.PostingDate ? "Error" : "None"}
+                      valueState={errors.DocDueDate ? "Error" : "None"}
                     >
-                      {errors.PostingDate && (
+                      {errors.DocDueDate && (
                         <span slot="valueStateMessage">
-                          {errors.PostingDate.message}
+                          {errors.DocDueDate.message}
                         </span>
                       )}
                     </Input>

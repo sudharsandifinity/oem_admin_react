@@ -180,7 +180,7 @@ const AppRoutes = () => {
             </Route>
 
             <Route element={<UserMainLayout />} >
-                <Route path="/SalesOrder/create/:formId/:id" element={<SalesOrder />} />
+                <Route path="/SalesOrder/create/:formId/:docNo" element={<SalesOrder />} />
                 <Route path="/SalesOrder/edit/:formId/:id" element={<EditSalesOrder />} />
                 <Route path="/SalesOrder/view/:formId/:id" element={<ViewSalesOrder/>}/>
 

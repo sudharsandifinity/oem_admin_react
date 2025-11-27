@@ -69,14 +69,6 @@ const Itemtable = (props) => {
     setIsFreightTableVisible,
     isFreightTableVisible,
     setTotalFreightAmount,
-    freightRowSelection,
-    setFreightRowSelection,
-    summaryDiscountAmount,
-    setSummaryDiscountAmount,
-    summaryDiscountPercent,
-    setSummaryDiscountPercent,
-    roundingEnabled, setRoundingEnabled,
-    roundOff, setRoundOff
   } = props;
   const menuRef = useRef();
 
@@ -97,14 +89,17 @@ const Itemtable = (props) => {
   const [disable, setDisable] = useState(true);
   const [settingsDialogOpen, setSettingsDialogOpen] = useState(false);
   const [copySelectedRow, setCopySelectedRow] = useState([]);
-
-  
+  const [summaryDiscountPercent, setSummaryDiscountPercent] = useState(0);
+  const [summaryDiscountAmount, setSummaryDiscountAmount] = useState(0);
+  const [roundingEnabled, setRoundingEnabled] = useState(false);
+  const [roundOff, setRoundOff] = useState(0);
   const [finalTotal, setFinalTotal] = useState("0.00");
 
   const [itemDialogOpen, setitemDialogOpen] = useState(false);
   const [inputvalue, setInputValue] = useState({});
   const [isTaxDialogOpen, setisTaxDialogOpen] = useState(false);
   const [selectedTaxRowIndex, setSelectedTaxRowIndex] = useState("");
+  const [freightRowSelection, setFreightRowSelection] = useState([]);
 
   const [freightdialogOpen, setfreightDialogOpen] = useState(false);
   const [currentField, setCurrentField] = useState(null);
@@ -426,14 +421,14 @@ const Itemtable = (props) => {
     roundingEnabled,
   ]);
 
-  useEffect(() => {
-    setSummaryData((prev) => ({
-      ...prev,
-      TotalDiscount: summaryDiscountAmount,
-      VatSum: summaryCalculation.totalTaxAmount,
-      DocTotal: finalTotal,
-    }));
-  }, [summaryCalculation.totalTaxAmount, finalTotal]);
+useEffect(() => {
+  setSummaryData((prev) => ({
+    ...prev,
+    TotalDiscount: summaryDiscountAmount,
+    VatSum: summaryCalculation.totalTaxAmount,
+    DocTotal: finalTotal
+  }))
+}, [summaryCalculation.totalTaxAmount, finalTotal])
 
   const totaltax = useMemo(() => {
     console.log("itemTaxCode", itemTabledata);
@@ -443,16 +438,17 @@ const Itemtable = (props) => {
     }, 0);
   }, [itemTabledata]);
   const totalFreightAmount = useMemo(() => {
-    const rows =
-      freightRowSelection && Object.values(freightRowSelection || {});
-
-    return (
-      rows &&
-      rows.reduce((sum, item) => {
-        const amt = parseFloat(item.grossTotal || 0); // <-- Correct field
-        return sum + amt;
-      }, 0)
+    console.log(
+      " Object.values(freightRowSelection",
+      Object.values(freightRowSelection)
     );
+
+    const rows = Object.values(freightRowSelection || {});
+
+    return rows.reduce((sum, item) => {
+      const amt = parseFloat(item.grossTotal || 0); // <-- Correct field
+      return sum + amt;
+    }, 0);
   }, [freightRowSelection]);
   const taxSelectionRow = (e) => {
     console.log("taxSelectionRow", itemTabledata, e);
@@ -894,8 +890,7 @@ const Itemtable = (props) => {
           tooltip="Column Settings"
           icon="sap-icon://settings"
         ></Button>
-      </FlexBox>
-      {console.log("itemtableupdatedvaal", itemTabledata)}
+      </FlexBox>{console.log("itemtableupdatedvaal",itemTabledata)}
       <AnalyticalTable
         style={{ borderTop: "1px solid #d6dbe0" }}
         data={itemTabledata}
@@ -912,7 +907,7 @@ const Itemtable = (props) => {
         justifyContent="end"
         style={{ marginTop: "1rem", paddingRight: "2rem" }}
       > */}
-      <div style={{ paddingTop: "3rem" }}>
+      <div style={{ paddingTop: "3rem" }}>       
         <Freight
           mode={mode}
           freightData={freightData}
@@ -922,10 +917,10 @@ const Itemtable = (props) => {
           onselectFreightRow={onselectFreightRow}
           freightRowSelection={freightRowSelection}
           setFreightRowSelection={setFreightRowSelection}
-          taxData={taxData}
-          setTaxData={setTaxData}
-          inputvalue={inputvalue}
-          setInputValue={setInputValue}
+           taxData={taxData}
+        setTaxData={setTaxData}
+         inputvalue={inputvalue}
+        setInputValue={setInputValue}
         />
       </div>
 
@@ -944,18 +939,18 @@ const Itemtable = (props) => {
             onInput={(e) => {
               setSummaryData((prev) => ({
                 ...prev,
-                Remark: e.target.value,
+                Remark: e.target.value
               }));
             }}
-            onScroll={function Xne() {}}
-            onSelect={function Xne() {}}
+            onScroll={function Xne(){}}
+            onSelect={function Xne(){}}
             valueState="None"
           />
         </FlexBox>
-        <FlexBox
+        <FlexBox 
           direction="Column"
           alignItems="FlexStart"
-          style={{ width: "40%", gap: "10px" }}
+          style={{width: '40%', gap: '10px'}}
         >
           <Title level="H3" style={{ marginBottom: "16px" }}>
             Total Summary
@@ -995,7 +990,7 @@ const Itemtable = (props) => {
               </FlexBox>
               <Text>{summaryDiscountAmount}</Text>
             </FlexBox>
-          </FlexBox>
+          </FlexBox> 
           <FlexBox>
             <Label
               showColon
@@ -1005,12 +1000,12 @@ const Itemtable = (props) => {
             </Label>
             <Button
               design="Default"
-              onClick={() => setfreightDialogOpen(true)}
+              onClick={()=>setfreightDialogOpen(true)}
               tooltip="Freight"
               // make the button compact so only icon shows visually:
             >
               <Icon
-                tooltip="Add Freight"
+              tooltip="Add Freight"
                 name="arrow-right"
                 style={{
                   color: "#ff9e00",
@@ -1025,10 +1020,9 @@ const Itemtable = (props) => {
               {setTotalFreightAmount(totalFreightAmount)}{" "}
               <Text>
                 {" "}
-                {totalFreightAmount &&
-                  totalFreightAmount.toLocaleString(undefined, {
-                    minimumFractionDigits: 2,
-                  })}
+                {totalFreightAmount.toLocaleString(undefined, {
+                  minimumFractionDigits: 2,
+                })}
               </Text>
             </FlexBox>
           </FlexBox>
@@ -1059,8 +1053,8 @@ const Itemtable = (props) => {
                   }
                   setSummaryData((prev) => ({
                     ...prev,
-                    Rounding: checked ? "tYES" : "tNO",
-                  }));
+                    Rounding: checked ? "tYES":"tNO"
+                  }))
                 }}
               />
               {roundingEnabled ? (
@@ -1069,11 +1063,11 @@ const Itemtable = (props) => {
                   value={roundOff}
                   style={{ textAlign: "right" }}
                   onInput={(e) => {
-                    setRoundOff(parseFloat(e.target.value) || 0);
+                    setRoundOff(parseFloat(e.target.value) || 0)
                     setSummaryData((prev) => ({
                       ...prev,
-                      RoundingDiffAmount: e.target.value,
-                    }));
+                      RoundingDiffAmount: e.target.value
+                    }))
                   }}
                 />
               ) : (
