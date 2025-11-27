@@ -55,6 +55,7 @@ import {
 import { fetchOrderItems } from "../../store/slices/CustomerOrderItemsSlice";
 import { fetchOrderServices } from "../../store/slices/CustomerOrderServiceSlice";
 import { fetchAttachmentDetailsById } from "../../store/slices/salesAdditionalDetailsSlice";
+import { fetchSalesQuotationById, updateSalesQuotation } from "../../store/slices/SalesQuotationSlice";
 
 const EditSalesOrder = () => {
   const { id, formId } = useParams();
@@ -123,9 +124,17 @@ const EditSalesOrder = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const orderListById = await dispatch(
+        let orderListById ="";
+        if(formDetails[0]?.name==="Sales Order"){
+        orderListById  = await dispatch(
           fetchCustomerOrderById(id)
         ).unwrap();
+      }else{
+        orderListById  = await dispatch(
+          fetchSalesQuotationById(id)
+        ).unwrap();
+      }
+        
         const orderList = await dispatch(fetchOrderItems()).unwrap();
         const serviceList = await dispatch(fetchOrderServices()).unwrap();
         console.log("res,res1", orderListById, orderList, serviceList);
@@ -139,16 +148,22 @@ const EditSalesOrder = () => {
         }
         if (orderListById) {
           // 1. Store order header info
-          setFormData({
+          
+setFormData({
             CardCode: orderListById.CardCode,
-            CardName: orderListById.CardName,
-            DocDueDate: orderListById.CreationDate
+            CardName: orderListById.CardName, 
+            DocDueDate: orderListById.DocDueDate
+              ? new Date(orderListById.DocDueDate).toISOString().split("T")[0]
+              : new Date().toISOString().split("T")[0],
+              DocDate: orderListById.DocDate
+              ? new Date(orderListById.DocDate).toISOString().split("T")[0]
+              : new Date().toISOString().split("T")[0],
+              CreationDate: orderListById.CreationDate
               ? new Date(orderListById.CreationDate).toISOString().split("T")[0]
               : new Date().toISOString().split("T")[0],
             DocumentLines: orderListById.DocumentLines || [],
             formData: orderListById.formData,
           });
-
           // 2. Merge document lines into orderItems
           if (orderListById.DocumentLines?.length > 0) {
             if (orderListById.DocType === "dDocument_Items") {
@@ -497,10 +512,17 @@ const EditSalesOrder = () => {
           formDataToSend.append(key, payload[key]);
         }
       });
-      console.log('formdata to sent', formDataToSend)
-      const res = await dispatch(
+      console.log("formdatatosend", payload, formDataToSend);
+      let res =""
+            if(formDetails[0]?.name==="Sales Order"){
+              res=  await dispatch(
         updateCustomerOrder({ id, data: formDataToSend })
       ).unwrap();
+            }else{
+              res= await dispatch(updateSalesQuotation(formDataToSend)).unwrap();
+      
+            }
+     
       if (res.message === "Please Login!") {
         navigate("/login");
       }
@@ -620,7 +642,9 @@ const EditSalesOrder = () => {
                       Home
                     </BreadcrumbsItem>
                     <BreadcrumbsItem data-route={`/Sales/${formId}`}>
-                      Sales Order list
+                      {formDetails
+                      ? formDetails[0]?.name+" List"
+                      : "Sales Orders"}
                     </BreadcrumbsItem>
                     <BreadcrumbsItem>
                       {formDetails

@@ -32,6 +32,7 @@ import ViewSalesOrder from "./ViewSalesOrder";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCustomerOrder } from "../../store/slices/CustomerOrderSlice";
 import "@ui5/webcomponents-icons/dist/show.js";
+import { fetchSalesQuotations } from "../../store/slices/SalesQuotationSlice";
 
 const ManageSalesOrder = () => {
   const {
@@ -85,9 +86,16 @@ const ManageSalesOrder = () => {
   useEffect(() => {
     const fetchInitial = async () => {
       try {
-        const res = await dispatch(
+        let res =''
+        if(formDetails[0]?.name==="Sales Order"){
+          res=await dispatch(
           fetchCustomerOrder({ top: pageSize, skip: 0 })
         ).unwrap();
+        } else{
+        
+         res = await dispatch(fetchSalesQuotations({ top: pageSize, skip: 0 })).unwrap();}
+        
+        console.log("quotationdata","sales",res,formDetails[0]?.name);
         const initialData = res.data.map((item) => ({
           DocEntry: item.DocEntry,
           CustomerCode: item.CardCode,
@@ -105,7 +113,7 @@ const ManageSalesOrder = () => {
     };
 
     fetchInitial();
-  }, []);
+  }, [formDetails]);
 
   const [viewItem, setViewItem] = useState([]);
 

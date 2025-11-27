@@ -23,6 +23,7 @@ export default function TopNav({
   setSelectedCompany,
   selectedBranch,
   setSelectedBranch,
+  showCompanySelectionRoutes,
   ...rest
 }) {
   const userMenuRef = useRef(null);
@@ -111,7 +112,7 @@ const uniqueBranches = selectedCompany
           ></ShellBarBranding>
         }
         content={
-          <div
+          showCompanySelectionRoutes?<div
             style={{
               width: "100%",
               display: "flex",
@@ -149,7 +150,7 @@ const uniqueBranches = selectedCompany
                 </Option>
               ))}
             </Select>
-          </div>
+          </div>:<div></div>
         }
         searchField={
           <ShellBarSearch

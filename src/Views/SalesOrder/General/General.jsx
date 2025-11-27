@@ -42,7 +42,8 @@ const General = ({
   formData,
   defaultValues,
   mode = "create",
-  selectedcardcode, setSelectedCardCode,
+  selectedcardcode,
+  setSelectedCardCode,
   apiError,
 }) => {
   const {
@@ -127,10 +128,34 @@ const General = ({
       [name]: value,
     }));
   };
-  useEffect(() => {
-    //setInputValue((prev) => ({  ...prev, ...formData }));
-    console.log("formDataGeneral", formData);
-  }, []);
+const selectedData = selectedcardcode
+  ? generalData.find(r => r.CardCode === selectedcardcode)
+  : null;
+
+const autoCardNameRef = selectedData?.CardName || "";
+const autoContactPersonRef = selectedData?.ContactPerson || "";
+const autoCustomerRef = selectedData?.Series || "";
+
+useEffect(() => {
+  if (autoCustomerRef) {
+    handleChange({
+      target: { name: "CustomerRefNo", value: autoCustomerRef },
+    });
+  }
+
+  if (autoContactPersonRef) {
+    handleChange({
+      target: { name: "ContactPerson", value: autoContactPersonRef },
+    });
+  }
+
+  if (autoCardNameRef) {
+    handleChange({
+      target: { name: "CardName", value: autoCardNameRef },
+    });
+  }
+}, [autoCustomerRef, autoContactPersonRef, autoCardNameRef]);
+
   return (
     <div>
       <form
@@ -147,7 +172,8 @@ const General = ({
           <FlexBox
             justifyContent="SpaceBetween"
             style={{ padding: "40px 30px", gap: "150px" }}
-          >{console.log("selectedcardcode",selectedcardcode)}
+          >
+            {console.log("selectedcardcode", selectedcardcode)}
             <FlexBox direction="Column" style={{ width: "100%", gap: "8px" }}>
               <FlexBox alignItems="Center">
                 <Label style={{ minWidth: "200px" }}>Customer:</Label>
@@ -197,13 +223,7 @@ const General = ({
                       name="CardName"
                       disabled={mode === "view"}
                       style={{ width: "100%" }}
-                      value={
-                        selectedcardcode
-                          ? generalData.find(
-                              (r) => r.CardCode === selectedcardcode
-                            )?.CardName
-                          : field.value
-                      }
+                      value={autoCardNameRef || field.value}
                       onInput={(e) => field.onChange(e.target.value)}
                       onChange={handleChange}
                       valueState={errors.CardName ? "Error" : "None"}
@@ -228,13 +248,7 @@ const General = ({
                       name="ContactPerson"
                       disabled={mode === "view"}
                       style={{ width: "100%" }}
-                      value={
-                        selectedcardcode
-                          ? generalData.find(
-                              (r) => r.CardCode === selectedcardcode
-                            )?.ContactPerson
-                          : field.value
-                      }
+                      value={autoContactPersonRef||field.value}
                       onInput={(e) => field.onChange(e.target.value)}
                       onChange={handleChange}
                       valueState={errors.ContactPerson ? "Error" : "None"}
@@ -259,12 +273,7 @@ const General = ({
                       name="CustomerRefNo"
                       disabled={mode === "view"}
                       style={{ width: "100%" }}
-                      value={
-                        selectedcardcode
-                          ? generalData.find(
-                              (r) => r.CardCode === selectedcardcode
-                            )?.CustomerRefNo
-                          : field.value
+                      value={autoCustomerRef||field.value
                       }
                       onInput={(e) => field.onChange(e.target.value)}
                       onChange={handleChange}
@@ -342,28 +351,30 @@ const General = ({
               <FlexBox alignItems="Center">
                 <Label style={{ minWidth: "200px" }}>Posting Date:</Label>
                 <Controller
-                  name="DocDueDate"
+                  name="CreationDate" 
                   control={control}
                   render={({ field }) => (
                     <Input
-                      placeholder="Current Date"
-                      name="DocDueDate"
+                      placeholder="Posting Date"
+                      name="CreationDate"
                       type="date"
                       disabled={mode === "view"}
                       min="2025-01-01"
                       style={{ width: "100%" }}
                       value={
-                        formData.PostingDate
-                          ? new Date(formData.PostingDate).toISOString().split("T")[0]
+                        formData.CreationDate
+                          ? new Date(formData.CreationDate)
+                              .toISOString()
+                              .split("T")[0]
                           : new Date().toISOString().split("T")[0]
                       }
                       onInput={(e) => field.onChange(e.target.value)}
                       onChange={handleChange}
-                      valueState={errors.DocDueDate ? "Error" : "None"}
+                      valueState={errors.CreationDate ? "Error" : "None"}
                     >
-                      {errors.DocDueDate && (
+                      {errors.CreationDate && (
                         <span slot="valueStateMessage">
-                          {errors.DocDueDate.message}
+                          {errors.CreationDate.message}
                         </span>
                       )}
                     </Input>
@@ -385,7 +396,9 @@ const General = ({
                       style={{ width: "100%" }}
                       value={
                         formData.DocDueDate
-                          ? new Date(formData.DocDueDate).toISOString().split("T")[0]
+                          ? new Date(formData.DocDueDate)
+                              .toISOString()
+                              .split("T")[0]
                           : new Date().toISOString().split("T")[0]
                       }
                       onInput={(e) => field.onChange(e.target.value)}
@@ -416,7 +429,9 @@ const General = ({
                       style={{ width: "100%" }}
                       value={
                         formData.DocDate
-                          ? new Date(formData.DocDate).toISOString().split("T")[0]
+                          ? new Date(formData.DocDate)
+                              .toISOString()
+                              .split("T")[0]
                           : new Date().toISOString().split("T")[0]
                       }
                       onInput={(e) => field.onChange(e.target.value)}

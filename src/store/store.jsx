@@ -19,6 +19,7 @@ import vendororderReducer from './slices/VendorOrderSlice';
 import vendororderitemsReducer from './slices/VendorOrderItemsSlice';
 import customerorderserviceReducer from './slices/CustomerOrderServiceSlice';
 import salesadddetailsReducer from './slices/salesAdditionalDetailsSlice';
+import salesquotationReducer from './slices/salesQuotationSlice';
 const store = configureStore({
   reducer: {
     auth: authReducer,
@@ -41,6 +42,7 @@ const store = configureStore({
     vendororder:vendororderReducer,
     vendororderItems:vendororderitemsReducer,
     salesadddetails:salesadddetailsReducer,
+    salesquotation:salesquotationReducer,
     puradddetails:salesadddetailsReducer,
 
   },

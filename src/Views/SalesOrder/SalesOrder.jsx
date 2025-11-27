@@ -50,6 +50,7 @@ import Attachments from "./Attachments/Attachments";
 import UserDefinedFields from "./User-DefinedFields/UserDefinedFields";
 import { useDispatch, useSelector } from "react-redux";
 import { createCustomerOrder } from "../../store/slices/CustomerOrderSlice";
+import { createSalesQuotation } from "../../store/slices/SalesQuotationSlice";
 
 export default function SalesOrder() {
   const { fieldConfig, CustomerDetails, DocumentDetails } =
@@ -165,11 +166,28 @@ export default function SalesOrder() {
       if (type === "Item") {
         payload = {
           CardCode: formData.CardCode,
-          DocDueDate:
-            formData.DocDueDate
-              ? new Date(formData.DocDueDate).toISOString().split("T")[0].replace(/-/g, "")
-              : new Date().toISOString().split("T")[0].replace(/-/g, ""),
-
+          DocDate: formData.DocDate
+            ? new Date(formData.DocDate)
+                .toISOString()
+                .split("T")[0]
+                .replace(/-/g, "")
+            : new Date().toISOString().split("T")[0].replace(/-/g, ""),
+          DocDueDate: formData.DocDueDate
+            ? new Date(formData.DocDueDate)
+                .toISOString()
+                .split("T")[0]
+                .replace(/-/g, "")
+            : new Date().toISOString().split("T")[0].replace(/-/g, ""),
+            CreationDate: formData.CreationDate
+            ? new Date(formData.CreationDate)
+                 .toISOString()
+                .split("T")[0]
+                .replace(/-/g, "")
+            : new Date().toISOString().split("T")[0].replace(/-/g, ""),
+            //DocEntry: formData.DocEntry,
+            DocumentStatus:"open",
+            ContactPerson:formData.ContactPerson,
+          DocType: "dDocument_Items",
           DocumentLines: itemTabledata.map((line) => ({
             ItemCode: line.ItemCode,
             ItemDescription: line.ItemName,
@@ -196,10 +214,27 @@ export default function SalesOrder() {
         payload = {
           CardCode: formData.CardCode,
           DocType: "dDocument_Service",
-          DocDueDate:
-            formData.DocDueDate
-              ? new Date(formData.DocDueDate).toISOString().split("T")[0].replace(/-/g, "")
-              : new Date().toISOString().split("T")[0].replace(/-/g, ""),
+          DocDate: formData.DocDate
+            ? new Date(formData.DocDate)
+                .toISOString()
+                .split("T")[0]
+                .replace(/-/g, "")
+            : new Date().toISOString().split("T")[0].replace(/-/g, ""),
+          DocDueDate: formData.DocDueDate
+            ? new Date(formData.DocDueDate)
+                .toISOString()
+                .split("T")[0]
+                .replace(/-/g, "")
+            : new Date().toISOString().split("T")[0].replace(/-/g, ""),
+            CreationDate: formData.CreationDate
+            ? new Date(formData.CreationDate)
+                 .toISOString()
+                .split("T")[0]
+                .replace(/-/g, "")
+            : new Date().toISOString().split("T")[0].replace(/-/g, ""),
+            //DocEntry: formData.DocEntry,
+            DocumentStatus: "open",
+            ContactPerson:formData.ContactPerson,
 
           DocumentLines: serviceTabledata.map((line) => ({
             AccountCode: line.ServiceCode,
@@ -235,8 +270,14 @@ export default function SalesOrder() {
           formDataToSend.append(key, payload[key]);
         }
       });
-      
-      const res = await dispatch(createCustomerOrder(formDataToSend)).unwrap();
+      console.log("formdatatosend", payload, formDataToSend,formDetails);
+      let res =""
+      if(formDetails[0]?.name==="Sales Order"){
+        res= await dispatch(createCustomerOrder(formDataToSend)).unwrap();
+      }else{
+        res= await dispatch(createSalesQuotation(formDataToSend)).unwrap();
+
+      }
 
       if (res.message === "Please Login!") {
         navigate("/login");
@@ -406,8 +447,8 @@ export default function SalesOrder() {
                     Home
                   </BreadcrumbsItem>
                   <BreadcrumbsItem data-route={`/Sales/${formId}`}>
-                    {formDetails[0]?.name
-                      ? formDetails[0]?.name
+                    {formDetails
+                      ? formDetails[0]?.name+" List "
                       : "Sales Orders"}
                   </BreadcrumbsItem>
                   <BreadcrumbsItem>
