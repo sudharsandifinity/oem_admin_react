@@ -190,7 +190,8 @@ const AppRoutes = () => {
 
                 <Route path="/ManageSalesOrder" element={<ManageSalesOrder />}/>
                 <Route path="/Sales/:formId" element={<ManageSalesOrder />} />
-                <Route path="/Purchase/:formId" element={<ManagePurchaseOrder />} />
+                <Route path="/Purchase/:formId" element={<ManageSalesOrder />} />
+                 {/* <Route path="/Purchase/:formId" element={<ManagePurchaseOrder />} /> */}
             </Route>
         </Route>
 

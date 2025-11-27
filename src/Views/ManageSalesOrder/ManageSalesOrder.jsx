@@ -33,12 +33,14 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchCustomerOrder } from "../../store/slices/CustomerOrderSlice";
 import "@ui5/webcomponents-icons/dist/show.js";
 import { fetchSalesQuotations } from "../../store/slices/SalesQuotationSlice";
+import { fetchVendorOrder } from "../../store/slices/VendorOrderSlice";
 
 const ManageSalesOrder = () => {
   const {
     ManageSalesOrderTableColumn,
     ManageSalesOrderTableData,
     ManageSalesOderHeaderField,
+    ManagePurchaseOrderTableColumn
   } = useContext(FormConfigContext);
   const dispatch = useDispatch();
 
@@ -86,17 +88,23 @@ const ManageSalesOrder = () => {
   useEffect(() => {
     const fetchInitial = async () => {
       try {
-        let res =''
-        if(formDetails[0]?.name==="Sales Order"){
-          res=await dispatch(
-          fetchCustomerOrder({ top: pageSize, skip: 0 })
-        ).unwrap();
-        } else{
-        
-         res = await dispatch(fetchSalesQuotations({ top: pageSize, skip: 0 })).unwrap();}
-        
-        console.log("quotationdata","sales",res,formDetails[0]?.name);
-        const initialData = res.data.map((item) => ({
+        let res = "";
+        if (formDetails[0]?.name === "Sales Order") {
+          res = await dispatch(
+            fetchCustomerOrder({ top: pageSize, skip: 0 })
+          ).unwrap();
+        } else if (formDetails[0]?.name === "Sales Quotation") {
+          res = await dispatch(
+            fetchSalesQuotations({ top: pageSize, skip: 0 })
+          ).unwrap();
+        } else if (formDetails[0]?.name === "Purchase Order") {
+          res = await dispatch(
+            fetchVendorOrder({ top: pageSize, skip: 0 })
+          ).unwrap();
+        }
+
+        console.log("quotationdata", "sales", res, formDetails[0]?.name);
+        const initialData = (res&&res.data?res.data:res).map((item) => ({
           DocEntry: item.DocEntry,
           CustomerCode: item.CardCode,
           CustomerName: item.CardName,
@@ -133,16 +141,27 @@ const ManageSalesOrder = () => {
       [e.detail.row.id]: e.detail.row.original,
     }));
   };
-  const ManageSalesOrderTableCols = [
-    ...(ManageSalesOrderTableColumn &&
-      ManageSalesOrderTableColumn.length &&
-      ManageSalesOrderTableColumn.map((col) => {
-        return {
-          Header: col.Header,
-          accessor: col.accessor,
-        };
-      })),
-  ];
+  // const ManageSalesOrderTableCols = [
+  //   ...(ManageSalesOrderTableColumn &&
+  //     ManageSalesOrderTableColumn.length &&
+  //     ManageSalesOrderTableColumn.map((col) => {
+  //       return {
+  //         Header: col.Header,
+  //         accessor: col.accessor,
+  //       };
+  //     })),
+  // ];
+  const ManageSalesOrderTableCols = 
+  formDetails[0]?.name === "Purchase Order"
+    ? ManagePurchaseOrderTableColumn?.map(col => ({
+        Header: col.Header,
+        accessor: col.accessor,
+      })) || []
+    : ManageSalesOrderTableColumn?.map(col => ({
+        Header: col.Header,
+        accessor: col.accessor,
+      })) || [];
+
   const editRow = async (rowData) => {
     console.log("rowData", rowData);
     navigate("/SalesOrder/edit/" + formId + "/" + rowData.DocEntry);

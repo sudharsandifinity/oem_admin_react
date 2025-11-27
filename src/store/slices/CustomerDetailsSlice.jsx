@@ -49,7 +49,7 @@ export const createCustomerDetails = createAsyncThunk(
   "customerdetails/create",
   async (data, thunkApi) => {
     try {
-      const response = await cusapi.post(API_URL, data, {
+      const response = await api.post(API_URL, data, {
         withCredentials: true,
       });
       return response.data;
@@ -66,7 +66,7 @@ export const updateCustomerDetails = createAsyncThunk(
   "customerdetails/update",
   async ({ cardCode, data }, thunkApi) => {
     try {
-      const response = await cusapi.patch(`${API_URL}('${cardCode}')`, data, {
+      const response = await api.patch(`${API_URL}('${cardCode}')`, data, {
         withCredentials: true,
       });
       return response.data;
@@ -83,7 +83,7 @@ export const deleteCustomerDetails = createAsyncThunk(
   "customerdetails/delete",
   async (cardCode, thunkApi) => {
     try {
-      await cusapi.delete(`${API_URL}('${cardCode}')`, {
+      await api.delete(`${API_URL}('${cardCode}')`, {
         withCredentials: true,
       });
       return cardCode; // return deleted key
@@ -100,7 +100,7 @@ export const fetchCustomerDetailsById = createAsyncThunk(
   "customerdetails/fetchById",
   async (cardCode, thunkApi) => {
     try {
-      const response = await cusapi.get(`${API_URL}('${cardCode}')`, {
+      const response = await api.get(`${API_URL}('${cardCode}')`, {
         withCredentials: true,
       });
       return response.data;
