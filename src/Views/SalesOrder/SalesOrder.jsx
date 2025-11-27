@@ -51,6 +51,7 @@ import UserDefinedFields from "./User-DefinedFields/UserDefinedFields";
 import { useDispatch, useSelector } from "react-redux";
 import { createCustomerOrder } from "../../store/slices/CustomerOrderSlice";
 import { createSalesQuotation } from "../../store/slices/SalesQuotationSlice";
+import { createVendorOrder } from "../../store/slices/VendorOrderSlice";
 
 export default function SalesOrder() {
   const { fieldConfig, CustomerDetails, DocumentDetails } =
@@ -159,7 +160,11 @@ export default function SalesOrder() {
 
   const handleSubmit = async () => {
     try {
-       const fd = new FormData();
+      console.log(
+        "itemTabledatahandleSubmit",
+        itemTabledata,
+        formData,
+      );
       setLoading(true);
       let payload = {};
 
@@ -274,9 +279,13 @@ export default function SalesOrder() {
       let res =""
       if(formDetails[0]?.name==="Sales Order"){
         res= await dispatch(createCustomerOrder(formDataToSend)).unwrap();
-      }else{
+      }else if(formDetails[0]?.name==="Sales Quotation"){
         res= await dispatch(createSalesQuotation(formDataToSend)).unwrap();
 
+      }else if(formDetails[0]?.name==="Purchase Order"){
+        //dispatch(createPurchaseOrder(formDataToSend)).unwrap();
+               res = await dispatch(createVendorOrder(formDataToSend)).unwrap();
+        
       }
 
       if (res.message === "Please Login!") {

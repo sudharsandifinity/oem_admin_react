@@ -55,7 +55,11 @@ import {
 import { fetchOrderItems } from "../../store/slices/CustomerOrderItemsSlice";
 import { fetchOrderServices } from "../../store/slices/CustomerOrderServiceSlice";
 import { fetchAttachmentDetailsById } from "../../store/slices/salesAdditionalDetailsSlice";
-import { fetchSalesQuotationById, updateSalesQuotation } from "../../store/slices/SalesQuotationSlice";
+import {
+  fetchSalesQuotationById,
+  updateSalesQuotation,
+} from "../../store/slices/SalesQuotationSlice";
+import { fetchVendorOrderById } from "../../store/slices/VendorOrderSlice";
 
 const EditSalesOrder = () => {
   const { id, formId } = useParams();
@@ -83,9 +87,9 @@ const EditSalesOrder = () => {
   const [totalFreightAmount, setTotalFreightAmount] = useState(0);
   const [summaryData, setSummaryData] = useState({});
   const [summaryDiscountPercent, setSummaryDiscountPercent] = useState(0);
-    const [summaryDiscountAmount, setSummaryDiscountAmount] = useState(0);
-     const [roundingEnabled, setRoundingEnabled] = useState(false);
-     const [roundOff, setRoundOff] = useState(0);
+  const [summaryDiscountAmount, setSummaryDiscountAmount] = useState(0);
+  const [roundingEnabled, setRoundingEnabled] = useState(false);
+  const [roundOff, setRoundOff] = useState(0);
 
   const [itemdata, setitemData] = useState([
     {
@@ -121,20 +125,35 @@ const EditSalesOrder = () => {
   });
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        let orderListById ="";
-        if(formDetails[0]?.name==="Sales Order"){
-        orderListById  = await dispatch(
-          fetchCustomerOrderById(id)
-        ).unwrap();
-      }else{
-        orderListById  = await dispatch(
-          fetchSalesQuotationById(id)
-        ).unwrap();
+useEffect(() => {
+  if (!formDetails || formDetails.length === 0) return;  
+  if (!formDetails[0]?.name) return;                    
+
+  const fetchData = async () => {
+    setLoading(true);
+
+    try {
+      let orderListById = "";
+
+      // ✅ Fetch based on form type
+      switch (formDetails[0].name) {
+        case "Sales Order":
+          orderListById = await dispatch(fetchCustomerOrderById(id)).unwrap();
+          break;
+
+        case "Sales Quotation":
+          orderListById = await dispatch(fetchSalesQuotationById(id)).unwrap();
+          break;
+
+        case "Purchase Order":
+          orderListById = await dispatch(fetchVendorOrderById(id)).unwrap();
+          break;
+
+        default:
+          console.warn("Unknown form:", formDetails[0].name);
+          return;
       }
-        
+
         const orderList = await dispatch(fetchOrderItems()).unwrap();
         const serviceList = await dispatch(fetchOrderServices()).unwrap();
         console.log("res,res1", orderListById, orderList, serviceList);
@@ -148,17 +167,17 @@ const EditSalesOrder = () => {
         }
         if (orderListById) {
           // 1. Store order header info
-          
-setFormData({
+
+          setFormData({
             CardCode: orderListById.CardCode,
-            CardName: orderListById.CardName, 
+            CardName: orderListById.CardName,
             DocDueDate: orderListById.DocDueDate
               ? new Date(orderListById.DocDueDate).toISOString().split("T")[0]
               : new Date().toISOString().split("T")[0],
-              DocDate: orderListById.DocDate
+            DocDate: orderListById.DocDate
               ? new Date(orderListById.DocDate).toISOString().split("T")[0]
               : new Date().toISOString().split("T")[0],
-              CreationDate: orderListById.CreationDate
+            CreationDate: orderListById.CreationDate
               ? new Date(orderListById.CreationDate).toISOString().split("T")[0]
               : new Date().toISOString().split("T")[0],
             DocumentLines: orderListById.DocumentLines || [],
@@ -185,7 +204,7 @@ setFormData({
                             TaxCode: matched.TaxCode,
                             amount: matched.UnitPrice,
                             discount: matched.DiscountPercent,
-                            TaxRate:matched.TaxTotal,
+                            TaxRate: matched.TaxTotal,
                           }
                         : {
                             slno: index, // usually LineNum is 0-based
@@ -195,11 +214,10 @@ setFormData({
                             TaxCode: item.TaxCode,
                             amount: item.UnitPrice,
                             discount: item.DiscountPercent,
-                            TaxRate:item.TaxTotal
+                            TaxRate: item.TaxTotal,
                           }; // no placeholder
                     })
                     .filter(Boolean) // remove nulls
-
               );
               setitemTableData(
                 () =>
@@ -218,7 +236,7 @@ setFormData({
                             TaxCode: matched.TaxCode,
                             amount: matched.UnitPrice,
                             discount: matched.DiscountPercent,
-                            TaxRate:matched.TaxTotal
+                            TaxRate: matched.TaxTotal,
                           }
                         : null; // no placeholder
                     })
@@ -255,7 +273,7 @@ setFormData({
                             TaxCode: matched.TaxCode,
                             amount: matched.UnitPrice,
                             discount: matched.DiscountPercent,
-                            TaxRate:matched.TaxTotal,
+                            TaxRate: matched.TaxTotal,
                           }
                         : {
                             slno: index, // usually LineNum is 0-based
@@ -265,7 +283,7 @@ setFormData({
                             TaxCode: item.TaxCode,
                             amount: item.UnitPrice,
                             discount: item.DiscountPercent,
-                            TaxRate:item.TaxTotal,
+                            TaxRate: item.TaxTotal,
                           }; // no placeholder
                     })
                     .filter(Boolean) // remove nulls
@@ -287,7 +305,7 @@ setFormData({
                             TaxCode: matched.TaxCode,
                             amount: matched.UnitPrice,
                             discount: matched.DiscountPercent,
-                            TaxRate:matched.TaxTotal,
+                            TaxRate: matched.TaxTotal,
                           }
                         : null; // no placeholder
                     })
@@ -319,24 +337,26 @@ setFormData({
 
             // 3. Preselect rows
           }
-           setSummaryData((prev) => ({
-                ...prev,
-                Remark: orderListById.Comments
-              }));
+          setSummaryData((prev) => ({
+            ...prev,
+            Remark: orderListById.Comments,
+          }));
           // set general header edit data
-          setSummaryDiscountPercent(orderListById.DiscountPercent)
-          setRoundingEnabled(orderListById.Rounding==="tYES")
-          setRoundOff(orderListById.RoundingDiffAmount)
+          setSummaryDiscountPercent(orderListById.DiscountPercent);
+          setRoundingEnabled(orderListById.Rounding === "tYES");
+          setRoundOff(orderListById.RoundingDiffAmount);
           setgeneraleditdata({
             CardCode: orderListById.CardCode,
             CardName: orderListById.CardName,
             PostingDate: orderListById.CreationDate,
-            DocDate:orderListById.DocDate?new Date(orderListById.DocDate).toISOString().split("T")[0]:"",
+            DocDate: orderListById.DocDate
+              ? new Date(orderListById.DocDate).toISOString().split("T")[0]
+              : "",
             DeliveryDate: orderListById.DocDueDate
               ? new Date(orderListById.DocDueDate).toISOString().split("T")[0]
               : "",
-              DocEntry:orderListById.DocEntry,
-              DocumentStatus:orderListById.DocumentStatus,
+            DocEntry: orderListById.DocEntry,
+            DocumentStatus: orderListById.DocumentStatus,
           });
           setUserDefinedData(orderListById.formData);
         }
@@ -348,7 +368,7 @@ setFormData({
     };
 
     fetchData();
-  }, [dispatch, id, orderItems]);
+}, [dispatch, id, formDetails])
 
   const handleChange = (e, name, formName) => {
     const newValue = e.target.value;
@@ -420,13 +440,13 @@ setFormData({
                 .replace(/-/g, "")
             : new Date().toISOString().split("T")[0].replace(/-/g, ""),
           DocType: "dDocument_Items",
-            DocumentLines: Object.values(itemTabledata).map((line) => ({
+          DocumentLines: Object.values(itemTabledata).map((line) => ({
             ItemCode: line.ItemCode,
             ItemDescription: line.ItemName, // ✅ rename to ItemDescription
             Quantity: line.quantity,
             UnitPrice: line.amount,
             TaxCode: line.TaxCode,
-             VatGroup: line.TaxCode,
+            VatGroup: line.TaxCode,
             DiscountPercent: line.discount,
             LineTotal: line.total,
           })),
@@ -450,7 +470,6 @@ setFormData({
               LineGross: freight.amount,
             })
           ),
-        
         };
       } else {
         payload = {
@@ -501,28 +520,35 @@ setFormData({
         "DocumentLines",
         JSON.stringify(payload.DocumentLines)
       );
-       formDataToSend.append(
+      formDataToSend.append(
         "DocumentAdditionalExpenses",
         JSON.stringify(payload.DocumentAdditionalExpenses)
       );
       formDataToSend.append("data", JSON.stringify(payload.data));
 
       Object.keys(payload).forEach((key) => {
-        if (key !== "DocumentLines" && key !== "data"&& key !== "DocumentAdditionalExpenses") {
+        if (
+          key !== "DocumentLines" &&
+          key !== "data" &&
+          key !== "DocumentAdditionalExpenses"
+        ) {
           formDataToSend.append(key, payload[key]);
         }
       });
       console.log("formdatatosend", payload, formDataToSend);
-      let res =""
-            if(formDetails[0]?.name==="Sales Order"){
-              res=  await dispatch(
-        updateCustomerOrder({ id, data: formDataToSend })
-      ).unwrap();
-            }else{
-              res= await dispatch(updateSalesQuotation(formDataToSend)).unwrap();
-      
-            }
-     
+      let res = "";
+      if (formDetails[0]?.name === "Sales Order") {
+        res = await dispatch(
+          updateCustomerOrder({ id, data: formDataToSend })
+        ).unwrap();
+      } else if (formDetails[0]?.name === "Sales Quotation") {
+        res = await dispatch(updateSalesQuotation(formDataToSend)).unwrap();
+      } else if (formDetails[0]?.name === "Purchase Order") {
+        res = await dispatch(
+          updateCustomerOrder({ id, data: formDataToSend })
+        ).unwrap();
+      }
+
       if (res.message === "Please Login!") {
         navigate("/login");
       }
@@ -643,8 +669,8 @@ setFormData({
                     </BreadcrumbsItem>
                     <BreadcrumbsItem data-route={`/Sales/${formId}`}>
                       {formDetails
-                      ? formDetails[0]?.name+" List"
-                      : "Sales Orders"}
+                        ? formDetails[0]?.name + " List"
+                        : "Sales Orders"}
                     </BreadcrumbsItem>
                     <BreadcrumbsItem>
                       {formDetails
@@ -732,16 +758,16 @@ setFormData({
               mode={"edit"}
               setTotalFreightAmount={setTotalFreightAmount}
               totalFreightAmount={totalFreightAmount}
-               summaryDiscountAmount={summaryDiscountAmount}
-            setSummaryDiscountAmount={setSummaryDiscountAmount}
-            summaryDiscountPercent={summaryDiscountPercent}
-            setSummaryDiscountPercent={setSummaryDiscountPercent}
-            roundingEnabled={roundingEnabled} 
-            setRoundingEnabled={setRoundingEnabled}
-            roundOff={roundOff} 
-            setRoundOff={setRoundOff}
-freightRowSelection={freightRowSelection}
-            setFreightRowSelection={setFreightRowSelection}
+              summaryDiscountAmount={summaryDiscountAmount}
+              setSummaryDiscountAmount={setSummaryDiscountAmount}
+              summaryDiscountPercent={summaryDiscountPercent}
+              setSummaryDiscountPercent={setSummaryDiscountPercent}
+              roundingEnabled={roundingEnabled}
+              setRoundingEnabled={setRoundingEnabled}
+              roundOff={roundOff}
+              setRoundOff={setRoundOff}
+              freightRowSelection={freightRowSelection}
+              setFreightRowSelection={setFreightRowSelection}
             />
           </ObjectPageSection>
 

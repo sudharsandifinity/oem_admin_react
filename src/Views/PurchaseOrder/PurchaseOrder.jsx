@@ -70,6 +70,14 @@ export default function PurchaseOrder() {
   const [open, setOpen] = useState(false);
    const [totalFreightAmount,setTotalFreightAmount]= useState(0);
    
+     const [attachmentsList, setAttachmentsList] = useState([]);
+     const [summaryDiscountPercent, setSummaryDiscountPercent] = useState(0);
+     const [summaryDiscountAmount, setSummaryDiscountAmount] = useState(0);
+      const [roundingEnabled, setRoundingEnabled] = useState(false);
+      const [roundOff, setRoundOff] = useState(0);
+      const [selectedcardcode, setSelectedCardCode] = useState([]);
+    const [summaryData, setSummaryData] = useState({});
+     const [freightRowSelection, setFreightRowSelection] = useState([]);
   const [itemTabledata, setitemTableData] = useState([
     { slno: 1, ItemCode: "", ItemName: "", quantity: "", amount: "",  TaxCode:"" },
   ]);
@@ -553,7 +561,7 @@ export default function PurchaseOrder() {
               <h2 style={{ marginTop: "1rem" }}>Error!</h2>
               <p>{apiError}</p>
             </>
-          ) : (
+          ) : ( 
             <>
               {" "}
               <Icon

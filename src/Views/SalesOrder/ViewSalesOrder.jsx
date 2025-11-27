@@ -55,6 +55,7 @@ import {
 import { fetchOrderItems } from "../../store/slices/CustomerOrderItemsSlice";
 import { fetchOrderServices } from "../../store/slices/CustomerOrderServiceSlice";
 import { fetchSalesQuotationById, updateSalesQuotation } from "../../store/slices/SalesQuotationSlice";
+import { fetchVendorOrderById, updateVendorOrder } from "../../store/slices/VendorOrderSlice";
 
 const ViewSalesOrder = () => {
   const { id, formId } = useParams();
@@ -122,21 +123,32 @@ const ViewSalesOrder = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        let orderListById="";
-        if(formDetails[0]?.name==="Sales Order"){
-          orderListById = await dispatch(
-            fetchCustomerOrderById(id)
-          ).unwrap();
-        }else{
-          orderListById = await dispatch(
-            fetchSalesQuotationById(id)
-          ).unwrap();
-        }
-        
+       setLoading(true);
+      
+          try {
+            let orderListById = "";
+      
+            // ✅ Fetch based on form type
+            switch (formDetails[0].name) {
+              case "Sales Order":
+                orderListById = await dispatch(fetchCustomerOrderById(id)).unwrap();
+                break;
+      
+              case "Sales Quotation":
+                orderListById = await dispatch(fetchSalesQuotationById(id)).unwrap();
+                break;
+      
+              case "Purchase Order":
+                orderListById = await dispatch(fetchVendorOrderById(id)).unwrap();
+                break;
+      
+              default:
+                console.warn("Unknown form:", formDetails[0].name);
+                return;
+            }
         const orderList = await dispatch(fetchOrderItems()).unwrap();
         const serviceList = await dispatch(fetchOrderServices()).unwrap();
-        console.log("res,res1", orderListById, orderList, serviceList);
+        console.log("res,res1", orderListById);
         const attachmentListById = ""; //await dispatch(fetchAttachmentDetailsById(orderListById.AttachmentEntry)).unwrap();
         console.log("attachmentListById", attachmentListById);
         setAttachmentsList(
@@ -349,7 +361,7 @@ const ViewSalesOrder = () => {
     };
 
     fetchData();
-  }, [dispatch, id, orderItems]);
+  }, [dispatch, id, formDetails])
 
   const handleChange = (e, name, formName) => {
     const newValue = e.target.value;
@@ -430,9 +442,13 @@ const ViewSalesOrder = () => {
         res = await dispatch(
           updateCustomerOrder({ id, data: payload })
         ).unwrap();
-      } else {
+      } else if(formDetails[0]?.name==="Sales Quotation"){
         res = await dispatch(
           updateSalesQuotation({ id, data: payload })
+        ).unwrap();
+      }else if(formDetails[0]?.name==="Purchase Order"){
+        res = await dispatch(
+          updateVendorOrder({ id, data: payload })
         ).unwrap();
       }
       if (res.message === "Please Login!") {
