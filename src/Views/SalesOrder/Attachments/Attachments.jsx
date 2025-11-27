@@ -10,9 +10,20 @@ import {
 } from "@ui5/webcomponents-react";
 
 const Attachments = (props) => {
-  const {attachmentsList, setAttachmentsList}=props
+  const {attachmentsList, setAttachmentsList, oldAttachmentFiles, setOldAttachmentFiles}=props
   const [attachments, setAttachments] = React.useState("");
   const [openAttachmentDialog, setOpenAttachmentDialog] = React.useState(false);
+
+  const modifiedAttay = (oldAttachmentFiles?.Attachments2_Lines ?? [])
+      .filter((item) => !item.hasOwnProperty('isNew'))
+      .map((item) => ({
+        ...item, 
+        name: item.FileName,
+        size: item.FileSize,
+        type: item.FileExtension
+      }));
+  
+  const combinedAttachments = [  ...modifiedAttay, ...attachmentsList];
   const [openAddAttachmentDialog, setOpenAddAttachmentDialog] =
     React.useState(false);
 
@@ -27,7 +38,8 @@ const Attachments = (props) => {
     name: file.name,
     type: file.type,
     size: file.size,
-    rawFile: file
+    rawFile: file,
+    isNew: true
   }));
 
   setAttachmentsList(prev => {
@@ -71,15 +83,22 @@ const Attachments = (props) => {
             fileType={file.type}
             fileSize={file.size}
             uploadState="Complete"
-            deletable={false} // You can make it true and handle onDelete            onI
-            onItemDelete={(e) => {
-              const fileId = e.detail.item.getAttribute("data-id");
-              setAttachmentsList((prev) =>
-                prev.filter((file) => file.id !== parseInt(fileId))
-              );
-            }}
+            deletable={file.isNew ? true : false} 
             data-id={file.id}
             onClick={OpenAttachment}
+            onItemDelete={(e) => {
+              const fileId = e.detail.item.getAttribute("data-id");
+
+              if (file.isNew) {
+                // delete from new files
+                setAttachmentsList((prev) =>
+                  prev.filter((f) => f.id !== fileId)
+                );
+              } else {
+                // old files should not be deleted (only display)
+                alert("Old files cannot be deleted");
+              }
+            }}
           />
         ))}
       </UploadCollection>
@@ -88,4 +107,3 @@ const Attachments = (props) => {
 };
 
 export default Attachments;
-

@@ -9,11 +9,12 @@ import {
   ShellBarSearch,
 } from "@ui5/webcomponents-react";
 
-import { useRef, useState } from "react";
-import avatarPng from "../../assets/Image/no-profile.png";
-import SapLogoSvg from "../../assets/Image/hamtinfotech-logo.webp";
-import ManageUser from "../ManageUser/ManageUser";
-import { useSelector } from "react-redux";
+import { useRef, useState } from 'react';
+import avatarPng from '../../assets/Image/no-profile.png';
+import SapLogoSvg from '../../assets/Image/hamtinfotech-logo.webp';
+import ManageUser from '../ManageUser/ManageUser';
+import { useDispatch, useSelector } from 'react-redux';
+import { setActiveCompany, switchCompany } from '../../store/slices/userCompanySlice';
 
 export default function TopNav({
   collapsed,
@@ -27,6 +28,7 @@ export default function TopNav({
 }) {
   const userMenuRef = useRef(null);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const dispatch = useDispatch();
 
   const handleMenuBtnClick = () => {
     setCollapsed((prev) => !prev);
@@ -42,6 +44,8 @@ export default function TopNav({
   const companies = user && user.Branches;
 
   const handleCompanyClick = (companyName) => {
+    dispatch(setActiveCompany());
+    dispatch(switchCompany({ companyId: companyName }));
     setSelectedCompany(companyName);
   };
   const handleBranchClick = (branchname) => {

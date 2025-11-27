@@ -68,6 +68,8 @@ const EditSalesOrder = () => {
   const user = useSelector((state) => state.auth.user);
   const [open, setOpen] = useState(false);
   const [attachmentsList, setAttachmentsList] = useState([]);
+  const [attachmentFiles, setAttachmentFiles] = useState([]);
+  const [oldAttachmentFiles, setOldAttachmentFiles] = useState([]);
   const [freightRowSelection, setFreightRowSelection] = useState([]);
 
   const [tabList, setTabList] = useState([]);
@@ -136,15 +138,14 @@ const EditSalesOrder = () => {
         const orderList = await dispatch(fetchOrderItems()).unwrap();
         const serviceList = await dispatch(fetchOrderServices()).unwrap();
         console.log("res,res1", orderListById, orderList, serviceList);
-        const attachmentListById ="" //await dispatch(fetchAttachmentDetailsById(orderListById.AttachmentEntry)).unwrap();
-        console.log("attachmentListById", attachmentListById);
-        setAttachmentsList(
-          attachmentListById&&attachmentListById.Attachments2_Lines?.map((line) => ({
-            name: line.FileName,
-            type: line.FileExtension,
-            size: line.FileSize,
-          }))
-        );
+        if(orderListById.AttachmentEntry){
+          const attachmentListById = await dispatch(fetchAttachmentDetailsById(orderListById.AttachmentEntry)).unwrap();
+          console.log("attachmentListById", attachmentListById);
+          setOldAttachmentFiles(prev => ({
+            ...prev,
+            Attachments2_Lines: attachmentListById.Attachments2_Lines
+          }));
+        }
         if (orderListById) {
           // 1. Store order header info
           
@@ -489,13 +490,12 @@ setFormData({
           ),
         };
       }
-      console.log("payload", payload);
       const formDataToSend = new FormData();
-      // attachmentsList.forEach((f) => {
-      //   if (f.rawFile) {
-      //     return formDataToSend.append("Attachments2_Lines", f.rawFile);
-      //   }
-      // });
+        attachmentsList.forEach(f => {
+        if (f.rawFile) {
+          return formDataToSend.append("Attachments2_Lines", f.rawFile);
+        }
+      });
 
       formDataToSend.append(
         "DocumentLines",
@@ -779,10 +779,7 @@ freightRowSelection={freightRowSelection}
             }}
             titleText="Attachments"
           >
-            <Attachments
-              attachmentsList={attachmentsList}
-              setAttachmentsList={setAttachmentsList}
-            />
+            <Attachments onFilesChange={setAttachmentFiles} attachmentsList={attachmentsList} setAttachmentsList={setAttachmentsList} oldAttachmentFiles={oldAttachmentFiles} setOldAttachmentFiles={setOldAttachmentFiles} />
           </ObjectPageSection>
 
           <ObjectPageSection

@@ -65,12 +65,13 @@ export default function SalesOrder() {
   const [tabList, setTabList] = useState([]);
   const [formDetails, setFormDetails] = useState([]);
   const [formData, setFormData] = useState({});
-  const [userdefinedData, setUserDefinedData] = useState({});
-  const [attachments, setAttachments] = useState([]);
+  const[userdefinedData,setUserDefinedData]= useState({})
+ const[ attachmentsList, setAttachmentsList]= useState([]);
+ const[attachments,setAttachments]= useState([]);
   const [rowSelection, setRowSelection] = useState({});
   const [open, setOpen] = useState(false);
-  const [type, setType] = useState("Item");
-  const [totalFreightAmount, setTotalFreightAmount] = useState(0);
+  const [type,setType]= useState("Item");
+  const [totalFreightAmount,setTotalFreightAmount]= useState(0);
   const [attachmentFiles, setAttachmentFiles] = useState([]);
   const [attachmentsList, setAttachmentsList] = useState([]);
   const [summaryDiscountPercent, setSummaryDiscountPercent] = useState(0);
@@ -90,7 +91,6 @@ export default function SalesOrder() {
     },
   ]);
   const [summaryData, setSummaryData] = useState({});
-  const [freightRowSelection, setFreightRowSelection] = useState([]);
   const [itemdata, setitemData] = useState([
     { slno: 1, ItemCode: "", ItemName: "", quantity: "", amount: "" },
   ]);
@@ -159,13 +159,7 @@ export default function SalesOrder() {
 
   const handleSubmit = async () => {
     try {
-      console.log(
-        "itemTabledatahandleSubmit",
-        itemTabledata,
-        formData,
-        freightRowSelection
-      );
-      const fd = new FormData();
+       const fd = new FormData();
       setLoading(true);
       let payload = {};
 
@@ -214,18 +208,7 @@ export default function SalesOrder() {
           TotalDiscount: summaryData.TotalDiscount,
           Comments: summaryData.Remark,
           VatSum: summaryData.VatSum,
-          //freight: totalFreightAmount,
-          DocumentAdditionalExpenses: Object.values(freightRowSelection).map(
-            (freight) => ({
-              ExpenseCode: freight.ExpensCode,
-              LineTotal: freight.grossTotal,
-              Remarks: freight.quantity,
-              TaxCode: freight.TaxGroup,
-              TaxPercent: freight.TaxCode,
-              TaxSum: freight.TotalTaxAmount,
-              LineGross: freight.amount,
-            })
-          ),
+          freight: totalFreightAmount,
         };
       } else {
         payload = {
@@ -261,34 +244,16 @@ export default function SalesOrder() {
           })),
 
           data: userdefinedData,
-          DocTotal: summaryData.DocTotal,
-          Rounding: summaryData.Rounding,
-          RoundingDiffAmount: summaryData.RoundingDiffAmount,
-          DiscountPercent: summaryData.DiscountPercent,
-          TotalDiscount: summaryData.TotalDiscount,
-          Comments: summaryData.Remark,
-          VatSum: summaryData.VatSum,
-          //freight: totalFreightAmount,
-          DocumentAdditionalExpenses: Object.values(freightRowSelection).map(
-            (freight) => ({
-              ExpenseCode: freight.ExpensCode,
-              LineTotal: freight.grossTotal,
-              Remarks: freight.quantity,
-              TaxCode: freight.TaxGroup,
-              TaxPercent: freight.TaxCode,
-              TaxSum: freight.TotalTaxAmount,
-              LineGross: freight.amount,
-            })
-          ),
+          freight: totalFreightAmount,
         };
       }
 
       const formDataToSend = new FormData();
-      // attachmentsList.forEach((f) => {
-      //   if (f.rawFile) {
-      //     return formDataToSend.append("Attachments2_Lines", f.rawFile);
-      //   }
-      // });
+        attachmentsList.forEach(f => {
+        if (f.rawFile) {
+          return formDataToSend.append("Attachments2_Lines", f.rawFile);
+        }
+      });
 
       formDataToSend.append(
         "DocumentLines",
@@ -320,6 +285,7 @@ export default function SalesOrder() {
       }
 
       setOpen(true);
+
     } catch (err) {
       console.error("Failed to create order:", err);
       setApiError(err.message || "Error creating order");
@@ -327,7 +293,7 @@ export default function SalesOrder() {
       setTimeout(() => {
         setLoading(false);
         setOpen(true);
-      }, 2000);
+     }, 2000);
     }
   };
 
@@ -552,52 +518,42 @@ export default function SalesOrder() {
         {/* );
         } else if (tab.name === "contents") {
           return ( */}
-        <ObjectPageSection
-          id="section2"
-          style={{
-            height: "100%",
-          }}
-          titleText="Contents"
-        >
-          <Contents
-            rowSelection={rowSelection}
-            setRowSelection={setRowSelection}
-            itemdata={itemdata}
-            setitemData={setitemData}
-            setitemTableData={setitemTableData}
-            itemTabledata={itemTabledata}
-            summaryData={summaryData}
-            setSummaryData={setSummaryData}
-            servicedata={servicedata}
-            setserviceData={setserviceData}
-            setserviceTableData={setserviceTableData}
-            serviceTabledata={serviceTabledata}
-            orderItems={orderItems}
-            loading={loading}
-            form={form}
-            handleRowChange={handleRowChange}
-            deleteRow={deleteRow}
-            addRow={addRow}
-            SalesOrderRenderInput={SalesOrderRenderInput}
-            handleChange={handleChange}
-            type={type}
-            setType={setType}
-            mode={"create"}
-            setTotalFreightAmount={setTotalFreightAmount}
-            onSubmit={handleSubmit}
-            freightRowSelection={freightRowSelection}
-            setFreightRowSelection={setFreightRowSelection}
-            summaryDiscountAmount={summaryDiscountAmount}
-            setSummaryDiscountAmount={setSummaryDiscountAmount}
-            summaryDiscountPercent={summaryDiscountPercent}
-            setSummaryDiscountPercent={setSummaryDiscountPercent}
-            roundingEnabled={roundingEnabled} 
-            setRoundingEnabled={setRoundingEnabled}
-            roundOff={roundOff} 
-            setRoundOff={setRoundOff}
-          />
-        </ObjectPageSection>
-        {/* );
+          <ObjectPageSection
+            id="section2"
+            style={{
+              height: "100%",
+            }}
+            titleText="Contents"
+          >
+            <Contents
+              rowSelection={rowSelection}
+              setRowSelection={setRowSelection}
+              itemdata={itemdata}
+              setitemData={setitemData}
+              setitemTableData={setitemTableData}
+              itemTabledata={itemTabledata}
+              summaryData = {summaryData}
+              setSummaryData = {setSummaryData}
+              servicedata={servicedata}
+              setserviceData={setserviceData}
+              setserviceTableData={setserviceTableData}
+              serviceTabledata={serviceTabledata}
+              orderItems={orderItems}
+              loading={loading}
+              form={form}
+              handleRowChange={handleRowChange}
+              deleteRow={deleteRow}
+              addRow={addRow}
+              SalesOrderRenderInput={SalesOrderRenderInput}
+              handleChange={handleChange}
+              type={type}
+              setType={setType}
+              mode={"create"}
+              setTotalFreightAmount={setTotalFreightAmount}
+              onSubmit={handleSubmit}
+            />
+          </ObjectPageSection>
+          {/* );
         } else if (tab.name === "logistics") {
           return ( */}
         <ObjectPageSection
@@ -630,21 +586,16 @@ export default function SalesOrder() {
         {/* );
         } else if (tab.name === "attachments") {
           return ( */}
-        <ObjectPageSection
-          id="section5"
-          style={{
-            height: "100%",
-          }}
-          titleText="Attachments"
-        >
-          <Attachments
-            onFilesChange={setAttachmentFiles}
-            attachmentsList={attachmentsList}
-             mode={"create"}
-            setAttachmentsList={setAttachmentsList}
-          />
-        </ObjectPageSection>
-        {/* );
+          <ObjectPageSection
+            id="section5"
+            style={{
+              height: "100%",
+            }}
+            titleText="Attachments"
+          >
+            <Attachments onFilesChange={setAttachmentFiles} attachmentsList={attachmentsList} setAttachmentsList={setAttachmentsList}/>
+          </ObjectPageSection>
+          {/* );
         } else if (tab.name === "user-defined-field") {
           return ( */}
         <ObjectPageSection

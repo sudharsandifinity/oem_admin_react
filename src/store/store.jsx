@@ -1,6 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit';
 import usersReducer from './slices/usersSlice';
 import authReducer from './slices/authSlice';
+import userCompanyReducer from './slices/userCompanySlice';
 import roleReducer from './slices/roleSlice';
 import permissionReducer from './slices/permissionSlice';
 import companyReducer from './slices/companiesSlice';
@@ -22,6 +23,7 @@ import salesquotationReducer from './slices/salesQuotationSlice';
 const store = configureStore({
   reducer: {
     auth: authReducer,
+    usercompany: userCompanyReducer,
     users: usersReducer,
     roles: roleReducer,
     permissions: permissionReducer,
@@ -42,6 +44,7 @@ const store = configureStore({
     salesadddetails:salesadddetailsReducer,
     salesquotation:salesquotationReducer,
     puradddetails:salesadddetailsReducer,
+
   },
 });
 
