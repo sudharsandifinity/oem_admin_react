@@ -54,6 +54,7 @@ import {
 } from "../../store/slices/CustomerOrderSlice";
 import { fetchOrderItems } from "../../store/slices/CustomerOrderItemsSlice";
 import { fetchOrderServices } from "../../store/slices/CustomerOrderServiceSlice";
+import { fetchSalesQuotationById, updateSalesQuotation } from "../../store/slices/SalesQuotationSlice";
 
 const ViewSalesOrder = () => {
   const { id, formId } = useParams();
@@ -65,9 +66,9 @@ const ViewSalesOrder = () => {
   const [apiError, setApiError] = useState(null);
   const user = useSelector((state) => state.auth.user);
   const [open, setOpen] = useState(false);
-    const [type, setType] = useState("Item");
-  
- const [attachmentsList, setAttachmentsList] = useState([]);
+  const [type, setType] = useState("Item");
+
+  const [attachmentsList, setAttachmentsList] = useState([]);
   const [freightRowSelection, setFreightRowSelection] = useState([]);
 
   const [userdefinedData, setUserDefinedData] = useState({});
@@ -75,9 +76,9 @@ const ViewSalesOrder = () => {
   const [totalFreightAmount, setTotalFreightAmount] = useState(0);
   const [summaryData, setSummaryData] = useState({});
   const [summaryDiscountPercent, setSummaryDiscountPercent] = useState(0);
-    const [summaryDiscountAmount, setSummaryDiscountAmount] = useState(0);
-     const [roundingEnabled, setRoundingEnabled] = useState(false);
-     const [roundOff, setRoundOff] = useState(0);
+  const [summaryDiscountAmount, setSummaryDiscountAmount] = useState(0);
+  const [roundingEnabled, setRoundingEnabled] = useState(false);
+  const [roundOff, setRoundOff] = useState(0);
 
   const [tabList, setTabList] = useState([]);
   const [formDetails, setFormDetails] = useState([]);
@@ -85,8 +86,14 @@ const ViewSalesOrder = () => {
   const [rowSelection, setRowSelection] = useState({});
   const [generaleditdata, setgeneraleditdata] = useState([]);
   const [itemdata, setitemData] = useState([
-    { slno: 1, ItemCode: "", ItemName: "", quantity: "", amount: "",
-      TaxCode: "", },
+    {
+      slno: 1,
+      ItemCode: "",
+      ItemName: "",
+      quantity: "",
+      amount: "",
+      TaxCode: "",
+    },
   ]);
   const [itemTabledata, setitemTableData] = useState([
     { slno: 1, ItemCode: "", ItemName: "", quantity: "", amount: "" },
@@ -114,219 +121,235 @@ const ViewSalesOrder = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-      const fetchData = async () => {
-        try {
-          const orderListById = await dispatch(
+    const fetchData = async () => {
+      try {
+        let orderListById="";
+        if(formDetails[0]?.name==="Sales Order"){
+          orderListById = await dispatch(
             fetchCustomerOrderById(id)
           ).unwrap();
-          const orderList = await dispatch(fetchOrderItems()).unwrap();
-          const serviceList = await dispatch(fetchOrderServices()).unwrap();
-          console.log("res,res1", orderListById, orderList, serviceList);
-          const attachmentListById ="" //await dispatch(fetchAttachmentDetailsById(orderListById.AttachmentEntry)).unwrap();
+        }else{
+          orderListById = await dispatch(
+            fetchSalesQuotationById(id)
+          ).unwrap();
+        }
+        
+        const orderList = await dispatch(fetchOrderItems()).unwrap();
+        const serviceList = await dispatch(fetchOrderServices()).unwrap();
+        console.log("res,res1", orderListById, orderList, serviceList);
+        const attachmentListById = ""; //await dispatch(fetchAttachmentDetailsById(orderListById.AttachmentEntry)).unwrap();
         console.log("attachmentListById", attachmentListById);
         setAttachmentsList(
-          attachmentListById&&attachmentListById.Attachments2_Lines?.map((line) => ({
-            name: line.FileName,
-            type: line.FileExtension,
-            size: line.FileSize,
-          }))
+          attachmentListById &&
+            attachmentListById.Attachments2_Lines?.map((line) => ({
+              name: line.FileName,
+              type: line.FileExtension,
+              size: line.FileSize,
+            }))
         );
-          if (orderListById) {
-            // 1. Store order header info
-            setFormData({
-              CardCode: orderListById.CardCode,
-              CardName: orderListById.CardName,
-              DocDueDate: orderListById.CreationDate
-                ? new Date(orderListById.CreationDate).toISOString().split("T")[0]
-                : new Date().toISOString().split("T")[0],
-              DocumentLines: orderListById.DocumentLines || [],
+        if (orderListById) {
+          // 1. Store order header info
+          setFormData({
+            CardCode: orderListById.CardCode,
+            CardName: orderListById.CardName, 
+            DocDueDate: orderListById.DocDueDate
+              ? new Date(orderListById.DocDueDate).toISOString().split("T")[0]
+              : new Date().toISOString().split("T")[0],
+              DocDate: orderListById.DocDate
+              ? new Date(orderListById.DocDate).toISOString().split("T")[0]
+              : new Date().toISOString().split("T")[0],
+              CreationDate: orderListById.CreationDate
+              ? new Date(orderListById.CreationDate).toISOString().split("T")[0]
+              : new Date().toISOString().split("T")[0],
+            DocumentLines: orderListById.DocumentLines || [],
             formData: orderListById.formData,
-            
-            });
-  
-            // 2. Merge document lines into orderItems
-            if (orderListById.DocumentLines?.length > 0) {
-              if (orderListById.DocType === "dDocument_Items") {
-                setType("Item");
-                setitemData(
-                  () =>
-                    orderList.value
-                      .map((item, index) => {
-                        const matched = orderListById.DocumentLines.find(
-                          (line) => line.ItemCode === item.ItemCode
-                        );
-                        console.log("setitemeditpage", item, matched);
-                        return matched !== undefined
-                          ? {
-                             slno: index, // usually LineNum is 0-based
+          });
+
+          // 2. Merge document lines into orderItems
+          if (orderListById.DocumentLines?.length > 0) {
+            if (orderListById.DocType === "dDocument_Items") {
+              setType("Item");
+              setitemData(
+                () =>
+                  orderList.value
+                    .map((item, index) => {
+                      const matched = orderListById.DocumentLines.find(
+                        (line) => line.ItemCode === item.ItemCode
+                      );
+                      console.log("setitemeditpage", item, matched);
+                      return matched !== undefined
+                        ? {
+                            slno: index, // usually LineNum is 0-based
                             ItemCode: matched.ItemCode,
                             ItemName: matched.ItemDescription,
                             quantity: matched.Quantity,
                             TaxCode: matched.TaxCode,
                             amount: matched.UnitPrice,
                             discount: matched.DiscountPercent,
-                            TaxRate:matched.TaxTotal,
-                            }
-                          : {
-                              slno: index, // usually LineNum is 0-based
+                            TaxRate: matched.TaxTotal,
+                          }
+                        : {
+                            slno: index, // usually LineNum is 0-based
                             ItemCode: item.ItemCode,
                             ItemName: item.ItemName,
                             quantity: item.Quantity,
                             TaxCode: item.TaxCode,
                             amount: item.UnitPrice,
                             discount: item.DiscountPercent,
-                            TaxRate:item.TaxTotal
-                            }; // no placeholder
-                      })
-                      .filter(Boolean) // remove nulls
-                );
-                setitemTableData(
-                  () =>
-                    orderList.value
-                      .map((item) => {
-                        const matched = orderListById.DocumentLines.find(
-                          (line) => line.ItemCode === item.ItemCode
-                        );
-  
-                        return matched
-                          ? {
-                              slno: matched.LineNum + 1, // usually LineNum is 0-based
+                            TaxRate: item.TaxTotal,
+                          }; // no placeholder
+                    })
+                    .filter(Boolean) // remove nulls
+              );
+              setitemTableData(
+                () =>
+                  orderList.value
+                    .map((item) => {
+                      const matched = orderListById.DocumentLines.find(
+                        (line) => line.ItemCode === item.ItemCode
+                      );
+
+                      return matched
+                        ? {
+                            slno: matched.LineNum + 1, // usually LineNum is 0-based
                             ItemCode: matched.ItemCode,
                             ItemName: matched.ItemDescription,
                             quantity: matched.Quantity,
                             TaxCode: matched.TaxCode,
                             amount: matched.UnitPrice,
                             discount: matched.DiscountPercent,
-                            TaxRate:matched.TaxTotal
-                            }
-                          : null; // no placeholder
-                      })
-                      .filter(Boolean) // remove nulls
-                );
-                if (orderList.value?.length > 0) {
-                  const preselected = {};
-                  orderListById.DocumentLines.forEach((line) => {
-                    const idx = orderList.value.findIndex(
-                      (o) => o.ItemCode === line.ItemCode
-                    );
-                    if (idx !== -1) {
-                      preselected[idx] = orderList.value[idx];
-                    }
-                  });
-                  setRowSelection(preselected);
-                }
-              } else {
-                console.log("serviceList", serviceList);
-                setType("Service");
-                setserviceData(
-                  () =>
-                    serviceList.value
-                      .map((item, index) => {
-                        const matched = orderListById.DocumentLines.find(
-                          (line) => line.AccountCode === item.Code
-                        );
-                        return matched !== undefined
-                          ? {
-                               slno: index, // usually LineNum is 0-based
+                            TaxRate: matched.TaxTotal,
+                          }
+                        : null; // no placeholder
+                    })
+                    .filter(Boolean) // remove nulls
+              );
+              if (orderList.value?.length > 0) {
+                const preselected = {};
+                orderListById.DocumentLines.forEach((line) => {
+                  const idx = orderList.value.findIndex(
+                    (o) => o.ItemCode === line.ItemCode
+                  );
+                  if (idx !== -1) {
+                    preselected[idx] = orderList.value[idx];
+                  }
+                });
+                setRowSelection(preselected);
+              }
+            } else {
+              console.log("serviceList", serviceList);
+              setType("Service");
+              setserviceData(
+                () =>
+                  serviceList.value
+                    .map((item, index) => {
+                      const matched = orderListById.DocumentLines.find(
+                        (line) => line.AccountCode === item.Code
+                      );
+                      return matched !== undefined
+                        ? {
+                            slno: index, // usually LineNum is 0-based
                             ServiceCode: matched.AccountCode,
                             ServiceName: matched.ItemDescription,
                             quantity: matched.Quantity,
                             TaxCode: matched.TaxCode,
                             amount: matched.UnitPrice,
                             discount: matched.DiscountPercent,
-                            TaxRate:matched.TaxTotal,
-                            }
-                          : {
-                              slno: index, // usually LineNum is 0-based
+                            TaxRate: matched.TaxTotal,
+                          }
+                        : {
+                            slno: index, // usually LineNum is 0-based
                             ServiceCode: item.AccountCode,
                             ServiceName: item.ItemDescription,
                             quantity: item.Quantity,
                             TaxCode: item.TaxCode,
                             amount: item.UnitPrice,
                             discount: item.DiscountPercent,
-                            TaxRate:item.TaxTotal,
-                            }; // no placeholder
-                      })
-                      .filter(Boolean) // remove nulls
-                );
-                setserviceTableData(
-                  () =>
-                    serviceList.value
-                      .map((item) => {
-                        const matched = orderListById.DocumentLines.find(
-                          (line) => line.AccountCode === item.Code
-                        );
-  
-                        return matched
-                          ? {
-                             slno: matched.LineNum + 1, // usually LineNum is 0-based
+                            TaxRate: item.TaxTotal,
+                          }; // no placeholder
+                    })
+                    .filter(Boolean) // remove nulls
+              );
+              setserviceTableData(
+                () =>
+                  serviceList.value
+                    .map((item) => {
+                      const matched = orderListById.DocumentLines.find(
+                        (line) => line.AccountCode === item.Code
+                      );
+
+                      return matched
+                        ? {
+                            slno: matched.LineNum + 1, // usually LineNum is 0-based
                             ServiceCode: matched.AccountCode,
                             ServiceName: matched.ItemDescription,
                             quantity: matched.Quantity,
                             TaxCode: matched.TaxCode,
                             amount: matched.UnitPrice,
                             discount: matched.DiscountPercent,
-                            TaxRate:matched.TaxTotal,
-                            }
-                          : null; // no placeholder
-                      })
-                      .filter(Boolean) // remove nulls
-                );
-                if (serviceList.value?.length > 0) {
-                  const preselected = {};
-                  orderListById.DocumentLines.forEach((line) => {
-                    const idx = serviceList.value.findIndex(
-                      (o) => o.Code === line.AccountCode
-                    );
-                    if (idx !== -1) {
-                      preselected[idx] = orderList.value[idx];
-                    }
-                  });
-                  setRowSelection(preselected);
-                }
-              }
-  
-              console.log(
-                "itemTabledata:->",
-                itemTabledata,
-                itemdata,
-                orderListById.DocumentLines
+                            TaxRate: matched.TaxTotal,
+                          }
+                        : null; // no placeholder
+                    })
+                    .filter(Boolean) // remove nulls
               );
-  
-              // 3. Preselect rows
+              if (serviceList.value?.length > 0) {
+                const preselected = {};
+                orderListById.DocumentLines.forEach((line) => {
+                  const idx = serviceList.value.findIndex(
+                    (o) => o.Code === line.AccountCode
+                  );
+                  if (idx !== -1) {
+                    preselected[idx] = orderList.value[idx];
+                  }
+                });
+                setRowSelection(preselected);
+              }
             }
-  
-            // set general header edit data
-          setSummaryData((prev) => ({
-                ...prev,
-                Remark: orderListById.Comments
-              }));
+
+            console.log(
+              "itemTabledata:->",
+              itemTabledata,
+              itemdata,
+              orderListById.DocumentLines
+            );
+
+            // 3. Preselect rows
+          }
+
           // set general header edit data
-          setSummaryDiscountPercent(orderListById.DiscountPercent)
-          setRoundingEnabled(orderListById.Rounding==="tYES")
-          setRoundOff(orderListById.RoundingDiffAmount)
+          setSummaryData((prev) => ({
+            ...prev,
+            Remark: orderListById.Comments,
+          }));
+          // set general header edit data
+          setSummaryDiscountPercent(orderListById.DiscountPercent);
+          setRoundingEnabled(orderListById.Rounding === "tYES");
+          setRoundOff(orderListById.RoundingDiffAmount);
           setgeneraleditdata({
             CardCode: orderListById.CardCode,
             CardName: orderListById.CardName,
-            PostingDate: orderListById.CreationDate,
-            DocDate:orderListById.DocDate?new Date(orderListById.DocDate).toISOString().split("T")[0]:"",
-            DeliveryDate: orderListById.DocDueDate
+            CreationDate: orderListById.CreationDate,
+            DocDate: orderListById.DocDate
+              ? new Date(orderListById.DocDate).toISOString().split("T")[0]
+              : "",
+            DocDueDate: orderListById.DocDueDate
               ? new Date(orderListById.DocDueDate).toISOString().split("T")[0]
               : "",
-              DocEntry:orderListById.DocEntry,
-              DocumentStatus:orderListById.DocumentStatus,
+            DocEntry: orderListById.DocEntry,
+            DocumentStatus: orderListById.DocumentStatus,
           });
           setUserDefinedData(orderListById.formData);
         }
-        } catch (err) {
-          console.error("Failed to fetch order:", err);
-        } finally {
-          setLoading(false);
-        }
-      };
-  
-      fetchData();
-    }, [dispatch, id, orderItems]);
+      } catch (err) {
+        console.error("Failed to fetch order:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [dispatch, id, orderItems]);
 
   const handleChange = (e, name, formName) => {
     const newValue = e.target.value;
@@ -402,9 +425,16 @@ const ViewSalesOrder = () => {
         })),
       };
       console.log("payload", payload);
-      const res = await dispatch(
-        updateCustomerOrder({ id, data: payload })
-      ).unwrap();
+      let res = "";
+      if (formDetails[0]?.name === "Sales Order") {
+        res = await dispatch(
+          updateCustomerOrder({ id, data: payload })
+        ).unwrap();
+      } else {
+        res = await dispatch(
+          updateSalesQuotation({ id, data: payload })
+        ).unwrap();
+      }
       if (res.message === "Please Login!") {
         navigate("/login");
       }
@@ -435,7 +465,7 @@ const ViewSalesOrder = () => {
   return (
     <>
       <BusyIndicator
-       style={{
+        style={{
           width: "100%",
           height: "100%",
         }}
@@ -462,36 +492,36 @@ const ViewSalesOrder = () => {
             </>
           }
           headerArea={
-             <DynamicPageHeader>
-                          <FlexBox wrap="Wrap">
-                            <FlexBox direction="Column">
-                              <Label>Customer</Label>
-                            </FlexBox>
-                            <span style={{ width: "4rem" }} />
-                            <FlexBox direction="Column">
-                              <Label>Total:</Label>
-                              <ObjectStatus state="None">GBP 0.00</ObjectStatus>
-                            </FlexBox>
-                            <span style={{ width: "4rem" }} />
-                            <FlexBox direction="Column">
-                              <Label>Status</Label>
-                              <ObjectStatus state="Positive">Open</ObjectStatus>
-                            </FlexBox>
-                            <span style={{ width: "4rem" }} />
-                            <FlexBox direction="Column">
-                              <Label>Credit Limit Utilization</Label>
-                              <Slider
-                                min={0}
-                                max={100}
-                                step={1}
-                                //value={value}
-                                showTickmarks
-                                showTooltip
-                                //onInput={handleSliderChange}
-                              />
-                            </FlexBox>
-                          </FlexBox>
-                        </DynamicPageHeader>
+            <DynamicPageHeader>
+              <FlexBox wrap="Wrap">
+                <FlexBox direction="Column">
+                  <Label>Customer</Label>
+                </FlexBox>
+                <span style={{ width: "4rem" }} />
+                <FlexBox direction="Column">
+                  <Label>Total:</Label>
+                  <ObjectStatus state="None">GBP 0.00</ObjectStatus>
+                </FlexBox>
+                <span style={{ width: "4rem" }} />
+                <FlexBox direction="Column">
+                  <Label>Status</Label>
+                  <ObjectStatus state="Positive">Open</ObjectStatus>
+                </FlexBox>
+                <span style={{ width: "4rem" }} />
+                <FlexBox direction="Column">
+                  <Label>Credit Limit Utilization</Label>
+                  <Slider
+                    min={0}
+                    max={100}
+                    step={1}
+                    //value={value}
+                    showTickmarks
+                    showTooltip
+                    //onInput={handleSliderChange}
+                  />
+                </FlexBox>
+              </FlexBox>
+            </DynamicPageHeader>
           }
           // image="https://sap.github.io/ui5-webcomponents-react/v2/assets/Person-B7wHqdJw.png"
           imageShapeCircle
@@ -521,7 +551,9 @@ const ViewSalesOrder = () => {
                       Home
                     </BreadcrumbsItem>
                     <BreadcrumbsItem data-route={`/Sales/${formId}`}>
-                      Sales Order list
+                      {formDetails
+                      ? formDetails[0]?.name+" List "
+                      : "Sales Orders"}
                     </BreadcrumbsItem>
                     <BreadcrumbsItem>
                       {formDetails
@@ -629,16 +661,16 @@ const ViewSalesOrder = () => {
               totalFreightAmount={totalFreightAmount}
               summaryData={summaryData}
               setSummaryData={setSummaryData}
-               summaryDiscountAmount={summaryDiscountAmount}
-            setSummaryDiscountAmount={setSummaryDiscountAmount}
-            summaryDiscountPercent={summaryDiscountPercent}
-            setSummaryDiscountPercent={setSummaryDiscountPercent}
-            roundingEnabled={roundingEnabled} 
-            setRoundingEnabled={setRoundingEnabled}
-            roundOff={roundOff} 
-            setRoundOff={setRoundOff}
-freightRowSelection={freightRowSelection}
-            setFreightRowSelection={setFreightRowSelection}
+              summaryDiscountAmount={summaryDiscountAmount}
+              setSummaryDiscountAmount={setSummaryDiscountAmount}
+              summaryDiscountPercent={summaryDiscountPercent}
+              setSummaryDiscountPercent={setSummaryDiscountPercent}
+              roundingEnabled={roundingEnabled}
+              setRoundingEnabled={setRoundingEnabled}
+              roundOff={roundOff}
+              setRoundOff={setRoundOff}
+              freightRowSelection={freightRowSelection}
+              setFreightRowSelection={setFreightRowSelection}
             />
           </ObjectPageSection>
           {/* );
@@ -682,8 +714,9 @@ freightRowSelection={freightRowSelection}
             titleText="Attachments"
           >
             <Attachments
-             attachmentsList={attachmentsList}
-              setAttachmentsList={setAttachmentsList} />
+              attachmentsList={attachmentsList}
+              setAttachmentsList={setAttachmentsList}
+            />
           </ObjectPageSection>
           {/* );
                     } else if (tab.name === "user-defined-field") {
@@ -696,13 +729,14 @@ freightRowSelection={freightRowSelection}
             titleText="User-defined Fields"
           >
             <UserDefinedFields
-            form={form}
+              form={form}
               handleChange={handleChange}
               userdefinedData={userdefinedData}
               setUserDefinedData={setUserDefinedData}
               mode={"view"}
               setFormData={setFormData}
-              formData={formData} />
+              formData={formData}
+            />
           </ObjectPageSection>
           {/* );
                     }
