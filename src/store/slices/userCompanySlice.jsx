@@ -7,7 +7,7 @@ export const switchCompany = createAsyncThunk(
     try {
       const res = await api.post("auth/sap-login", {
         company_id: companyId
-      });
+      }, { withCredentials: true });
       return res.data;
     } catch (err) {
       return thunkAPI.rejectWithValue(err.response.data);

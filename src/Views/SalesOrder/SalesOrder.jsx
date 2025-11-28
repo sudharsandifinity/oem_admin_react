@@ -52,6 +52,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { createCustomerOrder } from "../../store/slices/CustomerOrderSlice";
 import { createSalesQuotation } from "../../store/slices/SalesQuotationSlice";
 import { createVendorOrder } from "../../store/slices/VendorOrderSlice";
+import BarDesign from "@ui5/webcomponents/dist/types/BarDesign.js";
 
 export default function SalesOrder() {
   const { fieldConfig, CustomerDetails, DocumentDetails } =
@@ -74,7 +75,6 @@ export default function SalesOrder() {
   const [type,setType]= useState("Item");
   const [totalFreightAmount,setTotalFreightAmount]= useState(0);
   const [attachmentFiles, setAttachmentFiles] = useState([]);
-  const [attachmentsList, setAttachmentsList] = useState([]);
   const [summaryDiscountPercent, setSummaryDiscountPercent] = useState(0);
   const [summaryDiscountAmount, setSummaryDiscountAmount] = useState(0);
    const [roundingEnabled, setRoundingEnabled] = useState(false);
@@ -361,25 +361,19 @@ export default function SalesOrder() {
   }, [formId]);
   return (
     <>
-      {/* <BusyIndicator
-                  style={{
-                    position: "fixed",
-                    top: 0,
-                    left: 0,
-                    width: "100%",
-                    height: "100%",
-                    zIndex: 1000,
-                    backgroundColor: "rgba(241, 243, 248, 0.8)",
-                  }}
-                  active={loading}
-                > */}
+        <style>
+          {`
+            ._footer_17oaz_164{
+              position: static
+            }
+          `}
+      </style>
       <ObjectPage
+        className="sales-order-page"
         footerArea={
-          <>
-            {" "}
             <Bar
-              style={{ padding: 0.5 }}
-              design="FloatingFooter"
+            design={BarDesign.FloatingFooter}
+              style={{ padding: 0.5, marginBottom:'16px' }}
               endContent={
                 <>
                   <Button design="Positive" onClick={() => handleSubmit()}>
@@ -394,7 +388,6 @@ export default function SalesOrder() {
                 </>
               }
             />
-          </>
         }
         headerArea={
           <DynamicPageHeader>
@@ -437,8 +430,7 @@ export default function SalesOrder() {
         onToggleHeaderArea={function Xs() {}}
         selectedSectionId="section1"
         style={{
-          height: "700px",
-          maxHeight: "90vh",
+          maxHeight: "95vh",
         }}
         titleArea={
           <ObjectPageTitle
