@@ -411,9 +411,6 @@ const ManageSalesOrder = () => {
         }
         onPinButtonToggle={function Xs() {}}
         onTitleToggle={function Xs() {}}
-        style={{
-          height: "700px",
-        }}
         titleArea={
           <DynamicPageTitle
             breadcrumbs={
