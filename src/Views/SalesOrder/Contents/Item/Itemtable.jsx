@@ -68,6 +68,7 @@ const Itemtable = (props) => {
     setFreightData,
     setIsFreightTableVisible,
     isFreightTableVisible,
+    freightRowSelection, setFreightRowSelection,
     setTotalFreightAmount,
   } = props;
   const menuRef = useRef();
@@ -99,7 +100,6 @@ const Itemtable = (props) => {
   const [inputvalue, setInputValue] = useState({});
   const [isTaxDialogOpen, setisTaxDialogOpen] = useState(false);
   const [selectedTaxRowIndex, setSelectedTaxRowIndex] = useState("");
-  const [freightRowSelection, setFreightRowSelection] = useState([]);
 
   const [freightdialogOpen, setfreightDialogOpen] = useState(false);
   const [currentField, setCurrentField] = useState(null);

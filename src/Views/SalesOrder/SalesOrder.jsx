@@ -67,19 +67,20 @@ export default function SalesOrder() {
   const [tabList, setTabList] = useState([]);
   const [formDetails, setFormDetails] = useState([]);
   const [formData, setFormData] = useState({});
-  const[userdefinedData,setUserDefinedData]= useState({})
- const[ attachmentsList, setAttachmentsList]= useState([]);
- const[attachments,setAttachments]= useState([]);
+  const [freightRowSelection, setFreightRowSelection] = useState([]);
+  const [userdefinedData, setUserDefinedData] = useState({});
+  const [attachmentsList, setAttachmentsList] = useState([]);
+  const [attachments, setAttachments] = useState([]);
   const [rowSelection, setRowSelection] = useState({});
   const [open, setOpen] = useState(false);
-  const [type,setType]= useState("Item");
-  const [totalFreightAmount,setTotalFreightAmount]= useState(0);
+  const [type, setType] = useState("Item");
+  const [totalFreightAmount, setTotalFreightAmount] = useState(0);
   const [attachmentFiles, setAttachmentFiles] = useState([]);
   const [summaryDiscountPercent, setSummaryDiscountPercent] = useState(0);
   const [summaryDiscountAmount, setSummaryDiscountAmount] = useState(0);
-   const [roundingEnabled, setRoundingEnabled] = useState(false);
-   const [roundOff, setRoundOff] = useState(0);
-   const [selectedcardcode, setSelectedCardCode] = useState([]);
+  const [roundingEnabled, setRoundingEnabled] = useState(false);
+  const [roundOff, setRoundOff] = useState(0);
+  const [selectedcardcode, setSelectedCardCode] = useState([]);
 
   const [itemTabledata, setitemTableData] = useState([
     {
@@ -160,11 +161,7 @@ export default function SalesOrder() {
 
   const handleSubmit = async () => {
     try {
-      console.log(
-        "itemTabledatahandleSubmit",
-        itemTabledata,
-        formData,
-      );
+      console.log("itemTabledatahandleSubmit", itemTabledata, formData);
       setLoading(true);
       let payload = {};
 
@@ -183,15 +180,15 @@ export default function SalesOrder() {
                 .split("T")[0]
                 .replace(/-/g, "")
             : new Date().toISOString().split("T")[0].replace(/-/g, ""),
-            CreationDate: formData.CreationDate
+          CreationDate: formData.CreationDate
             ? new Date(formData.CreationDate)
-                 .toISOString()
+                .toISOString()
                 .split("T")[0]
                 .replace(/-/g, "")
             : new Date().toISOString().split("T")[0].replace(/-/g, ""),
-            //DocEntry: formData.DocEntry,
-            DocumentStatus:"open",
-            ContactPerson:formData.ContactPerson,
+          //DocEntry: formData.DocEntry,
+          DocumentStatus: "open",
+          ContactPerson: formData.ContactPerson,
           DocType: "dDocument_Items",
           DocumentLines: itemTabledata.map((line) => ({
             ItemCode: line.ItemCode,
@@ -213,7 +210,17 @@ export default function SalesOrder() {
           TotalDiscount: summaryData.TotalDiscount,
           Comments: summaryData.Remark,
           VatSum: summaryData.VatSum,
-          freight: totalFreightAmount,
+          DocumentAdditionalExpenses: Object.values(freightRowSelection).map(
+            (freight) => ({
+              ExpenseCode: freight.ExpensCode,
+              LineTotal: freight.grossTotal,
+              Remarks: freight.quantity,
+              TaxCode: freight.TaxGroup,
+              TaxPercent: freight.TaxCode,
+              TaxSum: freight.TotalTaxAmount,
+              LineGross: freight.amount,
+            })
+          ),
         };
       } else {
         payload = {
@@ -231,15 +238,15 @@ export default function SalesOrder() {
                 .split("T")[0]
                 .replace(/-/g, "")
             : new Date().toISOString().split("T")[0].replace(/-/g, ""),
-            CreationDate: formData.CreationDate
+          CreationDate: formData.CreationDate
             ? new Date(formData.CreationDate)
-                 .toISOString()
+                .toISOString()
                 .split("T")[0]
                 .replace(/-/g, "")
             : new Date().toISOString().split("T")[0].replace(/-/g, ""),
-            //DocEntry: formData.DocEntry,
-            DocumentStatus: "open",
-            ContactPerson:formData.ContactPerson,
+          //DocEntry: formData.DocEntry,
+          DocumentStatus: "open",
+          ContactPerson: formData.ContactPerson,
 
           DocumentLines: serviceTabledata.map((line) => ({
             AccountCode: line.ServiceCode,
@@ -249,12 +256,22 @@ export default function SalesOrder() {
           })),
 
           data: userdefinedData,
-          freight: totalFreightAmount,
+          DocumentAdditionalExpenses: Object.values(freightRowSelection).map(
+            (freight) => ({
+              ExpenseCode: freight.ExpensCode,
+              LineTotal: freight.grossTotal,
+              Remarks: freight.quantity,
+              TaxCode: freight.TaxGroup,
+              TaxPercent: freight.TaxCode,
+              TaxSum: freight.TotalTaxAmount,
+              LineGross: freight.amount,
+            })
+          ),
         };
       }
 
       const formDataToSend = new FormData();
-        attachmentsList.forEach(f => {
+      attachmentsList.forEach((f) => {
         if (f.rawFile) {
           return formDataToSend.append("Attachments2_Lines", f.rawFile);
         }
@@ -264,28 +281,30 @@ export default function SalesOrder() {
         "DocumentLines",
         JSON.stringify(payload.DocumentLines)
       );
-       formDataToSend.append(
+      formDataToSend.append(
         "DocumentAdditionalExpenses",
         JSON.stringify(payload.DocumentAdditionalExpenses)
       );
       formDataToSend.append("data", JSON.stringify(payload.data));
 
       Object.keys(payload).forEach((key) => {
-        if (key !== "DocumentLines" && key !== "data"&& key !== "DocumentAdditionalExpenses") {
+        if (
+          key !== "DocumentLines" &&
+          key !== "data" &&
+          key !== "DocumentAdditionalExpenses"
+        ) {
           formDataToSend.append(key, payload[key]);
         }
       });
-      console.log("formdatatosend", payload, formDataToSend,formDetails);
-      let res =""
-      if(formDetails[0]?.name==="Sales Order"){
-        res= await dispatch(createCustomerOrder(formDataToSend)).unwrap();
-      }else if(formDetails[0]?.name==="Sales Quotation"){
-        res= await dispatch(createSalesQuotation(formDataToSend)).unwrap();
-
-      }else if(formDetails[0]?.name==="Purchase Order"){
+      console.log("formdatatosend", payload, formDataToSend, formDetails);
+      let res = "";
+      if (formDetails[0]?.name === "Sales Order") {
+        res = await dispatch(createCustomerOrder(formDataToSend)).unwrap();
+      } else if (formDetails[0]?.name === "Sales Quotation") {
+        res = await dispatch(createSalesQuotation(formDataToSend)).unwrap();
+      } else if (formDetails[0]?.name === "Purchase Order") {
         //dispatch(createPurchaseOrder(formDataToSend)).unwrap();
-               res = await dispatch(createVendorOrder(formDataToSend)).unwrap();
-        
+        res = await dispatch(createVendorOrder(formDataToSend)).unwrap();
       }
 
       if (res.message === "Please Login!") {
@@ -294,7 +313,6 @@ export default function SalesOrder() {
       }
 
       setOpen(true);
-
     } catch (err) {
       console.error("Failed to create order:", err);
       setApiError(err.message || "Error creating order");
@@ -302,7 +320,7 @@ export default function SalesOrder() {
       setTimeout(() => {
         setLoading(false);
         setOpen(true);
-     }, 2000);
+      }, 2000);
     }
   };
 
@@ -449,7 +467,7 @@ export default function SalesOrder() {
                   </BreadcrumbsItem>
                   <BreadcrumbsItem data-route={`/Sales/${formId}`}>
                     {formDetails
-                      ? formDetails[0]?.name+" List "
+                      ? formDetails[0]?.name + " List "
                       : "Sales Orders"}
                   </BreadcrumbsItem>
                   <BreadcrumbsItem>
@@ -498,14 +516,15 @@ export default function SalesOrder() {
           titleText="General"
         >
           {/* <General form={form} SubForms={tab.SubForms} handleChange={handleChange} /> */}
-          {console.log("generalformdata",formData)}
+          {console.log("generalformdata", formData)}
           <General
             onSubmit={handleSubmit}
             setFormData={setFormData}
             formData={formData}
-             mode={"create"}
-             selectedcardcode={selectedcardcode}
-              setSelectedCardCode={setSelectedCardCode}
+            mode={"create"}
+            selectedcardcode={selectedcardcode}
+            setSelectedCardCode={setSelectedCardCode}
+            formDetails={formDetails}
             defaultValues={{
               CardCode: "",
               DocDueDate: "1",
@@ -519,42 +538,53 @@ export default function SalesOrder() {
         {/* );
         } else if (tab.name === "contents") {
           return ( */}
-          <ObjectPageSection
-            id="section2"
-            style={{
-              height: "100%",
-            }}
-            titleText="Contents"
-          >
-            <Contents
-              rowSelection={rowSelection}
-              setRowSelection={setRowSelection}
-              itemdata={itemdata}
-              setitemData={setitemData}
-              setitemTableData={setitemTableData}
-              itemTabledata={itemTabledata}
-              summaryData = {summaryData}
-              setSummaryData = {setSummaryData}
-              servicedata={servicedata}
-              setserviceData={setserviceData}
-              setserviceTableData={setserviceTableData}
-              serviceTabledata={serviceTabledata}
-              orderItems={orderItems}
-              loading={loading}
-              form={form}
-              handleRowChange={handleRowChange}
-              deleteRow={deleteRow}
-              addRow={addRow}
-              SalesOrderRenderInput={SalesOrderRenderInput}
-              handleChange={handleChange}
-              type={type}
-              setType={setType}
-              mode={"create"}
-              setTotalFreightAmount={setTotalFreightAmount}
-              onSubmit={handleSubmit}
-            />
-          </ObjectPageSection>
-          {/* );
+        <ObjectPageSection
+          id="section2"
+          style={{
+            height: "100%",
+          }}
+          titleText="Contents"
+        >
+          <Contents
+            rowSelection={rowSelection}
+            setRowSelection={setRowSelection}
+            itemdata={itemdata}
+            setitemData={setitemData}
+            setitemTableData={setitemTableData}
+            itemTabledata={itemTabledata}
+            summaryData={summaryData}
+            setSummaryData={setSummaryData}
+            servicedata={servicedata}
+            setserviceData={setserviceData}
+            setserviceTableData={setserviceTableData}
+            serviceTabledata={serviceTabledata}
+            orderItems={orderItems}
+            formDetails={formDetails}
+            loading={loading}
+            form={form}
+            handleRowChange={handleRowChange}
+            deleteRow={deleteRow}
+            addRow={addRow}
+            SalesOrderRenderInput={SalesOrderRenderInput}
+            handleChange={handleChange}
+            type={type}
+            setType={setType}
+            mode={"create"}
+            setTotalFreightAmount={setTotalFreightAmount}
+            onSubmit={handleSubmit}
+            freightRowSelection={freightRowSelection}
+            setFreightRowSelection={setFreightRowSelection}
+            summaryDiscountAmount={summaryDiscountAmount}
+            setSummaryDiscountAmount={setSummaryDiscountAmount}
+            summaryDiscountPercent={summaryDiscountPercent}
+            setSummaryDiscountPercent={setSummaryDiscountPercent}
+            roundingEnabled={roundingEnabled}
+            setRoundingEnabled={setRoundingEnabled}
+            roundOff={roundOff}
+            setRoundOff={setRoundOff}
+          />
+        </ObjectPageSection>
+        {/* );
         } else if (tab.name === "logistics") {
           return ( */}
         <ObjectPageSection
@@ -587,16 +617,20 @@ export default function SalesOrder() {
         {/* );
         } else if (tab.name === "attachments") {
           return ( */}
-          <ObjectPageSection
-            id="section5"
-            style={{
-              height: "100%",
-            }}
-            titleText="Attachments"
-          >
-            <Attachments onFilesChange={setAttachmentFiles} attachmentsList={attachmentsList} setAttachmentsList={setAttachmentsList}/>
-          </ObjectPageSection>
-          {/* );
+        <ObjectPageSection
+          id="section5"
+          style={{
+            height: "100%",
+          }}
+          titleText="Attachments"
+        >
+          <Attachments
+            onFilesChange={setAttachmentFiles}
+            attachmentsList={attachmentsList}
+            setAttachmentsList={setAttachmentsList}
+          />
+        </ObjectPageSection>
+        {/* );
         } else if (tab.name === "user-defined-field") {
           return ( */}
         <ObjectPageSection
@@ -614,11 +648,12 @@ export default function SalesOrder() {
               DocDueDate: "1",
               DocumentLines: [],
             }}
+            formDetails={formDetails}
             apiError={apiError}
             onSubmit={handleSubmit}
             setFormData={setFormData}
             formData={formData}
-             mode={"create"}
+            mode={"create"}
             userdefinedData={userdefinedData}
             setUserDefinedData={setUserDefinedData}
           />

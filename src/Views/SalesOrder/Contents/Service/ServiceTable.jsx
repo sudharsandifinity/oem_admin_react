@@ -55,7 +55,7 @@ const Servicetable = (props) => {
     setTaxData,
     freightData,
     setFreightData,
-    setTotalFreightAmount,
+    setTotalFreightAmount,freightRowSelection, setFreightRowSelection,
   } = props;
   console.log("servicetableservicedata", servicedata);
   const menuRef = useRef();
@@ -89,7 +89,6 @@ const Servicetable = (props) => {
 
   const [inputvalue, setInputValue] = useState({});
   const [selectedTaxRowIndex, setSelectedTaxRowIndex] = useState("");
-  const [freightRowSelection, setFreightRowSelection] = useState([]);
 
   const [freightdialogOpen, setfreightDialogOpen] = useState(false);
   const [currentField, setCurrentField] = useState(null);

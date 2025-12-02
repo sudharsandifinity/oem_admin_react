@@ -8,7 +8,7 @@ const API_ATTACHMENTS_URL = "/sap/attachments";
 
 
 export const fetchSalesOrderAddDetails = createAsyncThunk(
-  "salesadddetails/fetchSalesOrderAddDetails",
+  "salesadddetails/fetchSalesOrderAddDetails", 
   async (_, thunkApi) => {
     try {
       const response = await api.get(API_SALES_URL, { withCredentials: true });

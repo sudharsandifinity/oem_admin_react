@@ -24,7 +24,7 @@ export const HeaderFilterBar = ({
   settableData,
   handleChange,
   setFilters,
-  filters,settabledata,customerorder,isClearFilter,setisClearFilter
+  filters,settabledata,customerorder,isClearFilter,setisClearFilter,formDetails
 }) => {
   const [value, setvalue] = useState("");
   const [fieldName, setfieldName] = useState("");
@@ -166,7 +166,13 @@ useEffect(()=>{
     case "select":
       return (
         <FlexBox direction="Column">
-          <Label>{field.DisplayName}</Label>
+           <Label>
+    {formDetails[0]?.name === "Purchase Order" && field.FieldName === "CustomerCode"
+      ? "Vendor Code"
+      : formDetails[0]?.name === "Purchase Order" && field.FieldName === "CustomerName"
+      ? "Vendor Name"
+      : field.DisplayName}
+  </Label>
           <Input
             icon={
               <Icon

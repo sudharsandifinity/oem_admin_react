@@ -44,7 +44,7 @@ import { useNavigate } from "react-router-dom";
 import { fetchOrderItems } from "../../../store/slices/CustomerOrderItemsSlice";
 import { set } from "react-hook-form";
 import { fetchOrderServices } from "../../../store/slices/CustomerOrderServiceSlice";
-import { fetchfreightDetails, fetchPurOrderAddDetails, fetchSalesOrderAddDetails } from "../../../store/slices/salesAdditionalDetailsSlice";
+import { fetchfreightDetails, fetchPurOrderAddDetails } from "../../../store/slices/salesAdditionalDetailsSlice";
 
 
 const Contents = (props) => {

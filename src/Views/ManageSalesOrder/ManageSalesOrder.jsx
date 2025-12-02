@@ -40,7 +40,7 @@ const ManageSalesOrder = () => {
     ManageSalesOrderTableColumn,
     ManageSalesOrderTableData,
     ManageSalesOderHeaderField,
-    ManagePurchaseOrderTableColumn
+    ManagePurchaseOrderTableColumn,
   } = useContext(FormConfigContext);
   const dispatch = useDispatch();
 
@@ -104,7 +104,16 @@ const ManageSalesOrder = () => {
         }
 
         console.log("quotationdata", "sales", res, formDetails[0]?.name);
-        const initialData = (res&&res.data?res.data:res).map((item) => ({
+        const raw = res?.data?.value ?? res?.data ?? res;
+
+        // Ensure it's an array
+        const list = Array.isArray(raw)
+          ? raw
+          : raw
+          ? [raw] // if it's single object
+          : []; // if null or undefined
+
+        const initialData = list.map((item) => ({
           DocEntry: item.DocEntry,
           CustomerCode: item.CardCode,
           CustomerName: item.CardName,
@@ -113,6 +122,7 @@ const ManageSalesOrder = () => {
           PostingDate: item.CreationDate,
           Status: item.DocumentStatus,
         }));
+
         settableData(initialData);
         setPage(1);
       } catch (err) {
@@ -151,24 +161,24 @@ const ManageSalesOrder = () => {
   //       };
   //     })),
   // ];
-  const ManageSalesOrderTableCols = 
-  formDetails[0]?.name === "Purchase Order"
-    ? ManagePurchaseOrderTableColumn?.map(col => ({
-        Header: col.Header,
-        accessor: col.accessor,
-      })) || []
-    : ManageSalesOrderTableColumn?.map(col => ({
-        Header: col.Header,
-        accessor: col.accessor,
-      })) || [];
+  const ManageSalesOrderTableCols =
+    formDetails[0]?.name === "Purchase Order"
+      ? ManagePurchaseOrderTableColumn?.map((col) => ({
+          Header: col.Header,
+          accessor: col.accessor,
+        })) || []
+      : ManageSalesOrderTableColumn?.map((col) => ({
+          Header: col.Header,
+          accessor: col.accessor,
+        })) || [];
 
   const editRow = async (rowData) => {
     console.log("rowData", rowData);
-    navigate("/SalesOrder/edit/" + formId + "/" + rowData.DocEntry);
+    navigate("/Order/edit/" + formId + "/" + rowData.DocEntry);
   };
   const viewRow = async (rowData) => {
     console.log("rowData", rowData);
-    navigate("/SalesOrder/view/" + formId + "/" + rowData.DocEntry);
+    navigate("/Order/view/" + formId + "/" + rowData.DocEntry);
   };
 
   const columns = useMemo(
@@ -390,6 +400,7 @@ const ManageSalesOrder = () => {
                     customerorder={customerorder}
                     isClearFilter={isClearFilter}
                     setisClearFilter={setisClearFilter}
+                    formDetails={formDetails}
                   />
                 );
               })}
@@ -476,24 +487,29 @@ const ManageSalesOrder = () => {
                             alignItems="Center"
                             style={{ width: "100%", padding: "4px 10px" }}
                           >
-                            <Title
-                              style={{ minWidth: "150px" }}
-                            >{`(Sales Order - ${tableData.length})`}</Title>
+                            <Title style={{ minWidth: "150px" }}>
+                              {`${
+                                formDetails && formDetails[0]?.name
+                                  ? formDetails[0]?.name
+                                  : "Sales Order List"
+                              } - ${tableData.length}`}
+                            </Title>
                             <Toolbar
                               design="Transparent"
                               style={{ border: "none" }}
                             >
                               <ToolbarButton
                                 design="Default"
-                                onClick={() =>
+                                onClick={() => {
+                                  
                                   navigate(
-                                    "/SalesOrder/create/" +
+                                    "/Order/create/" +
                                       formId +
                                       "/" +
                                       (tableData.length > 0 &&
                                         tableData[0]?.DocEntry + 1)
                                   )
-                                }
+                                }}
                                 text="Create"
                               />
                             </Toolbar>

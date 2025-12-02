@@ -23,10 +23,11 @@ import { SalesOrderRenderInput } from "../SalesOrderRenderInput";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import {
-  fetchBusinessPartner,
+  fetchSalesBusinessPartner,
   fetchCustomerOrder,
 } from "../../../store/slices/CustomerOrderSlice";
 import CardDialog from "./CardCodeDialog/CardDialog";
+import { fetchPurBusinessPartner } from "../../../store/slices/VendorOrderSlice";
 const schema = yup.object().shape({
   name: yup.string().required("Name is required"),
   city: yup.string().required("City is required"),
@@ -44,6 +45,7 @@ const General = ({
   mode = "create",
   selectedcardcode,
   setSelectedCardCode,
+  formDetails,
   apiError,
 }) => {
   const {
@@ -88,9 +90,21 @@ const General = ({
   const handleCardDialogClose = () => setDialogOpen(false);
 
   useEffect(() => {
+    console.log("formdetailgeneral",formDetails)
     const fetchData = async () => {
       try {
-        const res = await dispatch(fetchBusinessPartner()).unwrap();
+        let res = [];
+        if (
+          formDetails[0]?.name === "Sales Order" ||
+          formDetails[0]?.name === "Sales Quotation"
+        ) {
+          res=await dispatch(fetchSalesBusinessPartner()).unwrap();
+        } else if (
+          formDetails[0]?.name === "Purchase Order" ||
+          formDetails[0]?.name === "Purchase Quotation"
+        ) {
+          res=await dispatch(fetchPurBusinessPartner()).unwrap();
+        }
 
         if (res?.length > 0) {
           const dataconfig = res.map((item) => ({
@@ -112,7 +126,7 @@ const General = ({
     };
 
     fetchData();
-  }, [dispatch]);
+  }, [dispatch,formDetails]);
 
   useEffect(() => {
     console.log("itemdatauseefect1", originalGeneralData, customerorder);
@@ -128,33 +142,33 @@ const General = ({
       [name]: value,
     }));
   };
-const selectedData = selectedcardcode
-  ? generalData.find(r => r.CardCode === selectedcardcode)
-  : null;
+  const selectedData = selectedcardcode
+    ? generalData.find((r) => r.CardCode === selectedcardcode)
+    : null;
 
-const autoCardNameRef = selectedData?.CardName || "";
-const autoContactPersonRef = selectedData?.ContactPerson || "";
-const autoCustomerRef = selectedData?.Series || "";
+  const autoCardNameRef = selectedData?.CardName || "";
+  const autoContactPersonRef = selectedData?.ContactPerson || "";
+  const autoCustomerRef = selectedData?.Series || "";
 
-useEffect(() => {
-  if (autoCustomerRef) {
-    handleChange({
-      target: { name: "CustomerRefNo", value: autoCustomerRef },
-    });
-  }
+  useEffect(() => {
+    if (autoCustomerRef) {
+      handleChange({
+        target: { name: "CustomerRefNo", value: autoCustomerRef },
+      });
+    }
 
-  if (autoContactPersonRef) {
-    handleChange({
-      target: { name: "ContactPerson", value: autoContactPersonRef },
-    });
-  }
+    if (autoContactPersonRef) {
+      handleChange({
+        target: { name: "ContactPerson", value: autoContactPersonRef },
+      });
+    }
 
-  if (autoCardNameRef) {
-    handleChange({
-      target: { name: "CardName", value: autoCardNameRef },
-    });
-  }
-}, [autoCustomerRef, autoContactPersonRef, autoCardNameRef]);
+    if (autoCardNameRef) {
+      handleChange({
+        target: { name: "CardName", value: autoCardNameRef },
+      });
+    }
+  }, [autoCustomerRef, autoContactPersonRef, autoCardNameRef]);
 
   return (
     <div>
@@ -248,7 +262,7 @@ useEffect(() => {
                       name="ContactPerson"
                       disabled={mode === "view"}
                       style={{ width: "100%" }}
-                      value={autoContactPersonRef||field.value}
+                      value={autoContactPersonRef || field.value}
                       onInput={(e) => field.onChange(e.target.value)}
                       onChange={handleChange}
                       valueState={errors.ContactPerson ? "Error" : "None"}
@@ -273,8 +287,7 @@ useEffect(() => {
                       name="CustomerRefNo"
                       disabled={mode === "view"}
                       style={{ width: "100%" }}
-                      value={autoCustomerRef||field.value
-                      }
+                      value={autoCustomerRef || field.value}
                       onInput={(e) => field.onChange(e.target.value)}
                       onChange={handleChange}
                       valueState={errors.CustomerRefNo ? "Error" : "None"}
@@ -351,7 +364,7 @@ useEffect(() => {
               <FlexBox alignItems="Center">
                 <Label style={{ minWidth: "200px" }}>Posting Date:</Label>
                 <Controller
-                  name="CreationDate" 
+                  name="CreationDate"
                   control={control}
                   render={({ field }) => (
                     <Input

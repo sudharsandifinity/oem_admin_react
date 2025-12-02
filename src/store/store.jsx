@@ -9,6 +9,7 @@ import branchReducer from './slices/branchesSlice';
 import formReducer from './slices/formmasterSlice';
 import companyformReducer from './slices/CompanyFormSlice';
 import formfieldReducer from './slices/FormFieldSlice';
+import formTabReducer from './slices/FormTabSlice'; 
 import formsectionReducer from './slices/formsectionSlice'
 import companyformfieldReducer from './slices/companyformfieldSlice'
 import usermenusReducer from './slices/usermenusSlice';
@@ -32,6 +33,7 @@ const store = configureStore({
     forms:formReducer,
     companyforms:companyformReducer,
     formField:formfieldReducer,
+    formTabs:formTabReducer,
     formsection:formsectionReducer,
     companyformfield:companyformfieldReducer,
     usermenus:usermenusReducer,
