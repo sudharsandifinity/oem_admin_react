@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import Form from "./Form";
@@ -9,6 +9,7 @@ import { fetchBranch } from "../../../../store/slices/branchesSlice";
 const CreateForm = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [formTabs, setFormTabs] = useState([]);
 
   useEffect(() => {
     //dispatch(fetchRoles());
@@ -29,7 +30,7 @@ const CreateForm = () => {
     fetchData();
   }, [dispatch]);
   const handleCreate = async (data) => {
-    console.log("handlecreateform", data);
+    console.log("handlecreateform", data, formTabs);
     try {
       var payload = {
         parentFormId: data.parentFormId || null,
@@ -38,10 +39,11 @@ const CreateForm = () => {
         name: data.name,
         display_name: data.display_name,
         scope: data.scope,
-        form_type: data.form_type,
+        form_type:"Both",// data.form_type,
+        FormTabs: formTabs,
         status: data.status,
       };
-
+      console.log("formpaylod", payload);
       const res = await dispatch(createForm(payload)).unwrap();
       if (res.message === "Please Login!") {
         navigate("/login");
@@ -52,7 +54,14 @@ const CreateForm = () => {
       console.error(error);
     }
   };
-  return <Form onSubmit={handleCreate} mode="create" />;
+  return (
+    <Form
+      onSubmit={handleCreate}
+      formTabs={formTabs}
+      setFormTabs={setFormTabs}
+      mode="create"
+    />
+  );
 };
 
 export default CreateForm;

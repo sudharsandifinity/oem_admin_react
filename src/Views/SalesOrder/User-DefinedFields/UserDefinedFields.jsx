@@ -16,8 +16,9 @@ import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Schema } from "yup";
 import { UserDefinedRenderInput } from "./UserDefinedRenderInput";
-import { fetchBusinessPartner } from "../../../store/slices/CustomerOrderSlice";
+import { fetchSalesBusinessPartner } from "../../../store/slices/CustomerOrderSlice";
 import CardDialog from "./CardCodeDialog/CardDialog";
+import { fetchPurBusinessPartner } from "../../../store/slices/VendorOrderSlice";
 
 const UserDefinedFields = ({
   onSubmit,
@@ -27,6 +28,7 @@ const UserDefinedFields = ({
   userdefinedData,
   defaultValues,
   form,
+  formDetails,
   mode = "create",
   apiError,
 }) => {
@@ -43,7 +45,7 @@ const UserDefinedFields = ({
   const { fieldConfig, userDefinedDetails } = useContext(FormConfigContext);
   const user = useSelector((state) => state.auth.user);
   const { formId } = useParams();
-  const [formDetails, setFormDetails] = useState([]);
+  const [userDefinedformDetails, setUserDefinedFormDetails] = useState([]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [generalData, setgeneralData] = useState([]);
   const [originalGeneralData, setOriginalgeneralData] = useState([]);
@@ -90,7 +92,18 @@ const UserDefinedFields = ({
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await dispatch(fetchBusinessPartner()).unwrap();
+         let res = [];
+                if (
+                  formDetails[0]?.name === "Sales Order" ||
+                  formDetails[0]?.name === "Sales Quotation"
+                ) {
+                  res=await dispatch(fetchSalesBusinessPartner()).unwrap();
+                } else if (
+                  formDetails[0]?.name === "Purchase Order" ||
+                  formDetails[0]?.name === "Purchase Quotation"
+                ) {
+                  res=await dispatch(fetchPurBusinessPartner()).unwrap();
+                }
         console.log("resusersbusinesspartner", res);
 
         if (res?.length > 0) {
@@ -113,21 +126,21 @@ const UserDefinedFields = ({
     };
 
     fetchData();
-  }, [dispatch]);
+  }, [dispatch,formDetails]);
   useEffect(() => {
     if (formId) {
       // Fetch form data based on formId
-      const formDetails =
+      const userDefinedFormDetails =
         user?.Roles?.flatMap((role) =>
           role?.UserMenus?.flatMap((menu) =>
             menu?.children?.filter((submenu) => submenu?.Form?.id === formId)
           )
         ) || [];
 
-      console.log("formDetails", formDetails, user);
+      console.log("userDefinedFormDetails", userDefinedFormDetails, user);
 
       // Extract the FormTabs for each matching form and filter for "User-defined-field"
-      const formTabs = formDetails
+      const formTabs = userDefinedFormDetails
         .flatMap((form) => form?.Form?.FormTabs || [])
         .filter((tab) => tab?.name === "User-defined-field");
 
@@ -143,7 +156,7 @@ const UserDefinedFields = ({
       console.log("userDefinedSubForms", userDefinedSubForms);
 
       // Set form details state
-      setFormDetails(userDefinedSubForms);
+      setUserDefinedFormDetails(userDefinedSubForms);
     } else {
       navigate("/");
     }
@@ -171,8 +184,8 @@ const UserDefinedFields = ({
             {console.log(" o ", userdefinedData)}
             <FlexBox direction="Column" style={{ width: "100%", gap: "8px" }}>
              
-              {formDetails &&
-                formDetails.map((field) => (
+              {userDefinedformDetails &&
+                userDefinedformDetails.map((field) => (
                   <FlexBox alignItems="Center">
                     <Label style={{ minWidth: "200px" }}>
                       {field.display_name}

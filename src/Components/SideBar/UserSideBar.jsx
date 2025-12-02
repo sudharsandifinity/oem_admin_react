@@ -19,7 +19,8 @@ function buildMenuTree(menus) {
   return grouped;
 }
 
-const UserSideBar = ({ collapsed, setCollapsed }) => {
+const UserSideBar = (props) => {
+  const { selectedCompany, setSelectedCompany, selectedBranch, setSelectedBranch,collapsed } =props;
     // const { Menuitems } = useContext(FormConfigContext);
   const { usermenus } = useSelector((state) => state.usermenus);
   const { user } = useSelector((state) => state.auth);
@@ -30,8 +31,7 @@ const UserSideBar = ({ collapsed, setCollapsed }) => {
 
   const buttonRef = useRef(null);
   const [menuIsOpen, setMenuIsOpen] = useState(false);
-  const [selectedCompany, setSelectedCompany] = useState(null);
-  const [selectedBranch, setSelectedBranch] = useState(null);
+ 
 
   const navigate = useNavigate();
   const dispatch = useDispatch();

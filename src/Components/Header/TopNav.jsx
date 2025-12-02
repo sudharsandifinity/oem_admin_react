@@ -9,12 +9,16 @@ import {
   ShellBarSearch,
 } from "@ui5/webcomponents-react";
 
-import { useRef, useState } from 'react';
-import avatarPng from '../../assets/Image/no-profile.png';
-import SapLogoSvg from '../../assets/Image/hamtinfotech-logo.webp';
-import ManageUser from '../ManageUser/ManageUser';
-import { useDispatch, useSelector } from 'react-redux';
-import { setActiveCompany, switchCompany } from '../../store/slices/userCompanySlice';
+import { useRef, useState } from "react";
+import avatarPng from "../../assets/Image/no-profile.png";
+import SapLogoSvg from "../../assets/Image/hamtinfotech-logo.webp";
+import ManageUser from "../ManageUser/ManageUser";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  setActiveCompany,
+  switchCompany,
+} from "../../store/slices/userCompanySlice";
+import { useNavigate } from "react-router-dom";
 
 export default function TopNav({
   collapsed,
@@ -23,10 +27,11 @@ export default function TopNav({
   setSelectedCompany,
   selectedBranch,
   setSelectedBranch,
-  showCompanySelectionRoutes,
+  isDashboardSelected,
   ...rest
 }) {
   const userMenuRef = useRef(null);
+  const navigate = useNavigate();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const dispatch = useDispatch();
 
@@ -44,9 +49,16 @@ export default function TopNav({
   const companies = user && user.Branches;
 
   const handleCompanyClick = (companyName) => {
-    dispatch(setActiveCompany());
-    dispatch(switchCompany({ companyId: companyName }));
-    setSelectedCompany(companyName);
+    if (isDashboardSelected) {
+      dispatch(setActiveCompany());
+      dispatch(switchCompany({ companyId: companyName }));
+      setSelectedCompany(companyName);
+    } else {
+      dispatch(setActiveCompany());
+      dispatch(switchCompany({ companyId: companyName }));
+      setSelectedCompany(companyName);
+      navigate("/dashboard");
+    }
   };
   const handleBranchClick = (branchname) => {
     setSelectedBranch(branchname);
@@ -62,17 +74,17 @@ export default function TopNav({
     : [];
 
   // Remove duplicate branches by branch.id
-const uniqueBranches = selectedCompany
-  ? Object.values(
-      companies
-        .filter((c) => c.companyId === selectedCompany) // ✔ get only selected company branches
-        .reduce((acc, item) => {
-          acc[item.id] = { id: item.id, name: item.name }; // ✔ remove duplicates
-          return acc;
-        }, {})
-    )
-  : [];
-  console.log("selectedCompany",uniqueBranches)
+  const uniqueBranches = selectedCompany
+    ? Object.values(
+        companies
+          .filter((c) => c.companyId === selectedCompany) // ✔ get only selected company branches
+          .reduce((acc, item) => {
+            acc[item.id] = { id: item.id, name: item.name }; // ✔ remove duplicates
+            return acc;
+          }, {})
+      )
+    : [];
+  console.log("selectedCompany", uniqueBranches,selectedCompany);
 
   return (
     <>
@@ -112,7 +124,7 @@ const uniqueBranches = selectedCompany
           ></ShellBarBranding>
         }
         content={
-          showCompanySelectionRoutes?<div
+          <div
             style={{
               width: "100%",
               display: "flex",
@@ -123,6 +135,7 @@ const uniqueBranches = selectedCompany
             {/* Company Dropdown */}
             <Select
               style={{ width: "100%", minWidth: "250px" }}
+              value={selectedCompany?selectedCompany:uniqueCompanies[0]?.id}
               onChange={(e) =>
                 handleCompanyClick(e.detail.selectedOption.value)
               }
@@ -139,6 +152,7 @@ const uniqueBranches = selectedCompany
             {/* Branch Dropdown */}
             <Select
               style={{ width: "100%", minWidth: "250px" }}
+              value={selectedBranch}
               disabled={!selectedCompany}
               onChange={(e) => handleBranchClick(e.detail.selectedOption.value)}
             >
@@ -150,7 +164,7 @@ const uniqueBranches = selectedCompany
                 </Option>
               ))}
             </Select>
-          </div>:<div></div>
+          </div>
         }
         searchField={
           <ShellBarSearch

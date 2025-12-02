@@ -4,7 +4,7 @@ import UserSideNav from "./UserSideNav";
 
 export default function UserSideNavWrapper() {
   const [collapsed, setCollapsed] = useState(false);
-  const showCompanySelectionRoutes = ["/dashboard"].includes(location.pathname);
+  const isDashboardSelected = ["/dashboard"].includes(location.pathname);
   const hideHeaderRoutes = ["/", "/Login", "/login", "/forgot-password"];
   const shouldHideHeader = hideHeaderRoutes.includes(location.pathname);
   const [selectedCompany, setSelectedCompany] = useState(null);
@@ -20,7 +20,7 @@ export default function UserSideNavWrapper() {
           setSelectedCompany={setSelectedCompany}
           selectedBranch={selectedBranch}
           setSelectedBranch={setSelectedBranch}
-          showCompanySelectionRoutes={showCompanySelectionRoutes}
+          isDashboardSelected={isDashboardSelected}
         />
       )}
       <UserSideNav

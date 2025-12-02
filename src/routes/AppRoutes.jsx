@@ -59,144 +59,133 @@ import UserMainLayout from "../Views/Layouts/UserMainLayout";
 const AppRoutes = () => {
   return (
     <Routes>
-        <Route element={<PublicRoute><Outlet /></PublicRoute>}>
-            <Route index element={<AuthLogin />} replace />
-            <Route path="/login" element={<AuthLogin />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route
+        element={
+          <PublicRoute>
+            <Outlet />
+          </PublicRoute>
+        }
+      >
+        <Route index element={<AuthLogin />} replace />
+        <Route path="/login" element={<AuthLogin />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+      </Route>
+
+      <Route
+        element={
+          <PrivateRoute>
+            <Outlet />
+          </PrivateRoute>
+        }
+      >
+        <Route path="/dashboard" element={<UserSideNavWrapper />} />
+        <Route path="/Admin" element={<SideNavWrapper />} />
+        <Route path="/admin" element={<SideNavWrapper />}>
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="users" element={<Users />} />
+          <Route path="users/create" element={<CreateUser />} />
+          <Route path="users/edit/:id" element={<EditUser />} />
+          <Route path="roles" element={<RolesList />} />
+          <Route path="roles/create" element={<CreateRole />} />
+          <Route path="roles/edit/:id" element={<EditRole />} />
+          <Route path="CompanyRole" element={<CompanyRoleList />} />
+          <Route path="CompanyRole/create" element={<CreateCompanyRole />} />
+          <Route path="CompanyRole/edit/:id" element={<EditCompanyRole />} />
+          <Route path="companies" element={<Companies />} />
+          <Route path="companies/create" element={<CreateCompany />} />
+          <Route path="companies/edit/:id" element={<EditCompany />} />
+          <Route path="branches" element={<Branches />} />
+          <Route path="branches/create" element={<CreateBranch />} />
+          <Route path="branches/edit/:id" element={<EditBranches />} />
+          <Route path="menu" element={<Menu />} />
+          <Route path="MenuMaster" element={<MenuMaster />} />
+          {/* <Route path="AssignFormToMenu" element={<AssignFormMenuMaster />} /> */}
+          {/* <Route path="AssignFormToMenu/create" element={<CreateAssignFormMenu />} /> */}
+          <Route path="UserRoleMenus" element={<UserRoleMenuMaster />} />
+          <Route path="UserRoleMenus/create" element={<CreateUserRoleMenu />} />
+          <Route path="MenuMaster/create" element={<CreateMenu />} />
+          <Route path="MenuMaster/edit/:id" element={<EditUserMenu />} />
+          <Route
+            path="MenuMasterChild/:edit/:id"
+            element={<EditUserChildMenu />}
+          />{" "}
+          <Route
+            path="MenuMasterChild/:view/:id"
+            element={<EditUserChildMenu />}
+          />
+          <Route path="sales-orders" element={<SalesOrders />} />
+          <Route path="sales-invoices" element={<SalesInvoices />} />
+          <Route path="purchase-orders" element={<PurchaseOrders />} />
+          <Route path="FormMaster" element={<FormMaster />} />
+          <Route path="FormMaster/create" element={<CreateForm />} />
+          <Route path="FormMaster/edit/:id" element={<EditFormMaster />} />
+          <Route path="company-forms" element={<CompanyMaster />} />
+          <Route path="company-forms/create" element={<CreateCompanyForm />} />
+          <Route path="company-forms/edit/:id" element={<EditCompanyForm />} />
+          <Route path="FormFields" element={<FormFields />} />
+          <Route path="FormFields/create" element={<CreateFormField />} />
+          <Route path="FormFields/edit/:id" element={<EditFormField />} />
+          
+       
+
+          <Route
+            path="CompanyFormFields"
+            element={<CompanyFormFieldMaster />}
+          />
+          <Route
+            path="CompanyFormFields/create"
+            element={<CreateCompanyFormField />}
+          />
+          <Route
+            path="CompanyFormFields/filter/:id"
+            element={<FilterCompanyFormField />}
+          />
+          <Route
+            path="CompanyFormFields/create/addFormField"
+            element={<AddFormField />}
+          />
+          {/* Add other nested routes similarly */}
         </Route>
 
-        <Route element={<PrivateRoute><Outlet /></PrivateRoute>}>
-            <Route path="/dashboard" element={<UserSideNavWrapper />} />
-            <Route path="/Admin" element={<SideNavWrapper />} />
-            <Route path="/admin" element={<SideNavWrapper />}>
-            <Route path="dashboard" element={<Dashboard />} />
+        <Route element={<UserMainLayout />}>
+          <Route path="/Order/create/:formId/:docNo" element={<SalesOrder />} />
+          <Route path="/Order/edit/:formId/:id" element={<EditSalesOrder />} />
+          <Route path="/Order/view/:formId/:id" element={<ViewSalesOrder />} />
 
-            <Route path="users" element={<Users />} />
-            <Route path="users/create" element={<CreateUser />} />
-            <Route path="users/edit/:id" element={<EditUser />} />
+          <Route
+            path="/SalesOrder/create/:formId/:docNo"
+            element={<SalesOrder />}
+          />
+          <Route
+            path="/SalesOrder/edit/:formId/:id"
+            element={<EditSalesOrder />}
+          />
+          <Route
+            path="/SalesOrder/view/:formId/:id"
+            element={<ViewSalesOrder />}
+          />
 
-            <Route path="roles" element={<RolesList />} />
-            <Route path="roles/create" element={<CreateRole />} />
-            <Route path="roles/edit/:id" element={<EditRole />} />
+          <Route
+            path="/PurchaseOrder/create/:formId"
+            element={<PurchaseOrder />}
+          />
+          <Route
+            path="/PurchaseOrder/edit/:formId/:id"
+            element={<EditPurchaseOrder />}
+          />
+          <Route
+            path="/PurchaseOrder/view/:formId/:id"
+            element={<ViewPurchaseOrder />}
+          />
 
-            <Route path="CompanyRole" element={<CompanyRoleList/>}/>
-            <Route path="CompanyRole/create" element={<CreateCompanyRole/>}/>
-                <Route path="CompanyRole/edit/:id" element={<EditCompanyRole />} />
-
-            <Route path="companies" element={<Companies />} />
-            <Route
-                path="companies/create"
-                element={<CreateCompany />}
-            />
-            <Route
-                path="companies/edit/:id"
-                element={<EditCompany />}
-            />
-
-            <Route path="branches" element={<Branches />} />
-            <Route path="branches/create" element={<CreateBranch />} />
-            <Route
-                path="branches/edit/:id"
-                element={<EditBranches />}
-            />
-
-            <Route path="menu" element={<Menu />} />
-            <Route path="MenuMaster" element={<MenuMaster />} />
-            {/* <Route path="AssignFormToMenu" element={<AssignFormMenuMaster />} /> */}
-            {/* <Route path="AssignFormToMenu/create" element={<CreateAssignFormMenu />} /> */}
-
-            <Route path="UserRoleMenus" element={<UserRoleMenuMaster />} />
-            <Route
-                path="UserRoleMenus/create"
-                element={<CreateUserRoleMenu />}
-            />
-
-            <Route path="MenuMaster/create" element={<CreateMenu />} />
-            <Route
-                path="MenuMaster/edit/:id"
-                element={<EditUserMenu />}
-            />
-
-                <Route
-                path="MenuMasterChild/:edit/:id"
-                element={<EditUserChildMenu />}
-            /> <Route
-                path="MenuMasterChild/:view/:id"
-                element={<EditUserChildMenu />}
-            />
-
-            <Route path="sales-orders" element={<SalesOrders />} />
-            <Route path="sales-invoices" element={<SalesInvoices />} />
-
-            <Route
-                path="purchase-orders"
-                element={<PurchaseOrders />}
-            />
-            <Route path="FormMaster" element={<FormMaster />} />
-            <Route path="FormMaster/create" element={<CreateForm />} />
-            <Route
-                path="FormMaster/edit/:id"
-                element={<EditFormMaster />}
-            />
-
-            <Route path="company-forms" element={<CompanyMaster />} />
-            <Route
-                path="company-forms/create"
-                element={<CreateCompanyForm />}
-            />
-            <Route
-                path="company-forms/edit/:id"
-                element={<EditCompanyForm />}
-            />
-
-            <Route path="FormFields" element={<FormFields />} />
-            <Route
-                path="FormFields/create"
-                element={<CreateFormField />}
-            />
-            <Route
-                path="FormFields/edit/:id"
-                element={<EditFormField />}
-            />
-
-            <Route
-                path="CompanyFormFields"
-                element={<CompanyFormFieldMaster />}
-            />
-            <Route
-                path="CompanyFormFields/create"
-                element={<CreateCompanyFormField />}
-            />
-            <Route
-                path="CompanyFormFields/filter/:id"
-                element={<FilterCompanyFormField />}
-            />
-            <Route
-                path="CompanyFormFields/create/addFormField"
-                element={<AddFormField />}
-            />
-
-            {/* Add other nested routes similarly */}
-            </Route>
-
-            <Route element={<UserMainLayout />} >
-                <Route path="/SalesOrder/create/:formId/:docNo" element={<SalesOrder />} />
-                <Route path="/SalesOrder/edit/:formId/:id" element={<EditSalesOrder />} />
-                <Route path="/SalesOrder/view/:formId/:id" element={<ViewSalesOrder/>}/>
-
-                <Route path="/PurchaseOrder/create/:formId" element={<PurchaseOrder />} />
-                <Route path="/PurchaseOrder/edit/:formId/:id" element={<EditPurchaseOrder />} />
-                <Route path="/PurchaseOrder/view/:formId/:id" element={<ViewPurchaseOrder/>}/>
-
-                <Route path="/ManageSalesOrder" element={<ManageSalesOrder />}/>
-                <Route path="/Sales/:formId" element={<ManageSalesOrder />} />
-                <Route path="/Purchase/:formId" element={<ManageSalesOrder />} />
-                 {/* <Route path="/Purchase/:formId" element={<ManagePurchaseOrder />} /> */}
-            </Route>
+          <Route path="/ManageSalesOrder" element={<ManageSalesOrder />} />
+          <Route path="/Sales/:formId" element={<ManageSalesOrder />} />
+          <Route path="/Purchase/:formId" element={<ManageSalesOrder />} />
+          {/* <Route path="/Purchase/:formId" element={<ManagePurchaseOrder />} /> */}
         </Route>
+      </Route>
 
-
-        {/* <Route path="*" element={<Navigate to="/login" replace />} /> */}
+      {/* <Route path="*" element={<Navigate to="/login" replace />} /> */}
     </Routes>
   );
 };

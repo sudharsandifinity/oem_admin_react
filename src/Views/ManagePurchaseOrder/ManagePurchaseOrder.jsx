@@ -32,7 +32,7 @@ import ItemViewPage from "../PurchaseOrder/Contents/Item/ItemViewPage";
 import ViewPurchaseOrder from "./ViewPurchaseOrder";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  fetchBusinessPartner,
+  fetchPurBusinessPartner,
   fetchVendorOrder,
 } from "../../store/slices/VendorOrderSlice";
 
@@ -99,7 +99,7 @@ const ManagePurchaseOrder = () => {
     const fetchInitial = async () => {
       try {
         const res = await dispatch(fetchVendorOrder()).unwrap();
-        dispatch(fetchBusinessPartner()).unwrap();
+        dispatch(fetchPurBusinessPartner()).unwrap();
         const initialData = res.map((item) => ({
           DocEntry: item.DocEntry,
           CustomerCode: item.CardCode,

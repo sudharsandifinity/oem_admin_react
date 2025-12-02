@@ -6,8 +6,8 @@ const API_URL = "/sap/orders";
 const BUSINESS_PARTNER_API = "/sap/business-partners/customers";
 
 // ✅ Fetch Business Partners
-export const fetchBusinessPartner = createAsyncThunk(
-  "businessPartner/fetchBusinessPartner",
+export const fetchSalesBusinessPartner = createAsyncThunk(
+  "businessPartner/fetchSalesBusinessPartner",
   async (_, thunkApi) => {
     try {
       const response = await api.get(BUSINESS_PARTNER_API, {
@@ -143,14 +143,14 @@ const customerorderSlice = createSlice({
       })
 
       // Fetch Business Partners
-      .addCase(fetchBusinessPartner.pending, (state) => {
+      .addCase(fetchSalesBusinessPartner.pending, (state) => {
         state.loading = true;
       })
-      .addCase(fetchBusinessPartner.fulfilled, (state, action) => {
+      .addCase(fetchSalesBusinessPartner.fulfilled, (state, action) => {
         state.loading = false;
         state.businessPartner = action.payload;
       })
-      .addCase(fetchBusinessPartner.rejected, (state, action) => {
+      .addCase(fetchSalesBusinessPartner.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })

@@ -61,6 +61,7 @@ const Contents = (props) => {
     itemdata,
     setitemData,
     setitemTableData,
+    formDetails,
     itemTabledata,
     summaryData,
     setSummaryData,
@@ -124,19 +125,23 @@ const Contents = (props) => {
   const [layout, setLayout] = useState("OneColumn");
 
   useEffect(() => {
+    console.log("formDetailstaxcode",formDetails)
     const fetchData = async () => {
       try {
         const res = await dispatch(fetchOrderItems()).unwrap();
-        const salesTaxCode = await dispatch(
-          fetchSalesOrderAddDetails()
-        ).unwrap();
+        let taxCode =[];
+        if(formDetails && formDetails[0]?.name === "Sales Order"|| formDetails[0]?.name === "Sales Quotation"){
+          taxCode = await dispatch(fetchSalesOrderAddDetails()).unwrap();
+        }else if(formDetails && formDetails[0]?.name === "Purchase Order"){
+          taxCode = await dispatch(fetchPurOrderAddDetails()).unwrap();
+        }
+       
         const freightData = await dispatch(fetchfreightDetails()).unwrap();
         setFreightData(freightData.value);
         console.log(
           "resusersfetchitems",
-          res,
-          itemdata,
-          salesTaxCode,
+          
+          taxCode,
           freightData
         );
         if (res.value?.length > 0) {
@@ -147,8 +152,8 @@ const Contents = (props) => {
           }));
           mode === "create" && setitemData(tableconfig);
         }
-        if (salesTaxCode.value?.length > 0) {
-          setTaxData(salesTaxCode.value);
+        if (taxCode.value?.length > 0) {
+          setTaxData(taxCode.value);
         }
 
         const serviceorder = await dispatch(fetchOrderServices()).unwrap();
@@ -170,7 +175,7 @@ const Contents = (props) => {
       }
     };
     fetchData();
-  }, [dispatch]);
+  }, [dispatch,formDetails]);
   const onRowSelect = (e) => {
     console.log("onRowSelect", e.detail.row.original);
     //selectionChangeHandler(e.detail.row.original);

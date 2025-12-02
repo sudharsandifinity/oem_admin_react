@@ -21,8 +21,8 @@ import React, { useContext, useState } from "react";
 import { FormConfigContext } from "../../../Components/Context/FormConfigContext";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { fetchBusinessPartner } from "../../../store/slices/CustomerOrderSlice";
 import CardDialog from "./CardCodeDialog/CardDialog";
+import { fetchPurBusinessPartner } from "../../../store/slices/VendorOrderSlice";
 const schema = yup.object().shape({
   name: yup.string().required("Name is required"),
   city: yup.string().required("City is required"),
@@ -79,7 +79,7 @@ const General = ({
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await dispatch(fetchBusinessPartner()).unwrap();
+        const res = await dispatch(fetchPurBusinessPartner()).unwrap();
         console.log("resusersbusinesspartner", res);
 
         if (res?.length > 0) {

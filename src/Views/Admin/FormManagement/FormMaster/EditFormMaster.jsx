@@ -14,6 +14,7 @@ const EditFormMaster = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+    const [formTabs, setFormTabs] = useState([]);
 
   const [apiError, setApiError] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -29,6 +30,9 @@ const EditFormMaster = () => {
           const res = await dispatch(fetchFormById(id)).unwrap();
           dispatch(fetchCompanies()).unwrap();       
                   dispatch(fetchBranch()).unwrap();
+                  setFormTabs(res.FormTabs || []);
+                  console.log("fetchdata",res)
+
           if (res.message === "Please Login!") {
             navigate("/login");
           }
@@ -40,12 +44,25 @@ const EditFormMaster = () => {
       }
     };
     fetchData();
+    setFormTabs(form.FormTabs || []);
   }, [dispatch, id, form]);
   const handleUpdate = async (data) => {
-    console.log("handleUpdate", data);
+    console.log("handleUpdate", data,formTabs);
 
     try {
-      const res = await dispatch(updateForm({ id, data })).unwrap();
+      var payload = {
+        parentFormId: data.parentFormId || null,
+        companyId: data.companyId || null,
+        branchId: data.branchId || null,
+        name: data.name,
+        display_name: data.display_name,
+        scope: data.scope,
+        //form_type: data.form_type,
+        FormTabs: formTabs,
+        status: data.status,
+      };
+      console.log("updatepayload",payload)
+      const res = await dispatch(updateForm({ id, data:payload })).unwrap();
       if (res.message === "Please Login!") {
         navigate("/login");
       } else {
@@ -56,12 +73,15 @@ const EditFormMaster = () => {
       setApiError("Failed to update user");
     }
   };
+  console.log("form",form)
   return (
     <Form
       onSubmit={handleUpdate}
       apiError={apiError}
       mode="edit"
       branches={branches} companies={companies} 
+      formTabs={formTabs}
+      setFormTabs={setFormTabs}
       defaultValues={{
         parentFormId:form.parentFormId || "",
         companyId:form.Branch?.companyId || "",
@@ -69,9 +89,10 @@ const EditFormMaster = () => {
         name: form.name,
         display_name: form.display_name,
         scope: form.scope || "",
-        form_type:  form.form_type
-    ? form.form_type.charAt(0).toUpperCase() + form.form_type.slice(1)
-    : form.form_type,
+    //     form_type:  form.form_type
+    // ? form.form_type.charAt(0).toUpperCase() + form.form_type.slice(1)
+    // : form.form_type,
+    FormTabs: form.FormTabs || [],
         status: JSON.stringify(form.status),
       }}
     />
