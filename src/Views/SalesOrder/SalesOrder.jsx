@@ -202,8 +202,6 @@ export default function SalesOrder() {
           })),
 
           data: userdefinedData,
-
-          DocTotal: summaryData.DocTotal,
           Rounding: summaryData.Rounding,
           RoundingDiffAmount: summaryData.RoundingDiffAmount,
           DiscountPercent: summaryData.DiscountPercent,

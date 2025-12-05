@@ -292,7 +292,7 @@ const Itemtable = (props) => {
     return {
       ...row,
       BaseAmount: taxable.toFixed(2),
-      TaxRate: taxAmt.toFixed(2),
+      TaxTotal: taxAmt.toFixed(2),
       grosstotal: grossTotal.toFixed(2),
     };
   };
@@ -383,7 +383,7 @@ const Itemtable = (props) => {
     const cal = itemTabledata.reduce(
       (acc, item) => {
         const bdTotal = parseFloat(item.BaseAmount) || 0;
-        const taxTotal = parseFloat(item.TaxRate) || 0;
+        const taxTotal = parseFloat(item.TaxTotal) || 0;
         acc.totalBeforeDiscount += bdTotal;
         acc.totalTaxAmount += taxTotal;
         return acc;
@@ -716,7 +716,7 @@ useEffect(() => {
         accessor: "TaxRate",
         Cell: ({ row }) => (
           <Input
-            value={row.original.TaxRate}
+            value={row.original.TaxTotal}
             readonly
             disabled={mode === "view"}
             style={{
