@@ -338,6 +338,7 @@ const ManageSalesOrder = () => {
 
   // if (!formConfig) return <div>Loading form...</div>;
   useEffect(() => {
+     if (!user) return;
     if (formId) {
       // Fetch form data based on formId
       const formDetails = user?.Roles?.flatMap((role) =>
@@ -350,7 +351,7 @@ const ManageSalesOrder = () => {
     } else {
       navigate("/");
     }
-  }, [formId]);
+  }, [user,formId]);
   return (
     <div style={{ width: "100%" }}>
       <DynamicPage

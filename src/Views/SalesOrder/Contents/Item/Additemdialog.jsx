@@ -64,20 +64,40 @@ const Additemdialog = (props) => {
   const [itemchildrowSelection, setitemChildRowSelection] = useState([]);
   const [rowSelection, setRowSelection] = useState([]);
   const [originalItemData, setOriginalItemData] = useState([]);
+  // const onitemchildRowSelect = (e) => {
+  //   console.log(
+  //     "onRowSelect",
+  //     itemdata,
+  //     e.detail.row,
+  //     e.detail.selected,
+  //     e.detail.row.original
+  //   );
+  //   //selectionChangeHandler(e.detail.row.original);
+  //   setRowSelection((prev) => ({
+  //     ...prev,
+  //     [e.detail.row.original.slno]: e.detail.row.original,
+  //   }));
+  // };
   const onitemchildRowSelect = (e) => {
-    console.log(
-      "onRowSelect",
-      itemdata,
-      e.detail.row,
-      e.detail.selected,
-      e.detail.row.original
-    );
-    //selectionChangeHandler(e.detail.row.original);
-    setRowSelection((prev) => ({
-      ...prev,
-      [e.detail.row.original.slno]: e.detail.row.original,
-    }));
-  };
+  const rowId = e.detail.row.original.slno;
+  const isSelected = e.detail.isSelected
+;
+
+  setRowSelection(prev => {
+    const updated = { ...prev };
+console.log('onitemrowselect',rowId,isSelected,updated)
+    if (isSelected) {
+      // ✅ add selected row
+      updated[rowId] = e.detail.row.original;
+    } else {
+      // ❌ remove deselected row
+      delete updated[rowId];
+    }
+
+    return updated;
+  });
+};
+
   useEffect(() => {
     console.log("itemdatauseefect1", originalItemData);
     if (addItemdialogOpen) {
@@ -328,6 +348,7 @@ const Additemdialog = (props) => {
                 selectedRowIds={setRowSelection&&itemdata.find(i=>i.quantity!=="undefined")}
                 rowSelection={onitemchildRowSelect} // pass selected rows
               /> */}
+        
               <AnalyticalTable
                 data={itemdata}
                 columns={itemcolumns}

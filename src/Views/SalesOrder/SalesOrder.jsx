@@ -35,6 +35,8 @@ import {
   MenuItem,
   MenuSeparator,
   BusyIndicator,
+  Option,
+  Select,
 } from "@ui5/webcomponents-react";
 import { FormConfigContext } from "../../Components/Context/FormConfigContext";
 import api from "../../api/axios";
@@ -53,6 +55,8 @@ import { createCustomerOrder } from "../../store/slices/CustomerOrderSlice";
 import { createSalesQuotation } from "../../store/slices/SalesQuotationSlice";
 import { createVendorOrder } from "../../store/slices/VendorOrderSlice";
 import BarDesign from "@ui5/webcomponents/dist/types/BarDesign.js";
+import CloneSalesOrder from "./CloneSalesOrder";
+import "@ui5/webcomponents-icons/dist/copy.js";
 
 export default function SalesOrder() {
   const { fieldConfig, CustomerDetails, DocumentDetails } =
@@ -81,7 +85,9 @@ export default function SalesOrder() {
   const [roundingEnabled, setRoundingEnabled] = useState(false);
   const [roundOff, setRoundOff] = useState(0);
   const [selectedcardcode, setSelectedCardCode] = useState([]);
-
+  const [copiedFormData, setCopiedFormData] = useState({});
+  const [isCloneSelected, setIsCloneSelected] = useState(false);
+  const [selectPage, setSelectPage] = useState("");
   const [itemTabledata, setitemTableData] = useState([
     {
       slno: 1,
@@ -160,8 +166,8 @@ export default function SalesOrder() {
   };
 
   const handleSubmit = async () => {
-    try {
-      console.log("itemTabledatahandleSubmit", itemTabledata, formData);
+    //try {
+      console.log("itemTabledatahandleSubmit", itemTabledata, formData,freightRowSelection);
       setLoading(true);
       let payload = {};
 
@@ -306,22 +312,42 @@ export default function SalesOrder() {
       }
 
       if (res.message === "Please Login!") {
-        navigate("/login");
+        //navigate("/login");
         return;
       }
 
       setOpen(true);
-    } catch (err) {
-      console.error("Failed to create order:", err);
-      setApiError(err.message || "Error creating order");
-    } finally {
-      setTimeout(() => {
-        setLoading(false);
-        setOpen(true);
-      }, 2000);
-    }
+    // } catch (err) {
+    //   console.error("Failed to create order:", err);
+    //   setApiError(err.message || "Error creating order");
+    // } finally {
+    //   setTimeout(() => {
+    //     setLoading(false);
+    //     setOpen(true);
+    //   }, 2000);
+    // }
   };
+  const copyForm = () => {
+    const tabledata = type === "Item" ? itemTabledata : serviceTabledata;
+    const data = {
+      ...formData,
+      ...tabledata,
+      ...summaryData,
+      ...freightRowSelection,
+    };
 
+    delete data.DocEntry;
+    console.log("copiedformdata", data, tabledata,summaryData,formData);
+    setCopiedFormData({
+      ...data,
+      formData:formData,
+      DocumentLines: tabledata,
+      summaryData: summaryData,
+      freightRowSelection: freightRowSelection,
+      DocType: type === "Item" ? "dDocument_Items" : "dDocument_Service",
+      AttachmentEntrys: attachmentsList,
+    });
+  };
   const renderInput = (field) => {
     const value = form[field.FieldName] || "";
 
@@ -361,7 +387,20 @@ export default function SalesOrder() {
         return null;
     }
   };
+  const menuBlocks =
+    user?.Roles?.flatMap((role) =>
+      role.UserMenus?.filter((menu) =>
+        menu.children?.some((child) => child.Form?.id === formId)
+      ).map((menu) => ({
+        roleId: role.id,
+        roleName: role.name,
+        ...menu,
+      }))
+    ) || [];
+  const childOptions = menuBlocks.length > 0 ? menuBlocks[0].children : [];
+  console.log("salesorderurl", copiedFormData,"freightRowSelection",freightRowSelection);
   useEffect(() => {
+    if (!user) return;
     if (formId) {
       // Fetch form data based on formId
       const formDetails = user?.Roles?.flatMap((role) =>
@@ -372,13 +411,13 @@ export default function SalesOrder() {
       setTabList((formDetails && formDetails[0]?.Form.FormTabs) || []);
       setFormDetails(formDetails);
     } else {
-      navigate("/");
+       navigate("/");
     }
-  }, [formId]);
+  }, [formId,user]);
   return (
     <>
-        <style>
-          {`
+      <style>
+        {`
             ._footer_17oaz_164{
               position: static
             }
@@ -387,23 +426,23 @@ export default function SalesOrder() {
       <ObjectPage
         className="sales-order-page"
         footerArea={
-            <Bar
+          <Bar
             design={BarDesign.FloatingFooter}
-              style={{ padding: 0.5, marginBottom:'16px' }}
-              endContent={
-                <>
-                  <Button design="Positive" onClick={() => handleSubmit()}>
-                    Submit
-                  </Button>
-                  <Button
-                    design="Positive"
-                    onClick={() => navigate(`/Sales/${formId}`)}
-                  >
-                    Cancel
-                  </Button>
-                </>
-              }
-            />
+            style={{ padding: 0.5, marginBottom: "16px" }}
+            endContent={
+              <>
+                <Button design="Positive" onClick={() => handleSubmit()}>
+                  Submit
+                </Button>
+                <Button
+                  design="Positive"
+                  onClick={() => navigate(`/Sales/${formId}`)}
+                >
+                  Cancel
+                </Button>
+              </>
+            }
+          />
         }
         headerArea={
           <DynamicPageHeader>
@@ -483,14 +522,69 @@ export default function SalesOrder() {
             }
             navigationBar={
               <Toolbar design="Transparent">
-                {/* <ToolbarButton design="Transparent" icon="full-screen" />
-              <ToolbarButton design="Transparent" icon="exit-full-screen" /> */}
-
                 <ToolbarButton
+                  design="default"
+                  onClick={copyForm}
+                  icon="sap-icon://copy"
+                />
+
+                <Select
+                  onChange={(e) =>
+                    setSelectPage(e.detail.selectedOption.dataset.id)
+                  }
+                  //setSelectedChild(e.detail.selectedOption.dataset.id)
+                >
+                  {console.log("childOptions", childOptions)}
+                  <Option key={""} data-id={""}>
+                    Select Action
+                  </Option>
+                  {childOptions.map((child) => (
+                    <Option key={child.id} data-id={child.id}>
+                      {child.name}
+                    </Option>
+                  ))}
+                </Select>
+                <Select
+                  onChange={(e) => {
+                    const selected = e.detail.selectedOption.dataset.id;
+
+                    if (selected === "CopyTo") {
+                      // store big data for new tab
+                      localStorage.setItem(
+                        "copyFormData",
+                        JSON.stringify(copiedFormData)
+                      );
+
+                       window.open("/cloneorder/create/" + formId+"/" + selectPage, "_blank");
+                     
+                    } else if (selected === "MoveTo") {
+                      // passing data using React Router state (same tab)
+                      navigate(
+                        "/cloneorder/create/" + formId + "/" + selectPage,
+                        {
+                          state: { copyFormData: copiedFormData },
+                        }
+                      );
+                    }
+                  }}
+                >
+                  <Option data-id="Select">Select</Option>
+                  <Option data-id="MoveTo">Move To</Option>
+                  <Option data-id="CopyTo">Copy To</Option>
+                </Select>
+
+                {/* <ToolbarButton
+                  design={isCloneSelected ? "Emphasized" : "Transparent"}
+                  onClick={() => setIsCloneSelected(!isCloneSelected)}
+                  icon="sap-icon://add-document"
+                  text="Clone"
+                /> */}
+
+                {/* <ToolbarButton
                   onClick={() => navigate(`/Sales/${formId}`)}
                   design="Transparent"
                   icon="decline"
-                />
+                /> */}
               </Toolbar>
             }
           >
@@ -568,6 +662,7 @@ export default function SalesOrder() {
             type={type}
             setType={setType}
             mode={"create"}
+            totalFreightAmount={totalFreightAmount}
             setTotalFreightAmount={setTotalFreightAmount}
             onSubmit={handleSubmit}
             freightRowSelection={freightRowSelection}
@@ -661,6 +756,9 @@ export default function SalesOrder() {
       }) */}
       </ObjectPage>
       {/* </BusyIndicator> */}
+      {isCloneSelected && (
+        <CloneSalesOrder copiedFormData={copiedFormData} formId={formId} />
+      )}
       <Dialog open={open} onAfterClose={() => setOpen(false)}>
         <div
           style={{

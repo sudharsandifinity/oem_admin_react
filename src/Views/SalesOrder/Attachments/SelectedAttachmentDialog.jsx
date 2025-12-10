@@ -10,7 +10,7 @@ const SelectedAttachmentDialog = (props) => {
         // style={{ width: "100px" }}
         onAfterClose={() => setOpenAttachmentDialog(false)}
         footer={
-          <Button onClick={() => setOpenAttachmentDialog(false)}>Close</Button>
+          <Button onClick={() => setOpenAttachmentDialog(false)}>Next</Button>
         }
       >
         <UploadCollection

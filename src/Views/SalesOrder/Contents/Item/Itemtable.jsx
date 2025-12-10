@@ -68,8 +68,16 @@ const Itemtable = (props) => {
     setFreightData,
     setIsFreightTableVisible,
     isFreightTableVisible,
-    freightRowSelection, setFreightRowSelection,
+    freightRowSelection,
+    setFreightRowSelection,
+    totalFreightAmount,
     setTotalFreightAmount,
+    roundingEnabled,
+    setRoundingEnabled,
+    summaryDiscountPercent,
+    setSummaryDiscountPercent,
+    roundOff,
+    setRoundOff,
   } = props;
   const menuRef = useRef();
 
@@ -90,10 +98,8 @@ const Itemtable = (props) => {
   const [disable, setDisable] = useState(true);
   const [settingsDialogOpen, setSettingsDialogOpen] = useState(false);
   const [copySelectedRow, setCopySelectedRow] = useState([]);
-  const [summaryDiscountPercent, setSummaryDiscountPercent] = useState(0);
   const [summaryDiscountAmount, setSummaryDiscountAmount] = useState(0);
-  const [roundingEnabled, setRoundingEnabled] = useState(false);
-  const [roundOff, setRoundOff] = useState(0);
+
   const [finalTotal, setFinalTotal] = useState("0.00");
 
   const [itemDialogOpen, setitemDialogOpen] = useState(false);
@@ -378,7 +384,19 @@ const Itemtable = (props) => {
     setitemData(updatedRows);
     setDialogOpen(false);
   };
+const totalFreightFromPopup = useMemo(() => {
+    console.log(
+      " Object.values(freightRowSelection",
+      Object.values(freightRowSelection)
+    );
 
+    const rows = Object.values(freightRowSelection || {});
+
+    return rows.reduce((sum, item) => {
+      const amt = parseFloat(item.grossTotal || 0); // <-- Correct field
+      return sum + amt;
+    }, 0);
+  }, [freightRowSelection]);
   const summaryCalculation = useMemo(() => {
     const cal = itemTabledata.reduce(
       (acc, item) => {
@@ -410,8 +428,9 @@ const Itemtable = (props) => {
     const discount = parseFloat(summaryDiscountAmount) || 0;
     const totalTax = parseFloat(summaryCalculation.totalTaxAmount) || 0;
     const r = roundingEnabled ? parseFloat(roundOff) || 0 : 0;
+    const freightamount =parseFloat(totalFreightAmount) || 0;
 
-    const result = bdTotal - discount + totalTax + r;
+    const result = bdTotal - discount + totalTax + r+freightamount;
     setFinalTotal(result.toFixed(2));
   }, [
     summaryCalculation.totalBeforeDiscount,
@@ -419,16 +438,17 @@ const Itemtable = (props) => {
     summaryDiscountAmount,
     roundOff,
     roundingEnabled,
+    totalFreightAmount
   ]);
 
-useEffect(() => {
-  setSummaryData((prev) => ({
-    ...prev,
-    TotalDiscount: summaryDiscountAmount,
-    VatSum: summaryCalculation.totalTaxAmount,
-    DocTotal: finalTotal
-  }))
-}, [summaryCalculation.totalTaxAmount, finalTotal])
+  useEffect(() => {
+    setSummaryData((prev) => ({
+      ...prev,
+      TotalDiscount: summaryDiscountAmount,
+      VatSum: summaryCalculation.totalTaxAmount,
+      DocTotal: finalTotal,
+    }));
+  }, [summaryCalculation.totalTaxAmount, finalTotal]);
 
   const totaltax = useMemo(() => {
     console.log("itemTaxCode", itemTabledata);
@@ -437,19 +457,7 @@ useEffect(() => {
       return sum + amt;
     }, 0);
   }, [itemTabledata]);
-  const totalFreightAmount = useMemo(() => {
-    console.log(
-      " Object.values(freightRowSelection",
-      Object.values(freightRowSelection)
-    );
-
-    const rows = Object.values(freightRowSelection || {});
-
-    return rows.reduce((sum, item) => {
-      const amt = parseFloat(item.grossTotal || 0); // <-- Correct field
-      return sum + amt;
-    }, 0);
-  }, [freightRowSelection]);
+  
   const taxSelectionRow = (e) => {
     console.log("taxSelectionRow", itemTabledata, e);
     // setitemTableData((prev) =>
@@ -890,7 +898,8 @@ useEffect(() => {
           tooltip="Column Settings"
           icon="sap-icon://settings"
         ></Button>
-      </FlexBox>{console.log("itemtableupdatedvaal",itemTabledata)}
+      </FlexBox>
+      {console.log("itemtableupdatedvaal", itemTabledata)}
       <AnalyticalTable
         style={{ borderTop: "1px solid #d6dbe0" }}
         data={itemTabledata}
@@ -907,7 +916,7 @@ useEffect(() => {
         justifyContent="end"
         style={{ marginTop: "1rem", paddingRight: "2rem" }}
       > */}
-      <div style={{ paddingTop: "3rem" }}>       
+      <div style={{ paddingTop: "3rem" }}>
         <Freight
           mode={mode}
           freightData={freightData}
@@ -917,10 +926,10 @@ useEffect(() => {
           onselectFreightRow={onselectFreightRow}
           freightRowSelection={freightRowSelection}
           setFreightRowSelection={setFreightRowSelection}
-           taxData={taxData}
-        setTaxData={setTaxData}
-         inputvalue={inputvalue}
-        setInputValue={setInputValue}
+          taxData={taxData}
+          setTaxData={setTaxData}
+          inputvalue={inputvalue}
+          setInputValue={setInputValue}
         />
       </div>
 
@@ -929,28 +938,31 @@ useEffect(() => {
         style={{
           marginTop: "3rem",
         }}
-      >{console.log("summaryDataremark",summaryData)}
+      >
+        {console.log("summaryDataremark", summaryData)}
         <FlexBox direction="Column" style={{ width: "50%" }}>
           <Text>Remark</Text>
           <TextArea
             growing
             name="Remark"
-            value={summaryData?.Remark!=="undefined"?summaryData?.Remark:""}
+            value={
+              summaryData?.Remark !== "undefined" ? summaryData?.Remark : ""
+            }
             onInput={(e) => {
               setSummaryData((prev) => ({
                 ...prev,
-                Remark: e.target.value
+                Remark: e.target.value,
               }));
             }}
-            onScroll={function Xne(){}}
-            onSelect={function Xne(){}}
+            onScroll={function Xne() {}}
+            onSelect={function Xne() {}}
             valueState="None"
           />
         </FlexBox>
-        <FlexBox 
+        <FlexBox
           direction="Column"
           alignItems="FlexStart"
-          style={{width: '40%', gap: '10px'}}
+          style={{ width: "40%", gap: "10px" }}
         >
           <Title level="H3" style={{ marginBottom: "16px" }}>
             Total Summary
@@ -990,7 +1002,7 @@ useEffect(() => {
               </FlexBox>
               <Text>{summaryDiscountAmount}</Text>
             </FlexBox>
-          </FlexBox> 
+          </FlexBox>
           <FlexBox>
             <Label
               showColon
@@ -1000,12 +1012,12 @@ useEffect(() => {
             </Label>
             <Button
               design="Default"
-              onClick={()=>setfreightDialogOpen(true)}
+              onClick={() => setfreightDialogOpen(true)}
               tooltip="Freight"
               // make the button compact so only icon shows visually:
             >
               <Icon
-              tooltip="Add Freight"
+                tooltip="Add Freight"
                 name="arrow-right"
                 style={{
                   color: "#ff9e00",
@@ -1016,8 +1028,8 @@ useEffect(() => {
               />
             </Button>
             <FlexBox style={{ width: "100%" }} justifyContent="End">
-              {console.log("itemFreightAmount", totalFreightAmount)}
-              {setTotalFreightAmount(totalFreightAmount)}{" "}
+              {console.log("itemFreightAmount", totalFreightFromPopup)}
+              {setTotalFreightAmount(totalFreightFromPopup)}{" "}
               <Text>
                 {" "}
                 {totalFreightAmount.toLocaleString(undefined, {
@@ -1053,8 +1065,8 @@ useEffect(() => {
                   }
                   setSummaryData((prev) => ({
                     ...prev,
-                    Rounding: checked ? "tYES":"tNO"
-                  }))
+                    Rounding: checked ? "tYES" : "tNO",
+                  }));
                 }}
               />
               {roundingEnabled ? (
@@ -1063,15 +1075,15 @@ useEffect(() => {
                   value={roundOff}
                   style={{ textAlign: "right" }}
                   onInput={(e) => {
-                    setRoundOff(parseFloat(e.target.value) || 0)
+                    setRoundOff(parseFloat(e.target.value) || 0);
                     setSummaryData((prev) => ({
                       ...prev,
-                      RoundingDiffAmount: e.target.value
-                    }))
+                      RoundingDiffAmount: e.target.value,
+                    }));
                   }}
                 />
               ) : (
-                <Text>{roundOff.toFixed(2)}</Text>
+                <Text>{roundOff&&roundOff.toFixed(2)}</Text>
               )}
             </FlexBox>
           </FlexBox>

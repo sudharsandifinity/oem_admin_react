@@ -89,6 +89,7 @@ const EditSalesOrder = () => {
   const [summaryDiscountPercent, setSummaryDiscountPercent] = useState(0);
   const [summaryDiscountAmount, setSummaryDiscountAmount] = useState(0);
   const [roundingEnabled, setRoundingEnabled] = useState(false);
+      const [selectedcardcode, setSelectedCardCode] = useState([]);
   const [roundOff, setRoundOff] = useState(0);
 
   const [itemdata, setitemData] = useState([
@@ -167,7 +168,7 @@ useEffect(() => {
         }
         if (orderListById) {
           // 1. Store order header info
-
+setSelectedCardCode(orderListById.CardCode);
           setFormData({
             CardCode: orderListById.CardCode,
             CardName: orderListById.CardName,
@@ -563,6 +564,8 @@ useEffect(() => {
     }
   };
   useEffect(() => {
+         if (!user) return;
+
     if (formId !== undefined) {
       // Fetch form data based on formId
       const formDetails = user?.Roles?.flatMap((role) =>
@@ -719,6 +722,10 @@ useEffect(() => {
                 formData={formData}
                 mode={"edit"}
                 defaultValues={formData} // ✅ now passes edit data properly
+                 formDetails={formDetails}
+                selectedcardcode={selectedcardcode}
+            setSelectedCardCode={setSelectedCardCode}
+               
                 apiError={apiError}
               />
             )}
@@ -822,6 +829,7 @@ useEffect(() => {
               userdefinedData={userdefinedData}
               setUserDefinedData={setUserDefinedData}
               mode={"edit"}
+               formDetails={formDetails}
               setFormData={setFormData}
               formData={formData}
             />

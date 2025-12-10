@@ -10,7 +10,7 @@ const HeaderFilterDialog = (props) => {
             open={filterdialogOpen}
             // style={{ width: "100px" }}
             onAfterClose={() => setFilterDialogOpen(false)}
-            footer={<Button onClick={() => setFilterDialogOpen(false)}>Close</Button>}
+            footer={<Button onClick={() => setFilterDialogOpen(false)}>Continue...</Button>}
           >
             <List onItemClick={(e)=>handleDialogItemClick(e,fieldName)}>
               {itempopupData&&itempopupData.map((item, idx) => 

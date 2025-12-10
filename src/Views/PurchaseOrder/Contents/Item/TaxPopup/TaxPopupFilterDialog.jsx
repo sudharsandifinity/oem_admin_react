@@ -23,7 +23,7 @@ const TaxPopupFilterDialog = (props) => {
       open={filterdialogOpen}
       // style={{ width: "100px" }}
       onAfterClose={() => setFilterDialogOpen(false)}
-      footer={<Button onClick={() => setFilterDialogOpen(false)}>Close</Button>}
+      footer={<Button onClick={() => setFilterDialogOpen(false)}>Next</Button>}
     >
       <Input
         placeholder="Search..."

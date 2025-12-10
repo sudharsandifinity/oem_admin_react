@@ -31,7 +31,11 @@ const UserMainLayout = () => {
           height: '650px'
         }}
       > */}
-      <TopNav collapsed={collapsed} setCollapsed={setCollapsed} />
+      <TopNav collapsed={collapsed} setCollapsed={setCollapsed}
+      selectedCompany={selectedCompany}
+        setSelectedCompany={setSelectedCompany}
+        selectedBranch={selectedBranch}
+        setSelectedBranch={setSelectedBranch} />
       <FlexBox>
         <UserSideBar collapsed={collapsed} setCollapsed={setCollapsed}
         selectedBranch={selectedBranch}

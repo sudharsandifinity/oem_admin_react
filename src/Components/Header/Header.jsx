@@ -51,6 +51,7 @@ const Header = () => {
   const logoutSession =  () => {
      dispatch(logout());
      localStorage.removeItem("token");
+     localStorage.removeItem("user");
     navigate("/", { replace: true });
   };
 

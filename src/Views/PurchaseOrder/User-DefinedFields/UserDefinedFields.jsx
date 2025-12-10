@@ -78,6 +78,7 @@ const UserDefinedFields = ({
 
   };
     useEffect(() => {
+      if (!user) return;
   if (formId) {
     // Fetch form data based on formId
     const formDetails = user?.Roles?.flatMap((role) =>

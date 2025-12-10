@@ -4,6 +4,7 @@ import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import {
+  BusyIndicator,
   Button,
   Card,
   FlexBox,
@@ -69,6 +70,7 @@ const General = ({
 
   const [generalData, setgeneralData] = useState([]);
   const [originalGeneralData, setOriginalgeneralData] = useState([]);
+  const [pageLoading, setPageLoading] = useState(true);
   const [inputValue, setInputValue] = useState([
     {
       CardCode: "",
@@ -121,8 +123,9 @@ const General = ({
         }
       } catch (err) {
         console.log("Failed to fetch user", err.message);
-        err.message && navigate("/");
+      err.message && navigate("/");
       }
+      setPageLoading(false);
     };
 
     fetchData();
@@ -145,7 +148,7 @@ const General = ({
   const selectedData = selectedcardcode
     ? generalData.find((r) => r.CardCode === selectedcardcode)
     : null;
-
+console.log("selectedData",selectedData,generalData)
   const autoCardNameRef = selectedData?.CardName || "";
   const autoContactPersonRef = selectedData?.ContactPerson || "";
   const autoCustomerRef = selectedData?.Series || "";
@@ -169,9 +172,18 @@ const General = ({
       });
     }
   }, [autoCustomerRef, autoContactPersonRef, autoCardNameRef]);
-
+ 
   return (
-    <div>
+    <div>{console.log("formData",formData)}
+     {pageLoading&&!formData?
+    <FlexBox
+      justifyContent="Center"
+      alignItems="Center"
+      style={{ height:"80vh", width:"100%" }}
+    >
+      <BusyIndicator active size="Medium" />
+    </FlexBox>
+    :
       <form
         ref={formRef}
         id="form"
@@ -640,6 +652,7 @@ const General = ({
           </FlexBox>
         </FlexBox> */}
       </form>
+}
       <CardDialog
         open={dialogOpen}
         handleCardDialogClose={handleCardDialogClose}

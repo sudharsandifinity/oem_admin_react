@@ -112,7 +112,7 @@ userdefinedData
             open={dialogOpen}
             // style={{ width: "100px" }}
             onAfterClose={() => setDialogOpen(false)}
-            footer={<Button onClick={() => setDialogOpen(false)}>Close</Button>}
+            footer={<Button onClick={() => setDialogOpen(false)}>Next</Button>}
           >
             <List onItemClick={handleDialogItemClick}>
               {productCollection.map((item, idx) => (

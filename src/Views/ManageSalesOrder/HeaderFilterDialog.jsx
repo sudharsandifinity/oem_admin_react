@@ -15,7 +15,7 @@ const HeaderFilterDialog = (props) => {
       footer={
         <div style={{ paddingBottom: '2px', paddingTop: '6px' }}>
           <Button style={{ width: '100px', height: '40px' }} onClick={() => setFilterDialogOpen(false)}>
-            Close
+            Continue...
           </Button>
         </div>
       }

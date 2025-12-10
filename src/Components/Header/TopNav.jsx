@@ -9,7 +9,7 @@ import {
   ShellBarSearch,
 } from "@ui5/webcomponents-react";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import avatarPng from "../../assets/Image/no-profile.png";
 import SapLogoSvg from "../../assets/Image/hamtinfotech-logo.webp";
 import ManageUser from "../ManageUser/ManageUser";
@@ -57,7 +57,7 @@ export default function TopNav({
       dispatch(setActiveCompany());
       dispatch(switchCompany({ companyId: companyName }));
       setSelectedCompany(companyName);
-      navigate("/dashboard");
+     // navigate("/dashboard");
     }
   };
   const handleBranchClick = (branchname) => {
@@ -85,7 +85,19 @@ export default function TopNav({
       )
     : [];
   console.log("selectedCompany", uniqueBranches,selectedCompany);
-
+ useEffect(() => {
+    if (uniqueCompanies.length > 0 && !selectedCompany) {
+      const firstCompanyId = uniqueCompanies[0].id; // Get the id of the first unique company
+      setSelectedCompany(firstCompanyId); // Set it as the selected company
+      handleCompanyClick(firstCompanyId); // Call the handler to update branches
+    }   
+    if (uniqueBranches.length > 0 && !selectedBranch) {
+      const firstBranchId = uniqueBranches[0].id; 
+      setSelectedBranch(firstBranchId); 
+    }
+    localStorage.setItem("selectedCompany", selectedCompany);
+    localStorage.setItem("selectedBranch", selectedBranch);
+  }, [uniqueCompanies, selectedCompany, setSelectedCompany,selectedBranch]);
   return (
     <>
       <ShellBar
@@ -135,7 +147,7 @@ export default function TopNav({
             {/* Company Dropdown */}
             <Select
               style={{ width: "100%", minWidth: "250px" }}
-              value={selectedCompany?selectedCompany:uniqueCompanies[0]?.id}
+              value={selectedCompany?selectedCompany:localStorage.getItem("selectedCompany")}
               onChange={(e) =>
                 handleCompanyClick(e.detail.selectedOption.value)
               }
@@ -152,7 +164,7 @@ export default function TopNav({
             {/* Branch Dropdown */}
             <Select
               style={{ width: "100%", minWidth: "250px" }}
-              value={selectedBranch}
+              value={selectedBranch?selectedBranch:localStorage.getItem("selectedBranch")}
               disabled={!selectedCompany}
               onChange={(e) => handleBranchClick(e.detail.selectedOption.value)}
             >
