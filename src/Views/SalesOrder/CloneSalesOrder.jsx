@@ -42,38 +42,56 @@ import { SalesOrderRenderInput } from "./SalesOrderRenderInput";
 import General from "./General/General";
 import Contents from "./Contents/Contents";
 import Logistics from "./Logistics/Logistics";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import CustomerSelection from "./Header/CustomerSelection";
 import Accounting from "./Accounting/Accounting";
 import Attachments from "./Attachments/Attachments";
 import UserDefinedFields from "./User-DefinedFields/UserDefinedFields";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  createCustomerOrder,
   fetchCustomerOrderById,
   updateCustomerOrder,
 } from "../../store/slices/CustomerOrderSlice";
 import { fetchOrderItems } from "../../store/slices/CustomerOrderItemsSlice";
 import { fetchOrderServices } from "../../store/slices/CustomerOrderServiceSlice";
-import { fetchSalesQuotationById, updateSalesQuotation } from "../../store/slices/SalesQuotationSlice";
-import { fetchVendorOrderById, updateVendorOrder } from "../../store/slices/VendorOrderSlice";
+import { fetchAttachmentDetailsById } from "../../store/slices/salesAdditionalDetailsSlice";
+import {
+  createSalesQuotation,
+  fetchSalesQuotationById,
+  updateSalesQuotation,
+} from "../../store/slices/SalesQuotationSlice";
+import {
+  createVendorOrder,
+  fetchVendorOrderById,
+} from "../../store/slices/VendorOrderSlice";
 
-const ViewSalesOrder = () => {
-  const { id, formId } = useParams();
+const CloneSalesOrder = () => {
   const { fieldConfig, CustomerDetails, DocumentDetails } =
     useContext(FormConfigContext);
+    const{formId,pageId}=useParams();
+    const location = useLocation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { orderItems } = useSelector((state) => state.orderItems);
   const [apiError, setApiError] = useState(null);
   const user = useSelector((state) => state.auth.user);
   const [open, setOpen] = useState(false);
-  const [type, setType] = useState("Item");
-
   const [attachmentsList, setAttachmentsList] = useState([]);
+  const [attachmentFiles, setAttachmentFiles] = useState([]);
+  const [oldAttachmentFiles, setOldAttachmentFiles] = useState([]);
   const [freightRowSelection, setFreightRowSelection] = useState([]);
 
+  const [tabList, setTabList] = useState([]);
+  const [formDetails, setFormDetails] = useState([]);
+  const [formData, setFormData] = useState({});
   const [userdefinedData, setUserDefinedData] = useState({});
 
+  const [rowSelection, setRowSelection] = useState({});
+    const [selectedcardcode, setSelectedCardCode] = useState([]);
+  
+  const [generaleditdata, setgeneraleditdata] = useState([]);
+  const [type, setType] = useState("Item");
   const [totalFreightAmount, setTotalFreightAmount] = useState(0);
   const [summaryData, setSummaryData] = useState({});
   const [summaryDiscountPercent, setSummaryDiscountPercent] = useState(0);
@@ -81,13 +99,6 @@ const ViewSalesOrder = () => {
   const [roundingEnabled, setRoundingEnabled] = useState(false);
   const [roundOff, setRoundOff] = useState(0);
 
-  const [tabList, setTabList] = useState([]);
-  const [formDetails, setFormDetails] = useState([]);
-  const [formData, setFormData] = useState({});
-  const [rowSelection, setRowSelection] = useState({});
-  const [generaleditdata, setgeneraleditdata] = useState([]);
-        const [selectedcardcode, setSelectedCardCode] = useState([]);
-  
   const [itemdata, setitemData] = useState([
     {
       slno: 1,
@@ -120,65 +131,69 @@ const ViewSalesOrder = () => {
     U_Test1: "",
     U_Test2: "",
   });
-  const menuRef = useRef();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // if (!formDetails || formDetails.length === 0) return;
+    // if (!formDetails[0]?.name) return;
+
     const fetchData = async () => {
-       setLoading(true);
-      
-          try {
-            let orderListById = "";
-      
-            // ✅ Fetch based on form type
-            switch (formDetails[0].name) {
-              case "Sales Order":
-                orderListById = await dispatch(fetchCustomerOrderById(id)).unwrap();
-                break;
-      
-              case "Sales Quotation":
-                orderListById = await dispatch(fetchSalesQuotationById(id)).unwrap();
-                break;
-      
-              case "Purchase Order":
-                orderListById = await dispatch(fetchVendorOrderById(id)).unwrap();
-                break;
-      
-              default:
-                console.warn("Unknown form:", formDetails[0].name);
-                return;
-            }
+      setLoading(true);
+
+      try {
+        const localstorageformdata= JSON.parse(localStorage.getItem("copyFormData"));
+        let orderListById =  location.state?.copyFormData? location.state.copyFormData :localstorageformdata;
+        console.log("copyFormData",orderListById)
+        // ✅ Fetch based on form type
+        // switch (formDetails[0].name) {
+        //   case "Sales Order":
+        //     orderListById = copiedFormData;
+        //     break;
+
+        //   case "Sales Quotation":
+        //     orderListById = await dispatch(fetchSalesQuotationById(id)).unwrap();
+        //     break;
+
+        //   case "Purchase Order":
+        //     orderListById = await dispatch(fetchVendorOrderById(id)).unwrap();
+        //     break;
+
+        //   default:
+        //     console.warn("Unknown form:", formDetails[0].name);
+        //     return;
+        // }
+
         const orderList = await dispatch(fetchOrderItems()).unwrap();
         const serviceList = await dispatch(fetchOrderServices()).unwrap();
-        console.log("res,res1", orderListById);
-        const attachmentListById = ""; //await dispatch(fetchAttachmentDetailsById(orderListById.AttachmentEntry)).unwrap();
-        console.log("attachmentListById", attachmentListById);
-        setAttachmentsList(
-          attachmentListById &&
-            attachmentListById.Attachments2_Lines?.map((line) => ({
-              name: line.FileName,
-              type: line.FileExtension,
-              size: line.FileSize,
-            }))
-        );
+        console.log("res,res1", orderListById, orderList, serviceList);
+        if (orderListById.AttachmentEntry) {
+          const attachmentListById = await dispatch(
+            fetchAttachmentDetailsById(orderListById.AttachmentEntry)
+          ).unwrap();
+          console.log("attachmentListById", attachmentListById);
+          setOldAttachmentFiles((prev) => ({
+            ...prev,
+            Attachments2_Lines: attachmentListById.Attachments2_Lines,
+          }));
+        }
         if (orderListById) {
           // 1. Store order header info
+setSelectedCardCode(orderListById.CardCode);
           setFormData({
             CardCode: orderListById.CardCode,
-            CardName: orderListById.CardName, 
+            CardName: orderListById.CardName,
             DocDueDate: orderListById.DocDueDate
               ? new Date(orderListById.DocDueDate).toISOString().split("T")[0]
               : new Date().toISOString().split("T")[0],
-              DocDate: orderListById.DocDate
+            DocDate: orderListById.DocDate
               ? new Date(orderListById.DocDate).toISOString().split("T")[0]
               : new Date().toISOString().split("T")[0],
-              CreationDate: orderListById.CreationDate
+            CreationDate: orderListById.CreationDate
               ? new Date(orderListById.CreationDate).toISOString().split("T")[0]
               : new Date().toISOString().split("T")[0],
             DocumentLines: orderListById.DocumentLines || [],
             formData: orderListById.formData,
           });
-
           // 2. Merge document lines into orderItems
           if (orderListById.DocumentLines?.length > 0) {
             if (orderListById.DocType === "dDocument_Items") {
@@ -195,22 +210,22 @@ const ViewSalesOrder = () => {
                         ? {
                             slno: index, // usually LineNum is 0-based
                             ItemCode: matched.ItemCode,
-                            ItemName: matched.ItemDescription,
-                            quantity: matched.Quantity,
+                            ItemName: matched.ItemName,
+                            quantity: matched.quantity,
                             TaxCode: matched.TaxCode,
-                            amount: matched.UnitPrice,
-                            discount: matched.DiscountPercent,
-                            TaxRate: matched.TaxTotal,
+                            amount: matched.amount,
+                            discount: matched.discount,
+                            TaxRate: matched.TaxRate,
                           }
                         : {
                             slno: index, // usually LineNum is 0-based
                             ItemCode: item.ItemCode,
                             ItemName: item.ItemName,
-                            quantity: item.Quantity,
+                            quantity: item.quantity,
                             TaxCode: item.TaxCode,
-                            amount: item.UnitPrice,
-                            discount: item.DiscountPercent,
-                            TaxRate: item.TaxTotal,
+                            amount: item.amount,
+                            discount: item.discount,
+                            TaxRate: item.TaxRate,
                           }; // no placeholder
                     })
                     .filter(Boolean) // remove nulls
@@ -227,12 +242,12 @@ const ViewSalesOrder = () => {
                         ? {
                             slno: matched.LineNum + 1, // usually LineNum is 0-based
                             ItemCode: matched.ItemCode,
-                            ItemName: matched.ItemDescription,
-                            quantity: matched.Quantity,
+                            ItemName: matched.ItemName,
+                            quantity: matched.quantity,
                             TaxCode: matched.TaxCode,
-                            amount: matched.UnitPrice,
-                            discount: matched.DiscountPercent,
-                            TaxRate: matched.TaxTotal,
+                            amount: matched.amount,
+                            discount: matched.discount,
+                            TaxRate: matched.TaxRate,
                           }
                         : null; // no placeholder
                     })
@@ -258,60 +273,65 @@ const ViewSalesOrder = () => {
                   serviceList.value
                     .map((item, index) => {
                       const matched = orderListById.DocumentLines.find(
-                        (line) => line.AccountCode === item.Code
+                        (line) => line.ServiceCode === item.Code
                       );
                       return matched !== undefined
                         ? {
                             slno: index, // usually LineNum is 0-based
-                            ServiceCode: matched.AccountCode,
-                            ServiceName: matched.ItemDescription,
-                            quantity: matched.Quantity,
+                            ServiceCode: matched.ServiceCode,
+                            ServiceName: matched.ServiceName,
                             TaxCode: matched.TaxCode,
-                            amount: matched.UnitPrice,
-                            discount: matched.DiscountPercent,
-                            TaxRate: matched.TaxTotal,
+                            amount: matched.amount,
+                            discount: matched.discount,
+                            TaxRate: matched.TaxRate,
+                            grosstotal: matched.grosstotal,
+                            BaseAmount:matched.BaseAmount
                           }
                         : {
                             slno: index, // usually LineNum is 0-based
-                            ServiceCode: item.AccountCode,
-                            ServiceName: item.ItemDescription,
-                            quantity: item.Quantity,
+                            ServiceCode: item.ServiceCode,
+                            ServiceName: item.ServiceName,
                             TaxCode: item.TaxCode,
-                            amount: item.UnitPrice,
-                            discount: item.DiscountPercent,
-                            TaxRate: item.TaxTotal,
+                            amount: item.amount,
+                            discount: item.discount,
+                            TaxRate: item.TaxRate,
+                            grosstotal: item.grosstotal,
+                            BaseAmount:item.BaseAmount
+
                           }; // no placeholder
                     })
                     .filter(Boolean) // remove nulls
               );
-              setserviceTableData(
-                () =>
-                  serviceList.value
-                    .map((item) => {
-                      const matched = orderListById.DocumentLines.find(
-                        (line) => line.AccountCode === item.Code
-                      );
+            setserviceTableData(() =>
+  serviceList.value
+    .map((item) => {
+      const matched = orderListById.DocumentLines.find(
+        (line) => line.ServiceCode === item.Code
+      );
 
-                      return matched
-                        ? {
-                            slno: matched.LineNum + 1, // usually LineNum is 0-based
-                            ServiceCode: matched.AccountCode,
-                            ServiceName: matched.ItemDescription,
-                            quantity: matched.Quantity,
-                            TaxCode: matched.TaxCode,
-                            amount: matched.UnitPrice,
-                            discount: matched.DiscountPercent,
-                            TaxRate: matched.TaxTotal,
-                          }
-                        : null; // no placeholder
-                    })
-                    .filter(Boolean) // remove nulls
-              );
+      return matched
+        ? {
+            slno: Number(matched.LineNum) + 1,
+            ServiceCode: matched.ServiceCode,
+            ServiceName: matched.ServiceName,
+
+            amount: Number(matched.amount) || 0,
+            discount: Number(matched.discount) || 0,
+            TaxRate: Number(matched.TaxRate) || 0,
+            BaseAmount: Number(matched.BaseAmount) || 0,
+            grosstotal: Number(matched.grosstotal) || 0,
+          }
+        : null;
+    })
+    .filter(Boolean)
+);
+
+
               if (serviceList.value?.length > 0) {
                 const preselected = {};
                 orderListById.DocumentLines.forEach((line) => {
                   const idx = serviceList.value.findIndex(
-                    (o) => o.Code === line.AccountCode
+                    (o) => o.Code === line.ServiceCode
                   );
                   if (idx !== -1) {
                     preselected[idx] = orderList.value[idx];
@@ -325,29 +345,37 @@ const ViewSalesOrder = () => {
               "itemTabledata:->",
               itemTabledata,
               itemdata,
-              orderListById.DocumentLines
+              orderListById.DocumentLines,
+              orderListById,
+              "formData",
+              formData
             );
 
             // 3. Preselect rows
           }
-
-          // set general header edit data
           setSummaryData((prev) => ({
             ...prev,
-            Remark: orderListById.Comments,
+            Remark: orderListById.Remark,
+            DocTotal: orderListById.DocTotal,
+            Rounding: orderListById.Rounding,
+            RoundingDiffAmount: orderListById.RoundingDiffAmount,
+            DiscountPercent: orderListById.DiscountPercent,
+            TotalDiscount: orderListById.TotalDiscount,
+            VatSum: orderListById.VatSum,
           }));
           // set general header edit data
+          console.log("copydata",orderListById)
           setSummaryDiscountPercent(orderListById.DiscountPercent);
           setRoundingEnabled(orderListById.Rounding === "tYES");
           setRoundOff(orderListById.RoundingDiffAmount);
           setgeneraleditdata({
             CardCode: orderListById.CardCode,
             CardName: orderListById.CardName,
-            CreationDate: orderListById.CreationDate,
+            PostingDate: orderListById.CreationDate,
             DocDate: orderListById.DocDate
               ? new Date(orderListById.DocDate).toISOString().split("T")[0]
               : "",
-            DocDueDate: orderListById.DocDueDate
+            DeliveryDate: orderListById.DocDueDate
               ? new Date(orderListById.DocDueDate).toISOString().split("T")[0]
               : "",
             DocEntry: orderListById.DocEntry,
@@ -363,7 +391,7 @@ const ViewSalesOrder = () => {
     };
 
     fetchData();
-  }, [dispatch, id, formDetails])
+  }, [dispatch,formDetails]);
 
   const handleChange = (e, name, formName) => {
     const newValue = e.target.value;
@@ -421,38 +449,126 @@ const ViewSalesOrder = () => {
     //       tableItem.ItemName === item.ItemName
     //   )
     // );
+
+    let payload = {};
     try {
       setLoading(true);
-      const payload = {
-        CardCode: formData.CardCode,
-        DocDueDate: formData.DocDueDate
-          ? new Date(formData.DocDueDate)
-              .toISOString()
-              .split("T")[0]
-              .replace(/-/g, "")
-          : new Date().toISOString().split("T")[0].replace(/-/g, ""),
-        DocumentLines: Object.values(filteredData).map((line) => ({
-          ItemCode: line.ItemCode,
-          ItemDescription: line.ItemName, // ✅ rename to ItemDescription
-          Quantity: line.quantity ? line.quantity : 1,
-          UnitPrice: line.amount,
-        })),
-      };
-      console.log("payload", payload);
+      if (type === "Item") {
+        payload = {
+          CardCode: formData.CardCode,
+          DocDueDate: formData.DocDueDate
+            ? new Date(formData.DocDueDate)
+                .toISOString()
+                .split("T")[0]
+                .replace(/-/g, "")
+            : new Date().toISOString().split("T")[0].replace(/-/g, ""),
+          DocType: "dDocument_Items",
+          DocumentLines: Object.values(itemTabledata).map((line) => ({
+            ItemCode: line.ItemCode,
+            ItemDescription: line.ItemName, // ✅ rename to ItemDescription
+            Quantity: line.quantity,
+            UnitPrice: line.amount,
+            TaxCode: line.TaxCode,
+            VatGroup: line.TaxCode,
+            DiscountPercent: line.discount,
+            LineTotal: line.total,
+          })),
+          data: userdefinedData,
+          DocTotal: summaryData.DocTotal,
+          Rounding: summaryData.Rounding,
+          RoundingDiffAmount: summaryData.RoundingDiffAmount,
+          DiscountPercent: summaryData.DiscountPercent,
+          TotalDiscount: summaryData.TotalDiscount,
+          Comments: summaryData.Remark,
+          VatSum: summaryData.VatSum,
+          //freight: totalFreightAmount,
+          DocumentAdditionalExpenses: Object.values(freightRowSelection).map(
+            (freight) => ({
+              ExpenseCode: freight.ExpensCode,
+              LineTotal: freight.grossTotal,
+              Remarks: freight.quantity,
+              TaxCode: freight.TaxGroup,
+              TaxPercent: freight.TaxCode,
+              TaxSum: freight.TotalTaxAmount,
+              LineGross: freight.amount,
+            })
+          ),
+        };
+      } else {
+        payload = {
+          CardCode: formData.CardCode,
+          DocType: "dDocument_Service",
+          DocDueDate: formData.DocDueDate
+            ? new Date(formData.DocDueDate)
+                .toISOString()
+                .split("T")[0]
+                .replace(/-/g, "")
+            : new Date().toISOString().split("T")[0].replace(/-/g, ""),
+          DocumentLines: Object.values(serviceTabledata).map((line) => ({
+            AccountCode: line.ServiceCode,
+            ItemDescription: line.ServiceName, // ✅ rename to ItemDescription
+            TaxCode: line.TaxCode,
+            UnitPrice: line.amount,
+          })),
+          data: userdefinedData,
+          DocTotal: summaryData.DocTotal,
+          Rounding: summaryData.Rounding,
+          RoundingDiffAmount: summaryData.RoundingDiffAmount,
+          DiscountPercent: summaryData.DiscountPercent,
+          TotalDiscount: summaryData.TotalDiscount,
+          Comments: summaryData.Remark,
+          VatSum: summaryData.VatSum,
+          //freight: totalFreightAmount,
+          DocumentAdditionalExpenses: Object.values(freightRowSelection).map(
+            (freight) => ({
+              ExpenseCode: freight.ExpensCode,
+              LineTotal: freight.grossTotal,
+              Remarks: freight.quantity,
+              TaxCode: freight.TaxGroup,
+              TaxPercent: freight.TaxCode,
+              TaxSum: freight.TotalTaxAmount,
+              LineGross: freight.amount,
+            })
+          ),
+        };
+      }
+      const formDataToSend = new FormData();
+      attachmentsList.forEach((f) => {
+        if (f.rawFile) {
+          return formDataToSend.append("Attachments2_Lines", f.rawFile);
+        }
+      });
+
+      formDataToSend.append(
+        "DocumentLines",
+        JSON.stringify(payload.DocumentLines)
+      );
+      formDataToSend.append(
+        "DocumentAdditionalExpenses",
+        JSON.stringify(payload.DocumentAdditionalExpenses)
+      );
+      formDataToSend.append("data", JSON.stringify(payload.data));
+
+      Object.keys(payload).forEach((key) => {
+        if (
+          key !== "DocumentLines" &&
+          key !== "data" &&
+          key !== "DocumentAdditionalExpenses"
+        ) {
+          formDataToSend.append(key, payload[key]);
+        }
+      });
+      console.log("formdatatosend", payload, formDataToSend);
       let res = "";
       if (formDetails[0]?.name === "Sales Order") {
-        res = await dispatch(
-          updateCustomerOrder({ id, data: payload })
-        ).unwrap();
-      } else if(formDetails[0]?.name==="Sales Quotation"){
-        res = await dispatch(
-          updateSalesQuotation({ id, data: payload })
-        ).unwrap();
-      }else if(formDetails[0]?.name==="Purchase Order"){
-        res = await dispatch(
-          updateVendorOrder({ id, data: payload })
-        ).unwrap();
+        res = await dispatch(createCustomerOrder(formDataToSend)).unwrap();
+      } else if (formDetails[0]?.name === "Sales Quotation") {
+        res = await dispatch(createSalesQuotation(formDataToSend)).unwrap();
+      } else if (formDetails[0]?.name === "Purchase Order") {
+        //dispatch(createPurchaseOrder(formDataToSend)).unwrap();
+        res = await dispatch(createVendorOrder(formDataToSend)).unwrap();
       }
+
       if (res.message === "Please Login!") {
         navigate("/login");
       }
@@ -466,22 +582,24 @@ const ViewSalesOrder = () => {
       }, 2000); // ✅ stop loader
     }
   };
+  console.log("formId",formId)
   useEffect(() => {
-     if (!user) return;
-
+    console.log("formId",formId)
+    if (!user) return;
     if (formId !== undefined) {
       // Fetch form data based on formId
       const formDetails = user?.Roles?.flatMap((role) =>
         role.UserMenus.flatMap((menu) =>
-          menu.children.filter((submenu) => submenu.Form.id === formId)
+          menu.children.filter((submenu) => submenu.id === pageId)
         )
       );
+      console.log("useeffectformDetails",formDetails)
       setTabList((formDetails && formDetails[0]?.Form.FormTabs) || []);
       setFormDetails(formDetails);
     } else {
       navigate("/");
     }
-  }, [formId]);
+  }, [formId,user]);
   return (
     <>
       <BusyIndicator
@@ -500,11 +618,14 @@ const ViewSalesOrder = () => {
                 design="FloatingFooter"
                 endContent={
                   <>
+                    <Button design="Positive" onClick={() => handleSubmit()}>
+                      Submit
+                    </Button>
                     <Button
                       design="Positive"
                       onClick={() => navigate(`/Sales/${formId}`)}
                     >
-                      Close
+                      Cancel
                     </Button>
                   </>
                 }
@@ -572,12 +693,12 @@ const ViewSalesOrder = () => {
                     </BreadcrumbsItem>
                     <BreadcrumbsItem data-route={`/Sales/${formId}`}>
                       {formDetails
-                      ? formDetails[0]?.name+" List "
-                      : "Sales Orders"}
+                        ? formDetails[0]?.name + " List"
+                        : "Sales Orders"}
                     </BreadcrumbsItem>
                     <BreadcrumbsItem>
                       {formDetails
-                        ? "Create " + formDetails[0]?.name
+                        ? "Create" + formDetails[0]?.name
                         : "Create Sales Order"}
                     </BreadcrumbsItem>
                   </Breadcrumbs>
@@ -610,12 +731,6 @@ const ViewSalesOrder = () => {
             </ObjectPageTitle>
           }
         >
-          {/* {console.log("tabList", tabList, orderItems, generaleditdata)}
-            {
-                tabList.length > 0 && tabList.map((tab) => {
-                    console.log("object", tab);
-                    if (tab.name === "general") {
-                        return ( */}
           <ObjectPageSection
             id="section1"
             style={{ height: "100%" }}
@@ -626,30 +741,16 @@ const ViewSalesOrder = () => {
                 onSubmit={handleSubmit}
                 setFormData={setFormData}
                 formData={formData}
+                mode={"edit"}
+                 selectedcardcode={selectedcardcode}
+            setSelectedCardCode={setSelectedCardCode}
+            formDetails={formDetails}
                 defaultValues={formData} // ✅ now passes edit data properly
                 apiError={apiError}
-                formDetails={formDetails}
-                selectedcardcode={selectedcardcode}
-            setSelectedCardCode={setSelectedCardCode}
-                mode="view"
               />
             )}
-            {/* <General
-                                        onSubmit={handleSubmit}
-                                        setFormData={setFormData}
-                                        formData={formData}
-                                        defaultValues={{
-                                            CardCode: generaleditdata.CardCode || "",
-                                            CardName: generaleditdata.CardName || "",
-                                            DocDueDate: generaleditdata.CreationDate || new Date().toISOString().split("T")[0],
-                                            DocumentLines: [],
-                                        }}
-                                        apiError={apiError}
-                                    /> */}
           </ObjectPageSection>
-          {/* );
-                    } else if (tab.name === "contents") {
-                        return ( */}
+
           <ObjectPageSection
             id="section2"
             style={{
@@ -669,6 +770,8 @@ const ViewSalesOrder = () => {
               setserviceData={setserviceData}
               setserviceTableData={setserviceTableData}
               serviceTabledata={serviceTabledata}
+              summaryData={summaryData}
+              setSummaryData={setSummaryData}
               orderItems={orderItems}
               loading={loading}
               form={form}
@@ -679,11 +782,9 @@ const ViewSalesOrder = () => {
               handleChange={handleChange}
               type={type}
               setType={setType}
-              mode={"view"}
+              mode={"edit"}
               setTotalFreightAmount={setTotalFreightAmount}
               totalFreightAmount={totalFreightAmount}
-              summaryData={summaryData}
-              setSummaryData={setSummaryData}
               summaryDiscountAmount={summaryDiscountAmount}
               setSummaryDiscountAmount={setSummaryDiscountAmount}
               summaryDiscountPercent={summaryDiscountPercent}
@@ -696,9 +797,7 @@ const ViewSalesOrder = () => {
               setFreightRowSelection={setFreightRowSelection}
             />
           </ObjectPageSection>
-          {/* );
-                    } else if (tab.name === "logistics") {
-                        return ( */}
+
           <ObjectPageSection
             id="section3"
             style={{
@@ -713,10 +812,7 @@ const ViewSalesOrder = () => {
               handleChange={handleChange}
             />
           </ObjectPageSection>
-          {/* );
-                    }
-                    else if (tab.name === "accounting") {
-                        return ( */}
+
           <ObjectPageSection
             id="section4"
             style={{
@@ -737,13 +833,14 @@ const ViewSalesOrder = () => {
             titleText="Attachments"
           >
             <Attachments
+              onFilesChange={setAttachmentFiles}
               attachmentsList={attachmentsList}
               setAttachmentsList={setAttachmentsList}
+              oldAttachmentFiles={oldAttachmentFiles}
+              setOldAttachmentFiles={setOldAttachmentFiles}
             />
           </ObjectPageSection>
-          {/* );
-                    } else if (tab.name === "user-defined-field") {
-                        return ( */}
+
           <ObjectPageSection
             id="section6"
             style={{
@@ -751,22 +848,18 @@ const ViewSalesOrder = () => {
             }}
             titleText="User-defined Fields"
           >
+            {" "}
             <UserDefinedFields
               form={form}
               handleChange={handleChange}
               userdefinedData={userdefinedData}
               setUserDefinedData={setUserDefinedData}
+              mode={"edit"}
                formDetails={formDetails}
-              mode={"view"}
               setFormData={setFormData}
               formData={formData}
             />
           </ObjectPageSection>
-          {/* );
-                    }
-                })
-             
-            } */}
         </ObjectPage>
       </BusyIndicator>
       <Dialog open={open} onAfterClose={() => setOpen(false)}>
@@ -809,7 +902,7 @@ const ViewSalesOrder = () => {
               setOpen(false);
             }}
           >
-            OK
+            Continue...
           </Button>
         </div>
       </Dialog>
@@ -817,4 +910,4 @@ const ViewSalesOrder = () => {
   );
 };
 
-export default ViewSalesOrder;
+export default CloneSalesOrder;

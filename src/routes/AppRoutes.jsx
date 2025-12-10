@@ -55,6 +55,7 @@ import EditPurchaseOrder from "../Views/PurchaseOrder/EditPurchaseOrder";
 import ViewSalesOrder from "../Views/SalesOrder/ViewSalesOrder";
 import ViewPurchaseOrder from "../Views/PurchaseOrder/ViewPurchaseOrder";
 import UserMainLayout from "../Views/Layouts/UserMainLayout";
+import CloneSalesOrder from "../Views/SalesOrder/CloneSalesOrder";
 
 const AppRoutes = () => {
   return (
@@ -151,7 +152,7 @@ const AppRoutes = () => {
           <Route path="/Order/create/:formId/:docNo" element={<SalesOrder />} />
           <Route path="/Order/edit/:formId/:id" element={<EditSalesOrder />} />
           <Route path="/Order/view/:formId/:id" element={<ViewSalesOrder />} />
-
+        <Route path="/cloneorder/create/:formId/:pageId" element={<CloneSalesOrder />} />
           <Route
             path="/SalesOrder/create/:formId/:docNo"
             element={<SalesOrder />}

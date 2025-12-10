@@ -128,6 +128,7 @@ const UserDefinedFields = ({
     fetchData();
   }, [dispatch,formDetails]);
   useEffect(() => {
+     if (!user) return;
     if (formId) {
       // Fetch form data based on formId
       const userDefinedFormDetails =

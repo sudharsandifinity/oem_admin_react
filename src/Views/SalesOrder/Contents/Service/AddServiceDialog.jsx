@@ -243,7 +243,7 @@ const Addservicedialog = (props) => {
               setserviceData(originalServiceData);
             }}
           >
-            Close
+            Next
           </Button>
 
           <Button

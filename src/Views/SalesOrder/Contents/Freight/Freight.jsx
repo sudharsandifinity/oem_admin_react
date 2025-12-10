@@ -46,7 +46,7 @@ const Freight = (props) => {
             setfreightDialogOpen(false);
           }}
         >
-          Close
+          Continue...
         </Button>} />}
       >
         <FreightTable

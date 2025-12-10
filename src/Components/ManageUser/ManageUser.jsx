@@ -47,6 +47,7 @@ const ManageUser = forwardRef((props, ref) => {
       console.log('Signed out!');
       dispatch(logout());
       localStorage.removeItem("token");
+      localStorage.removeItem("user");
       setOpen(false);
       navigate("/", { replace: true });
     }

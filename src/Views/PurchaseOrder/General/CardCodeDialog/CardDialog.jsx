@@ -96,7 +96,7 @@ const CardDialog = ({
             style={{ width: "100px", margin: "10px" }}
             onClick={handleOk}
           >
-            OK
+            Next
           </Button>
         </>
       }

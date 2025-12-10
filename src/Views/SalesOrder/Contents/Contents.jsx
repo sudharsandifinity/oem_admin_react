@@ -71,6 +71,7 @@ const Contents = (props) => {
     serviceTabledata,
     type,
     setType,
+    totalFreightAmount,
     setTotalFreightAmount,
     freightRowSelection,
     setFreightRowSelection,
@@ -167,11 +168,11 @@ const Contents = (props) => {
           mode === "create" && setserviceData(tableconfig);
         }
         if (res.message === "Please Login!") {
-          navigate("/");
+          //navigate("/");
         }
       } catch (err) {
         console.log("Failed to fetch user", err.message);
-        err.message && navigate("/");
+        //err.message && navigate("/");
       }
     };
     fetchData();
@@ -575,6 +576,7 @@ const Contents = (props) => {
                         setFreightData={setFreightData}
                         setIsFreightTableVisible={setIsFreightTableVisible}
                         isFreightTableVisible={isFreightTableVisible}
+                        totalFreightAmount={totalFreightAmount}
                         setTotalFreightAmount={setTotalFreightAmount}
                         summaryData={summaryData}
                         setSummaryData={setSummaryData}
@@ -615,6 +617,7 @@ const Contents = (props) => {
                         setFreightData={setFreightData}
                         setIsFreightTableVisible={setIsFreightTableVisible}
                         isFreightTableVisible={isFreightTableVisible}
+                        totalFreightAmount={totalFreightAmount}
                         setTotalFreightAmount={setTotalFreightAmount}
                         freightRowSelection={freightRowSelection}
                         setFreightRowSelection={setFreightRowSelection}

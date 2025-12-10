@@ -7,7 +7,7 @@ export const login = createAsyncThunk('auth/login', async (credentials, thunkAPI
   try {
     const response = await api.post(API_URL, credentials, { withCredentials: true });
     console.log('data', response.data);
-    
+    localStorage.setItem("user", JSON.stringify(response.data.user));
     return response.data;
   } catch (error) {
     return thunkAPI.rejectWithValue(error.response?.data || 'Login failed'); 
@@ -40,11 +40,11 @@ export const fetchAuthUser = createAsyncThunk('auth/fetchCurrentUser', async(_, 
     return thunkAPI.rejectWithValue(err.response?.data || 'Not authenticated');
   }
 })
-
+const storedUser = localStorage.getItem("user");
 const authSlice = createSlice({
   name: 'auth',
   initialState: {
-    user: null,
+     user: storedUser ? JSON.parse(storedUser) : null,
     permissions: [],
     status: 'idle',
     error: null,

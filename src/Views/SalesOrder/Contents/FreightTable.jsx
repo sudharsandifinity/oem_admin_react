@@ -95,6 +95,37 @@ const FreightTable = (props) => {
         Header: "Remarks",
         width: 200,
         accessor: "Remarks",
+         Cell: ({ row, value }) => (
+          <Input
+            style={{ textAlign: "right" }}
+            disabled={mode === "view"}
+            type="Text"
+            value={value || ""}
+            onChange={(e) => {
+              const newValue = e.target.value;
+              const rowIndex = row.index;
+              setFreightData((prev) => {
+                const updated = [...prev];
+                updated[rowIndex] = {
+                  ...updated[rowIndex],
+                  Remarks: newValue,
+                };
+                return updated;
+              });
+            }}
+            onInput={(e) => {
+              const newValue = e.target.value;
+              const rowIndex = row.index;
+
+              setFreightData((prev) => {
+                const updated = [...prev];
+                const newRow = { ...updated[rowIndex], Remarks: newValue };
+                //updated[rowIndex] = calculateRowTotals(newRow);
+                return updated;
+              });
+            }}
+          />
+        ),
       },
       {
         width: 150,
@@ -289,8 +320,10 @@ const FreightTable = (props) => {
         columns={Column}
         header={`Freights (${freightData.length})`}
         selectionMode="Multiple"
+         selectionBehavior="RowSelector" 
         onRowClick={onselectFreightRow}
         selectedRowIds={freightRowSelection}
+        
       />
       {/* <Dialog
               headerText="Select Item"
