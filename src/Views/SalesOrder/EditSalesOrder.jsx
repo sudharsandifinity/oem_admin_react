@@ -35,6 +35,8 @@ import {
   MenuItem,
   MenuSeparator,
   BusyIndicator,
+  Select,
+  Option,
 } from "@ui5/webcomponents-react";
 import { FormConfigContext } from "../../Components/Context/FormConfigContext";
 
@@ -59,7 +61,11 @@ import {
   fetchSalesQuotationById,
   updateSalesQuotation,
 } from "../../store/slices/SalesQuotationSlice";
-import { fetchVendorOrderById } from "../../store/slices/VendorOrderSlice";
+import { fetchPurchaseOrderById } from "../../store/slices/purchaseorderSlice";
+import { fetchPurchaseQuotationById, updatePurchaseQuotation } from "../../store/slices/PurchaseQuotation";
+import CloneSalesOrder from "./CloneSalesOrder";
+import "@ui5/webcomponents-icons/dist/copy.js";
+import { fetchPurchaseRequestById, updatePurchaseRequest } from "../../store/slices/PurchaseRequestSlice";
 
 const EditSalesOrder = () => {
   const { id, formId } = useParams();
@@ -75,6 +81,8 @@ const EditSalesOrder = () => {
   const [attachmentFiles, setAttachmentFiles] = useState([]);
   const [oldAttachmentFiles, setOldAttachmentFiles] = useState([]);
   const [freightRowSelection, setFreightRowSelection] = useState([]);
+
+  
 
   const [tabList, setTabList] = useState([]);
   const [formDetails, setFormDetails] = useState([]);
@@ -102,6 +110,8 @@ const EditSalesOrder = () => {
       TaxCode: "",
     },
   ]);
+    const [copiedFormData, setCopiedFormData] = useState({});
+      const [isCloneSelected, setIsCloneSelected] = useState(false);
   const [itemTabledata, setitemTableData] = useState([
     { slno: 1, ItemCode: "", ItemName: "", quantity: "", amount: "" },
   ]);
@@ -125,7 +135,28 @@ const EditSalesOrder = () => {
     U_Test2: "",
   });
   const [loading, setLoading] = useState(true);
+const copyForm = () => {
+    const tabledata = type === "Item" ? itemTabledata : serviceTabledata;
+    const data = {
+      ...formData,
+      ...tabledata,
+      ...summaryData,
+      ...freightRowSelection,
+    };
 
+    delete data.DocEntry;
+    console.log("copiedformdata", data, tabledata, summaryData, formData, "attachment", oldAttachmentFiles);
+    setCopiedFormData({
+      ...data,
+      formData: formData,
+      DocumentLines: tabledata,
+      summaryData: summaryData,
+      freightRowSelection: freightRowSelection,
+      DocType: type === "Item" ? "dDocument_Items" : "dDocument_Service",
+      AttachmentEntrys: attachmentsList,
+      oldAttachmentFiles:oldAttachmentFiles
+    });
+  };
 useEffect(() => {
   if (!formDetails || formDetails.length === 0) return;  
   if (!formDetails[0]?.name) return;                    
@@ -147,9 +178,14 @@ useEffect(() => {
           break;
 
         case "Purchase Order":
-          orderListById = await dispatch(fetchVendorOrderById(id)).unwrap();
+          orderListById = await dispatch(fetchPurchaseOrderById(id)).unwrap();
           break;
-
+ case "Purchase Quotation":
+          orderListById = await dispatch(fetchPurchaseQuotationById(id)).unwrap();
+          break;
+          case "Purchase Request":
+          orderListById = await dispatch(fetchPurchaseRequestById(id)).unwrap();
+          break;
         default:
           console.warn("Unknown form:", formDetails[0].name);
           return;
@@ -343,6 +379,7 @@ setSelectedCardCode(orderListById.CardCode);
             Remark: orderListById.Comments,
           }));
           // set general header edit data
+          setFreightRowSelection(orderListById.DocumentAdditionalExpenses || []);
           setSummaryDiscountPercent(orderListById.DiscountPercent);
           setRoundingEnabled(orderListById.Rounding === "tYES");
           setRoundOff(orderListById.RoundingDiffAmount);
@@ -431,7 +468,8 @@ setSelectedCardCode(orderListById.CardCode);
     let payload = {};
     try {
       setLoading(true);
-      if (type === "Item") {
+       const isPurchaseQuotation = formDetails[0]?.name === "Purchase Quotation";
+        if (type === "Item") {
         payload = {
           CardCode: formData.CardCode,
           DocDueDate: formData.DocDueDate
@@ -440,7 +478,15 @@ setSelectedCardCode(orderListById.CardCode);
                 .split("T")[0]
                 .replace(/-/g, "")
             : new Date().toISOString().split("T")[0].replace(/-/g, ""),
-          DocType: "dDocument_Items",
+         ...(isPurchaseQuotation && {
+            RequriedDate: formData.ReqDate
+              ? new Date(formData.ReqDate)
+                  .toISOString()
+                  .split("T")[0]
+                  .replace(/-/g, "")
+              : new Date().toISOString().split("T")[0].replace(/-/g, ""),
+          }),
+            DocType: "dDocument_Items",
           DocumentLines: Object.values(itemTabledata).map((line) => ({
             ItemCode: line.ItemCode,
             ItemDescription: line.ItemName, // ✅ rename to ItemDescription
@@ -482,7 +528,15 @@ setSelectedCardCode(orderListById.CardCode);
                 .split("T")[0]
                 .replace(/-/g, "")
             : new Date().toISOString().split("T")[0].replace(/-/g, ""),
-          DocumentLines: Object.values(serviceTabledata).map((line) => ({
+          ...(isPurchaseQuotation && {
+            RequriedDate: formData.ReqDate
+              ? new Date(formData.ReqDate)
+                  .toISOString()
+                  .split("T")[0]
+                  .replace(/-/g, "")
+              : new Date().toISOString().split("T")[0].replace(/-/g, ""),
+          }),
+            DocumentLines: Object.values(serviceTabledata).map((line) => ({
             AccountCode: line.ServiceCode,
             ItemDescription: line.ServiceName, // ✅ rename to ItemDescription
             TaxCode: line.TaxCode,
@@ -548,14 +602,17 @@ setSelectedCardCode(orderListById.CardCode);
         res = await dispatch(
           updateCustomerOrder({ id, data: formDataToSend })
         ).unwrap();
+      }else if (formDetails[0]?.name === "Purchase Quotation") {
+        res = await dispatch(updatePurchaseQuotation({ id, data: formDataToSend })).unwrap();
+      }else if (formDetails[0]?.name === "Purchase Request") {
+        res = await dispatch(updatePurchaseRequest({ id, data: formDataToSend })).unwrap();
       }
-
       if (res.message === "Please Login!") {
         navigate("/login");
       }
       setOpen(true);
     } catch (err) {
-      setApiError(err?.message || "Failed to create branch");
+      setApiError(err?.message || "Failed to update");
     } finally {
       setTimeout(() => {
         setLoading(false);
@@ -563,6 +620,17 @@ setSelectedCardCode(orderListById.CardCode);
       }, 2000); // ✅ stop loader
     }
   };
+   const menuBlocks =
+      user?.Roles?.flatMap((role) =>
+        role.UserMenus?.filter((menu) =>
+          menu.children?.some((child) => child.Form?.id === formId)
+        ).map((menu) => ({
+          roleId: role.id,
+          roleName: role.name,
+          ...menu,
+        }))
+      ) || [];
+    const childOptions = menuBlocks.length > 0 ? menuBlocks[0].children : [];
   useEffect(() => {
          if (!user) return;
 
@@ -677,8 +745,8 @@ setSelectedCardCode(orderListById.CardCode);
                     </BreadcrumbsItem>
                     <BreadcrumbsItem>
                       {formDetails
-                        ? "Create" + formDetails[0]?.name
-                        : "Create Sales Order"}
+                        ? "Update " + formDetails[0]?.name
+                        : "Update"}
                     </BreadcrumbsItem>
                   </Breadcrumbs>
                 </>
@@ -690,14 +758,77 @@ setSelectedCardCode(orderListById.CardCode);
               }
               navigationBar={
                 <Toolbar design="Transparent">
-                  {/* <ToolbarButton design="Transparent" icon="full-screen" />
-              <ToolbarButton design="Transparent" icon="exit-full-screen" /> */}
-
                   <ToolbarButton
-                    onClick={() => navigate(`/Sales/${formId}`)}
-                    design="Transparent"
-                    icon="decline"
-                  />
+                  design="default"
+                  onClick={copyForm}
+                  icon="sap-icon://copy"
+                />
+
+                <Select
+                  onChange={(e) =>
+                    {const selectPage=e.detail.selectedOption.dataset.id;
+                     navigate(
+                        "/cloneorder/create/" + formId + "/" + selectPage,
+                        {
+                          state: { copyFormData: copiedFormData },
+                        }
+                      );
+                    }
+                  }
+
+                  //setSelectedChild(e.detail.selectedOption.dataset.id)
+                >
+                  <Option key={""} data-id={""}>
+                    Select Action
+                  </Option>
+                  {childOptions.map((child) => (
+                    <Option key={child.id} data-id={child.id}>
+                      {child.name}
+                    </Option>
+                  ))}
+                </Select>
+                {/* <Select
+                  onChange={(e) => {
+                    const selected = e.detail.selectedOption.dataset.id;
+
+                    if (selected === "CopyTo") {
+                      // store big data for new tab
+                      localStorage.setItem(
+                        "copyFormData",
+                        JSON.stringify(copiedFormData)
+                      );
+
+                      window.open(
+                        "/cloneorder/create/" + formId + "/" + selectPage,
+                        "_blank"
+                      );
+                    } else if (selected === "MoveTo") {
+                      navigate(
+                        "/cloneorder/create/" + formId + "/" + selectPage,
+                        {
+                          state: { copyFormData: copiedFormData },
+                        }
+                      );
+                    }
+                  }}
+                >
+                  <Option data-id="Select">Select</Option>
+                  <Option data-id="MoveTo">Move To</Option>
+                  <Option data-id="CopyTo">Copy To</Option>
+                </Select> */}
+
+                {/* <ToolbarButton
+                  design={isCloneSelected ? "Emphasized" : "Transparent"}
+                  onClick={() => setIsCloneSelected(!isCloneSelected)}
+                  icon="sap-icon://add-document"
+                  text="Clone"
+                /> */}
+
+                {/* <ToolbarButton
+                  onClick={() => navigate(`/Sales/${formId}`)}
+                  design="Transparent"
+                  icon="decline"
+                /> */}
                 </Toolbar>
               }
             >
@@ -753,6 +884,7 @@ setSelectedCardCode(orderListById.CardCode);
               summaryData={summaryData}
               setSummaryData={setSummaryData}
               orderItems={orderItems}
+              formDetails={formDetails}
               loading={loading}
               form={form}
               handleRowChange={handleRowChange}
@@ -836,6 +968,9 @@ setSelectedCardCode(orderListById.CardCode);
           </ObjectPageSection>
         </ObjectPage>
       </BusyIndicator>
+      {isCloneSelected && (
+        <CloneSalesOrder copiedFormData={copiedFormData} formId={formId} />
+      )}
       <Dialog open={open} onAfterClose={() => setOpen(false)}>
         <div
           style={{
@@ -872,7 +1007,7 @@ setSelectedCardCode(orderListById.CardCode);
           <Button
             design="Emphasized"
             onClick={() => {
-              navigate(`/Sales/${formId}`);
+              apiError ? setOpen(false):navigate(`/Sales/${formId}`) ;
               setOpen(false);
             }}
           >

@@ -61,7 +61,7 @@ export const createCustomerOrder = createAsyncThunk(
   "customerorder/create",
   async (customerOrderData, thunkApi) => {
     try {
-      console.log("🚀 Sending order to API:", customerOrderData);
+      console.log("🚀 Sending order to API:", customerOrderData); 
   
       const response = await api.post(API_URL, customerOrderData, {
         headers: { "Content-Type": "multipart/form-data" },
@@ -81,7 +81,7 @@ export const createCustomerOrder = createAsyncThunk(
 // ✅ Update Order
 export const updateCustomerOrder = createAsyncThunk(
   "customerorder/update",
-  async ({ id, data }, thunkApi) => {
+  async ({ id, data }, thunkApi) => { 
     try {
       console.log("🚀 Sending order to API:", data);
       const response = await api.patch(`${API_URL}/${id}`, data, {

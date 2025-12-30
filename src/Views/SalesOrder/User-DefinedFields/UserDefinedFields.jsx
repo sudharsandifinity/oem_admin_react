@@ -18,7 +18,7 @@ import { Schema } from "yup";
 import { UserDefinedRenderInput } from "./UserDefinedRenderInput";
 import { fetchSalesBusinessPartner } from "../../../store/slices/CustomerOrderSlice";
 import CardDialog from "./CardCodeDialog/CardDialog";
-import { fetchPurBusinessPartner } from "../../../store/slices/VendorOrderSlice";
+import { fetchPurBusinessPartner } from "../../../store/slices/purchaseorderSlice";
 
 const UserDefinedFields = ({
   onSubmit,
@@ -100,7 +100,8 @@ const UserDefinedFields = ({
                   res=await dispatch(fetchSalesBusinessPartner()).unwrap();
                 } else if (
                   formDetails[0]?.name === "Purchase Order" ||
-                  formDetails[0]?.name === "Purchase Quotation"
+                  formDetails[0]?.name === "Purchase Quotation"||
+                  formDetails[0]?.name === "Purchase Request"
                 ) {
                   res=await dispatch(fetchPurBusinessPartner()).unwrap();
                 }
@@ -182,7 +183,6 @@ const UserDefinedFields = ({
             justifyContent="SpaceBetween"
             style={{ padding: "40px 30px", gap: "150px" }}
           >
-            {console.log(" o ", userdefinedData)}
             <FlexBox direction="Column" style={{ width: "100%", gap: "8px" }}>
              
               {userDefinedformDetails &&

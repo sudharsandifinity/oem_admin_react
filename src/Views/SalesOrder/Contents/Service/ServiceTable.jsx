@@ -156,12 +156,25 @@ const Servicetable = (props) => {
     // }));
   };
   const onselectFreightRow = (e) => {
-    setFreightRowSelection((prev) => ({
-      ...prev,
-      [e.detail.row.id]: e.detail.row.original,
-    }));
-    console.log("onselectFreightRow", e.detail, freightRowSelection);
-  };
+   const rowId = e.detail.row.id;
+    const isSelected = e.detail.isSelected;
+  const row = e.detail.row.original;
+    console.log("onrowselect", row);
+
+  setFreightRowSelection(prev => {
+    const updated = { ...prev };
+      console.log("onitemrowselect", rowId,e.detail, updated);
+      if (isSelected) {
+        // ✅ add selected row
+        updated[rowId] = e.detail.row.original;
+      } else {
+        // ❌ remove deselected row
+        delete updated[rowId];
+      }
+
+      return updated;
+    });
+   };
   const markNavigatedRow = useCallback(
     (row) => {
       return selectedRow?.id === row.id;

@@ -150,11 +150,7 @@ const UserForm = ({
     const uniqueform = Array.from(
       new Map(companyList.map((item) => [item.Form?.id, item])).values()
     );
-    console.log(
-      "selectedCompanyList",
-      selectedCompanyList,
-      selectedCompany.map((c) => c.id)
-    );
+  
     const uniquebranch = branches.filter(
       (r) => r.status && selectedCompany.includes(r.Company.id)
     );

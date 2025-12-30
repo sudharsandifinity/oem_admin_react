@@ -53,10 +53,11 @@ import UserDefinedFields from "./User-DefinedFields/UserDefinedFields";
 import { useDispatch, useSelector } from "react-redux";
 import { createCustomerOrder } from "../../store/slices/CustomerOrderSlice";
 import { createSalesQuotation } from "../../store/slices/SalesQuotationSlice";
-import { createVendorOrder } from "../../store/slices/VendorOrderSlice";
 import BarDesign from "@ui5/webcomponents/dist/types/BarDesign.js";
-import CloneSalesOrder from "./CloneSalesOrder";
-import "@ui5/webcomponents-icons/dist/copy.js";
+
+import { createPurchaseOrder } from "../../store/slices/PurchaseOrderSlice";
+import { createPurchaseQuotation } from "../../store/slices/PurchaseQuotation";
+import { createPurchaseRequest } from "../../store/slices/PurchaseRequestSlice";
 
 export default function SalesOrder() {
   const { fieldConfig, CustomerDetails, DocumentDetails } =
@@ -85,9 +86,7 @@ export default function SalesOrder() {
   const [roundingEnabled, setRoundingEnabled] = useState(false);
   const [roundOff, setRoundOff] = useState(0);
   const [selectedcardcode, setSelectedCardCode] = useState([]);
-  const [copiedFormData, setCopiedFormData] = useState({});
-  const [isCloneSelected, setIsCloneSelected] = useState(false);
-  const [selectPage, setSelectPage] = useState("");
+
   const [itemTabledata, setitemTableData] = useState([
     {
       slno: 1,
@@ -96,6 +95,8 @@ export default function SalesOrder() {
       quantity: "",
       amount: "",
       TaxCode: "",
+      Project: "",
+      Warehouse:""
     },
   ]);
   const [summaryData, setSummaryData] = useState({});
@@ -166,11 +167,16 @@ export default function SalesOrder() {
   };
 
   const handleSubmit = async () => {
-    //try {
-      console.log("itemTabledatahandleSubmit", itemTabledata, formData,freightRowSelection);
+    try {
+      console.log(
+        "itemTabledatahandleSubmit",
+        itemTabledata,
+        formData,
+        freightRowSelection
+      );
       setLoading(true);
       let payload = {};
-
+      const isPurchaseQuotation = formDetails[0]?.name === "Purchase Quotation"|| formDetails[0]?.name === "Purchase Request";
       if (type === "Item") {
         payload = {
           CardCode: formData.CardCode,
@@ -192,6 +198,15 @@ export default function SalesOrder() {
                 .split("T")[0]
                 .replace(/-/g, "")
             : new Date().toISOString().split("T")[0].replace(/-/g, ""),
+          ...(isPurchaseQuotation && {
+            RequriedDate: formData.ReqDate
+              ? new Date(formData.ReqDate)
+                  .toISOString()
+                  .split("T")[0]
+                  .replace(/-/g, "")
+              : new Date().toISOString().split("T")[0].replace(/-/g, ""),
+          }),
+
           //DocEntry: formData.DocEntry,
           DocumentStatus: "open",
           ContactPerson: formData.ContactPerson,
@@ -216,13 +231,13 @@ export default function SalesOrder() {
           VatSum: summaryData.VatSum,
           DocumentAdditionalExpenses: Object.values(freightRowSelection).map(
             (freight) => ({
-              ExpenseCode: freight.ExpensCode,
-              LineTotal: freight.grossTotal,
-              Remarks: freight.quantity,
-              TaxCode: freight.TaxGroup,
-              TaxPercent: freight.TaxCode,
+              ExpensCode: freight.ExpensCode,
+              LineTotal: freight.LineTotal,
+              Remarks: freight.Remarks,
+              TaxCode: freight.TaxCode,
+              TaxPercent: freight.TaxGroup,
               TaxSum: freight.TotalTaxAmount,
-              LineGross: freight.amount,
+              LineGross: freight.LineGross,
             })
           ),
         };
@@ -248,6 +263,14 @@ export default function SalesOrder() {
                 .split("T")[0]
                 .replace(/-/g, "")
             : new Date().toISOString().split("T")[0].replace(/-/g, ""),
+          ...(isPurchaseQuotation && {
+            RequriedDate: formData.ReqDate
+              ? new Date(formData.ReqDate)
+                  .toISOString()
+                  .split("T")[0]
+                  .replace(/-/g, "")
+              : new Date().toISOString().split("T")[0].replace(/-/g, ""),
+          }),
           //DocEntry: formData.DocEntry,
           DocumentStatus: "open",
           ContactPerson: formData.ContactPerson,
@@ -308,7 +331,11 @@ export default function SalesOrder() {
         res = await dispatch(createSalesQuotation(formDataToSend)).unwrap();
       } else if (formDetails[0]?.name === "Purchase Order") {
         //dispatch(createPurchaseOrder(formDataToSend)).unwrap();
-        res = await dispatch(createVendorOrder(formDataToSend)).unwrap();
+        res = await dispatch(createPurchaseOrder(formDataToSend)).unwrap();
+      } else if (formDetails[0]?.name === "Purchase Quotation") {
+        res = await dispatch(createPurchaseQuotation(formDataToSend)).unwrap();
+      } else if (formDetails[0]?.name === "Purchase Request") {
+        res = await dispatch(createPurchaseRequest(formDataToSend)).unwrap();
       }
 
       if (res.message === "Please Login!") {
@@ -317,37 +344,17 @@ export default function SalesOrder() {
       }
 
       setOpen(true);
-    // } catch (err) {
-    //   console.error("Failed to create order:", err);
-    //   setApiError(err.message || "Error creating order");
-    // } finally {
-    //   setTimeout(() => {
-    //     setLoading(false);
-    //     setOpen(true);
-    //   }, 2000);
-    // }
+    } catch (err) {
+      console.error("Failed to create order:", err);
+      setApiError(err.message || "Error creating order");
+    } finally {
+      setTimeout(() => {
+        setLoading(false);
+        setOpen(true);
+      }, 2000);
+    }
   };
-  const copyForm = () => {
-    const tabledata = type === "Item" ? itemTabledata : serviceTabledata;
-    const data = {
-      ...formData,
-      ...tabledata,
-      ...summaryData,
-      ...freightRowSelection,
-    };
 
-    delete data.DocEntry;
-    console.log("copiedformdata", data, tabledata,summaryData,formData);
-    setCopiedFormData({
-      ...data,
-      formData:formData,
-      DocumentLines: tabledata,
-      summaryData: summaryData,
-      freightRowSelection: freightRowSelection,
-      DocType: type === "Item" ? "dDocument_Items" : "dDocument_Service",
-      AttachmentEntrys: attachmentsList,
-    });
-  };
   const renderInput = (field) => {
     const value = form[field.FieldName] || "";
 
@@ -387,18 +394,11 @@ export default function SalesOrder() {
         return null;
     }
   };
-  const menuBlocks =
-    user?.Roles?.flatMap((role) =>
-      role.UserMenus?.filter((menu) =>
-        menu.children?.some((child) => child.Form?.id === formId)
-      ).map((menu) => ({
-        roleId: role.id,
-        roleName: role.name,
-        ...menu,
-      }))
-    ) || [];
-  const childOptions = menuBlocks.length > 0 ? menuBlocks[0].children : [];
-  console.log("salesorderurl", copiedFormData,"freightRowSelection",freightRowSelection);
+ 
+  console.log(
+    "freightRowSelection",
+    freightRowSelection,formDetails
+  );
   useEffect(() => {
     if (!user) return;
     if (formId) {
@@ -411,9 +411,9 @@ export default function SalesOrder() {
       setTabList((formDetails && formDetails[0]?.Form.FormTabs) || []);
       setFormDetails(formDetails);
     } else {
-       navigate("/");
+      navigate("/");
     }
-  }, [formId,user]);
+  }, [formId, user]);
   return (
     <>
       <style>
@@ -510,7 +510,7 @@ export default function SalesOrder() {
                   <BreadcrumbsItem>
                     {formDetails
                       ? "Create " + formDetails[0]?.name
-                      : "Create Sales Order"}
+                      : "Create"}
                   </BreadcrumbsItem>
                 </Breadcrumbs>
               </>
@@ -522,69 +522,7 @@ export default function SalesOrder() {
             }
             navigationBar={
               <Toolbar design="Transparent">
-                <ToolbarButton
-                  design="default"
-                  onClick={copyForm}
-                  icon="sap-icon://copy"
-                />
-
-                <Select
-                  onChange={(e) =>
-                    setSelectPage(e.detail.selectedOption.dataset.id)
-                  }
-                  //setSelectedChild(e.detail.selectedOption.dataset.id)
-                >
-                  {console.log("childOptions", childOptions)}
-                  <Option key={""} data-id={""}>
-                    Select Action
-                  </Option>
-                  {childOptions.map((child) => (
-                    <Option key={child.id} data-id={child.id}>
-                      {child.name}
-                    </Option>
-                  ))}
-                </Select>
-                <Select
-                  onChange={(e) => {
-                    const selected = e.detail.selectedOption.dataset.id;
-
-                    if (selected === "CopyTo") {
-                      // store big data for new tab
-                      localStorage.setItem(
-                        "copyFormData",
-                        JSON.stringify(copiedFormData)
-                      );
-
-                       window.open("/cloneorder/create/" + formId+"/" + selectPage, "_blank");
-                     
-                    } else if (selected === "MoveTo") {
-                      // passing data using React Router state (same tab)
-                      navigate(
-                        "/cloneorder/create/" + formId + "/" + selectPage,
-                        {
-                          state: { copyFormData: copiedFormData },
-                        }
-                      );
-                    }
-                  }}
-                >
-                  <Option data-id="Select">Select</Option>
-                  <Option data-id="MoveTo">Move To</Option>
-                  <Option data-id="CopyTo">Copy To</Option>
-                </Select>
-
-                {/* <ToolbarButton
-                  design={isCloneSelected ? "Emphasized" : "Transparent"}
-                  onClick={() => setIsCloneSelected(!isCloneSelected)}
-                  icon="sap-icon://add-document"
-                  text="Clone"
-                /> */}
-
-                {/* <ToolbarButton
-                  onClick={() => navigate(`/Sales/${formId}`)}
-                  design="Transparent"
-                  icon="decline"
-                /> */}
+               
               </Toolbar>
             }
           >
@@ -600,7 +538,7 @@ export default function SalesOrder() {
         {/* {
       tabList.length > 0 && tabList.map((tab) => {
         console.log("object", tab);
-        if (tab.name === "general") {
+        if (tab.name === "General") {
           return ( */}
         <ObjectPageSection
           id="section1"
@@ -627,8 +565,8 @@ export default function SalesOrder() {
             apiError={apiError}
           />
         </ObjectPageSection>
-        {/* );
-        } else if (tab.name === "contents") {
+         {/* );
+        } else if (tab.name === "Contents") {
           return ( */}
         <ObjectPageSection
           id="section2"
@@ -677,9 +615,9 @@ export default function SalesOrder() {
             setRoundOff={setRoundOff}
           />
         </ObjectPageSection>
-        {/* );
-        } else if (tab.name === "logistics") {
-          return ( */}
+         {/* );
+        } else if (tab.name === "Logistics") { 
+          return (  */}
         <ObjectPageSection
           id="section3"
           style={{
@@ -694,10 +632,10 @@ export default function SalesOrder() {
             handleChange={handleChange}
           />
         </ObjectPageSection>
-        {/* );
+       {/* );
         }
-        else if (tab.name === "accounting") {
-          return ( */}
+        else if (tab.name === "Accounting") {
+          return (  */}
         <ObjectPageSection
           id="section4"
           style={{
@@ -707,9 +645,9 @@ export default function SalesOrder() {
         >
           <Accounting />
         </ObjectPageSection>
-        {/* );
-        } else if (tab.name === "attachments") {
-          return ( */}
+         {/* );
+        } else if (tab.name === "Attachments") {
+          return (  */}
         <ObjectPageSection
           id="section5"
           style={{
@@ -723,9 +661,9 @@ export default function SalesOrder() {
             setAttachmentsList={setAttachmentsList}
           />
         </ObjectPageSection>
-        {/* );
-        } else if (tab.name === "user-defined-field") {
-          return ( */}
+         {/* );
+        } else if (tab.name === "User-defined-field") {
+          return (  */}
         <ObjectPageSection
           id="section6"
           style={{
@@ -751,14 +689,12 @@ export default function SalesOrder() {
             setUserDefinedData={setUserDefinedData}
           />
         </ObjectPageSection>
-        {/* );
+         {/* );
         }
-      }) */}
+      }) } */}
       </ObjectPage>
       {/* </BusyIndicator> */}
-      {isCloneSelected && (
-        <CloneSalesOrder copiedFormData={copiedFormData} formId={formId} />
-      )}
+    
       <Dialog open={open} onAfterClose={() => setOpen(false)}>
         <div
           style={{
@@ -791,8 +727,7 @@ export default function SalesOrder() {
           <Button
             design="Emphasized"
             onClick={() => {
-              navigate(`/Sales/${formId}`);
-              setOpen(false);
+              apiError ? setOpen(false):navigate(`/Sales/${formId}`) ;
             }}
           >
             OK

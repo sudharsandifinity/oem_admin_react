@@ -35,6 +35,8 @@ import {
   MenuItem,
   MenuSeparator,
   BusyIndicator,
+  Select,
+  Option,
 } from "@ui5/webcomponents-react";
 import { FormConfigContext } from "../../Components/Context/FormConfigContext";
 
@@ -55,7 +57,12 @@ import {
 import { fetchOrderItems } from "../../store/slices/CustomerOrderItemsSlice";
 import { fetchOrderServices } from "../../store/slices/CustomerOrderServiceSlice";
 import { fetchSalesQuotationById, updateSalesQuotation } from "../../store/slices/SalesQuotationSlice";
-import { fetchVendorOrderById, updateVendorOrder } from "../../store/slices/VendorOrderSlice";
+import { fetchPurchaseOrderById, updatePurchaseOrder } from "../../store/slices/PurchaseOrderSlice";
+import { fetchPurchaseQuotationById, updatePurchaseQuotation } from "../../store/slices/PurchaseQuotation";
+import CloneSalesOrder from "./CloneSalesOrder";
+import "@ui5/webcomponents-icons/dist/copy.js";
+import { fetchAttachmentDetailsById } from "../../store/slices/salesAdditionalDetailsSlice";
+import { fetchPurchaseRequestById, updatePurchaseRequest } from "../../store/slices/PurchaseRequestSlice";
 
 const ViewSalesOrder = () => {
   const { id, formId } = useParams();
@@ -70,6 +77,7 @@ const ViewSalesOrder = () => {
   const [type, setType] = useState("Item");
 
   const [attachmentsList, setAttachmentsList] = useState([]);
+   const [attachmentFiles, setAttachmentFiles] = useState([]);
   const [freightRowSelection, setFreightRowSelection] = useState([]);
 
   const [userdefinedData, setUserDefinedData] = useState({});
@@ -80,7 +88,8 @@ const ViewSalesOrder = () => {
   const [summaryDiscountAmount, setSummaryDiscountAmount] = useState(0);
   const [roundingEnabled, setRoundingEnabled] = useState(false);
   const [roundOff, setRoundOff] = useState(0);
-
+ const [oldAttachmentFiles, setOldAttachmentFiles] = useState([]);
+  
   const [tabList, setTabList] = useState([]);
   const [formDetails, setFormDetails] = useState([]);
   const [formData, setFormData] = useState({});
@@ -98,6 +107,8 @@ const ViewSalesOrder = () => {
       TaxCode: "",
     },
   ]);
+   const [copiedFormData, setCopiedFormData] = useState({});
+    const [isCloneSelected, setIsCloneSelected] = useState(false);
   const [itemTabledata, setitemTableData] = useState([
     { slno: 1, ItemCode: "", ItemName: "", quantity: "", amount: "" },
   ]);
@@ -122,8 +133,30 @@ const ViewSalesOrder = () => {
   });
   const menuRef = useRef();
   const [loading, setLoading] = useState(true);
+  const copyForm = () => {
+    const tabledata = type === "Item" ? itemTabledata : serviceTabledata;
+    const data = {
+      ...formData,
+      ...tabledata,
+      ...summaryData,
+      ...freightRowSelection,
+    };
 
+    delete data.DocEntry;
+    console.log("copiedformdata", data, tabledata, summaryData, formData);
+    setCopiedFormData({
+      ...data,
+      formData: formData,
+      DocumentLines: tabledata,
+      summaryData: summaryData,
+      freightRowSelection: freightRowSelection,
+      DocType: type === "Item" ? "dDocument_Items" : "dDocument_Service",
+      AttachmentEntrys: attachmentsList,
+    });
+  };
   useEffect(() => {
+     if (!formDetails || formDetails.length === 0) return;  
+  if (!formDetails[0]?.name) return;   
     const fetchData = async () => {
        setLoading(true);
       
@@ -141,9 +174,14 @@ const ViewSalesOrder = () => {
                 break;
       
               case "Purchase Order":
-                orderListById = await dispatch(fetchVendorOrderById(id)).unwrap();
+                orderListById = await dispatch(fetchPurchaseOrderById(id)).unwrap();
                 break;
-      
+      case "Purchase Quotation":
+                orderListById = await dispatch(fetchPurchaseQuotationById(id)).unwrap();
+                break;
+                case "Purchase Request":
+                orderListById = await dispatch(fetchPurchaseRequestById(id)).unwrap();
+                break;
               default:
                 console.warn("Unknown form:", formDetails[0].name);
                 return;
@@ -161,8 +199,18 @@ const ViewSalesOrder = () => {
               size: line.FileSize,
             }))
         );
+         if(orderListById.AttachmentEntry){
+                  const attachmentListById = await dispatch(fetchAttachmentDetailsById(orderListById.AttachmentEntry)).unwrap();
+                  console.log("attachmentListById", attachmentListById);
+                  setOldAttachmentFiles(prev => ({
+                    ...prev,
+                    Attachments2_Lines: attachmentListById.Attachments2_Lines
+                  }));
+                }
+               
         if (orderListById) {
           // 1. Store order header info
+           setSelectedCardCode(orderListById.CardCode);
           setFormData({
             CardCode: orderListById.CardCode,
             CardName: orderListById.CardName, 
@@ -450,7 +498,17 @@ const ViewSalesOrder = () => {
         ).unwrap();
       }else if(formDetails[0]?.name==="Purchase Order"){
         res = await dispatch(
-          updateVendorOrder({ id, data: payload })
+          updatePurchaseOrder({ id, data: payload })
+        ).unwrap();
+      }
+      else if(formDetails[0]?.name==="Purchase Quotation"){
+        res = await dispatch(
+          updatePurchaseQuotation({ id, data: payload })
+        ).unwrap();
+      }
+      else if(formDetails[0]?.name==="Purchase Request"){
+        res = await dispatch(
+          updatePurchaseRequest({ id, data: payload })
         ).unwrap();
       }
       if (res.message === "Please Login!") {
@@ -466,6 +524,17 @@ const ViewSalesOrder = () => {
       }, 2000); // ✅ stop loader
     }
   };
+   const menuBlocks =
+      user?.Roles?.flatMap((role) =>
+        role.UserMenus?.filter((menu) =>
+          menu.children?.some((child) => child.Form?.id === formId)
+        ).map((menu) => ({
+          roleId: role.id,
+          roleName: role.name,
+          ...menu,
+        }))
+      ) || [];
+    const childOptions = menuBlocks.length > 0 ? menuBlocks[0].children : [];
   useEffect(() => {
      if (!user) return;
 
@@ -577,8 +646,8 @@ const ViewSalesOrder = () => {
                     </BreadcrumbsItem>
                     <BreadcrumbsItem>
                       {formDetails
-                        ? "Create " + formDetails[0]?.name
-                        : "Create Sales Order"}
+                        ? "View " + formDetails[0]?.name
+                        : "View"}
                     </BreadcrumbsItem>
                   </Breadcrumbs>
                 </>
@@ -590,14 +659,77 @@ const ViewSalesOrder = () => {
               }
               navigationBar={
                 <Toolbar design="Transparent">
-                  {/* <ToolbarButton design="Transparent" icon="full-screen" />
-              <ToolbarButton design="Transparent" icon="exit-full-screen" /> */}
+                   <ToolbarButton
+                  design="default"
+                  onClick={copyForm}
+                  icon="sap-icon://copy"
+                />
 
-                  <ToolbarButton
-                    onClick={() => navigate(`/Sales/${formId}`)}
-                    design="Transparent"
-                    icon="decline"
-                  />
+                <Select
+                  onChange={(e) =>
+                    {const selectPage=e.detail.selectedOption.dataset.id;
+                     navigate(
+                        "/cloneorder/create/" + formId + "/" + selectPage,
+                        {
+                          state: { copyFormData: copiedFormData },
+                        }
+                      );
+                    }
+                  }
+
+                  //setSelectedChild(e.detail.selectedOption.dataset.id)
+                >
+                  <Option key={""} data-id={""}>
+                    Select Action
+                  </Option>
+                  {childOptions.map((child) => (
+                    <Option key={child.id} data-id={child.id}>
+                      {child.name}
+                    </Option>
+                  ))}
+                </Select>
+                {/* <Select
+                  onChange={(e) => {
+                    const selected = e.detail.selectedOption.dataset.id;
+
+                    if (selected === "CopyTo") {
+                      // store big data for new tab
+                      localStorage.setItem(
+                        "copyFormData",
+                        JSON.stringify(copiedFormData)
+                      );
+
+                      window.open(
+                        "/cloneorder/create/" + formId + "/" + selectPage,
+                        "_blank"
+                      );
+                    } else if (selected === "MoveTo") {
+                      navigate(
+                        "/cloneorder/create/" + formId + "/" + selectPage,
+                        {
+                          state: { copyFormData: copiedFormData },
+                        }
+                      );
+                    }
+                  }}
+                >
+                  <Option data-id="Select">Select</Option>
+                  <Option data-id="MoveTo">Move To</Option>
+                  <Option data-id="CopyTo">Copy To</Option>
+                </Select> */}
+
+                {/* <ToolbarButton
+                  design={isCloneSelected ? "Emphasized" : "Transparent"}
+                  onClick={() => setIsCloneSelected(!isCloneSelected)}
+                  icon="sap-icon://add-document"
+                  text="Clone"
+                /> */}
+
+                {/* <ToolbarButton
+                  onClick={() => navigate(`/Sales/${formId}`)}
+                  design="Transparent"
+                  icon="decline"
+                /> */}
                 </Toolbar>
               }
             >
@@ -679,6 +811,7 @@ const ViewSalesOrder = () => {
               handleChange={handleChange}
               type={type}
               setType={setType}
+              formDetails={formDetails}
               mode={"view"}
               setTotalFreightAmount={setTotalFreightAmount}
               totalFreightAmount={totalFreightAmount}
@@ -736,10 +869,8 @@ const ViewSalesOrder = () => {
             }}
             titleText="Attachments"
           >
-            <Attachments
-              attachmentsList={attachmentsList}
-              setAttachmentsList={setAttachmentsList}
-            />
+             <Attachments onFilesChange={setAttachmentFiles} attachmentsList={attachmentsList} setAttachmentsList={setAttachmentsList} oldAttachmentFiles={oldAttachmentFiles} setOldAttachmentFiles={setOldAttachmentFiles} />
+        
           </ObjectPageSection>
           {/* );
                     } else if (tab.name === "user-defined-field") {
@@ -769,6 +900,9 @@ const ViewSalesOrder = () => {
             } */}
         </ObjectPage>
       </BusyIndicator>
+       {isCloneSelected && (
+        <CloneSalesOrder copiedFormData={copiedFormData} formId={formId} />
+      )}
       <Dialog open={open} onAfterClose={() => setOpen(false)}>
         <div
           style={{

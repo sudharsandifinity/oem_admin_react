@@ -83,9 +83,11 @@ const Form = ({
 
   const [selectedBranches, setSelectedBranches] = useState([]);
   const navigate = useNavigate();
+ 
   const branchList = branches.filter(
-    (b) => b.companyId === selectedCompany?.value
+    (b) => b.companyId === selectedCompany
   );
+   console.log("selectedCompanyinedit",selectedCompany,branches,branchList)
 
   const handleselectedForm = (e) => {
     console.log("handleselectedform", e);
@@ -135,13 +137,13 @@ const Form = ({
     {
       Header: "Display Name",
       accessor: "display_name",
-     width:530,
+     width:500,
 
     },
     {
         Header: "Status",
         accessor: "status",
-         width:530,
+         width:330,
         Cell: ({ row }) =>
           row.original.status === 1 ? (
             <Tag children="Active" design="Positive" size="S" />
@@ -151,15 +153,16 @@ const Form = ({
       },
     {
       Header: "Actions",
-      width:500,
+      width:300,
 
       Cell: ({ row }) => (
         <FlexBox style={{ gap: "0.5rem" }}>
-          <Button
+          {row.original.type==="default" ? null :
+            <Button
             icon="edit"
             design="Transparent"
             onClick={() => handleEditRow(row.index)}
-          />
+          />}
           
           <Button
             icon="delete"
@@ -173,8 +176,8 @@ const Form = ({
   useEffect(() => {
     if (mode === "edit") {
       setAssignBranchEnabled(true);
-      setSelectedCompany(defaultValues.company || null);
-      setSelectedBranchIds(defaultValues.branchIds || []);
+      setSelectedCompany(defaultValues.companyId || null);
+      setSelectedBranchIds(defaultValues.branchId || []);
     }
   }, [mode, defaultValues]);
 
@@ -359,7 +362,8 @@ const Form = ({
                         value={field.value ?? ""}
                         onChange={(e) => {
                           field.onChange(e.target.value);
-                          setSelectedCompany(e.detail.selectedOption);
+                          console.log("e.detail.selectedOption",e.detail.selectedOption)
+                          setSelectedCompany(e.detail.selectedOption.value);
                         }}
                         valueState={errors.companyId ? "Error" : "None"}
                       >
@@ -523,7 +527,7 @@ const Form = ({
                     control={control}
                     render={({ field }) => (
                       <Select
-                        style={{ width: "28%" }}
+                        style={{ width: "26%" }}
                         name="status"
                         value={field.value ?? ""}
                         onChange={(e) => field.onChange(e.target.value)}

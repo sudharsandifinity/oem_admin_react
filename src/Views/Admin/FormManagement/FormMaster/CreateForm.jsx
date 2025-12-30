@@ -9,7 +9,44 @@ import { fetchBranch } from "../../../../store/slices/branchesSlice";
 const CreateForm = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [formTabs, setFormTabs] = useState([]);
+  const tabData=[{
+    name: "General",
+    display_name: "General",
+    status:1,
+    type:"default",
+  },
+  {
+    name: "Contents",
+    display_name: "Contents",
+    type:"default",
+    status:1,
+  },
+  {
+    name: "Logistics",
+    display_name: "Logistics",
+    type:"default",
+    status:1,
+  },
+  {
+    name: "Accounting",
+    display_name: "Accounting",
+    type:"default",
+    status:1, 
+  },
+  {
+    name: "Attachments",
+    display_name: "Attachments",
+    type:"default",
+    status:1,
+  },
+  {
+    name: "User-defined-field",
+    display_name: "User-defined-field",
+    type:"default",
+    status:1,
+  },
+];
+  const [formTabs, setFormTabs] = useState(tabData);
 
   useEffect(() => {
     //dispatch(fetchRoles());
@@ -40,8 +77,11 @@ const CreateForm = () => {
         display_name: data.display_name,
         scope: data.scope,
         form_type:"Both",// data.form_type,
-        FormTabs: formTabs,
-        status: data.status,
+        FormTabs: formTabs.map((tab, index) => ({
+          name: tab.name,
+          display_name: tab.display_name,
+          status: tab.status,
+        })),
       };
       console.log("formpaylod", payload);
       const res = await dispatch(createForm(payload)).unwrap();

@@ -28,6 +28,8 @@ const RolesList = () => {
   const navigate = useNavigate();
   const { roles } = useSelector((state) => state.roles);
     const { user } = useSelector((state) => state.auth);
+        const { branches } = useSelector((state) => state.branches);
+    
   
   const [search, setSearch] = useState("");
   const [layout, setLayout] = useState("OneColumn");
@@ -85,18 +87,23 @@ const RolesList = () => {
       {
         Header: "Role Name",
         accessor: "name",
-        width: 320,
       },
       
  {
         Header: "Scope",
         accessor: "scope",
-        width: 320,
+      },
+      {
+        Header:"Branche",
+         accessor: "Branch.name",
+           Cell: ({ row }) => {
+          const branch = branches.find((item) => item.id === row.original.branchId);
+          return branch ? branch.name : "";
+        },
       },
       {
         Header: "Status",
         accessor: "status",
-        width: 320,
 
         Cell: ({ row }) =>
           row.original.status === 1 ? (
@@ -113,7 +120,6 @@ const RolesList = () => {
         disableResizing: true,
         disableSortBy: true,
         id: "actions",
-        width: 250,
 
         Cell: (instance) => {
           const { row, webComponentsReactProperties } = instance;
@@ -181,7 +187,7 @@ const RolesList = () => {
               title={"Roles list(" + filteredRows.length + ")"}
 
           startContent={
-            <div style={{ width: "100px" }}>
+            <div style={{ width: "150px" }}>
               <Breadcrumbs
                 design="Standard"
                 separators="Slash"
@@ -210,7 +216,7 @@ const RolesList = () => {
             </Button>)
           }
         >
-          <Title level="H4">Role List</Title>
+          
         </AppBar>
     <Page
       backgroundDesign="Solid"
@@ -253,19 +259,18 @@ const RolesList = () => {
       // }
     >
       <Card
-        style={{
-          height: "100%",
+         style={{
+          height: "auto",
           width: "100%",
           //padding: "0.5rem",
-          paddingTop: "0.5rem",
+          maxHeight: '560px'
         }}
       >
-        <FlexBox direction="Column">
+        <FlexBox direction="Column" style={{padding: 0}}>
           <FlexBox
-            justifyContent="SpaceBetween"
-            direction="Row"
+            justifyContent="End"
             alignItems="Center"
-            style={{ margin: "1rem" }}
+            style={{ margin: "10px" }}
           >
             <Search
               onClose={function Xs() {}}
@@ -331,7 +336,7 @@ const RolesList = () => {
                     flexDirection: "row",
                     justifyContent: "center",
                     alignItems: "start",
-                    height: "90%",
+                    //height: "90%",
                     verticalAlign: "middle",
                   }}
                 >

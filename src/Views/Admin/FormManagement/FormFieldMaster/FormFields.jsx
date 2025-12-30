@@ -217,7 +217,6 @@ const FormFields = () => {
             </Button>
           }
         >
-          <Title level="H4">Form Field List</Title>
         </AppBar>
     <Page
       backgroundDesign="Solid"
@@ -256,19 +255,18 @@ const FormFields = () => {
       // }
     >
       <Card
-        style={{
-          height: "100%",
+         style={{
+          height: "auto",
           width: "100%",
           //padding: "0.5rem",
-         paddingTop: "0.5rem",
+          maxHeight: '560px'
         }}
       >
-        <FlexBox direction="Column">
+        <FlexBox direction="Column" style={{padding: 0}}>
           <FlexBox
-            justifyContent="SpaceBetween"
-            direction="Row"
+            justifyContent="End"
             alignItems="Center"
-            style={{ margin: "1rem" }}
+            style={{ margin: "10px" }}
           >
             <Search
               onClose={function Xs() {}}
@@ -329,7 +327,7 @@ const FormFields = () => {
                     flexDirection: "row",
                     justifyContent: "center",
                     alignItems: "start",
-                    height: "90%",
+                    //height: "90%",
                     verticalAlign: "middle",
                   }}
                 >

@@ -28,7 +28,7 @@ import {
   fetchCustomerOrder,
 } from "../../../store/slices/CustomerOrderSlice";
 import CardDialog from "./CardCodeDialog/CardDialog";
-import { fetchPurBusinessPartner } from "../../../store/slices/VendorOrderSlice";
+import { fetchPurBusinessPartner } from "../../../store/slices/purchaseorderSlice";
 const schema = yup.object().shape({
   name: yup.string().required("Name is required"),
   city: yup.string().required("City is required"),
@@ -103,7 +103,8 @@ const General = ({
           res=await dispatch(fetchSalesBusinessPartner()).unwrap();
         } else if (
           formDetails[0]?.name === "Purchase Order" ||
-          formDetails[0]?.name === "Purchase Quotation"
+          formDetails[0]?.name === "Purchase Quotation"||
+          formDetails[0]?.name === "Purchase Request"
         ) {
           res=await dispatch(fetchPurBusinessPartner()).unwrap();
         }
@@ -313,15 +314,6 @@ console.log("selectedData",selectedData,generalData)
                   )}
                 />
               </FlexBox>
-            </FlexBox>
-            <div
-              style={{
-                width: "1px",
-                background: "#ccc",
-                margin: "0 1rem",
-              }}
-            />
-            <FlexBox direction="Column" style={{ width: "100%", gap: "8px" }}>
               <FlexBox alignItems="Center">
                 <Label style={{ minWidth: "200px" }}>Document Number:</Label>
                 <Controller
@@ -347,32 +339,73 @@ console.log("selectedData",selectedData,generalData)
                   )}
                 />
               </FlexBox>
-              <FlexBox alignItems="Center">
-                <Label style={{ minWidth: "200px" }}>Status</Label>
+              <FlexBox style={{ display: "flex", gap: "2rem" }}>
+                          {/* Left Column */}
+                          {/* <div style={{ flex: 1 }}>
+                            {Accountingdetails.filter(
+                              (field) =>
+                                field.Position === "Header" && field.DisplayType === "Left"
+                            ).map((field) => (
+                              <FormItem
+                                key={field.FieldName}
+                                label={field.DisplayName}
+                                labelContent={<Label>{field.DisplayName}</Label>}
+                              >
+                                {AccountingRenderInput(
+                                  field,
+                                  form,
+                                  handleChange,
+                                  form[field.FieldName],
+                                  setForm
+                                )}
+                              </FormItem>
+                            ))}
+                          </div> */}
+                        </FlexBox>
+            </FlexBox>
+            <div
+              style={{
+                width: "1px",
+                background: "#ccc",
+                margin: "0 1rem",
+              }}
+            />
+            <FlexBox direction="Column" style={{ width: "100%", gap: "8px" }}>
+              
+             
+                   <FlexBox alignItems="Center">
+                <Label style={{ minWidth: "200px" }}>Required Date:</Label>
                 <Controller
-                  name="status"
+                  name="ReqDate"
                   control={control}
                   render={({ field }) => (
                     <Input
-                      placeholder="status"
-                      name="status"
-                      disabled={true}
+                      placeholder="Required Date"
+                      name="ReqDate"
+                      type="date"
+                      disabled={mode === "view"}
+                      min="2025-01-01"
                       style={{ width: "100%" }}
-                      value={"open"}
+                      value={
+                        formData.ReqDate
+                          ? new Date(formData.ReqDate)
+                              .toISOString()
+                              .split("T")[0]
+                          : new Date().toISOString().split("T")[0]
+                      }
                       onInput={(e) => field.onChange(e.target.value)}
                       onChange={handleChange}
-                      valueState={errors.status ? "Error" : "None"}
+                      valueState={errors.ReqDate ? "Error" : "None"}
                     >
-                      {errors.status && (
+                      {errors.ReqDate && (
                         <span slot="valueStateMessage">
-                          {errors.status.message}
+                          {errors.ReqDate.message}
                         </span>
                       )}
                     </Input>
                   )}
                 />
               </FlexBox>
-
               <FlexBox alignItems="Center">
                 <Label style={{ minWidth: "200px" }}>Posting Date:</Label>
                 <Controller
@@ -472,8 +505,34 @@ console.log("selectedData",selectedData,generalData)
                   )}
                 />
               </FlexBox>
+              <FlexBox alignItems="Center">
+                <Label style={{ minWidth: "200px" }}>Status</Label>
+                <Controller
+                  name="status"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      placeholder="status"
+                      name="status"
+                      disabled={true}
+                      style={{ width: "100%" }}
+                      value={"open"}
+                      onInput={(e) => field.onChange(e.target.value)}
+                      onChange={handleChange}
+                      valueState={errors.status ? "Error" : "None"}
+                    >
+                      {errors.status && (
+                        <span slot="valueStateMessage">
+                          {errors.status.message}
+                        </span>
+                      )}
+                    </Input>
+                  )}
+                />
+              </FlexBox>
               {console.log("customerorderlist", customerorder)}
             </FlexBox>
+            
           </FlexBox>
         </Card>
         {/* <FlexBox wrap="Wrap" direction="Row" style={{ gap: "1rem",paddingTop:"1rem" }}>

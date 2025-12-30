@@ -16,11 +16,14 @@ import usermenusReducer from './slices/usermenusSlice';
 import formfielddataReducer from './slices/companyformfielddata'
 import customerorderReducer from './slices/CustomerOrderSlice';
 import customerorderitemsReducer from './slices/CustomerOrderItemsSlice';
-import vendororderReducer from './slices/VendorOrderSlice';
+import purchaseorderReducer from './slices/PurchaseOrderSlice';
 import vendororderitemsReducer from './slices/VendorOrderItemsSlice';
 import customerorderserviceReducer from './slices/CustomerOrderServiceSlice';
 import salesadddetailsReducer from './slices/salesAdditionalDetailsSlice';
-import salesquotationReducer from './slices/salesQuotationSlice';
+import salesquotationReducer from './slices/SalesQuotationSlice';
+import purQuotationReducer from './slices/PurchaseQuotation';
+import purRequestReducer from './slices/PurchaseRequestSlice';
+
 const store = configureStore({
   reducer: {
     auth: authReducer,
@@ -41,12 +44,13 @@ const store = configureStore({
     customerorder:customerorderReducer,
     orderItems:customerorderitemsReducer,
     orderServices:customerorderserviceReducer,
-    vendororder:vendororderReducer,
+    purchaseorder:purchaseorderReducer,
     vendororderItems:vendororderitemsReducer,
     salesadddetails:salesadddetailsReducer,
     salesquotation:salesquotationReducer,
     puradddetails:salesadddetailsReducer,
-
+    purQuotation:purQuotationReducer,
+    purRequest:purRequestReducer,
   },
 });
 

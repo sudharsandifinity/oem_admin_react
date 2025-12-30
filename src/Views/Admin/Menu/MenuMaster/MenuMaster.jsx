@@ -37,6 +37,8 @@ const MenuMaster = () => {
   const [layout, setLayout] = useState("OneColumn");
   const [ViewId, setViewId] = useState("");
   const [selectedMenu, setSelectedMenu] = useState(null);
+  const { companies } = useSelector((state) => state.companies);
+    const { branches } = useSelector((state) => state.branches);
 
   useEffect(() => {
     //dispatch(fetchForm());
@@ -91,10 +93,7 @@ const MenuMaster = () => {
 
   const columns = useMemo(
     () => [
-      {
-        Header: "Menu Name",
-        accessor: "name",
-      },
+    
       {
         Header: "Display Name",
         accessor: "display_name",
@@ -108,8 +107,22 @@ const MenuMaster = () => {
       //   },
       // },
       {
-        Header: "Order No",
-        accessor: "order_number",
+        Header: "Company Name ",
+        accessor: "Company.name",
+           Cell: ({ row }) => {
+          const company = companies.find((item) => item.id === row.original.companyId);
+          return company ? company.name : "";
+        },
+
+      },
+       {
+        Header: "Branch Name ",
+        accessor: "Branch.name",
+           Cell: ({ row }) => {
+          const branch = branches.find((item) => item.id === row.original.branchId);
+          return branch ? branch.name : "";
+        },
+
       },
       {
         Header: "Scope",
@@ -183,7 +196,7 @@ const MenuMaster = () => {
           </style>
         <FlexBox direction="Column" style={{width: '100%'}}>
          <AppBar
-           design="Header"
+         design="Header"
               title={"Menu list(" + filteredRows.length + ")"}
           startContent={
             <div style={{ width: "150px" }}>
@@ -211,7 +224,7 @@ const MenuMaster = () => {
             </Button>
           }
         >
-          <Title level="H4">Menu List</Title>
+        
         </AppBar>
     <Page
       backgroundDesign="Solid"
@@ -251,18 +264,17 @@ const MenuMaster = () => {
     >
       <Card
         style={{
-          height: "100%",
+          height: "auto",
           width: "100%",
           //padding: "0.5rem",
-          paddingTop: "0.5rem",
+          maxHeight: '560px'
         }}
       >
-        <FlexBox direction="Column">
+        <FlexBox direction="Column" style={{padding: 0}}>
           <FlexBox
-            justifyContent="SpaceBetween"
-            direction="Row"
+            justifyContent="End"
             alignItems="Center"
-            style={{ margin: "1rem" }}
+            style={{ margin: "10px" }}
           >
             <Search
               onClose={function Xs() {}}
@@ -324,7 +336,7 @@ const MenuMaster = () => {
                     flexDirection: "row",
                     justifyContent: "center",
                     alignItems: "start",
-                    height: "90%",
+                    //height: "90%",
                     verticalAlign: "middle",
                   }}
                 >
