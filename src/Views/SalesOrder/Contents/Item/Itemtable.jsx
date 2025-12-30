@@ -35,11 +35,13 @@ import "@ui5/webcomponents-icons/dist/arrow-bottom.js";
 import "@ui5/webcomponents-icons/dist/settings.js";
 import SettingsDialog from "../SettingsDialog";
 import { Tooltip } from "recharts";
-import TaxDialog from "./TaxPopup/TaxDialog";
+import ProjectDialog from "./ProjectPopup/ProjectDialog"; 
 import FreightTable from "../FreightTable";
 import Freight from "../Freight/Freight";
 
 import "@ui5/webcomponents-icons/dist/navigation-right-arrow.js"; // or arrow-right
+import TaxDialog from "./TaxPopup/TaxDialog";
+import WarehouseDialog from "./WarehousePopup/WarehouseDialog";
 
 const Itemtable = (props) => {
   const {
@@ -64,6 +66,10 @@ const Itemtable = (props) => {
     dynamcicItemCols,
     taxData,
     setTaxData,
+    projectData,
+    setProjectData,
+    warehouseData,
+    setWarehouseData,
     freightData,
     setFreightData,
     setIsFreightTableVisible,
@@ -105,7 +111,12 @@ const Itemtable = (props) => {
   const [itemDialogOpen, setitemDialogOpen] = useState(false);
   const [inputvalue, setInputValue] = useState({});
   const [isTaxDialogOpen, setisTaxDialogOpen] = useState(false);
+  const [isProjectDialogOpen, setisProjectDialogOpen] = useState(false);
+  const [isWarehouseDialogOpen, setisWarehouseDialogOpen] = useState(false);
+
   const [selectedTaxRowIndex, setSelectedTaxRowIndex] = useState("");
+  const [selectedProjectRowIndex, setSelectedProjectRowIndex] = useState("");
+  const [selectedWarehouseRowIndex, setSelectedWarehouseRowIndex] = useState("");
 
   const [freightdialogOpen, setfreightDialogOpen] = useState(false);
   const [currentField, setCurrentField] = useState(null);
@@ -152,13 +163,35 @@ const Itemtable = (props) => {
       return updated;
     });
   };
+ 
   const onselectFreightRow = (e) => {
-    setFreightRowSelection((prev) => ({
-      ...prev,
-      [e.detail.row.id]: e.detail.row.original,
-    }));
-    console.log("onselectFreightRow", e.detail, freightRowSelection);
-  };
+    const rowId = e.detail.row.id;
+    const isSelected = e.detail.isSelected;
+  const row = e.detail.row.original;
+    console.log("onrowselect", row);
+
+  setFreightRowSelection(prev => {
+    const updated = { ...prev };
+      console.log("onitemrowselect", rowId,e.detail, updated);
+      if (isSelected) {
+        // ✅ add selected row
+        updated[rowId] = e.detail.row.original;
+      } else {
+        // ❌ remove deselected row
+        delete updated[rowId];
+      }
+
+      return updated;
+    });
+};
+
+  // const onselectFreightRow = (e) => {
+  //   setFreightRowSelection((prev) => ({
+  //     ...prev,
+  //     [e.detail.row.id]: e.detail.row.original,
+  //   }));
+  //   console.log("onselectFreightRow", e.detail, freightRowSelection);
+  // };
   const markNavigatedRow = useCallback(
     (row) => {
       return selectedRow?.id === row.id;
@@ -393,7 +426,7 @@ const totalFreightFromPopup = useMemo(() => {
     const rows = Object.values(freightRowSelection || {});
 
     return rows.reduce((sum, item) => {
-      const amt = parseFloat(item.grossTotal || 0); // <-- Correct field
+      const amt = parseFloat(item.LineGross || 0); // <-- Correct field
       return sum + amt;
     }, 0);
   }, [freightRowSelection]);
@@ -493,6 +526,32 @@ const totalFreightFromPopup = useMemo(() => {
     );
     setTimeout(() => {
       setisTaxDialogOpen(false);
+    }, 500);
+  };
+  const projectSelectionRow = (e) => {
+    console.log("projectSelectionRow", itemTabledata, e);
+    setitemTableData((prev) =>
+      prev.map((r, idx) =>
+        idx === selectedProjectRowIndex
+          ? { ...r, ProjectCode: e.detail.row.original.Code }
+          : r
+      )
+    );
+    setTimeout(() => {
+      setisProjectDialogOpen(false);
+    }, 500);
+  };
+  const warehouseSelectionRow = (e) => {
+    console.log("warehouseSelectionRow", itemTabledata, e);
+    setitemTableData((prev) =>
+      prev.map((r, idx) =>
+        idx === selectedWarehouseRowIndex
+          ? { ...r, WarehouseCode: e.detail.row.original.Code }
+          : r
+      )
+    );
+    setTimeout(() => {
+      setisWarehouseDialogOpen(false);
     }, 500);
   };
   const columns = useMemo(() => {
@@ -784,6 +843,64 @@ const totalFreightFromPopup = useMemo(() => {
           />
         ),
       },
+       {
+        Header: "Project",
+        accessor: "project",
+        Cell: ({ row }) => (
+          <Input
+            value={row.original.project}
+            readonly
+            disabled={mode === "view"}
+            style={{
+              border: "none",
+              borderBottom: "1px solid #ccc",
+              backgroundColor: "transparent",
+              outline: "none",
+              padding: "4px 0",
+              fontSize: "14px",
+              transition: "border-color 0.2s",
+            }}
+            onFocus={(e) => (e.target.style.borderBottom = "1px solid #007aff")}
+            onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
+            onClick={() =>
+              // !row.original.Project &&
+              {
+                setSelectedProjectRowIndex(row.index);
+                setisProjectDialogOpen(true);
+              }
+            }
+          />
+        ),
+      },
+      {
+        Header: "Warehouse",
+        accessor: "warehouse",
+        Cell: ({ row }) => (
+          <Input
+            value={row.original.warehouse}
+            readonly
+            disabled={mode === "view"}
+            style={{
+              border: "none",
+              borderBottom: "1px solid #ccc",
+              backgroundColor: "transparent",
+              outline: "none",
+              padding: "4px 0",
+              fontSize: "14px",
+              transition: "border-color 0.2s",
+            }}
+            onFocus={(e) => (e.target.style.borderBottom = "1px solid #007aff")}
+            onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
+            onClick={() =>
+              // !row.original.Warehouse &&
+              {
+                setSelectedWarehouseRowIndex(row.index);
+                setisWarehouseDialogOpen(true);
+              }
+            }
+          />
+        ),
+      },
       {
         Header: "Actions",
         accessor: "actions",
@@ -826,7 +943,7 @@ const totalFreightFromPopup = useMemo(() => {
     const visibleColumns = allColumns.filter(
       (col) => visibleAccessors.includes(col.accessor) || col.id === "actions" // always include actions
     );
-
+console.log("visibleColumns",visibleColumns)
     return visibleColumns;
   }, [mode, dynamicItemColumnslist]);
 
@@ -1137,6 +1254,30 @@ const totalFreightFromPopup = useMemo(() => {
           Save
         </Button>
       </Dialog>
+      <WarehouseDialog
+        isWarehouseDialogOpen={isWarehouseDialogOpen}
+        setisWarehouseDialogOpen={setisWarehouseDialogOpen}
+        warehouseData={warehouseData}
+        setWarehouseData={setWarehouseData}
+        itemdata={itemdata}
+        setitemData={setitemData}
+        setitemTableData={setitemTableData}
+        inputvalue={inputvalue}
+        setInputValue={setInputValue}
+        warehouseSelectionRow={warehouseSelectionRow}
+      />
+      <ProjectDialog
+        isProjectDialogOpen={isProjectDialogOpen}
+        setisProjectDialogOpen={setisProjectDialogOpen}
+        projectData={projectData}
+        setProjectData={setProjectData}
+        itemdata={itemdata}
+        setitemData={setitemData}
+        setitemTableData={setitemTableData}
+        inputvalue={inputvalue}
+        setInputValue={setInputValue}
+        projectSelectionRow={projectSelectionRow}
+      />
       <TaxDialog
         isTaxDialogOpen={isTaxDialogOpen}
         setisTaxDialogOpen={setisTaxDialogOpen}

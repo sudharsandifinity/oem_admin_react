@@ -1,50 +1,63 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import api from '../../api/axios';
 
-const API_QUOTATION = '/sap/quotations';
+const API_QUOTATION = '/sap/purchase-quotations';
 
-export const fetchSalesQuotations = createAsyncThunk('quotations/fetchSalesQuotations', async () => {
+export const fetchPurchaseQuotation = createAsyncThunk('quotations/fetchPurchaseQuotation', async () => {
   const response = await api.get(API_QUOTATION, { withCredentials: true });
   return response.data;
 });
 
-export const createSalesQuotation = createAsyncThunk(
-  'quotations/createSalesQuotation',
-  async (quotationData, { rejectWithValue }) => {
+export const createPurchaseQuotation = createAsyncThunk(
+  'quotations/createPurchaseQuotation',
+  async (quotationData, thunkApi) => {
     try {
-      const response = await api.post(API_QUOTATION, quotationData, { withCredentials: true,timeout: 50000 });
+       const response = await api.post(API_QUOTATION, quotationData, {
+        headers: { "Content-Type": "multipart/form-data" },
+        withCredentials: true,
+        timeout: 50000,
+      });
       return response.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data);
+         console.error("❌ API error:", err.response?.data || err.message);
+      return thunkApi.rejectWithValue(
+        err.response?.data || "Error creating quotation"
+      );
     }
   }
 );
 
-export const updateSalesQuotation = createAsyncThunk(
-  'quotations/updateSalesQuotation',
-  async ({ id, data }, { rejectWithValue }) => {
+export const updatePurchaseQuotation = createAsyncThunk(
+  'quotations/updatePurchaseQuotation',
+  async ({ id, data }, thunkApi) => {
     try {
-      const response = await api.put(`${API_QUOTATION}/${id}`, data, { withCredentials: true,timeout: 50000 });
+      const response = await api.patch(`${API_QUOTATION}/${id}`, data, {
+        withCredentials: true,
+        timeout: 60000,
+      });
       return response.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data);
+        console.error("❌ API error:", err.response?.data || err.message);
+      return thunkApi.rejectWithValue(
+        err.response?.data || "Error creating request"
+      );
     }
   }
 );
 
-export const deleteSalesQuotation = createAsyncThunk('quotations/deleteSalesQuotation', async (id) => {
+export const deletePurchaseQuotation = createAsyncThunk('quotations/deletePurchaseQuotation', async (id) => {
   await api.delete(`${API_QUOTATION}/${id}`, { withCredentials: true });
   return id;
 });
 
-export const fetchSalesQuotationById = createAsyncThunk(
+export const fetchPurchaseQuotationById = createAsyncThunk(
   'quotations/fetchById',
   async (id, thunkAPI) => {
     try {
       const response = await api.get(`${API_QUOTATION}/${id}`, { withCredentials: true });
       return response.data;
     } catch (error) {
-      return thunkAPI.rejectWithValue(error.response?.data || 'Error fetching Sales quotations');
+      return thunkAPI.rejectWithValue(error.response?.data || 'Error fetching Purchase quotations');
     }
   }
 );
@@ -61,25 +74,25 @@ const quotationsSlice = createSlice({
   extraReducers: (builder) => {
       builder
         // Fetch Orders
-        .addCase(fetchSalesQuotations.pending, (state) => {
+        .addCase(fetchPurchaseQuotation.pending, (state) => {
           state.loading = true;
           state.error = null;
         })
-        .addCase(fetchSalesQuotations.fulfilled, (state, action) => {
+        .addCase(fetchPurchaseQuotation.fulfilled, (state, action) => {
           state.loading = false;
           // If API returns { value: [...] }, handle that
           state.quotations = Array.isArray(action.payload)
             ? action.payload
             : action.payload?.value || [];
         })
-        .addCase(fetchSalesQuotations.rejected, (state, action) => {
+        .addCase(fetchPurchaseQuotation.rejected, (state, action) => {
           state.loading = false;
           state.error = action.payload;
         })
   
   
         // Create Order
-        .addCase(createSalesQuotation.fulfilled, (state, action) => {
+        .addCase(createPurchaseQuotation.fulfilled, (state, action) => {
           if (Array.isArray(state.quotations)) {
             state.quotations.push(action.payload);
           } else {
@@ -89,7 +102,7 @@ const quotationsSlice = createSlice({
   
         // Update Order
   
-        .addCase(updateSalesQuotation.fulfilled, (state, action) => {
+        .addCase(updatePurchaseQuotation.fulfilled, (state, action) => {
           if (Array.isArray(state.quotations)) {
             const index = state.quotations.findIndex(
               (o) => o.DocEntry === action.payload.DocEntry
@@ -99,7 +112,7 @@ const quotationsSlice = createSlice({
         })
   
         // Delete Order
-        .addCase(deleteSalesQuotation.fulfilled, (state, action) => {
+        .addCase(deletePurchaseQuotation.fulfilled, (state, action) => {
           if (Array.isArray(state.quotations)) {
             state.quotations = state.quotations.filter(
               (o) => o.DocEntry !== action.payload

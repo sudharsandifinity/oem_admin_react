@@ -33,8 +33,8 @@ import ViewPurchaseOrder from "./ViewPurchaseOrder";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchPurBusinessPartner,
-  fetchVendorOrder,
-} from "../../store/slices/VendorOrderSlice";
+  fetchPurchaseOrder,
+} from "../../store/slices/purchaseorderSlice";
 
 const ManagePurchaseOrder = () => {
   const {
@@ -59,7 +59,7 @@ const ManagePurchaseOrder = () => {
     (state) => state.companyformfielddata
   );
   const { vendororder, businessPartner, loading, error } = useSelector(
-    (state) => state.vendororder
+    (state) => state.purchaseorder
   );
   const [tableData, settableData] = useState([]);
   const [formDetails, setFormDetails] = useState([]);
@@ -98,7 +98,7 @@ const ManagePurchaseOrder = () => {
     //dispatch(fetchCompanies());
     const fetchInitial = async () => {
       try {
-        const res = await dispatch(fetchVendorOrder()).unwrap();
+        const res = await dispatch(fetchPurchaseOrder()).unwrap();
         dispatch(fetchPurBusinessPartner()).unwrap();
         const initialData = res.map((item) => ({
           DocEntry: item.DocEntry,
@@ -494,7 +494,7 @@ const ManagePurchaseOrder = () => {
 
                           try {
                             const res = await dispatch(
-                              fetchVendorOrder({
+                              fetchPurchaseOrder({
                                 top: pageSize,
                                 skip: page * pageSize,
                               })

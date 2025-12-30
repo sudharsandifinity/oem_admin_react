@@ -24,7 +24,9 @@ export const HeaderFilterBar = ({
   settableData,
   handleChange,
   setFilters,
-  filters,settabledata,customerorder,isClearFilter,setisClearFilter,formDetails
+  filters,
+  menuChildMap,
+  settabledata,customerorder,isClearFilter,setisClearFilter,formDetails
 }) => {
   const [value, setvalue] = useState("");
   const [fieldName, setfieldName] = useState("");
@@ -167,9 +169,9 @@ useEffect(()=>{
       return (
         <FlexBox direction="Column">
            <Label>
-    {formDetails[0]?.name === "Purchase Order" && field.FieldName === "CustomerCode"
+    {    menuChildMap[0].menuName === "Purchase" && field.FieldName === "CustomerCode"
       ? "Vendor Code"
-      : formDetails[0]?.name === "Purchase Order" && field.FieldName === "CustomerName"
+      : menuChildMap[0].menuName === "Purchase" && field.FieldName === "CustomerName"
       ? "Vendor Name"
       : field.DisplayName}
   </Label>

@@ -19,8 +19,8 @@ export const fetchPurBusinessPartner = createAsyncThunk(
 );
 
 // ✅ Fetch All Orders
-export const fetchVendorOrder = createAsyncThunk(
-  'vendororder/fetchAll',
+export const fetchPurchaseOrder = createAsyncThunk(
+  'purchaseorder/fetchAll',
   async (_, thunkApi) => {
     try {
       const response = await api.get(API_URL, { withCredentials: true });
@@ -32,8 +32,8 @@ export const fetchVendorOrder = createAsyncThunk(
 );
 
 // ✅ Fetch Order by ID
-export const fetchVendorOrderById = createAsyncThunk(
-  'vendororder/fetchById',
+export const fetchPurchaseOrderById = createAsyncThunk(
+  'purchaseorder/fetchById',
   async (id, thunkApi) => {
     try {
       const response = await api.get(`${API_URL}/${id}`, { withCredentials: true });
@@ -45,12 +45,12 @@ export const fetchVendorOrderById = createAsyncThunk(
 );
 
 // ✅ Create Order
-export const createVendorOrder = createAsyncThunk(
-  "vendororder/create",
-  async (vendorOrderData, thunkApi) => {
+export const createPurchaseOrder = createAsyncThunk(
+  "purchaseorder/create",
+  async (purchaseOrderData, thunkApi) => {
     try {
-      console.log("🚀 Sending order to API:", vendorOrderData);
-      const response = await api.post(API_URL, vendorOrderData, { withCredentials: true, timeout: 40000 });
+      console.log("🚀 Sending order to API:", purchaseOrderData);
+      const response = await api.post(API_URL, purchaseOrderData, { withCredentials: true, timeout: 40000 });
       return response.data;
     } catch (error) {
       console.error("❌ API error:", error.response?.data || error.message);
@@ -61,8 +61,8 @@ export const createVendorOrder = createAsyncThunk(
 
 
 // ✅ Update Order
-export const updateVendorOrder = createAsyncThunk(
-  'vendororder/update',
+export const updatePurchaseOrder = createAsyncThunk(
+  'purchaseorder/update',
   async ({ id, data }, thunkApi) => {
     try {
       console.log("🚀 Sending order to API:", data);
@@ -77,8 +77,8 @@ export const updateVendorOrder = createAsyncThunk(
 
 
 // ✅ Delete Order
-export const deleteVendorOrder = createAsyncThunk(
-  'vendororder/delete',
+export const deletePurchaseOrder = createAsyncThunk(
+  'purchaseorder/delete',
   async (id, thunkApi) => {
     try {
       await api.delete(`${API_URL}(${id})`, { withCredentials: true });
@@ -90,10 +90,10 @@ export const deleteVendorOrder = createAsyncThunk(
 );
 
 // Slice
-const vendororderSlice = createSlice({
-  name: 'vendororder',
+const PurchaseOrderSlice = createSlice({
+  name: 'purchaseorder',
   initialState: {
-    vendororder: [],
+    purchaseorder: [],
     businessPartner: [],
     loading: false,
     error: null
@@ -102,15 +102,15 @@ const vendororderSlice = createSlice({
   extraReducers: (builder) => {
     builder
       // Fetch Orders
-      .addCase(fetchVendorOrder.pending, (state) => {
+      .addCase(fetchPurchaseOrder.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchVendorOrder.fulfilled, (state, action) => {
+      .addCase(fetchPurchaseOrder.fulfilled, (state, action) => {
         state.loading = false;
-        state.vendororder = action.payload;
+        state.purchaseorder = action.payload;
       })
-      .addCase(fetchVendorOrder.rejected, (state, action) => {
+      .addCase(fetchPurchaseOrder.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
@@ -129,21 +129,21 @@ const vendororderSlice = createSlice({
       })
 
       // Create Order
-      .addCase(createVendorOrder.fulfilled, (state, action) => {
-        state.vendororder.push(action.payload);
+      .addCase(createPurchaseOrder.fulfilled, (state, action) => {
+        state.purchaseorder.push(action.payload);
       })
 
       // Update Order
-      .addCase(updateVendorOrder.fulfilled, (state, action) => {
-        const index = state.vendororder.findIndex((o) => o.DocEntry === action.payload.DocEntry);
-        if (index !== -1) state.vendororder[index] = action.payload;
+      .addCase(updatePurchaseOrder.fulfilled, (state, action) => {
+        const index = state.purchaseorder.findIndex((o) => o.DocEntry === action.payload.DocEntry);
+        if (index !== -1) state.purchaseorder[index] = action.payload;
       })
 
       // Delete Order
-      .addCase(deleteVendorOrder.fulfilled, (state, action) => {
-        state.vendororder = state.vendororder.filter((o) => o.DocEntry !== action.payload);
+      .addCase(deletePurchaseOrder.fulfilled, (state, action) => {
+        state.purchaseorder = state.purchaseorder.filter((o) => o.DocEntry !== action.payload);
       });
   }
 });
 
-export default vendororderSlice.reducer;
+export default PurchaseOrderSlice.reducer;

@@ -53,7 +53,7 @@ import {
   updateCustomerOrder,
 } from "../../store/slices/CustomerOrderSlice";
 import { fetchOrderItems } from "../../store/slices/CustomerOrderItemsSlice";
-import { fetchVendorOrderById } from "../../store/slices/VendorOrderSlice";
+import { fetchPurchaseOrderById } from "../../store/slices/purchaseorderSlice";
 import { fetchOrderServices } from "../../store/slices/CustomerOrderServiceSlice";
 
 const EditPurchaseOrder = () => {
@@ -104,7 +104,7 @@ const EditPurchaseOrder = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const orderListById = await dispatch(fetchVendorOrderById(id)).unwrap();
+        const orderListById = await dispatch(fetchPurchaseOrderById(id)).unwrap();
         const orderList = await dispatch(fetchOrderItems()).unwrap();
         const serviceList = await dispatch(fetchOrderServices().unwrap())
         console.log("res,res1", orderListById, orderList,serviceList);

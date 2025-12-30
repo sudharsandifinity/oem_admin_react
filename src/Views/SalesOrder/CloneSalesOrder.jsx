@@ -61,10 +61,10 @@ import {
   fetchSalesQuotationById,
   updateSalesQuotation,
 } from "../../store/slices/SalesQuotationSlice";
-import {
-  createVendorOrder,
-  fetchVendorOrderById,
-} from "../../store/slices/VendorOrderSlice";
+
+import { createPurchaseOrder } from "../../store/slices/PurchaseOrderSlice";
+import { createPurchaseQuotation } from "../../store/slices/PurchaseQuotation";
+import { createPurchaseRequest } from "../../store/slices/PurchaseRequestSlice";
 
 const CloneSalesOrder = () => {
   const { fieldConfig, CustomerDetails, DocumentDetails } =
@@ -141,8 +141,8 @@ const CloneSalesOrder = () => {
       setLoading(true);
 
       try {
-        const localstorageformdata= JSON.parse(localStorage.getItem("copyFormData"));
-        let orderListById =  location.state?.copyFormData? location.state.copyFormData :localstorageformdata;
+        
+        let orderListById =  location.state?.copyFormData? location.state.copyFormData :"";
         console.log("copyFormData",orderListById)
         // ✅ Fetch based on form type
         // switch (formDetails[0].name) {
@@ -166,16 +166,17 @@ const CloneSalesOrder = () => {
         const orderList = await dispatch(fetchOrderItems()).unwrap();
         const serviceList = await dispatch(fetchOrderServices()).unwrap();
         console.log("res,res1", orderListById, orderList, serviceList);
-        if (orderListById.AttachmentEntry) {
-          const attachmentListById = await dispatch(
-            fetchAttachmentDetailsById(orderListById.AttachmentEntry)
-          ).unwrap();
+        //if (orderListById.AttachmentEntry) {
+          // const attachmentListById = await dispatch(
+          //   fetchAttachmentDetailsById(orderListById.AttachmentEntry)
+          // ).unwrap();
+          const attachmentListById= orderListById?.oldAttachmentFiles? orderListById.oldAttachmentFiles:"";
           console.log("attachmentListById", attachmentListById);
           setOldAttachmentFiles((prev) => ({
             ...prev,
             Attachments2_Lines: attachmentListById.Attachments2_Lines,
           }));
-        }
+        //}
         if (orderListById) {
           // 1. Store order header info
 setSelectedCardCode(orderListById.CardCode);
@@ -566,8 +567,12 @@ setSelectedCardCode(orderListById.CardCode);
         res = await dispatch(createSalesQuotation(formDataToSend)).unwrap();
       } else if (formDetails[0]?.name === "Purchase Order") {
         //dispatch(createPurchaseOrder(formDataToSend)).unwrap();
-        res = await dispatch(createVendorOrder(formDataToSend)).unwrap();
-      }
+        res = await dispatch(createPurchaseOrder(formDataToSend)).unwrap();
+      }else if(formDetails[0]?.name ==="Purchase Quotation"){
+        res = await dispatch(createPurchaseQuotation(formDataToSend)).unwrap();
+      } else if(formDetails[0]?.name ==="Purchase Request"){  
+        res = await dispatch(createPurchaseRequest(formDataToSend)).unwrap();
+        }
 
       if (res.message === "Please Login!") {
         navigate("/login");
@@ -831,14 +836,9 @@ setSelectedCardCode(orderListById.CardCode);
               height: "100%",
             }}
             titleText="Attachments"
-          >
-            <Attachments
-              onFilesChange={setAttachmentFiles}
-              attachmentsList={attachmentsList}
-              setAttachmentsList={setAttachmentsList}
-              oldAttachmentFiles={oldAttachmentFiles}
-              setOldAttachmentFiles={setOldAttachmentFiles}
-            />
+          >{console.log("attachmentListByIdclone",oldAttachmentFiles)}
+             <Attachments onFilesChange={setAttachmentFiles} attachmentsList={attachmentsList} setAttachmentsList={setAttachmentsList} oldAttachmentFiles={oldAttachmentFiles} setOldAttachmentFiles={setOldAttachmentFiles} />
+        
           </ObjectPageSection>
 
           <ObjectPageSection

@@ -88,16 +88,7 @@ const FormConfigProvider = ({ children }) => {
   ];
 
   const ManageSalesOderHeaderField = [
-    // {
-    //   field_name: "Search",
-    //   display_name: "Search",
-    //   DataType: "nvarchar(50)",
-    //   input_type: "search",
-    //   Position: "Header",
-    //   DisplayType: "Left",
-    //   field_order: "1",
-    //   is_visible: "1",
-    // },
+    
     {
       field_name: "DocumentNo",
       display_name: "DocumentNo",
@@ -512,6 +503,8 @@ const FormConfigProvider = ({ children }) => {
     { Header: "Tax Amount", accessor: "TaxRate", type: "number" },
     { Header: "Discount", accessor: "discount", type: "number" },
     { Header: "Gross Total", accessor: "grosstotal", type: "number" },
+    { Header: "Project", accessor: "project", type: "text" },
+    { Header: "Warehouse", accessor: "warehouse", type: "text" },
 
   ];
   const itemPopupTableColumn = [

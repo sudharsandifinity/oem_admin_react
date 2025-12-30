@@ -117,11 +117,11 @@ const Users = () => {
     return filteredRows;
   };
   useEffect(() => {
-    console.log("user",users);
-    if(users==="null"||users.length===0){
+    console.log("user", users);
+    if (users === "null" || users.length === 0) {
       navigate("/login");
     }
-  }, [users])
+  }, [users]);
   const columns = useMemo(
     () => [
       {
@@ -140,11 +140,12 @@ const Users = () => {
       {
         Header: "User Category",
         accessor: "is_super_user",
-        Cell:({row})=>row.original.is_super_user===1?"Super User":"User"
+        Cell: ({ row }) =>
+          row.original.is_super_user === 1 ? "Super User" : "User",
       },
       {
         Header: "Company",
-        accessor: "Company",
+       // accessor: "Company",
         Cell: ({ row }) => {
           const companies =
             row.original.Branches?.map((b) => b.Company.name) || [];
@@ -181,7 +182,6 @@ const Users = () => {
         disableResizing: true,
         disableSortBy: true,
         id: "actions",
-        width: 120,
 
         Cell: (instance) => {
           const { cell, row, webComponentsReactProperties } = instance;
@@ -220,20 +220,19 @@ const Users = () => {
   );
   return (
     <>
-                        <style>
-                            {`
+      <style>
+        {`
                               ui5-page::part(content) {
                                 padding: 15px;
                               }
                             `}
-                          </style>
-                        <FlexBox direction="Column" style={{width: '100%'}}>
-                        <AppBar
+      </style>
+      <FlexBox direction="Column" style={{ width: "100%" }}>
+        <AppBar
           design="Header"
-              title={"Roles list(" + filteredRows.length + ")"}
-
+          title={"Roles list(" + filteredRows.length + ")"}
           startContent={
-            <div style={{ width: "100px" }}>
+            <div style={{ width: "150px" }}>
               <Breadcrumbs
                 design="Standard"
                 separators="Slash"
@@ -258,146 +257,150 @@ const Users = () => {
             </Button>
           }
         >
-          <Title level="H4">User List</Title>
         </AppBar>
-    <Page
-      backgroundDesign="Solid"
-      footer={<div></div>}
-      // header={
-      //   <AppBar
-      //     design="Header"
-      //     startContent={
-      //       <div style={{ width: "100px" }}>
-      //         <Breadcrumbs
-      //           design="Standard"
-      //           separators="Slash"
-      //           onItemClick={(e) => {
-      //             const route = e.detail.item.dataset.route;
-      //             if (route) navigate(route);
-      //           }}
-      //         >
-      //           <BreadcrumbsItem data-route="/admin">Admin</BreadcrumbsItem>
-      //           <BreadcrumbsItem data-route="/admin/users">
-      //             Users
-      //           </BreadcrumbsItem>
-      //         </Breadcrumbs>
-      //       </div>
-      //     }
-      //     endContent={
-      //       <Button
-      //         design="Emphasized"
-      //         onClick={() => navigate("/admin/users/create")}
-      //       >
-      //         Add User
-      //       </Button>
-      //     }
-      //   >
-      //     <Title level="H4">User List</Title>
-      //   </AppBar>
-      // }
-    >
-      <Card
-        style={{
-          height: "100%",
+        <Page
+          backgroundDesign="Solid"
+          footer={<div></div>}
+          // header={
+          //   <AppBar
+          //     design="Header"
+          //     startContent={
+          //       <div style={{ width: "100px" }}>
+          //         <Breadcrumbs
+          //           design="Standard"
+          //           separators="Slash"
+          //           onItemClick={(e) => {
+          //             const route = e.detail.item.dataset.route;
+          //             if (route) navigate(route);
+          //           }}
+          //         >
+          //           <BreadcrumbsItem data-route="/admin">Admin</BreadcrumbsItem>
+          //           <BreadcrumbsItem data-route="/admin/users">
+          //             Users
+          //           </BreadcrumbsItem>
+          //         </Breadcrumbs>
+          //       </div>
+          //     }
+          //     endContent={
+          //       <Button
+          //         design="Emphasized"
+          //         onClick={() => navigate("/admin/users/create")}
+          //       >
+          //         Add User
+          //       </Button>
+          //     }
+          //   >
+          //     <Title level="H4">User List</Title>
+          //   </AppBar>
+          // }
+        >
+          <Card
+             style={{
+          height: "auto",
           width: "100%",
           //padding: "0.5rem",
-          paddingTop: "0.5rem",
+          maxHeight: '560px'
         }}
-      >
-        <FlexBox direction="Column">
-          <FlexBox
-            justifyContent="SpaceBetween"
-            direction="Row"
-            alignItems="Center"
-            style={{ margin: "1rem" }}
           >
-            <Search
-              onClose={function Xs() {}}
-              onInput={function Xs() {}}
-              onOpen={function Xs() {}}
-              onScopeChange={function Xs() {}}
-              onSearch={(e) => setSearch(e.target.value)}
-            />
-            <Select
-              name="formId"
-              value={selectedCompany ?? ""}
-              onChange={(e) => setSelectedCompany(e.target.value)}
-            >
-              <Option key="" value="">
-                Select
-              </Option>
-              {companies
-                .filter((r) => r.status) /* active roles only    */
-                .map((r) => (
-                  <Option key={r.id} value={r.id}>
-                    {r.name}
-                  </Option>
-                ))}
-            </Select>
-          </FlexBox>
-          <FlexibleColumnLayout
-            // style={{ height: "600px" }}
-            layout={layout}
-            startColumn={
-              <FlexBox direction="Column">
-                <div>
-                  <FlexBox direction="Column">
-                    <AnalyticalTable
-                      columns={columns}
-                      data={selectedUserList || []}
-                      header={<Title level="H5" style={{ paddingLeft: 5 }}>  {
-                        "Users list(" + users.length + ")"}</Title>}
-                      visibleRows={8}
-                      filterable
-                      sortable
-                      groupable
-                      onAutoResize={() => {}}
-                      onColumnsReorder={() => {}}
-                      onGroup={() => {}}
-                      onLoadMore={() => {}}
-                      onRowClick={() => {}}
-                      onRowExpandChange={() => {}}
-                      onRowSelect={() => {}}
-                      onSort={() => {}}
-                      onTableScroll={() => {}}
-                    />
-                  </FlexBox>
-                </div>
-              </FlexBox>
-            }
-            midColumn={
-              <Page
-                header={
-                  <Bar
-                    endContent={
-                      <Button
-                        icon="sap-icon://decline"
-                        title="close"
-                        onClick={() => setLayout("OneColumn")}
-                      />
-                    }
-                    startContent={<Title level="H5">Preview Users</Title>}
-                  ></Bar>
-                }
+            <FlexBox direction="Column" style={{padding: 0}}>
+              <FlexBox
+                justifyContent="End"
+                alignItems="Center"
+                style={{ margin: "10px" }}
               >
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "row",
-                    justifyContent: "center",
-                    alignItems: "start",
-                    height: "90%",
-                    verticalAlign: "middle",
-                  }}
+                <Search
+                  onClose={function Xs() {}}
+                  onInput={function Xs() {}}
+                  onOpen={function Xs() {}}
+                  onScopeChange={function Xs() {}}
+                  onSearch={(e) => setSearch(e.target.value)}
+                />
+                <Select
+                  name="formId"
+                  value={selectedCompany ?? ""}
+                  onChange={(e) => setSelectedCompany(e.target.value)}
                 >
-                  <ViewUser id={ViewId} />
-                </div>
-              </Page>
-            }
-          />
-        </FlexBox>
-      </Card>
-    </Page></FlexBox></>
+                  <Option key="" value="">
+                    Select
+                  </Option>
+                  {companies
+                    .filter((r) => r.status) /* active roles only    */
+                    .map((r) => (
+                      <Option key={r.id} value={r.id}>
+                        {r.name}
+                      </Option>
+                    ))}
+                </Select>
+              </FlexBox>
+              <FlexibleColumnLayout
+                // style={{ height: "600px" }}
+                layout={layout}
+                startColumn={
+                  <FlexBox direction="Column">
+                    <div>
+                      <FlexBox direction="Column">
+                        <AnalyticalTable
+                          columns={columns}
+                          data={selectedUserList || []}
+                          header={
+                            <Title level="H5" style={{ paddingLeft: 5 }}>
+                              {" "}
+                              {"Users list(" + users.length + ")"}
+                            </Title>
+                          }
+                          visibleRows={8}
+                          filterable
+                          sortable
+                          groupable
+                          onAutoResize={() => {}}
+                          onColumnsReorder={() => {}}
+                          onGroup={() => {}}
+                          onLoadMore={() => {}}
+                          onRowClick={() => {}}
+                          onRowExpandChange={() => {}}
+                          onRowSelect={() => {}}
+                          onSort={() => {}}
+                          onTableScroll={() => {}}
+                        />
+                      </FlexBox>
+                    </div>
+                  </FlexBox>
+                }
+                midColumn={
+                  <Page
+                    header={
+                      <Bar
+                        endContent={
+                          <Button
+                            icon="sap-icon://decline"
+                            title="close"
+                            onClick={() => setLayout("OneColumn")}
+                          />
+                        }
+                        startContent={<Title level="H5">Preview Users</Title>}
+                      ></Bar>
+                    }
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "row",
+                        justifyContent: "center",
+                        alignItems: "start",
+                        //height: "90%",
+                        verticalAlign: "middle",
+                      }}
+                    >
+                      <ViewUser id={ViewId} />
+                    </div>
+                  </Page>
+                }
+              />
+            </FlexBox>
+          </Card>
+        </Page>
+      </FlexBox>
+    </>
   );
 };
 

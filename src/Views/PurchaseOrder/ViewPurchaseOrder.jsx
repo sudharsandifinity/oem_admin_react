@@ -50,7 +50,7 @@ import UserDefinedFields from "./User-DefinedFields/UserDefinedFields";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCustomerOrderById, updateCustomerOrder } from "../../store/slices/CustomerOrderSlice";
 import { fetchOrderItems } from "../../store/slices/CustomerOrderItemsSlice";
-import { fetchVendorOrderById } from "../../store/slices/VendorOrderSlice";
+import { fetchPurchaseOrderById } from "../../store/slices/purchaseorderSlice";
 
 
 const ViewPurchaseOrder = () => {
@@ -93,7 +93,7 @@ const ViewPurchaseOrder = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await dispatch(fetchVendorOrderById(id)).unwrap();
+        const res = await dispatch(fetchPurchaseOrderById(id)).unwrap();
         const res1 = await dispatch(fetchOrderItems()).unwrap();
         console.log("res,res1", res, res1);
         if (res) {

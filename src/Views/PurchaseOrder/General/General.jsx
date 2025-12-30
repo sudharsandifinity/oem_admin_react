@@ -22,7 +22,7 @@ import { FormConfigContext } from "../../../Components/Context/FormConfigContext
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import CardDialog from "./CardCodeDialog/CardDialog";
-import { fetchPurBusinessPartner } from "../../../store/slices/VendorOrderSlice";
+import { fetchPurBusinessPartner } from "../../../store/slices/purchaseorderSlice";
 const schema = yup.object().shape({
   name: yup.string().required("Name is required"),
   city: yup.string().required("City is required"),

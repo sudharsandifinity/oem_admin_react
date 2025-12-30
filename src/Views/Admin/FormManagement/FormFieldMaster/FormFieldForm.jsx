@@ -54,7 +54,7 @@ const FormFieldForm = ({
     input_type: "",
     field_order: "",
     is_visible: "",
-    is_field_data_bind: "",
+    is_field_data_bind: 0,
     bind_data_by: "NULL",
     status: "",
   },
@@ -729,7 +729,7 @@ const FormFieldForm = ({
                       <Select
                         style={{ width: "80%" }}
                         name="Is Visible"
-                        value={field.value ?? ""}
+                        value={field.value ?? 0}
                         onChange={(e) => field.onChange(e.target.value)}
                         valueState={
                           errors.is_field_data_bind ? "Error" : "None"

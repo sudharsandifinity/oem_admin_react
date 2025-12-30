@@ -20,7 +20,7 @@ const CreateFormField = () => {
     input_type: data.input_type,
     field_order: data.field_order,
     is_visible: data.is_visible,
-    is_field_data_bind: data.is_field_data_bind,
+    is_field_data_bind: data.is_field_data_bind?data.is_field_data_bind:0,
     bind_data_by: data.bind_data_by,
     status: data.status
   }

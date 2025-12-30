@@ -33,7 +33,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchCustomerOrder } from "../../store/slices/CustomerOrderSlice";
 import "@ui5/webcomponents-icons/dist/show.js";
 import { fetchSalesQuotations } from "../../store/slices/SalesQuotationSlice";
-import { fetchVendorOrder } from "../../store/slices/VendorOrderSlice";
+import { fetchPurchaseOrder } from "../../store/slices/purchaseorderSlice";
+import { fetchPurchaseQuotation } from "../../store/slices/PurchaseQuotation";
+import { fetchPurchaseRequest } from "../../store/slices/PurchaseRequestSlice";
 
 const ManageSalesOrder = () => {
   const {
@@ -43,6 +45,7 @@ const ManageSalesOrder = () => {
     ManagePurchaseOrderTableColumn,
   } = useContext(FormConfigContext);
   const dispatch = useDispatch();
+  const { formId, childId } = useParams();
 
   const [filters, setFilters] = useState({
     FromDate: "",
@@ -99,8 +102,12 @@ const ManageSalesOrder = () => {
           ).unwrap();
         } else if (formDetails[0]?.name === "Purchase Order") {
           res = await dispatch(
-            fetchVendorOrder({ top: pageSize, skip: 0 })
+            fetchPurchaseOrder({ top: pageSize, skip: 0 })
           ).unwrap();
+        } else if (formDetails[0]?.name === "Purchase Quotation") {
+          res = await dispatch(fetchPurchaseQuotation({ top: pageSize, skip: 0 })).unwrap();
+        } else if (formDetails[0]?.name === "Purchase Request") {
+          res = await dispatch(fetchPurchaseRequest({ top: pageSize, skip: 0 })).unwrap();
         }
 
         console.log("quotationdata", "sales", res, formDetails[0]?.name);
@@ -152,7 +159,7 @@ const ManageSalesOrder = () => {
     }));
   };
   // const ManageSalesOrderTableCols = [
-  //   ...(ManageSalesOrderTableColumn &&
+  //   ...(ManageSalesOrderTableColumn &
   //     ManageSalesOrderTableColumn.length &&
   //     ManageSalesOrderTableColumn.map((col) => {
   //       return {
@@ -161,8 +168,25 @@ const ManageSalesOrder = () => {
   //       };
   //     })),
   // ];
+  const menuChildMap = user?.Roles?.flatMap((role) =>
+  role.UserMenus?.map((menu) => {
+    const matched = menu.children?.filter(
+      (child) => child.formId === formId
+    );
+
+    if (matched?.length) {
+      return {
+        menuName: menu.name,
+        childNames: matched.map((c) => c.name),
+      };
+    }
+
+    return null;
+  }).filter(Boolean)
+);
+  console.log("object", menuChildMap[0].menuName);
   const ManageSalesOrderTableCols =
-    formDetails[0]?.name === "Purchase Order"
+    menuChildMap[0].menuName === "Purchase"
       ? ManagePurchaseOrderTableColumn?.map((col) => ({
           Header: col.Header,
           accessor: col.accessor,
@@ -333,12 +357,12 @@ const ManageSalesOrder = () => {
     });
   };
 
-  const { formId, childId } = useParams();
+
   const [formConfig, setFormConfig] = useState(null);
 
   // if (!formConfig) return <div>Loading form...</div>;
   useEffect(() => {
-     if (!user) return;
+    if (!user) return;
     if (formId) {
       // Fetch form data based on formId
       const formDetails = user?.Roles?.flatMap((role) =>
@@ -351,7 +375,7 @@ const ManageSalesOrder = () => {
     } else {
       navigate("/");
     }
-  }, [user,formId]);
+  }, [user, formId]);
   return (
     <div style={{ width: "100%" }}>
       <DynamicPage
@@ -397,6 +421,7 @@ const ManageSalesOrder = () => {
                     settableData={settableData}
                     handleChange={handleChange}
                     filters={filters}
+                    menuChildMap={menuChildMap}
                     setFilters={setFilters}
                     customerorder={customerorder}
                     isClearFilter={isClearFilter}
@@ -502,14 +527,13 @@ const ManageSalesOrder = () => {
                               <ToolbarButton
                                 design="Default"
                                 onClick={() => {
-                                  
                                   navigate(
                                     "/Order/create/" +
                                       formId +
                                       "/" +
                                       (tableData.length > 0 &&
                                         tableData[0]?.DocEntry + 1)
-                                  )
+                                  );
                                 }}
                                 text="Create"
                               />

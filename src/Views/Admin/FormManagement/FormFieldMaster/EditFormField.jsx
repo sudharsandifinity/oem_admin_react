@@ -42,7 +42,7 @@ const EditFormField = () => {
     input_type:selformField.input_type,
     field_order:selformField.field_order,
     is_visible:JSON.stringify(selformField.is_visible),
-    is_field_data_bind:JSON.stringify(selformField.is_field_data_bind),
+    is_field_data_bind:JSON.stringify(selformField.is_field_data_bind)===true?1:0,
     bind_data_by:selformField.bind_data_by,
     status:JSON.stringify(selformField.status),
   };
@@ -58,7 +58,7 @@ const EditFormField = () => {
     input_type: data.input_type,
     field_order: data.field_order,
     is_visible: data.is_visible?1:0,
-    is_field_data_bind: data.is_field_data_bind,
+    is_field_data_bind: data.is_field_data_bind?data.is_field_data_bind:0,
     bind_data_by: data.bind_data_by,
     status: data.status
   }

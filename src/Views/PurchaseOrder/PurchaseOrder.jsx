@@ -48,7 +48,7 @@ import Accounting from "./Accounting/Accounting";
 import Attachments from "./Attachments/Attachments";
 import UserDefinedFields from "./User-DefinedFields/UserDefinedFields";
 import { useDispatch, useSelector } from "react-redux";
-import { createVendorOrder } from "../../store/slices/VendorOrderSlice";
+import { createPurchaseOrder } from "../../store/slices/purchaseorderSlice";
 
 export default function PurchaseOrder() {
   const { fieldConfig, CustomerDetails, DocumentDetails } =
@@ -205,7 +205,7 @@ export default function PurchaseOrder() {
       };
       }
       console.log("payload", payload);
-      const res = await dispatch(createVendorOrder(payload)).unwrap();
+      const res = await dispatch(createPurchaseOrder(payload)).unwrap();
       if (res.message === "Please Login!") {
         navigate("/login");
       }

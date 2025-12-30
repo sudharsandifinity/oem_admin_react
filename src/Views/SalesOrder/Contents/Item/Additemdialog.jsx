@@ -79,24 +79,22 @@ const Additemdialog = (props) => {
   //   }));
   // };
   const onitemchildRowSelect = (e) => {
-  const rowId = e.detail.row.original.slno;
-  const isSelected = e.detail.isSelected
-;
+    const rowId = e.detail.row.original.slno;
+    const isSelected = e.detail.isSelected;
+    setRowSelection((prev) => {
+      const updated = { ...prev };
+      console.log("onitemrowselect", rowId, isSelected, updated);
+      if (isSelected) {
+        // ✅ add selected row
+        updated[rowId] = e.detail.row.original;
+      } else {
+        // ❌ remove deselected row
+        delete updated[rowId];
+      }
 
-  setRowSelection(prev => {
-    const updated = { ...prev };
-console.log('onitemrowselect',rowId,isSelected,updated)
-    if (isSelected) {
-      // ✅ add selected row
-      updated[rowId] = e.detail.row.original;
-    } else {
-      // ❌ remove deselected row
-      delete updated[rowId];
-    }
-
-    return updated;
-  });
-};
+      return updated;
+    });
+  };
 
   useEffect(() => {
     console.log("itemdatauseefect1", originalItemData);
@@ -254,7 +252,7 @@ console.log('onitemrowselect',rowId,isSelected,updated)
       open={addItemdialogOpen}
       onAfterClose={() => setAddItemDialogOpen(false)}
       footer={
-        <FlexBox direction="Row" gap={20} style={{marginTop: '10px'}}>
+        <FlexBox direction="Row" gap={20} style={{ marginTop: "10px" }}>
           <Button
             onClick={() => {
               setAddItemDialogOpen(false);
@@ -282,8 +280,11 @@ console.log('onitemrowselect',rowId,isSelected,updated)
       <DynamicPage
         headerArea={
           <DynamicPageHeader>
-                       <FlexBox direction="Row" alignItems="Center" justifyContent="SpaceBetween">
-                        
+            <FlexBox
+              direction="Row"
+              alignItems="Center"
+              justifyContent="SpaceBetween"
+            >
               <Grid
                 defaultIndent="XL0 L0 M0 S0"
                 defaultSpan="XL4 L4 M6 S12"
@@ -348,7 +349,7 @@ console.log('onitemrowselect',rowId,isSelected,updated)
                 selectedRowIds={setRowSelection&&itemdata.find(i=>i.quantity!=="undefined")}
                 rowSelection={onitemchildRowSelect} // pass selected rows
               /> */}
-        
+
               <AnalyticalTable
                 data={itemdata}
                 columns={itemcolumns}
@@ -356,7 +357,7 @@ console.log('onitemrowselect',rowId,isSelected,updated)
                 selectionMode="MultiSelect"
                 selectedRowIds={rowSelection}
                 onRowSelect={onitemchildRowSelect}
-                
+
                 // onRowSelectionChange={(e) =>
                 //   setRowSelection(e.detail.selectedRowIds)
 

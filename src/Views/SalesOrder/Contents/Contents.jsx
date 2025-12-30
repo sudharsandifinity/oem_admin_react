@@ -79,8 +79,10 @@ const Contents = (props) => {
     setSummaryDiscountAmount,
     summaryDiscountPercent,
     setSummaryDiscountPercent,
-    roundingEnabled, setRoundingEnabled,
-    roundOff, setRoundOff
+    roundingEnabled,
+    setRoundingEnabled,
+    roundOff,
+    setRoundOff,
   } = props;
   const {
     fieldConfig,
@@ -107,6 +109,8 @@ const Contents = (props) => {
   const [addItemdialogOpen, setAddItemDialogOpen] = useState(false);
   const [addServiceDialogOpen, setAddServicedialogOpen] = useState(false);
   const [taxData, setTaxData] = useState([]);
+  const [projectData, setProjectData] = useState([]);
+  const [warehouseData, setWarehouseData] = useState([]);
   const [freightData, setFreightData] = useState([]);
   const [isFreightTableVisible, setIsFreightTableVisible] = useState(false);
 
@@ -126,25 +130,27 @@ const Contents = (props) => {
   const [layout, setLayout] = useState("OneColumn");
 
   useEffect(() => {
-    console.log("formDetailstaxcode",formDetails)
+    console.log("formDetailstaxcode", formDetails);
     const fetchData = async () => {
       try {
         const res = await dispatch(fetchOrderItems()).unwrap();
-        let taxCode =[];
-        if(formDetails && formDetails[0]?.name === "Sales Order"|| formDetails[0]?.name === "Sales Quotation"){
+        let taxCode = [];
+        if (
+          (formDetails && formDetails[0]?.name === "Sales Order") ||
+          formDetails[0]?.name === "Sales Quotation"
+        ) {
           taxCode = await dispatch(fetchSalesOrderAddDetails()).unwrap();
-        }else if(formDetails && formDetails[0]?.name === "Purchase Order"){
+        } else if (
+          (formDetails && formDetails[0]?.name === "Purchase Order") ||
+          formDetails[0]?.name === "Purchase Quotation" ||
+          formDetails[0]?.name === "Purchase Request"
+        ) {
           taxCode = await dispatch(fetchPurOrderAddDetails()).unwrap();
         }
-       
+
         const freightData = await dispatch(fetchfreightDetails()).unwrap();
         setFreightData(freightData.value);
-        console.log(
-          "resusersfetchitems",
-          
-          taxCode,
-          freightData
-        );
+        console.log("resusersfetchitems", res, taxCode, freightData);
         if (res.value?.length > 0) {
           const tableconfig = res.value.map((item, index) => ({
             slno: index,
@@ -176,7 +182,7 @@ const Contents = (props) => {
       }
     };
     fetchData();
-  }, [dispatch,formDetails]);
+  }, [dispatch, formDetails]);
   const onRowSelect = (e) => {
     console.log("onRowSelect", e.detail.row.original);
     //selectionChangeHandler(e.detail.row.original);
@@ -433,7 +439,6 @@ const Contents = (props) => {
     console.log("handleitemRowChange", item);
   };
   const renderIteminput = (field, form, handleChange, SelectedType) => {
-    console.log("renderIteminputobject", field, form);
     //const value = form&&form[field.accessor] || "";
     switch (field.type) {
       case "text":
@@ -574,6 +579,10 @@ const Contents = (props) => {
                         setTaxData={setTaxData}
                         freightData={freightData}
                         setFreightData={setFreightData}
+                        projectData={projectData}
+                        setProjectData={setProjectData}
+                        warehouseData={warehouseData}
+                        setWarehouseData={setWarehouseData}
                         setIsFreightTableVisible={setIsFreightTableVisible}
                         isFreightTableVisible={isFreightTableVisible}
                         totalFreightAmount={totalFreightAmount}
@@ -583,13 +592,13 @@ const Contents = (props) => {
                         freightRowSelection={freightRowSelection}
                         setFreightRowSelection={setFreightRowSelection}
                         summaryDiscountAmount={summaryDiscountAmount}
-            setSummaryDiscountAmount={setSummaryDiscountAmount}
-            summaryDiscountPercent={summaryDiscountPercent}
-            setSummaryDiscountPercent={setSummaryDiscountPercent}
-            roundingEnabled={roundingEnabled} 
-            setRoundingEnabled={setRoundingEnabled}
-            roundOff={roundOff} 
-            setRoundOff={setRoundOff}
+                        setSummaryDiscountAmount={setSummaryDiscountAmount}
+                        summaryDiscountPercent={summaryDiscountPercent}
+                        setSummaryDiscountPercent={setSummaryDiscountPercent}
+                        roundingEnabled={roundingEnabled}
+                        setRoundingEnabled={setRoundingEnabled}
+                        roundOff={roundOff}
+                        setRoundOff={setRoundOff}
                       />
                     ) : (
                       <ServiceTable
@@ -624,13 +633,13 @@ const Contents = (props) => {
                         summaryData={summaryData}
                         setSummaryData={setSummaryData}
                         summaryDiscountAmount={summaryDiscountAmount}
-            setSummaryDiscountAmount={setSummaryDiscountAmount}
-            summaryDiscountPercent={summaryDiscountPercent}
-            setSummaryDiscountPercent={setSummaryDiscountPercent}
-            roundingEnabled={roundingEnabled} 
-            setRoundingEnabled={setRoundingEnabled}
-            roundOff={roundOff} 
-            setRoundOff={setRoundOff}
+                        setSummaryDiscountAmount={setSummaryDiscountAmount}
+                        summaryDiscountPercent={summaryDiscountPercent}
+                        setSummaryDiscountPercent={setSummaryDiscountPercent}
+                        roundingEnabled={roundingEnabled}
+                        setRoundingEnabled={setRoundingEnabled}
+                        roundOff={roundOff}
+                        setRoundOff={setRoundOff}
                       />
                     )}
                   </div>

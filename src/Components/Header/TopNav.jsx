@@ -34,6 +34,8 @@ export default function TopNav({
   const navigate = useNavigate();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const dispatch = useDispatch();
+   const hideCompanySelection = ["/admin"];
+  const shouldHideCompanySelection = hideCompanySelection.includes(location.pathname);
 
   const handleMenuBtnClick = () => {
     setCollapsed((prev) => !prev);
@@ -136,7 +138,7 @@ export default function TopNav({
           ></ShellBarBranding>
         }
         content={
-          <div
+          shouldHideCompanySelection?<div></div>:<div
             style={{
               width: "100%",
               display: "flex",
