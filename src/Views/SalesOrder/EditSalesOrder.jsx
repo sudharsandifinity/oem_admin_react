@@ -62,10 +62,16 @@ import {
   updateSalesQuotation,
 } from "../../store/slices/SalesQuotationSlice";
 import { fetchPurchaseOrderById } from "../../store/slices/purchaseorderSlice";
-import { fetchPurchaseQuotationById, updatePurchaseQuotation } from "../../store/slices/PurchaseQuotation";
+import {
+  fetchPurchaseQuotationById,
+  updatePurchaseQuotation,
+} from "../../store/slices/PurchaseQuotation";
 import CloneSalesOrder from "./CloneSalesOrder";
 import "@ui5/webcomponents-icons/dist/copy.js";
-import { fetchPurchaseRequestById, updatePurchaseRequest } from "../../store/slices/PurchaseRequestSlice";
+import {
+  fetchPurchaseRequestById,
+  updatePurchaseRequest,
+} from "../../store/slices/PurchaseRequestSlice";
 
 const EditSalesOrder = () => {
   const { id, formId } = useParams();
@@ -82,8 +88,6 @@ const EditSalesOrder = () => {
   const [oldAttachmentFiles, setOldAttachmentFiles] = useState([]);
   const [freightRowSelection, setFreightRowSelection] = useState([]);
 
-  
-
   const [tabList, setTabList] = useState([]);
   const [formDetails, setFormDetails] = useState([]);
   const [formData, setFormData] = useState({});
@@ -97,8 +101,10 @@ const EditSalesOrder = () => {
   const [summaryDiscountPercent, setSummaryDiscountPercent] = useState(0);
   const [summaryDiscountAmount, setSummaryDiscountAmount] = useState(0);
   const [roundingEnabled, setRoundingEnabled] = useState(false);
-      const [selectedcardcode, setSelectedCardCode] = useState([]);
+  const [selectedcardcode, setSelectedCardCode] = useState([]);
   const [roundOff, setRoundOff] = useState(0);
+
+  const [dimensionData, setDimensionData] = useState([]);
 
   const [itemdata, setitemData] = useState([
     {
@@ -110,8 +116,8 @@ const EditSalesOrder = () => {
       TaxCode: "",
     },
   ]);
-    const [copiedFormData, setCopiedFormData] = useState({});
-      const [isCloneSelected, setIsCloneSelected] = useState(false);
+  const [copiedFormData, setCopiedFormData] = useState({});
+  const [isCloneSelected, setIsCloneSelected] = useState(false);
   const [itemTabledata, setitemTableData] = useState([
     { slno: 1, ItemCode: "", ItemName: "", quantity: "", amount: "" },
   ]);
@@ -135,7 +141,7 @@ const EditSalesOrder = () => {
     U_Test2: "",
   });
   const [loading, setLoading] = useState(true);
-const copyForm = () => {
+  const copyForm = () => {
     const tabledata = type === "Item" ? itemTabledata : serviceTabledata;
     const data = {
       ...formData,
@@ -145,67 +151,85 @@ const copyForm = () => {
     };
 
     delete data.DocEntry;
-    console.log("copiedformdata", data, tabledata, summaryData, formData, "attachment", oldAttachmentFiles);
+    console.log(
+      "copiedformdata",
+      data,
+      tabledata,
+      summaryData,
+      formData,
+      "attachment",
+      oldAttachmentFiles
+    );
     setCopiedFormData({
       ...data,
       formData: formData,
+      copyFrom: formDetails[0]?.name,
       DocumentLines: tabledata,
       summaryData: summaryData,
       freightRowSelection: freightRowSelection,
       DocType: type === "Item" ? "dDocument_Items" : "dDocument_Service",
       AttachmentEntrys: attachmentsList,
-      oldAttachmentFiles:oldAttachmentFiles
+      oldAttachmentFiles: oldAttachmentFiles,
     });
   };
-useEffect(() => {
-  if (!formDetails || formDetails.length === 0) return;  
-  if (!formDetails[0]?.name) return;                    
+  useEffect(() => {
+    if (!formDetails || formDetails.length === 0) return;
+    if (!formDetails[0]?.name) return;
 
-  const fetchData = async () => {
-    setLoading(true);
+    const fetchData = async () => {
+      setLoading(true);
 
-    try {
-      let orderListById = "";
+      try {
+        let orderListById = "";
 
-      // ✅ Fetch based on form type
-      switch (formDetails[0].name) {
-        case "Sales Order":
-          orderListById = await dispatch(fetchCustomerOrderById(id)).unwrap();
-          break;
+        // ✅ Fetch based on form type
+        switch (formDetails[0].name) {
+          case "Sales Order":
+            orderListById = await dispatch(fetchCustomerOrderById(id)).unwrap();
+            break;
 
-        case "Sales Quotation":
-          orderListById = await dispatch(fetchSalesQuotationById(id)).unwrap();
-          break;
+          case "Sales Quotation":
+            orderListById = await dispatch(
+              fetchSalesQuotationById(id)
+            ).unwrap();
+            break;
 
-        case "Purchase Order":
-          orderListById = await dispatch(fetchPurchaseOrderById(id)).unwrap();
-          break;
- case "Purchase Quotation":
-          orderListById = await dispatch(fetchPurchaseQuotationById(id)).unwrap();
-          break;
+          case "Purchase Order":
+            orderListById = await dispatch(fetchPurchaseOrderById(id)).unwrap();
+            break;
+          case "Purchase Quotation":
+            orderListById = await dispatch(
+              fetchPurchaseQuotationById(id)
+            ).unwrap();
+            break;
           case "Purchase Request":
-          orderListById = await dispatch(fetchPurchaseRequestById(id)).unwrap();
-          break;
-        default:
-          console.warn("Unknown form:", formDetails[0].name);
-          return;
-      }
+            orderListById = await dispatch(
+              fetchPurchaseRequestById(id)
+            ).unwrap();
+            break;
+          default:
+            console.warn("Unknown form:", formDetails[0].name);
+            return;
+        }
 
         const orderList = await dispatch(fetchOrderItems()).unwrap();
         const serviceList = await dispatch(fetchOrderServices()).unwrap();
         console.log("res,res1", orderListById, orderList, serviceList);
-        if(orderListById.AttachmentEntry){
-          const attachmentListById = await dispatch(fetchAttachmentDetailsById(orderListById.AttachmentEntry)).unwrap();
+        if (orderListById.AttachmentEntry) {
+          const attachmentListById = await dispatch(
+            fetchAttachmentDetailsById(orderListById.AttachmentEntry)
+          ).unwrap();
           console.log("attachmentListById", attachmentListById);
-          setOldAttachmentFiles(prev => ({
+          setOldAttachmentFiles((prev) => ({
             ...prev,
-            Attachments2_Lines: attachmentListById.Attachments2_Lines
+            Attachments2_Lines: attachmentListById.Attachments2_Lines,
           }));
         }
         if (orderListById) {
           // 1. Store order header info
-setSelectedCardCode(orderListById.CardCode);
+          setSelectedCardCode(orderListById.CardCode);
           setFormData({
+            docEntry: orderListById.DocEntry,
             CardCode: orderListById.CardCode,
             CardName: orderListById.CardName,
             DocDueDate: orderListById.DocDueDate
@@ -231,7 +255,9 @@ setSelectedCardCode(orderListById.CardCode);
                       const matched = orderListById.DocumentLines.find(
                         (line) => line.ItemCode === item.ItemCode
                       );
+                      
                       console.log("setitemeditpage", item, matched);
+                     
                       return matched !== undefined
                         ? {
                             slno: index, // usually LineNum is 0-based
@@ -240,8 +266,16 @@ setSelectedCardCode(orderListById.CardCode);
                             quantity: matched.Quantity,
                             TaxCode: matched.TaxCode,
                             amount: matched.UnitPrice,
+                            WarehouseCode: matched.WarehouseCode,
+                            ProjectCode: matched.ProjectCode,
                             discount: matched.DiscountPercent,
                             TaxRate: matched.TaxTotal,
+                            "1_ProfitCenterCode": matched.CostingCode,
+                            "2_ProfitCenterCode": matched.CostingCode2,
+
+                            "3_ProfitCenterCode": matched.CostingCode3,
+                            "4_ProfitCenterCode": matched.CostingCode4,
+                            "5_ProfitCenterCode": matched.CostingCode5,
                           }
                         : {
                             slno: index, // usually LineNum is 0-based
@@ -249,9 +283,17 @@ setSelectedCardCode(orderListById.CardCode);
                             ItemName: item.ItemName,
                             quantity: item.Quantity,
                             TaxCode: item.TaxCode,
+                            WarehouseCode: item.WarehouseCode,
+                            ProjectCode: item.ProjectCode,
                             amount: item.UnitPrice,
                             discount: item.DiscountPercent,
                             TaxRate: item.TaxTotal,
+                              "1_ProfitCenterCode": item.CostingCode,
+                            "2_ProfitCenterCode": item.CostingCode2,
+
+                            "3_ProfitCenterCode": item.CostingCode3,
+                            "4_ProfitCenterCode": item.CostingCode4,
+                            "5_ProfitCenterCode": item.CostingCode5,
                           }; // no placeholder
                     })
                     .filter(Boolean) // remove nulls
@@ -271,9 +313,17 @@ setSelectedCardCode(orderListById.CardCode);
                             ItemName: matched.ItemDescription,
                             quantity: matched.Quantity,
                             TaxCode: matched.TaxCode,
+                            WarehouseCode: matched.WarehouseCode,
+                            ProjectCode: matched.ProjectCode,
                             amount: matched.UnitPrice,
                             discount: matched.DiscountPercent,
                             TaxRate: matched.TaxTotal,
+                              "1_ProfitCenterCode": matched.CostingCode,
+                            "2_ProfitCenterCode": matched.CostingCode2,
+
+                            "3_ProfitCenterCode": matched.CostingCode3,
+                            "4_ProfitCenterCode": matched.CostingCode4,
+                            "5_ProfitCenterCode": matched.CostingCode5,
                           }
                         : null; // no placeholder
                     })
@@ -379,7 +429,9 @@ setSelectedCardCode(orderListById.CardCode);
             Remark: orderListById.Comments,
           }));
           // set general header edit data
-          setFreightRowSelection(orderListById.DocumentAdditionalExpenses || []);
+          setFreightRowSelection(
+            orderListById.DocumentAdditionalExpenses || []
+          );
           setSummaryDiscountPercent(orderListById.DiscountPercent);
           setRoundingEnabled(orderListById.Rounding === "tYES");
           setRoundOff(orderListById.RoundingDiffAmount);
@@ -406,7 +458,7 @@ setSelectedCardCode(orderListById.CardCode);
     };
 
     fetchData();
-}, [dispatch, id, formDetails])
+  }, [dispatch, id, formDetails]);
 
   const handleChange = (e, name, formName) => {
     const newValue = e.target.value;
@@ -468,17 +520,23 @@ setSelectedCardCode(orderListById.CardCode);
     let payload = {};
     try {
       setLoading(true);
-       const isPurchaseQuotation = formDetails[0]?.name === "Purchase Quotation";
-        if (type === "Item") {
+      const isPurchaseQuotation = formDetails[0]?.name === "Purchase Quotation";
+      if (type === "Item") {
         payload = {
-          CardCode: formData.CardCode,
+          CardCode: formData.CardCode || selectedcardcode,
           DocDueDate: formData.DocDueDate
             ? new Date(formData.DocDueDate)
                 .toISOString()
                 .split("T")[0]
                 .replace(/-/g, "")
             : new Date().toISOString().split("T")[0].replace(/-/g, ""),
-         ...(isPurchaseQuotation && {
+          CreationDate: formData.CreationDate
+            ? new Date(formData.CreationDate)
+                .toISOString()
+                .split("T")[0]
+                .replace(/-/g, "")
+            : new Date().toISOString().split("T")[0].replace(/-/g, ""),
+          ...(isPurchaseQuotation && {
             RequriedDate: formData.ReqDate
               ? new Date(formData.ReqDate)
                   .toISOString()
@@ -486,24 +544,31 @@ setSelectedCardCode(orderListById.CardCode);
                   .replace(/-/g, "")
               : new Date().toISOString().split("T")[0].replace(/-/g, ""),
           }),
-            DocType: "dDocument_Items",
+          DocType: "dDocument_Items",
           DocumentLines: Object.values(itemTabledata).map((line) => ({
             ItemCode: line.ItemCode,
             ItemDescription: line.ItemName, // ✅ rename to ItemDescription
             Quantity: line.quantity,
             UnitPrice: line.amount,
             TaxCode: line.TaxCode,
+            WarehouseCode: line.WarehouseCode,
+            ProjectCode: line.ProjectCode,
             VatGroup: line.TaxCode,
             DiscountPercent: line.discount,
             LineTotal: line.total,
+            CostingCode: line["1_ProfitCenterCode"] || null,
+            CostingCode2: line["2_ProfitCenterCode"] || null,
+            CostingCode3: line["3_ProfitCenterCode"] || null,
+            CostingCode4: line["4_ProfitCenterCode"] || null,
+            CostingCode5: line["5_ProfitCenterCode"] || null,
           })),
-          data: userdefinedData,
-          DocTotal: summaryData.DocTotal,
-          Rounding: summaryData.Rounding,
-          RoundingDiffAmount: summaryData.RoundingDiffAmount,
-          DiscountPercent: summaryData.DiscountPercent,
-          TotalDiscount: summaryData.TotalDiscount,
-          Comments: summaryData.Remark,
+          data: userdefinedData || {},
+          DocTotal: summaryData.DocTotal || 0,
+          Rounding: summaryData.Rounding || "tNO",
+          RoundingDiffAmount: summaryData.RoundingDiffAmount || 0,
+          DiscountPercent: summaryData.DiscountPercent || 0,
+          TotalDiscount: summaryData.TotalDiscount || 0,
+          Comments: summaryData.Remark || "",
           VatSum: summaryData.VatSum,
           //freight: totalFreightAmount,
           DocumentAdditionalExpenses: Object.values(freightRowSelection).map(
@@ -520,7 +585,7 @@ setSelectedCardCode(orderListById.CardCode);
         };
       } else {
         payload = {
-          CardCode: formData.CardCode,
+          CardCode: formData.CardCode || selectedcardcode,
           DocType: "dDocument_Service",
           DocDueDate: formData.DocDueDate
             ? new Date(formData.DocDueDate)
@@ -528,6 +593,7 @@ setSelectedCardCode(orderListById.CardCode);
                 .split("T")[0]
                 .replace(/-/g, "")
             : new Date().toISOString().split("T")[0].replace(/-/g, ""),
+
           ...(isPurchaseQuotation && {
             RequriedDate: formData.ReqDate
               ? new Date(formData.ReqDate)
@@ -536,20 +602,20 @@ setSelectedCardCode(orderListById.CardCode);
                   .replace(/-/g, "")
               : new Date().toISOString().split("T")[0].replace(/-/g, ""),
           }),
-            DocumentLines: Object.values(serviceTabledata).map((line) => ({
+          DocumentLines: Object.values(serviceTabledata).map((line) => ({
             AccountCode: line.ServiceCode,
             ItemDescription: line.ServiceName, // ✅ rename to ItemDescription
             TaxCode: line.TaxCode,
             UnitPrice: line.amount,
           })),
-          data: userdefinedData,
-          DocTotal: summaryData.DocTotal,
-          Rounding: summaryData.Rounding,
-          RoundingDiffAmount: summaryData.RoundingDiffAmount,
-          DiscountPercent: summaryData.DiscountPercent,
-          TotalDiscount: summaryData.TotalDiscount,
-          Comments: summaryData.Remark,
-          VatSum: summaryData.VatSum,
+          data: userdefinedData || {},
+          DocTotal: summaryData.DocTotal || 0,
+          Rounding: summaryData.Rounding || "tNO",
+          RoundingDiffAmount: summaryData.RoundingDiffAmount || 0,
+          DiscountPercent: summaryData.DiscountPercent || 0,
+          TotalDiscount: summaryData.TotalDiscount || 0,
+          Comments: summaryData.Remark || "",
+          VatSum: summaryData.VatSum || 0,
           //freight: totalFreightAmount,
           DocumentAdditionalExpenses: Object.values(freightRowSelection).map(
             (freight) => ({
@@ -565,7 +631,7 @@ setSelectedCardCode(orderListById.CardCode);
         };
       }
       const formDataToSend = new FormData();
-        attachmentsList.forEach(f => {
+      attachmentsList.forEach((f) => {
         if (f.rawFile) {
           return formDataToSend.append("Attachments2_Lines", f.rawFile);
         }
@@ -590,6 +656,7 @@ setSelectedCardCode(orderListById.CardCode);
           formDataToSend.append(key, payload[key]);
         }
       });
+
       console.log("formdatatosend", payload, formDataToSend);
       let res = "";
       if (formDetails[0]?.name === "Sales Order") {
@@ -597,15 +664,21 @@ setSelectedCardCode(orderListById.CardCode);
           updateCustomerOrder({ id, data: formDataToSend })
         ).unwrap();
       } else if (formDetails[0]?.name === "Sales Quotation") {
-        res = await dispatch(updateSalesQuotation(formDataToSend)).unwrap();
+        res = await dispatch(
+          updateSalesQuotation({ id, data: formDataToSend })
+        ).unwrap();
       } else if (formDetails[0]?.name === "Purchase Order") {
         res = await dispatch(
           updateCustomerOrder({ id, data: formDataToSend })
         ).unwrap();
-      }else if (formDetails[0]?.name === "Purchase Quotation") {
-        res = await dispatch(updatePurchaseQuotation({ id, data: formDataToSend })).unwrap();
-      }else if (formDetails[0]?.name === "Purchase Request") {
-        res = await dispatch(updatePurchaseRequest({ id, data: formDataToSend })).unwrap();
+      } else if (formDetails[0]?.name === "Purchase Quotation") {
+        res = await dispatch(
+          updatePurchaseQuotation({ id, data: formDataToSend })
+        ).unwrap();
+      } else if (formDetails[0]?.name === "Purchase Request") {
+        res = await dispatch(
+          updatePurchaseRequest({ id, data: formDataToSend })
+        ).unwrap();
       }
       if (res.message === "Please Login!") {
         navigate("/login");
@@ -620,19 +693,19 @@ setSelectedCardCode(orderListById.CardCode);
       }, 2000); // ✅ stop loader
     }
   };
-   const menuBlocks =
-      user?.Roles?.flatMap((role) =>
-        role.UserMenus?.filter((menu) =>
-          menu.children?.some((child) => child.Form?.id === formId)
-        ).map((menu) => ({
-          roleId: role.id,
-          roleName: role.name,
-          ...menu,
-        }))
-      ) || [];
-    const childOptions = menuBlocks.length > 0 ? menuBlocks[0].children : [];
+  const menuBlocks =
+    user?.Roles?.flatMap((role) =>
+      role.UserMenus?.filter((menu) =>
+        menu.children?.some((child) => child.Form?.id === formId)
+      ).map((menu) => ({
+        roleId: role.id,
+        roleName: role.name,
+        ...menu,
+      }))
+    ) || [];
+  const childOptions = menuBlocks.length > 0 ? menuBlocks[0].children : [];
   useEffect(() => {
-         if (!user) return;
+    if (!user) return;
 
     if (formId !== undefined) {
       // Fetch form data based on formId
@@ -759,35 +832,34 @@ setSelectedCardCode(orderListById.CardCode);
               navigationBar={
                 <Toolbar design="Transparent">
                   <ToolbarButton
-                  design="default"
-                  onClick={copyForm}
-                  icon="sap-icon://copy"
-                />
+                    design="default"
+                    onClick={copyForm}
+                    icon="sap-icon://copy"
+                  />
 
-                <Select
-                  onChange={(e) =>
-                    {const selectPage=e.detail.selectedOption.dataset.id;
-                     navigate(
+                  <Select
+                    onChange={(e) => {
+                      const selectPage = e.detail.selectedOption.dataset.id;
+                      navigate(
                         "/cloneorder/create/" + formId + "/" + selectPage,
                         {
                           state: { copyFormData: copiedFormData },
                         }
                       );
-                    }
-                  }
+                    }}
 
-                  //setSelectedChild(e.detail.selectedOption.dataset.id)
-                >
-                  <Option key={""} data-id={""}>
-                    Select Action
-                  </Option>
-                  {childOptions.map((child) => (
-                    <Option key={child.id} data-id={child.id}>
-                      {child.name}
+                    //setSelectedChild(e.detail.selectedOption.dataset.id)
+                  >
+                    <Option key={""} data-id={""}>
+                      Select Action
                     </Option>
-                  ))}
-                </Select>
-                {/* <Select
+                    {childOptions.map((child) => (
+                      <Option key={child.id} data-id={child.id}>
+                        {child.name}
+                      </Option>
+                    ))}
+                  </Select>
+                  {/* <Select
                   onChange={(e) => {
                     const selected = e.detail.selectedOption.dataset.id;
 
@@ -817,14 +889,14 @@ setSelectedCardCode(orderListById.CardCode);
                   <Option data-id="CopyTo">Copy To</Option>
                 </Select> */}
 
-                {/* <ToolbarButton
+                  {/* <ToolbarButton
                   design={isCloneSelected ? "Emphasized" : "Transparent"}
                   onClick={() => setIsCloneSelected(!isCloneSelected)}
                   icon="sap-icon://add-document"
                   text="Clone"
                 /> */}
 
-                {/* <ToolbarButton
+                  {/* <ToolbarButton
                   onClick={() => navigate(`/Sales/${formId}`)}
                   design="Transparent"
                   icon="decline"
@@ -853,10 +925,9 @@ setSelectedCardCode(orderListById.CardCode);
                 formData={formData}
                 mode={"edit"}
                 defaultValues={formData} // ✅ now passes edit data properly
-                 formDetails={formDetails}
+                formDetails={formDetails}
                 selectedcardcode={selectedcardcode}
-            setSelectedCardCode={setSelectedCardCode}
-               
+                setSelectedCardCode={setSelectedCardCode}
                 apiError={apiError}
               />
             )}
@@ -883,6 +954,8 @@ setSelectedCardCode(orderListById.CardCode);
               serviceTabledata={serviceTabledata}
               summaryData={summaryData}
               setSummaryData={setSummaryData}
+              dimensionData={dimensionData}
+              setDimensionData={setDimensionData}
               orderItems={orderItems}
               formDetails={formDetails}
               loading={loading}
@@ -944,7 +1017,13 @@ setSelectedCardCode(orderListById.CardCode);
             }}
             titleText="Attachments"
           >
-            <Attachments onFilesChange={setAttachmentFiles} attachmentsList={attachmentsList} setAttachmentsList={setAttachmentsList} oldAttachmentFiles={oldAttachmentFiles} setOldAttachmentFiles={setOldAttachmentFiles} />
+            <Attachments
+              onFilesChange={setAttachmentFiles}
+              attachmentsList={attachmentsList}
+              setAttachmentsList={setAttachmentsList}
+              oldAttachmentFiles={oldAttachmentFiles}
+              setOldAttachmentFiles={setOldAttachmentFiles}
+            />
           </ObjectPageSection>
 
           <ObjectPageSection
@@ -961,7 +1040,7 @@ setSelectedCardCode(orderListById.CardCode);
               userdefinedData={userdefinedData}
               setUserDefinedData={setUserDefinedData}
               mode={"edit"}
-               formDetails={formDetails}
+              formDetails={formDetails}
               setFormData={setFormData}
               formData={formData}
             />
@@ -1007,7 +1086,7 @@ setSelectedCardCode(orderListById.CardCode);
           <Button
             design="Emphasized"
             onClick={() => {
-              apiError ? setOpen(false):navigate(`/Sales/${formId}`) ;
+              apiError ? setOpen(false) : navigate(`/Sales/${formId}`);
               setOpen(false);
             }}
           >

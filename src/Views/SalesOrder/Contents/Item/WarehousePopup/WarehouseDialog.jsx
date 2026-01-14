@@ -32,26 +32,18 @@ const TaxDialog = (props) => {
         width: 80,
       },
       {
-        Header: "Code",
-        accessor: "Code",
+        Header: "Warehouse Code",
+        accessor: "WarehouseCode",
       },
       {
-        Header: "Name",
-        accessor: "Name",
+        Header: "Warehouse Name",
+        accessor: "WarehouseName",
       },
       {
-        Header: "Category",
-        accessor: "Category",
+        Header: "Inactive",
+        accessor: "Inactive",
       },
-      {
-        Header:"TaxRegion",
-        accessor: "TaxRegion",
-      },
-      {
-        Header: "Rate",
-        accessor: "Rate",
-        Cell: ({ row }) => row.original.VatGroups_Lines[row.original.VatGroups_Lines.length - 1]?.Rate || 0,
-      },    
+     
     ],
     []
   );
@@ -93,7 +85,7 @@ const TaxDialog = (props) => {
               setisWarehouseDialogOpen(false);
             }}
           >
-            Next
+            Close
           </Button>
 
         

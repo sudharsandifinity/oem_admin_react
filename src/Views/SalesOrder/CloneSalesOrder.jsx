@@ -69,8 +69,8 @@ import { createPurchaseRequest } from "../../store/slices/PurchaseRequestSlice";
 const CloneSalesOrder = () => {
   const { fieldConfig, CustomerDetails, DocumentDetails } =
     useContext(FormConfigContext);
-    const{formId,pageId}=useParams();
-    const location = useLocation();
+  const { formId, pageId } = useParams();
+  const location = useLocation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { orderItems } = useSelector((state) => state.orderItems);
@@ -81,6 +81,7 @@ const CloneSalesOrder = () => {
   const [attachmentFiles, setAttachmentFiles] = useState([]);
   const [oldAttachmentFiles, setOldAttachmentFiles] = useState([]);
   const [freightRowSelection, setFreightRowSelection] = useState([]);
+  const [copyFrom, setCopyFrom] = useState("");
 
   const [tabList, setTabList] = useState([]);
   const [formDetails, setFormDetails] = useState([]);
@@ -88,8 +89,8 @@ const CloneSalesOrder = () => {
   const [userdefinedData, setUserDefinedData] = useState({});
 
   const [rowSelection, setRowSelection] = useState({});
-    const [selectedcardcode, setSelectedCardCode] = useState([]);
-  
+  const [selectedcardcode, setSelectedCardCode] = useState([]);
+
   const [generaleditdata, setgeneraleditdata] = useState([]);
   const [type, setType] = useState("Item");
   const [totalFreightAmount, setTotalFreightAmount] = useState(0);
@@ -141,9 +142,10 @@ const CloneSalesOrder = () => {
       setLoading(true);
 
       try {
-        
-        let orderListById =  location.state?.copyFormData? location.state.copyFormData :"";
-        console.log("copyFormData",orderListById)
+        let orderListById = location.state?.copyFormData
+          ? location.state.copyFormData
+          : "";
+        console.log("copyFormData", orderListById);
         // ✅ Fetch based on form type
         // switch (formDetails[0].name) {
         //   case "Sales Order":
@@ -167,19 +169,22 @@ const CloneSalesOrder = () => {
         const serviceList = await dispatch(fetchOrderServices()).unwrap();
         console.log("res,res1", orderListById, orderList, serviceList);
         //if (orderListById.AttachmentEntry) {
-          // const attachmentListById = await dispatch(
-          //   fetchAttachmentDetailsById(orderListById.AttachmentEntry)
-          // ).unwrap();
-          const attachmentListById= orderListById?.oldAttachmentFiles? orderListById.oldAttachmentFiles:"";
-          console.log("attachmentListById", attachmentListById);
-          setOldAttachmentFiles((prev) => ({
-            ...prev,
-            Attachments2_Lines: attachmentListById.Attachments2_Lines,
-          }));
+        // const attachmentListById = await dispatch(
+        //   fetchAttachmentDetailsById(orderListById.AttachmentEntry)
+        // ).unwrap();
+        const attachmentListById = orderListById?.oldAttachmentFiles
+          ? orderListById.oldAttachmentFiles
+          : "";
+        console.log("attachmentListById", attachmentListById);
+        setOldAttachmentFiles((prev) => ({
+          ...prev,
+          Attachments2_Lines: attachmentListById.Attachments2_Lines,
+        }));
         //}
         if (orderListById) {
           // 1. Store order header info
-setSelectedCardCode(orderListById.CardCode);
+          setCopyFrom(orderListById.copyFrom || "");
+          setSelectedCardCode(orderListById.CardCode);
           setFormData({
             CardCode: orderListById.CardCode,
             CardName: orderListById.CardName,
@@ -286,7 +291,7 @@ setSelectedCardCode(orderListById.CardCode);
                             discount: matched.discount,
                             TaxRate: matched.TaxRate,
                             grosstotal: matched.grosstotal,
-                            BaseAmount:matched.BaseAmount
+                            BaseAmount: matched.BaseAmount,
                           }
                         : {
                             slno: index, // usually LineNum is 0-based
@@ -297,36 +302,34 @@ setSelectedCardCode(orderListById.CardCode);
                             discount: item.discount,
                             TaxRate: item.TaxRate,
                             grosstotal: item.grosstotal,
-                            BaseAmount:item.BaseAmount
-
+                            BaseAmount: item.BaseAmount,
                           }; // no placeholder
                     })
                     .filter(Boolean) // remove nulls
               );
-            setserviceTableData(() =>
-  serviceList.value
-    .map((item) => {
-      const matched = orderListById.DocumentLines.find(
-        (line) => line.ServiceCode === item.Code
-      );
+              setserviceTableData(() =>
+                serviceList.value
+                  .map((item) => {
+                    const matched = orderListById.DocumentLines.find(
+                      (line) => line.ServiceCode === item.Code
+                    );
 
-      return matched
-        ? {
-            slno: Number(matched.LineNum) + 1,
-            ServiceCode: matched.ServiceCode,
-            ServiceName: matched.ServiceName,
+                    return matched
+                      ? {
+                          slno: Number(matched.LineNum) + 1,
+                          ServiceCode: matched.ServiceCode,
+                          ServiceName: matched.ServiceName,
 
-            amount: Number(matched.amount) || 0,
-            discount: Number(matched.discount) || 0,
-            TaxRate: Number(matched.TaxRate) || 0,
-            BaseAmount: Number(matched.BaseAmount) || 0,
-            grosstotal: Number(matched.grosstotal) || 0,
-          }
-        : null;
-    })
-    .filter(Boolean)
-);
-
+                          amount: Number(matched.amount) || 0,
+                          discount: Number(matched.discount) || 0,
+                          TaxRate: Number(matched.TaxRate) || 0,
+                          BaseAmount: Number(matched.BaseAmount) || 0,
+                          grosstotal: Number(matched.grosstotal) || 0,
+                        }
+                      : null;
+                  })
+                  .filter(Boolean)
+              );
 
               if (serviceList.value?.length > 0) {
                 const preselected = {};
@@ -365,7 +368,7 @@ setSelectedCardCode(orderListById.CardCode);
             VatSum: orderListById.VatSum,
           }));
           // set general header edit data
-          console.log("copydata",orderListById)
+          console.log("copydata", orderListById);
           setSummaryDiscountPercent(orderListById.DiscountPercent);
           setRoundingEnabled(orderListById.Rounding === "tYES");
           setRoundOff(orderListById.RoundingDiffAmount);
@@ -382,7 +385,7 @@ setSelectedCardCode(orderListById.CardCode);
             DocEntry: orderListById.DocEntry,
             DocumentStatus: orderListById.DocumentStatus,
           });
-          setUserDefinedData(orderListById.formData);
+          setUserDefinedData(orderListById.formData.formData || {});
         }
       } catch (err) {
         console.error("Failed to fetch order:", err);
@@ -392,7 +395,7 @@ setSelectedCardCode(orderListById.CardCode);
     };
 
     fetchData();
-  }, [dispatch,formDetails]);
+  }, [dispatch, formDetails]);
 
   const handleChange = (e, name, formName) => {
     const newValue = e.target.value;
@@ -456,7 +459,8 @@ setSelectedCardCode(orderListById.CardCode);
       setLoading(true);
       if (type === "Item") {
         payload = {
-          CardCode: formData.CardCode,
+          CardCode: formData.CardCode || selectedcardcode,
+
           DocDueDate: formData.DocDueDate
             ? new Date(formData.DocDueDate)
                 .toISOString()
@@ -464,24 +468,42 @@ setSelectedCardCode(orderListById.CardCode);
                 .replace(/-/g, "")
             : new Date().toISOString().split("T")[0].replace(/-/g, ""),
           DocType: "dDocument_Items",
-          DocumentLines: Object.values(itemTabledata).map((line) => ({
-            ItemCode: line.ItemCode,
-            ItemDescription: line.ItemName, // ✅ rename to ItemDescription
-            Quantity: line.quantity,
-            UnitPrice: line.amount,
-            TaxCode: line.TaxCode,
-            VatGroup: line.TaxCode,
-            DiscountPercent: line.discount,
-            LineTotal: line.total,
-          })),
-          data: userdefinedData,
-          DocTotal: summaryData.DocTotal,
-          Rounding: summaryData.Rounding,
-          RoundingDiffAmount: summaryData.RoundingDiffAmount,
-          DiscountPercent: summaryData.DiscountPercent,
-          TotalDiscount: summaryData.TotalDiscount,
-          Comments: summaryData.Remark,
-          VatSum: summaryData.VatSum,
+          DocumentLines: Object.values(itemTabledata).map((line, index) => {
+            const existingLine = formData.formData?.DocumentLines?.[index];
+
+            return {
+              BaseLine: existingLine?.LineNum, // ✅ REQUIRED
+              BaseEntry: existingLine.DocEntry || "",
+              BaseType: copyFrom?.includes("Purchase Quotation")
+                ? "540000006"
+                : copyFrom?.includes("Purchase Order")
+                ? "22"
+                : copyFrom?.includes("Purchase Request")
+                ? "202"
+                : copyFrom?.includes("Sales Order")
+                ? "17"
+                : copyFrom?.includes("Sales Quotation")
+                ? "23"                
+                : "0",
+              ItemDescription: line.ItemName,
+              Quantity: line.quantity,
+              UnitPrice: line.amount,
+              WarehouseCode: line.WarehouseCode,
+              ProjectCode: line.ProjectCode,
+              TaxCode: line.TaxCode,
+              VatGroup: line.TaxCode,
+              DiscountPercent: line.discount,
+              LineTotal: line.total,
+            };
+          }),
+          data: userdefinedData || {},
+          DocTotal: summaryData.DocTotal || 0,
+          Rounding: summaryData.Rounding  || "tNO",
+          RoundingDiffAmount: summaryData.RoundingDiffAmount  || 0,
+          DiscountPercent: summaryData.DiscountPercent  || 0,
+          TotalDiscount: summaryData.TotalDiscount  || 0,
+          Comments: summaryData.Remark  || "",
+          VatSum: summaryData.VatSum  || 0,
           //freight: totalFreightAmount,
           DocumentAdditionalExpenses: Object.values(freightRowSelection).map(
             (freight) => ({
@@ -497,28 +519,35 @@ setSelectedCardCode(orderListById.CardCode);
         };
       } else {
         payload = {
-          CardCode: formData.CardCode,
-          DocType: "dDocument_Service",
+          CardCode: formData.CardCode || selectedcardcode,
           DocDueDate: formData.DocDueDate
             ? new Date(formData.DocDueDate)
                 .toISOString()
                 .split("T")[0]
                 .replace(/-/g, "")
             : new Date().toISOString().split("T")[0].replace(/-/g, ""),
-          DocumentLines: Object.values(serviceTabledata).map((line) => ({
-            AccountCode: line.ServiceCode,
-            ItemDescription: line.ServiceName, // ✅ rename to ItemDescription
-            TaxCode: line.TaxCode,
-            UnitPrice: line.amount,
-          })),
-          data: userdefinedData,
-          DocTotal: summaryData.DocTotal,
-          Rounding: summaryData.Rounding,
-          RoundingDiffAmount: summaryData.RoundingDiffAmount,
-          DiscountPercent: summaryData.DiscountPercent,
-          TotalDiscount: summaryData.TotalDiscount,
-          Comments: summaryData.Remark,
-          VatSum: summaryData.VatSum,
+          DocumentLines: Object.values(itemTabledata).map((line, index) => {
+            const existingLine = formData.formData?.DocumentLines?.[index];
+
+            return {
+              BaseLine: existingLine?.LineNum, // ✅ REQUIRED
+              BaseEntry: existingLine.DocEntry || "",
+              BaseType: formDetails[0]?.name.includes("Purchase") ? "22" : "17",
+              AccountCode: line.ServiceCode,
+              ItemDescription: line.ServiceName, // ✅ rename to ItemDescription
+              TaxCode: line.TaxCode,
+              UnitPrice: line.amount,
+            };
+          }),
+
+          data: userdefinedData || {},
+          DocTotal: summaryData.DocTotal || 0,
+          Rounding: summaryData.Rounding  || "tNO",
+          RoundingDiffAmount: summaryData.RoundingDiffAmount  || 0,
+          DiscountPercent: summaryData.DiscountPercent  || 0,
+          TotalDiscount: summaryData.TotalDiscount  || 0,
+          Comments: summaryData.Remark  || "",
+          VatSum: summaryData.VatSum  || 0,
           //freight: totalFreightAmount,
           DocumentAdditionalExpenses: Object.values(freightRowSelection).map(
             (freight) => ({
@@ -559,7 +588,12 @@ setSelectedCardCode(orderListById.CardCode);
           formDataToSend.append(key, payload[key]);
         }
       });
-      console.log("formdatatosend", payload, formDataToSend);
+      console.log(
+        "formdatatosend",
+        payload,
+        formDataToSend,
+        formDetails[0]?.name
+      );
       let res = "";
       if (formDetails[0]?.name === "Sales Order") {
         res = await dispatch(createCustomerOrder(formDataToSend)).unwrap();
@@ -568,11 +602,11 @@ setSelectedCardCode(orderListById.CardCode);
       } else if (formDetails[0]?.name === "Purchase Order") {
         //dispatch(createPurchaseOrder(formDataToSend)).unwrap();
         res = await dispatch(createPurchaseOrder(formDataToSend)).unwrap();
-      }else if(formDetails[0]?.name ==="Purchase Quotation"){
+      } else if (formDetails[0]?.name === "Purchase Quotation") {
         res = await dispatch(createPurchaseQuotation(formDataToSend)).unwrap();
-      } else if(formDetails[0]?.name ==="Purchase Request"){  
+      } else if (formDetails[0]?.name === "Purchase Request") {
         res = await dispatch(createPurchaseRequest(formDataToSend)).unwrap();
-        }
+      }
 
       if (res.message === "Please Login!") {
         navigate("/login");
@@ -587,9 +621,9 @@ setSelectedCardCode(orderListById.CardCode);
       }, 2000); // ✅ stop loader
     }
   };
-  console.log("formId",formId)
+  console.log("formId", formId);
   useEffect(() => {
-    console.log("formId",formId)
+    console.log("formId", formId);
     if (!user) return;
     if (formId !== undefined) {
       // Fetch form data based on formId
@@ -598,13 +632,13 @@ setSelectedCardCode(orderListById.CardCode);
           menu.children.filter((submenu) => submenu.id === pageId)
         )
       );
-      console.log("useeffectformDetails",formDetails)
+      console.log("useeffectformDetails", formDetails);
       setTabList((formDetails && formDetails[0]?.Form.FormTabs) || []);
       setFormDetails(formDetails);
     } else {
       navigate("/");
     }
-  }, [formId,user]);
+  }, [formId, user]);
   return (
     <>
       <BusyIndicator
@@ -747,9 +781,9 @@ setSelectedCardCode(orderListById.CardCode);
                 setFormData={setFormData}
                 formData={formData}
                 mode={"edit"}
-                 selectedcardcode={selectedcardcode}
-            setSelectedCardCode={setSelectedCardCode}
-            formDetails={formDetails}
+                selectedcardcode={selectedcardcode}
+                setSelectedCardCode={setSelectedCardCode}
+                formDetails={formDetails}
                 defaultValues={formData} // ✅ now passes edit data properly
                 apiError={apiError}
               />
@@ -836,9 +870,15 @@ setSelectedCardCode(orderListById.CardCode);
               height: "100%",
             }}
             titleText="Attachments"
-          >{console.log("attachmentListByIdclone",oldAttachmentFiles)}
-             <Attachments onFilesChange={setAttachmentFiles} attachmentsList={attachmentsList} setAttachmentsList={setAttachmentsList} oldAttachmentFiles={oldAttachmentFiles} setOldAttachmentFiles={setOldAttachmentFiles} />
-        
+          >
+            {console.log("attachmentListByIdclone", oldAttachmentFiles)}
+            <Attachments
+              onFilesChange={setAttachmentFiles}
+              attachmentsList={attachmentsList}
+              setAttachmentsList={setAttachmentsList}
+              oldAttachmentFiles={oldAttachmentFiles}
+              setOldAttachmentFiles={setOldAttachmentFiles}
+            />
           </ObjectPageSection>
 
           <ObjectPageSection
@@ -855,7 +895,7 @@ setSelectedCardCode(orderListById.CardCode);
               userdefinedData={userdefinedData}
               setUserDefinedData={setUserDefinedData}
               mode={"edit"}
-               formDetails={formDetails}
+              formDetails={formDetails}
               setFormData={setFormData}
               formData={formData}
             />

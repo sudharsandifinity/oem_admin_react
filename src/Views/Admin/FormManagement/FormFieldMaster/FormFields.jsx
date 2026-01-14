@@ -85,7 +85,8 @@ const FormFields = () => {
         .toLowerCase()
         .includes(search.toLowerCase()) ||
       field.input_type.toLowerCase().includes(search.toLowerCase()) ||
-      field.field_order.toLowerCase().includes(search.toLowerCase()) 
+      field.field_order.toString().toLowerCase().includes(search.toLowerCase()) ||
+      field.field_order.toString().toLowerCase().includes(search.toLowerCase())
   );
 
   const columns = useMemo(
@@ -270,7 +271,7 @@ const FormFields = () => {
           >
             <Search
               onClose={function Xs() {}}
-              onInput={function Xs() {}}
+              onInput={(e) => setSearch(e.target.value)}
               onOpen={function Xs() {}}
               onScopeChange={function Xs() {}}
               onSearch={(e) => setSearch(e.target.value)}
@@ -288,7 +289,8 @@ const FormFields = () => {
                       data={filteredRows || []}
                       // header={<Title level="H5" style={{ paddingLeft: 5 }}>  {
                       //   "FormFields list(" + filteredRows.length + ")"}</Title>}
-                      visibleRows={8}
+                     style={{padding: '10px'}}
+                         // visibleRows={8}
                       filterable
                       pagination
                       // visibleRows={10}

@@ -27,6 +27,8 @@ import {
   fetchUserMenus,
 } from "../../../../store/slices/usermenusSlice";
 import AppBar from "../../../../Components/Module/Appbar";
+import { fetchCompanies } from "../../../../store/slices/companiesSlice";
+import { fetchBranch } from "../../../../store/slices/branchesSlice";
 const ViewMenuMaster = Loadable(lazy(() => import("./ViewMenuMaster")));
 
 const MenuMaster = () => {
@@ -45,6 +47,8 @@ const MenuMaster = () => {
     const fetchData = async () => {
       try {
         const res = await dispatch(fetchUserMenus()).unwrap();
+        dispatch(fetchCompanies()).unwrap();
+        dispatch(fetchBranch()).unwrap();
         console.log("resusers", res);
 
         if (res.message === "Please Login!") {
@@ -278,7 +282,7 @@ const MenuMaster = () => {
           >
             <Search
               onClose={function Xs() {}}
-              onInput={function Xs() {}}
+              onInput={(e) => setSearch(e.target.value)}
               onOpen={function Xs() {}}
               onScopeChange={function Xs() {}}
               onSearch={(e) => setSearch(e.target.value)}
@@ -298,7 +302,8 @@ const MenuMaster = () => {
                       data={filteredRows || []}
                       // header={<Title level="H5" style={{ paddingLeft: 5 }}>  {
                       //   "Menu list(" + filteredRows.length + ")"}</Title>}
-                      visibleRows={8}
+                      style={{padding: '10px'}}
+                         // visibleRows={8}
                       subRowsKey="children" // 👈 enables tree structure
                       filterable
                       onAutoResize={() => {}}

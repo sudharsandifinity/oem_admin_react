@@ -42,6 +42,7 @@ import Freight from "../Freight/Freight";
 import "@ui5/webcomponents-icons/dist/navigation-right-arrow.js"; // or arrow-right
 import TaxDialog from "./TaxPopup/TaxDialog";
 import WarehouseDialog from "./WarehousePopup/WarehouseDialog";
+import ProfitCenterDialog from "./ProfitCenterPopup/ProfitCenter";
 
 const Itemtable = (props) => {
   const {
@@ -64,12 +65,22 @@ const Itemtable = (props) => {
     setItemForm,
     itemForm,
     dynamcicItemCols,
+    dimensionCols,
     taxData,
     setTaxData,
     projectData,
     setProjectData,
     warehouseData,
     setWarehouseData,
+    setisProfitCenterDialogOpen,
+    isProfitCenterDialogOpen,
+    dimensionData,
+    setDimensionData,
+    setSelectedProfitCenterRowIndex,
+    selectedProfitCenterRowIndex,
+    profitCenterData,
+    setProfitCenterData,
+    selectedDimensionColumnCode,
     freightData,
     setFreightData,
     setIsFreightTableVisible,
@@ -117,6 +128,7 @@ const Itemtable = (props) => {
   const [selectedTaxRowIndex, setSelectedTaxRowIndex] = useState("");
   const [selectedProjectRowIndex, setSelectedProjectRowIndex] = useState("");
   const [selectedWarehouseRowIndex, setSelectedWarehouseRowIndex] = useState("");
+ 
 
   const [freightdialogOpen, setfreightDialogOpen] = useState(false);
   const [currentField, setCurrentField] = useState(null);
@@ -537,6 +549,16 @@ const totalFreightFromPopup = useMemo(() => {
           : r
       )
     );
+     setitemData((prev) =>
+      prev.map((r, idx) =>
+        idx === Number(e.detail.row.id)
+          ? {
+              ...r,
+              ProjectCode:e.detail.row.original.Code,
+            }
+          : r
+      )
+    );
     setTimeout(() => {
       setisProjectDialogOpen(false);
     }, 500);
@@ -546,7 +568,18 @@ const totalFreightFromPopup = useMemo(() => {
     setitemTableData((prev) =>
       prev.map((r, idx) =>
         idx === selectedWarehouseRowIndex
-          ? { ...r, WarehouseCode: e.detail.row.original.Code }
+          ? { ...r, WarehouseCode: e.detail.row.original.WarehouseCode }
+          : r
+      )
+    );
+     setitemData((prev) =>
+      prev.map((r, idx) =>
+        idx === Number(e.detail.row.id)
+          ? {
+              ...r,
+              WarehouseCode:
+              e.detail.row.original.WarehouseCode,
+            }
           : r
       )
     );
@@ -554,13 +587,69 @@ const totalFreightFromPopup = useMemo(() => {
       setisWarehouseDialogOpen(false);
     }, 500);
   };
+  // const profitCenterSelectionRow = (e) => {
+  //   console.log("profitCenterSelectionRow", itemTabledata, e);
+  //   setitemTableData((prev) =>    
+  //     prev.map((r, idx) =>
+  //       idx === selectedProfitCenterRowIndex
+  //         ? { ...r, [selectedDimensionColumnCode+"_ProfitCenterCode"]: e.detail.row.original.CenterCode,[selectedDimensionColumnCode+"_ProfitCenterName"]: e.detail.row.original.CenterName }
+  //         : r
+  //     )
+  //   );
+  //     setitemData((prev) =>
+  //     prev.map((r, idx) =>
+  //       idx === Number(e.detail.row.id)
+  //         ? {
+  //             ...r,
+  //             [selectedDimensionColumnCode+"_ProfitCenterCode"]:
+  //             e.detail.row.original.CenterCode,
+  //             [selectedDimensionColumnCode+"_ProfitCenterName"]:
+  //             e.detail.row.original.CenterName,
+  //           }
+  //         : r
+  //     )
+  //   );
+  //   setTimeout(() => {
+  //     setisProfitCenterDialogOpen(false);
+  //   }, 500);
+  // }
+  const profitCenterSelectionRow = (e) => {
+  const selectedRow = e.detail.row.original;
+
+  const codeKey = `${selectedDimensionColumnCode[selectedDimensionColumnCode.length-1]}_ProfitCenterCode`;
+  const nameKey = `${selectedDimensionColumnCode[selectedDimensionColumnCode.length-1]}_ProfitCenterName`;
+
+  setitemTableData((prev) =>
+    prev.map((row, idx) =>
+      idx === selectedProfitCenterRowIndex
+        ? {
+            ...row,
+            [codeKey]: selectedRow.CenterCode,
+            [nameKey]: selectedRow.CenterName,
+          }
+        : row
+    )
+  );
+ setitemData((prev) =>
+      prev.map((r, idx) =>
+        idx === Number(e.detail.row.id)
+          ? {
+              ...r,
+              [codeKey]: selectedRow.CenterCode,
+            [nameKey]: selectedRow.CenterName,
+            }
+          : r
+      )
+    );
+  setisProfitCenterDialogOpen(false);
+};
   const columns = useMemo(() => {
     // Define all possible columns
     const allColumns = [
       {
         Header: "Sl No",
         accessor: "slno",
-        width: 100,
+        width:50,
         Cell: ({ row }) => (
           <div disabled={mode === "view"}>{row.index + 1}</div>
         ),
@@ -848,7 +937,7 @@ const totalFreightFromPopup = useMemo(() => {
         accessor: "project",
         Cell: ({ row }) => (
           <Input
-            value={row.original.project}
+            value={row.original.ProjectCode}
             readonly
             disabled={mode === "view"}
             style={{
@@ -877,7 +966,7 @@ const totalFreightFromPopup = useMemo(() => {
         accessor: "warehouse",
         Cell: ({ row }) => (
           <Input
-            value={row.original.warehouse}
+            value={row.original.WarehouseCode}
             readonly
             disabled={mode === "view"}
             style={{
@@ -901,6 +990,7 @@ const totalFreightFromPopup = useMemo(() => {
           />
         ),
       },
+       ...dimensionCols,
       {
         Header: "Actions",
         accessor: "actions",
@@ -909,7 +999,7 @@ const totalFreightFromPopup = useMemo(() => {
         disableResizing: true,
         disableSortBy: true,
         id: "actions",
-        width: 200,
+        width: 50,
 
         Cell: (instance) => {
           const { cell, row, webComponentsReactProperties } = instance;
@@ -937,15 +1027,15 @@ const totalFreightFromPopup = useMemo(() => {
 
     // Create an array of accessors that should be visible
     const visibleAccessors =
-      dynamicItemColumnslist?.map((col) => col.accessor) || [];
+      dynamcicItemCols?.map((col) => col.accessor) || [];
 
     // Filter columns based on dynamic list
     const visibleColumns = allColumns.filter(
       (col) => visibleAccessors.includes(col.accessor) || col.id === "actions" // always include actions
     );
-console.log("visibleColumns",visibleColumns)
+console.log("visibleColumns",visibleColumns,allColumns,visibleAccessors,dynamicItemColumnslist)
     return visibleColumns;
-  }, [mode, dynamicItemColumnslist]);
+  }, [mode, dynamicItemColumnslist,dimensionCols]);
 
   return (
     <div style={{ background: "white" }}>
@@ -1008,13 +1098,13 @@ console.log("visibleColumns",visibleColumns)
           <Icon design="Information" name="delete"></Icon>
         </Button>
 
-        <Button
+        {/* <Button
           disabled={mode === "view"}
           design="Transparent"
           onClick={handleSettingsDialogOpen}
           tooltip="Column Settings"
           icon="sap-icon://settings"
-        ></Button>
+        ></Button> */}
       </FlexBox>
       {console.log("itemtableupdatedvaal", itemTabledata)}
       <AnalyticalTable
@@ -1254,6 +1344,20 @@ console.log("visibleColumns",visibleColumns)
           Save
         </Button>
       </Dialog>
+      <ProfitCenterDialog
+        isProfitCenterDialogOpen={isProfitCenterDialogOpen}
+        setisProfitCenterDialogOpen={setisProfitCenterDialogOpen}
+        profitCenterData={profitCenterData.filter(
+          (pc) => pc.InWhichDimension === selectedDimensionColumnCode[selectedDimensionColumnCode.length-1]
+        )}
+        setProfitCenterData={setProfitCenterData}
+        itemdata={itemdata}
+        setitemData={setitemData}
+        setitemTableData={setitemTableData}
+        inputvalue={inputvalue}
+        setInputValue={setInputValue}
+        profitCenterSelectionRow={profitCenterSelectionRow}
+      />
       <WarehouseDialog
         isWarehouseDialogOpen={isWarehouseDialogOpen}
         setisWarehouseDialogOpen={setisWarehouseDialogOpen}

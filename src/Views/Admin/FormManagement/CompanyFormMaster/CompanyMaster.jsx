@@ -209,7 +209,7 @@ const CompanyMaster = () => {
           >
             <Search
               onClose={function Xs() {}}
-              onInput={function Xs() {}}
+              onInput={(e) => setSearch(e.target.value)}
               onOpen={function Xs() {}}
               onScopeChange={function Xs() {}}
               onSearch={(e) => setSearch(e.target.value)}

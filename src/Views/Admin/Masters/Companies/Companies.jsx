@@ -73,11 +73,12 @@ const Companies = () => {
     //navigate(`/users/${user.id}`);
     setViewId(company.id);
   };
-  const filteredRows = companies?.filter(
-    (company) =>
-      company.name.toLowerCase().includes(search.toLowerCase()) ||
-      company.company_code.toLowerCase().includes(search.toLowerCase())
-  );
+const filteredRows = companies?.filter((company) =>
+  company.type?.toLowerCase().includes(search.toLowerCase()) ||
+  company.name?.toLowerCase().includes(search.toLowerCase())||
+  company.company_db_name?.toLowerCase().includes(search.toLowerCase()  
+  )
+);
 
   const columns = useMemo(
     () => [
@@ -203,7 +204,7 @@ const Companies = () => {
                 role.Permissions.some(f => f.name === "company_create")
               ) && (
                 <Button
-                  //design="Default"
+                  design="Emphasized"
                   size="Small"
                   onClick={() => navigate("/admin/companies/create")}
                 >
@@ -232,7 +233,7 @@ const Companies = () => {
             >
               <Search
                 onClose={function Xs() { }}
-                onInput={function Xs() { }}
+                onInput={(e) => setSearch(e.target.value)}
                 onOpen={function Xs() { }}
                 onScopeChange={function Xs() { }}
                 onSearch={(e) => setSearch(e.target.value)}
@@ -256,7 +257,7 @@ const Companies = () => {
                             style={{padding: '10px'}}
                             data={filteredRows || []}
                             // header={<Title level="H5" style={{ paddingLeft: 5 }}>  {"Company list(" + filteredRows.length + ")"}</Title>}
-                            visibleRows={8}
+                            //visibleRows={8}
                             filterable
                             pagination
                             onAutoResize={() => { }}

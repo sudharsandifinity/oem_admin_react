@@ -225,7 +225,7 @@ const FormMaster = () => {
                       >
             <Search
               onClose={function Xs() {}}
-              onInput={function Xs() {}}
+              onInput={(e) => setSearch(e.target.value)}
               onOpen={function Xs() {}}
               onScopeChange={function Xs() {}}
               onSearch={(e) => setSearch(e.target.value)}
@@ -250,7 +250,8 @@ const FormMaster = () => {
                       data={filteredRows || []}
                       // header={<Title level="H5" style={{ paddingLeft: 5 }}>  {
                       //   "FormMaster list(" + filteredRows.length + ")"}</Title>}
-                      visibleRows={8}
+                     style={{padding: '10px'}}
+                         // visibleRows={8}
                       filterable
                       pagination
                       // visibleRows={10}

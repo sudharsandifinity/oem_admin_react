@@ -87,6 +87,9 @@ export default function SalesOrder() {
   const [roundOff, setRoundOff] = useState(0);
   const [selectedcardcode, setSelectedCardCode] = useState([]);
 
+    const [dimensionData, setDimensionData] = useState([]);
+  
+
   const [itemTabledata, setitemTableData] = useState([
     {
       slno: 1,
@@ -170,6 +173,7 @@ export default function SalesOrder() {
     try {
       console.log(
         "itemTabledatahandleSubmit",
+        dimensionData,
         itemTabledata,
         formData,
         freightRowSelection
@@ -179,7 +183,7 @@ export default function SalesOrder() {
       const isPurchaseQuotation = formDetails[0]?.name === "Purchase Quotation"|| formDetails[0]?.name === "Purchase Request";
       if (type === "Item") {
         payload = {
-          CardCode: formData.CardCode,
+          CardCode: formData.CardCode || selectedcardcode,
           DocDate: formData.DocDate
             ? new Date(formData.DocDate)
                 .toISOString()
@@ -209,26 +213,33 @@ export default function SalesOrder() {
 
           //DocEntry: formData.DocEntry,
           DocumentStatus: "open",
-          ContactPerson: formData.ContactPerson,
+          ContactPerson: formData.ContactPerson || "",
           DocType: "dDocument_Items",
           DocumentLines: itemTabledata.map((line) => ({
             ItemCode: line.ItemCode,
             ItemDescription: line.ItemName,
             Quantity: line.quantity,
             UnitPrice: line.amount,
+            WarehouseCode: line.WarehouseCode,
+            ProjectCode: line.ProjectCode,
             TaxCode: line.TaxCode,
             VatGroup: line.TaxCode,
             DiscountPercent: line.discount,
             LineTotal: line.total,
+            CostingCode: line["1_ProfitCenterCode"] || null,
+  CostingCode2: line["2_ProfitCenterCode"] || null,
+  CostingCode3: line["3_ProfitCenterCode"] || null,
+  CostingCode4: line["4_ProfitCenterCode"] || null,
+  CostingCode5: line["5_ProfitCenterCode"] || null,
           })),
 
-          data: userdefinedData,
-          Rounding: summaryData.Rounding,
-          RoundingDiffAmount: summaryData.RoundingDiffAmount,
-          DiscountPercent: summaryData.DiscountPercent,
-          TotalDiscount: summaryData.TotalDiscount,
-          Comments: summaryData.Remark,
-          VatSum: summaryData.VatSum,
+          data: userdefinedData || {},
+          Rounding: summaryData.Rounding || "tNO",
+          RoundingDiffAmount: summaryData.RoundingDiffAmount || 0,
+          DiscountPercent: summaryData.DiscountPercent || 0,
+          TotalDiscount: summaryData.TotalDiscount || 0,
+          Comments: summaryData.Remark || "",
+          VatSum: summaryData.VatSum || 0,
           DocumentAdditionalExpenses: Object.values(freightRowSelection).map(
             (freight) => ({
               ExpensCode: freight.ExpensCode,
@@ -243,7 +254,7 @@ export default function SalesOrder() {
         };
       } else {
         payload = {
-          CardCode: formData.CardCode,
+          CardCode: formData.CardCode || selectedcardcode,
           DocType: "dDocument_Service",
           DocDate: formData.DocDate
             ? new Date(formData.DocDate)
@@ -273,7 +284,7 @@ export default function SalesOrder() {
           }),
           //DocEntry: formData.DocEntry,
           DocumentStatus: "open",
-          ContactPerson: formData.ContactPerson,
+          ContactPerson: formData.ContactPerson || "",
 
           DocumentLines: serviceTabledata.map((line) => ({
             AccountCode: line.ServiceCode,
@@ -282,7 +293,7 @@ export default function SalesOrder() {
             UnitPrice: line.amount,
           })),
 
-          data: userdefinedData,
+          data: userdefinedData || {},
           DocumentAdditionalExpenses: Object.values(freightRowSelection).map(
             (freight) => ({
               ExpenseCode: freight.ExpensCode,
@@ -613,6 +624,8 @@ export default function SalesOrder() {
             setRoundingEnabled={setRoundingEnabled}
             roundOff={roundOff}
             setRoundOff={setRoundOff}
+            dimensionData={dimensionData}
+            setDimensionData={setDimensionData}
           />
         </ObjectPageSection>
          {/* );

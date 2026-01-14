@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 
-import { Controller, useForm } from "react-hook-form";
+import { Controller, set, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { fetchRoles } from "../../../../store/slices/roleSlice";
@@ -122,6 +122,7 @@ const MenuForm = ({
       setAssignBranchEnabled(true);
       setSelectedCompany(defaultValues.company || null);
       setSelectedBranchIds(defaultValues.branchId || []);
+      setCurrScope(defaultValues.scope || "global");
     }
   }, [mode, defaultValues]);
 
@@ -351,7 +352,7 @@ const MenuForm = ({
                   )}
                 </FlexBox>
               </FlexBox>
-
+{console.log("currScope",currScope,mode)}
               <FlexBox direction="Column" style={{ flex: "28%" }}>
                 <Label>Company</Label>
                 <FlexBox label={<Label required>roleId</Label>}>
@@ -445,7 +446,7 @@ const MenuForm = ({
                 <Label>Parent</Label>
                 <FlexBox label={<Label required>Parent</Label>}>
                   <Controller
-                    name="parentUserMenuId"
+                    name="parent"
                     control={control}
                     render={({ field }) => (
                       <Select
@@ -457,13 +458,13 @@ const MenuForm = ({
                             ? true
                             : true
                         }
-                        name="parentUserMenuId"
+                        name="parent"
                         value={field.value ?? ""}
                         onChange={(e) => {
                           field.onChange(e.target.value);
                           setHasParent(e.target.value);
                         }}
-                        valueState={errors.parentUserMenuId ? "Error" : "None"}
+                        valueState={errors.parent ? "Error" : "None"}
                       >
                         {console.log("usermenuList", usermenuList)}
                         <Option value="">Select</Option>
@@ -475,12 +476,12 @@ const MenuForm = ({
                       </Select>
                     )}
                   />
-                  {errors.parentUserMenuId && (
+                  {errors.parent && (
                     <span
                       slot="valueStateMessage"
                       style={{ color: "var(--sapNegativeColor)" }}
                     >
-                      {errors.parentUserMenuId.message}
+                      {errors.parent.message}
                     </span>
                   )}
                 </FlexBox>

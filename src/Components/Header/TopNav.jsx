@@ -35,7 +35,9 @@ export default function TopNav({
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const dispatch = useDispatch();
    const hideCompanySelection = ["/admin"];
-  const shouldHideCompanySelection = hideCompanySelection.includes(location.pathname);
+ const shouldHideCompanySelection = hideCompanySelection.some(path =>
+  location.pathname.startsWith(path)
+);
 
   const handleMenuBtnClick = () => {
     setCollapsed((prev) => !prev);
