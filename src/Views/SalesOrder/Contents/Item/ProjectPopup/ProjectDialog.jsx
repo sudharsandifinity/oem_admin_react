@@ -40,18 +40,14 @@ const TaxDialog = (props) => {
         accessor: "Name",
       },
       {
-        Header: "Category",
-        accessor: "Category",
+        Header: "Valid From",
+        accessor: "ValidFrom",
       },
       {
-        Header:"TaxRegion",
-        accessor: "TaxRegion",
+        Header:"Active",
+        accessor: "Active",
       },
-      {
-        Header: "Rate",
-        accessor: "Rate",
-        Cell: ({ row }) => row.original.VatGroups_Lines[row.original.VatGroups_Lines.length - 1]?.Rate || 0,
-      },    
+       
     ],
     []
   );
@@ -93,7 +89,7 @@ const TaxDialog = (props) => {
               setisProjectDialogOpen(false);
             }}
           >
-            Next
+            Close
           </Button>
 
         

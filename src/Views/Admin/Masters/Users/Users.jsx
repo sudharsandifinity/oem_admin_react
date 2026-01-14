@@ -43,11 +43,11 @@ const Users = () => {
         dispatch(fetchCompanies());
         console.log("resusers", res);
         if (res.message === "Please Login!") {
-          navigate("/");
+         // navigate("/");
         }
       } catch (err) {
         console.log("Failed to fetch user", err.message);
-        err.message && navigate("/");
+       // err.message && navigate("/");
       }
     };
     fetchData();
@@ -127,25 +127,30 @@ const Users = () => {
       {
         Header: "First Name",
         accessor: "first_name",
+        width: 200,
       },
       {
         Header: "Last Name",
         accessor: "last_name",
         filter: "text",
+        width: 200,
       },
       {
         Header: "Email",
         accessor: "email",
+        width: 300,
       },
       {
         Header: "User Category",
         accessor: "is_super_user",
+        width: 150,
         Cell: ({ row }) =>
           row.original.is_super_user === 1 ? "Super User" : "User",
       },
       {
         Header: "Company",
-       // accessor: "Company",
+        // accessor: "Company",
+        width: 200,
         Cell: ({ row }) => {
           const companies =
             row.original.Branches?.map((b) => b.Company.name) || [];
@@ -158,6 +163,7 @@ const Users = () => {
       },
       {
         Header: "Role",
+        width: 230,
         accessor: "Role",
         Cell: ({ row }) =>
           row.original.Roles.map((role) => role.name).join(", ") || "N/A",
@@ -167,6 +173,7 @@ const Users = () => {
       {
         Header: "Status",
         accessor: "status",
+        width: 150,
         Cell: ({ row }) =>
           row.original.status === 1 ? (
             <Tag children="Active" design="Positive" size="S" />
@@ -177,6 +184,7 @@ const Users = () => {
       {
         Header: "Actions",
         accessor: ".",
+        width: 150,
         disableFilters: true,
         disableGroupBy: true,
         disableResizing: true,
@@ -230,7 +238,7 @@ const Users = () => {
       <FlexBox direction="Column" style={{ width: "100%" }}>
         <AppBar
           design="Header"
-          title={"Roles list(" + filteredRows.length + ")"}
+          title={"Users List(" + filteredRows.length + ")"}
           startContent={
             <div style={{ width: "150px" }}>
               <Breadcrumbs
@@ -256,8 +264,7 @@ const Users = () => {
               Add User
             </Button>
           }
-        >
-        </AppBar>
+        ></AppBar>
         <Page
           backgroundDesign="Solid"
           footer={<div></div>}
@@ -295,14 +302,14 @@ const Users = () => {
           // }
         >
           <Card
-             style={{
-          height: "auto",
-          width: "100%",
-          //padding: "0.5rem",
-          maxHeight: '560px'
-        }}
+            style={{
+              height: "auto",
+              width: "100%",
+              //padding: "0.5rem",
+              maxHeight: "560px",
+            }}
           >
-            <FlexBox direction="Column" style={{padding: 0}}>
+            <FlexBox direction="Column" style={{ padding: 0 }}>
               <FlexBox
                 justifyContent="End"
                 alignItems="Center"
@@ -310,7 +317,7 @@ const Users = () => {
               >
                 <Search
                   onClose={function Xs() {}}
-                  onInput={function Xs() {}}
+                  onInput={(e) => setSearch(e.target.value)}
                   onOpen={function Xs() {}}
                   onScopeChange={function Xs() {}}
                   onSearch={(e) => setSearch(e.target.value)}
@@ -342,13 +349,9 @@ const Users = () => {
                         <AnalyticalTable
                           columns={columns}
                           data={selectedUserList || []}
-                          header={
-                            <Title level="H5" style={{ paddingLeft: 5 }}>
-                              {" "}
-                              {"Users list(" + users.length + ")"}
-                            </Title>
-                          }
-                          visibleRows={8}
+                          resizableColumns
+                          style={{ padding: "10px" }}
+                          // visibleRows={8}
                           filterable
                           sortable
                           groupable

@@ -22,7 +22,11 @@ console.log("usermenuedituserchild",usermenu)
     name: usermenu.name || "",
     display_name: usermenu.display_name || "",
     scope: usermenu.scope || "user",
-    parentUserMenuId: usermenu.parentUserMenuId || "",
+
+    parent: usermenu.parentUserMenuId || "",
+    companyId: usermenu.companyId || "",
+    parent: usermenu.parentUserMenuId || "",
+    
     branchId: usermenu.branchId || "",
     formId: usermenu.formId || "",
     order_number: usermenu.order_number || "",
@@ -49,13 +53,17 @@ console.log("usermenuedituserchild",usermenu)
   const handleUpdate = async (data) => {
     console.log("handleupdate", data);
     try {
-      const payload = {
+       const payload = {
+        parentUserMenuId:data.parent||null,
+        companyId:data.companyId,
+        branchId:data.branchId,
+        formId:data.formId,
+        scope:data.scope,
         name: data.name,
         display_name: data.display_name,
-        //form: data.form,
+        //form: data.form,  
         order_number: data.order_number,
-        parent: data.parent,
-        //status: data.status,
+        status: data.status,
       };
 
       const res = await dispatch(updateUserMenus({id,data:payload})).unwrap();

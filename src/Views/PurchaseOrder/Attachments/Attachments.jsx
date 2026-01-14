@@ -43,47 +43,48 @@ const Attachments = () => {
   };
 
   return (
-    <div>
-      <FlexBox
-        direction="Row"
-        justifyContent="SpaceBetween"
-        alignItems="Center"
-        style={{ width: "100%", marginBottom: "1rem" }}
-      >
-         <label
-          style={{
-            fontWeight: "bold", // makes text bold
-            textAlign: "left", // ensures it can align right
-            display: "block", // needed for textAlign to work
-          }}
-        >Attachments</label>
-        <Button icon="add" design="Emphasized" onClick={handleAddAttachment}>
-          Add
-        </Button>
-      </FlexBox>
-      <UploadCollection noDataDescription="No files uploaded">
-        {attachmentsList.map((file) => (
-          <UploadCollectionItem
-            key={file.id}
-            fileName={file.fileName}
-            fileType={file.mimeType}
-            fileSize={file.fileSize}
-            uploadState="Complete"
-            deletable={false} // You can make it true and handle onDelete
-            onClick={OpenAttachment}
-          />
-        ))}
-      </UploadCollection>
-     <SelectedAttachmentDialog
-        openAttachmentDialog={openAttachmentDialog}   
-        setOpenAttachmentDialog={setOpenAttachmentDialog}
-        attachments={attachments}
-        setAttachments={setAttachments}
-      />
-      <AddAttachmentDialogPage
-      openAddAttachmentDialog={openAddAttachmentDialog}
-      setOpenAddAttachmentDialog={setOpenAddAttachmentDialog}/>
-    </div>
+    // <div>
+    //   <FlexBox
+    //     direction="Row"
+    //     justifyContent="SpaceBetween"
+    //     alignItems="Center"
+    //     style={{ width: "100%", marginBottom: "1rem" }}
+    //   >
+    //      <label
+    //       style={{
+    //         fontWeight: "bold", // makes text bold
+    //         textAlign: "left", // ensures it can align right
+    //         display: "block", // needed for textAlign to work
+    //       }}
+    //     >Attachments</label>
+    //     <Button icon="add" design="Emphasized" onClick={handleAddAttachment}>
+    //       Add
+    //     </Button>
+    //   </FlexBox>
+    //   <UploadCollection noDataDescription="No files uploaded">
+    //     {attachmentsList.map((file) => (
+    //       <UploadCollectionItem
+    //         key={file.id}
+    //         fileName={file.fileName}
+    //         fileType={file.mimeType}
+    //         fileSize={file.fileSize}
+    //         uploadState="Complete"
+    //         deletable={false} // You can make it true and handle onDelete
+    //         onClick={OpenAttachment}
+    //       />
+    //     ))}
+    //   </UploadCollection>
+    //  <SelectedAttachmentDialog
+    //     openAttachmentDialog={openAttachmentDialog}   
+    //     setOpenAttachmentDialog={setOpenAttachmentDialog}
+    //     attachments={attachments}
+    //     setAttachments={setAttachments}
+    //   />
+    //   <AddAttachmentDialogPage
+    //   openAddAttachmentDialog={openAddAttachmentDialog}
+    //   setOpenAddAttachmentDialog={setOpenAddAttachmentDialog}/>
+    // </div>
+    <div></div>
   );
 };
 

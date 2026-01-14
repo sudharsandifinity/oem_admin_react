@@ -11,7 +11,7 @@ const navigate = useNavigate();
     console.log("handlecreate", data);
     try {
       const payload = {
-        parentUserMenuId:data.parentUserMenuId,
+        parentUserMenuId:data.parent||null,
         companyId:data.companyId,
         branchId:data.branchId,
         formId:data.formId,

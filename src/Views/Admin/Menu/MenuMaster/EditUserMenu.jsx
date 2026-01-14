@@ -56,13 +56,17 @@ const EditUserMenu = () => {
     console.log("handleupdate", data);
     try {
       const payload = {
-        name: data.name,
-        display_name: data.display_name,
-        //form: data.form,
-        order_number: data.order_number,
-        parent: data.parent,
-        //status: data.status,
-      };
+             parentUserMenuId:data.parent||null,
+             companyId:data.companyId,
+             branchId:data.branchId,
+             formId:data.formId,
+             scope:data.scope,
+             name: data.name,
+             display_name: data.display_name,
+             //form: data.form,  
+             order_number: data.order_number,
+             status: data.status,
+           };
 
       const res = await dispatch(
         updateUserMenus({ id, data: payload })

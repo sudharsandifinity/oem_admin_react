@@ -46,8 +46,12 @@ import { set } from "react-hook-form";
 import { fetchOrderServices } from "../../../store/slices/CustomerOrderServiceSlice";
 import {
   fetchfreightDetails,
+  fetchProfitCenterDetails,
+  fetchProjectsDetails,
   fetchPurOrderAddDetails,
   fetchSalesOrderAddDetails,
+  fetchWarehousesDetails,
+  fetchDimensionDetails,
 } from "../../../store/slices/salesAdditionalDetailsSlice";
 
 const Contents = (props) => {
@@ -83,6 +87,8 @@ const Contents = (props) => {
     setRoundingEnabled,
     roundOff,
     setRoundOff,
+    setDimensionData,
+    dimensionData,
   } = props;
   const {
     fieldConfig,
@@ -111,8 +117,15 @@ const Contents = (props) => {
   const [taxData, setTaxData] = useState([]);
   const [projectData, setProjectData] = useState([]);
   const [warehouseData, setWarehouseData] = useState([]);
+  const [profitCenterData, setProfitCenterData] = useState([]);
   const [freightData, setFreightData] = useState([]);
   const [isFreightTableVisible, setIsFreightTableVisible] = useState(false);
+  const [isProfitCenterDialogOpen, setisProfitCenterDialogOpen] =
+    useState(false);
+  const [selectedDimensionColumnCode, setSelectedDimensionColumnCode] =
+    useState([]);
+  const [selectedProfitCenterRowIndex, setSelectedProfitCenterRowIndex] =
+    useState("");
 
   const [itemForm, setItemForm] = useState([]);
   const [serviceForm, setserviceForm] = useState([]);
@@ -147,6 +160,23 @@ const Contents = (props) => {
         ) {
           taxCode = await dispatch(fetchPurOrderAddDetails()).unwrap();
         }
+        const warehouseData = await dispatch(fetchWarehousesDetails()).unwrap();
+        setWarehouseData(warehouseData.value);
+        console.log("warehousedata", warehouseData.value);
+
+        const projectData = await dispatch(fetchProjectsDetails()).unwrap();
+        setProjectData(projectData.value);
+        console.log("projectData", projectData.value);
+
+        const profitCenterData = await dispatch(
+          fetchProfitCenterDetails()
+        ).unwrap();
+        setProfitCenterData(profitCenterData.value);
+        console.log("profitCenterData", profitCenterData.value);
+
+        const dimensionData = await dispatch(fetchDimensionDetails()).unwrap();
+        setDimensionData(dimensionData.value);
+        console.log("dimensionDataVal", dimensionData.value);
 
         const freightData = await dispatch(fetchfreightDetails()).unwrap();
         setFreightData(freightData.value);
@@ -203,6 +233,13 @@ const Contents = (props) => {
     }
   };
 
+  const getSelectedDimensionCodes = (row) =>
+  Object.keys(row)
+    .filter(
+      (key) =>
+        key.endsWith("_ProfitCenterCode") && row[key]
+    )
+    .map((key) => Number(key.split("_")[0]));
   const dynamcicItemCols = [
     ...(itemTableColumn &&
       itemTableColumn.length &&
@@ -215,7 +252,113 @@ const Contents = (props) => {
           Header: col.Header,
           accessor: col.accessor,
         }))),
+    ...dimensionData?.map((dim) => ({
+      Header: dim.DimensionDescription || "Dimension",
+      accessor: dim.DimensionDescription || "Dimension", // ✅ DATA KEY
+      Cell: ({ row }) => (
+        <Input
+          //value={dim.DimensionCode===selectedDimensionColumnCode.map((code) => code === dim.DimensionCode)?row.original[selectedDimensionColumnCode + "_ProfitCenterCode"] :row.original[dim.DimensionDescription] || ""}
+          value={
+            getSelectedDimensionCodes(row.original).includes(dim.DimensionCode)
+              ? row.original[dim.DimensionCode + "_ProfitCenterCode"]
+              : row.original[dim.DimensionDescription] || ""
+          }
+          readonly
+          disabled={mode === "view"}
+          style={{
+            border: "none",
+            borderBottom: "1px solid #ccc",
+            backgroundColor: "transparent",
+            outline: "none",
+            padding: "4px 0",
+            fontSize: "14px",
+          }}
+          onClick={() => {
+            console.log("dynamicitem", row, dim);
+          }}
+        />
+      ),
+    })),
   ];
+  console.log("dimensionData", dimensionData, dynamcicItemCols);
+  const dimensionCols = useMemo(() => {
+    if (!dimensionData?.length) return [];
+
+    return dimensionData.slice(0, 5).map((dim) => ({
+      Header: dim.DimensionDescription,
+      accessor: dim.DimensionDescription, // ✅ DATA KEY
+      Cell: ({ row }) => (
+        <>
+          {console.log("dimensionrow", row,getSelectedDimensionCodes(row.original))}
+          <Input
+            value={
+              getSelectedDimensionCodes(row.original).includes(dim.DimensionCode)
+                ? row.original[dim.DimensionCode + "_ProfitCenterCode"]
+                : row.original[dim.DimensionDescription] || ""
+            }
+            readonly
+            disabled={mode === "view"}
+            style={{
+              border: "none",
+              borderBottom: "1px solid #ccc",
+              backgroundColor: "transparent",
+              outline: "none",
+              padding: "4px 0",
+              fontSize: "14px",
+            }}
+            onClick={() => {
+              console.log(
+                "dimensionCols",
+                row,
+                dim.DimensionCode,
+                selectedDimensionColumnCode
+              );
+              setSelectedProfitCenterRowIndex(row.index);
+              setSelectedDimensionColumnCode((prev) => [
+                ...prev,
+                dim.DimensionCode,
+              ]);
+              setisProfitCenterDialogOpen(true);
+            }}
+          />
+        </>
+      ),
+    }));
+  }, [dimensionData, mode, selectedDimensionColumnCode]);
+  //   const dimensionCols = useMemo(() => {
+  //   if (!dimensionData?.length) return [];
+
+  //   return dimensionData.slice(0, 5).map((dim) => {
+  //     const codeKey = `${dim.DimensionCode}_ProfitCenterCode`;
+  //     const nameKey = `${dim.DimensionCode}_ProfitCenterName`;
+
+  //     return {
+  //       Header: dim.DimensionDescription,
+  //       accessor: codeKey,
+  //       Cell: ({ row }) => (
+  //         <Input
+  //           value={row.original[nameKey] || row.original[codeKey] || ""}
+  //           readonly
+  //           disabled={mode === "view"}
+  //           style={{
+  //             border: "none",
+  //             borderBottom: "1px solid #ccc",
+  //             backgroundColor: "transparent",
+  //             outline: "none",
+  //             padding: "4px 0",
+  //             fontSize: "14px",
+  //           }}
+  //           onClick={() => {
+  //             setSelectedProfitCenterRowIndex(row.index);
+  //             setSelectedDimensionColumnCode(dim.DimensionCode);
+  //             setisProfitCenterDialogOpen(true);
+  //           }}
+  //         />
+  //       ),
+  //     };
+  //   });
+  // }, [dimensionData, mode]);
+
   const dynamcicServiceCols = [
     ...(serviceTableColumn &&
       serviceTableColumn.length &&
@@ -438,6 +581,7 @@ const Contents = (props) => {
   const handleitemRowChange = (item) => {
     console.log("handleitemRowChange", item);
   };
+  
   const renderIteminput = (field, form, handleChange, SelectedType) => {
     //const value = form&&form[field.accessor] || "";
     switch (field.type) {
@@ -571,6 +715,7 @@ const Contents = (props) => {
                         setitemTableData={setitemTableData}
                         itemTabledata={itemTabledata}
                         dynamcicItemCols={dynamcicItemCols}
+                        dimensionCols={dimensionCols}
                         selectedRowIndex={selectedRowIndex}
                         setSelectedRowIndex={setSelectedRowIndex}
                         mode={mode}
@@ -583,6 +728,23 @@ const Contents = (props) => {
                         setProjectData={setProjectData}
                         warehouseData={warehouseData}
                         setWarehouseData={setWarehouseData}
+                        profitCenterData={profitCenterData}
+                        setProfitCenterData={setProfitCenterData}
+                        selectedDimensionColumnCode={
+                          selectedDimensionColumnCode
+                        }
+                        dimensionData={dimensionData}
+                        setDimensionData={setDimensionData}
+                        setSelectedProfitCenterRowIndex={
+                          setSelectedProfitCenterRowIndex
+                        }
+                        selectedProfitCenterRowIndex={
+                          selectedProfitCenterRowIndex
+                        }
+                        setisProfitCenterDialogOpen={
+                          setisProfitCenterDialogOpen
+                        }
+                        isProfitCenterDialogOpen={isProfitCenterDialogOpen}
                         setIsFreightTableVisible={setIsFreightTableVisible}
                         isFreightTableVisible={isFreightTableVisible}
                         totalFreightAmount={totalFreightAmount}

@@ -56,6 +56,11 @@ import ViewSalesOrder from "../Views/SalesOrder/ViewSalesOrder";
 import ViewPurchaseOrder from "../Views/PurchaseOrder/ViewPurchaseOrder";
 import UserMainLayout from "../Views/Layouts/UserMainLayout";
 import CloneSalesOrder from "../Views/SalesOrder/CloneSalesOrder";
+import Report from "../Views/Report/Report";
+import Inventory from "../Views/Inventory/Inventory";
+import CreateInventory from "../Views/Inventory/CreateInventory";
+import EditInventory from "../Views/Inventory/EditInventory";
+import ViewInventory from "../Views/Inventory/ViewInventory";
 
 const AppRoutes = () => {
   return (
@@ -182,8 +187,23 @@ const AppRoutes = () => {
           <Route path="/ManageSalesOrder" element={<ManageSalesOrder />} />
           <Route path="/Sales/:formId" element={<ManageSalesOrder />} />
           <Route path="/Purchase/:formId" element={<ManageSalesOrder />} />
+          <Route path="/report" element={<Report />} />
+          <Route path="/Inventory" element={<Inventory />} />
+          <Route
+            path="/Inventory/create"
+            element={<CreateInventory />}
+          />
+          <Route
+            path="/Inventory/edit"
+            element={<EditInventory />}
+          />
+          <Route
+            path="/Inventory/view"
+            element={<ViewInventory />}
+          />
           {/* <Route path="/Purchase/:formId" element={<ManagePurchaseOrder />} /> */}
         </Route>
+        
       </Route>
 
       {/* <Route path="*" element={<Navigate to="/login" replace />} /> */}

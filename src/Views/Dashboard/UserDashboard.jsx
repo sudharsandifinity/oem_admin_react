@@ -93,12 +93,12 @@ const UserDashboard = () => {
   const menuTree = buildMenuTree(
     menulist.length > 0 ? menulist : authUserMenus
   );
-  useEffect(()=>{
-    if(authUserMenus.length===0){
+  useEffect(() => {
+    if (authUserMenus.length === 0) {
       navigate("/")
     }
 
-  },[authUserMenus])
+  }, [authUserMenus])
   console.log("authUserMenus", authUserMenus, menulist, menuTree);
   // const chartData = [
   //   { name: "Product A", users: 30 },
@@ -217,8 +217,8 @@ const UserDashboard = () => {
             </Menu>
           </>
         )} */}
-        <div style={{ display: "flex", gap: "0.5rem",padding: "1rem" }}>
-        
+        <div style={{ display: "flex", gap: "0.5rem", padding: "1rem" }}>
+
           <div style={{ width: "270px" }}>
             <Text >Company</Text>
             <Select
@@ -230,7 +230,7 @@ const UserDashboard = () => {
               <Option key="" value="">
                 Select
               </Option>
-              {companies&&companies.map((branch) => (
+              {companies && companies.map((branch) => (
                 <Option key={branch.Company.id} value={branch.Company.id}>
                   {branch.Company.name}
                 </Option>
@@ -248,7 +248,7 @@ const UserDashboard = () => {
               }
             >
               <Option>Select</Option>
-              {companies&&companies.map((branch) => (
+              {companies && companies.map((branch) => (
                 <Option key={branch.id} value={branch.id}>
                   {branch.name}
                 </Option>
@@ -257,7 +257,8 @@ const UserDashboard = () => {
           </div>
         </div>
         <Text style={{ paddingBottom: "1rem" }}>Menu List</Text>
-        <SideNavigation>{console.log("menulist",menulist)}
+        <SideNavigation
+          >{console.log("menulist", menulist)}
           {menulist.length > 0 &&
             menulist.map((menu) =>
               !menu.RoleMenu.can_list_view ? null : (
@@ -414,7 +415,7 @@ const UserDashboard = () => {
               header={<CardHeader titleText="User Distribution" />}
               style={{ width: "58%" }}
             >
-          
+
 
               <div style={{ width: "100%", height: 300, marginTop: "2rem" }}>
                 <ResponsiveContainer>
@@ -477,9 +478,9 @@ const UserDashboard = () => {
                     measure={{
                       accessor: "users",
                     }}
-                    onClick={function _ie() {}}
-                    onDataPointClick={function _ie() {}}
-                    onLegendClick={function _ie() {}}
+                    onClick={function _ie() { }}
+                    onDataPointClick={function _ie() { }}
+                    onLegendClick={function _ie() { }}
                     tooltipConfig={{
                       contentStyle: {
                         background: "black",
@@ -489,8 +490,8 @@ const UserDashboard = () => {
                         stroke: "red",
                         strokeWidth: 2,
                       },
-                      formatter: function _ie() {},
-                      itemSorter: function _ie() {},
+                      formatter: function _ie() { },
+                      itemSorter: function _ie() { },
                       itemStyle: {
                         backgroundColor: "white",
                         borderRadius: "8px",
@@ -498,7 +499,7 @@ const UserDashboard = () => {
                         marginBlockStart: "2px",
                         padding: "10px",
                       },
-                      labelFormatter: function _ie() {},
+                      labelFormatter: function _ie() { },
                       labelStyle: {
                         color: "white",
                         fontFamily: "var(--sapFontBoldFamily)",

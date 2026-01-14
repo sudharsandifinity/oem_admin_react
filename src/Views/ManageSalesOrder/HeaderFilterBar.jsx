@@ -169,9 +169,9 @@ useEffect(()=>{
       return (
         <FlexBox direction="Column">
            <Label>
-    {    menuChildMap[0].menuName === "Purchase" && field.FieldName === "CustomerCode"
+    {    menuChildMap[0]?.menuName === "Purchase" && field.FieldName === "CustomerCode"
       ? "Vendor Code"
-      : menuChildMap[0].menuName === "Purchase" && field.FieldName === "CustomerName"
+      : menuChildMap[0]?.menuName === "Purchase" && field.FieldName === "CustomerName"
       ? "Vendor Name"
       : field.DisplayName}
   </Label>

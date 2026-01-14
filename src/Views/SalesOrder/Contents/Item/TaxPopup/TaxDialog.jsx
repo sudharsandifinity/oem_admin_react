@@ -93,7 +93,7 @@ const TaxDialog = (props) => {
               setisTaxDialogOpen(false);
             }}
           >
-            Next
+            Close
           </Button>
 
         

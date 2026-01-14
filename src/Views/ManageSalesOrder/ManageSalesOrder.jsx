@@ -37,6 +37,9 @@ import { fetchPurchaseOrder } from "../../store/slices/purchaseorderSlice";
 import { fetchPurchaseQuotation } from "../../store/slices/PurchaseQuotation";
 import { fetchPurchaseRequest } from "../../store/slices/PurchaseRequestSlice";
 
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
+
 const ManageSalesOrder = () => {
   const {
     ManageSalesOrderTableColumn,
@@ -105,9 +108,13 @@ const ManageSalesOrder = () => {
             fetchPurchaseOrder({ top: pageSize, skip: 0 })
           ).unwrap();
         } else if (formDetails[0]?.name === "Purchase Quotation") {
-          res = await dispatch(fetchPurchaseQuotation({ top: pageSize, skip: 0 })).unwrap();
+          res = await dispatch(
+            fetchPurchaseQuotation({ top: pageSize, skip: 0 })
+          ).unwrap();
         } else if (formDetails[0]?.name === "Purchase Request") {
-          res = await dispatch(fetchPurchaseRequest({ top: pageSize, skip: 0 })).unwrap();
+          res = await dispatch(
+            fetchPurchaseRequest({ top: pageSize, skip: 0 })
+          ).unwrap();
         }
 
         console.log("quotationdata", "sales", res, formDetails[0]?.name);
@@ -144,19 +151,58 @@ const ManageSalesOrder = () => {
 
   const navigate = useNavigate();
   const [layout, setLayout] = useState("OneColumn");
-  const [rowSelection, setRowSelection] = useState({});
   const [page, setPage] = useState(0);
   const pageSize = 20;
   const [allLoaded, setAllLoaded] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
-  const onRowSelect = (e) => {
-    console.log("onRowSelect", e.detail.row.original);
-    //selectionChangeHandler(e.detail.row.original);
-    setRowSelection((prev) => ({
-      ...prev,
-      [e.detail.row.id]: e.detail.row.original,
-    }));
+  const [selectedRows, setSelectedRows] = useState([]);
+
+  const handleRowSelect = (e) => {
+    console.log("first", e.detail);
+    const { selectedRowIds, rowsById } = e.detail;
+
+    const selectedRows = Object.keys(selectedRowIds).map(
+      (rowId) => rowsById[rowId].original
+    );
+
+    setSelectedRows(selectedRows);
+  };
+
+  const handleExportPDF = () => {
+    const doc = new jsPDF();
+
+    // Data to export
+    const exportData = selectedRows.length > 0 ? selectedRows : tableData; // fallback to full table
+
+    const tableColumnHeaders = [
+      "CustomerCode",
+      "CustomerName",
+      "DocEntry",
+      "DocumentNo",
+      "PostingDate",
+      "Status",
+    ];
+
+    const tableRows = exportData.map((row) => [
+      row.CustomerCode,
+      row.CustomerName,
+      row.DocEntry,
+      row.DocumentNo,
+      row.PostingDate,
+      row.Status,
+    ]);
+
+    doc.text(formDetails[0]?.name + " Export", 14, 15);
+
+    // ✅ Correct call using imported autoTable
+    autoTable(doc, {
+      head: [tableColumnHeaders],
+      body: tableRows,
+      startY: 20,
+    });
+
+    doc.save(formDetails[0]?.name + ".pdf");
   };
   // const ManageSalesOrderTableCols = [
   //   ...(ManageSalesOrderTableColumn &
@@ -169,21 +215,19 @@ const ManageSalesOrder = () => {
   //     })),
   // ];
   const menuChildMap = user?.Roles?.flatMap((role) =>
-  role.UserMenus?.map((menu) => {
-    const matched = menu.children?.filter(
-      (child) => child.formId === formId
-    );
+    role.UserMenus?.map((menu) => {
+      const matched = menu.children?.filter((child) => child.formId === formId);
 
-    if (matched?.length) {
-      return {
-        menuName: menu.name,
-        childNames: matched.map((c) => c.name),
-      };
-    }
+      if (matched?.length) {
+        return {
+          menuName: menu.name,
+          childNames: matched.map((c) => c.name),
+        };
+      }
 
-    return null;
-  }).filter(Boolean)
-);
+      return null;
+    }).filter(Boolean)
+  );
   console.log("object", menuChildMap[0].menuName);
   const ManageSalesOrderTableCols =
     menuChildMap[0].menuName === "Purchase"
@@ -357,7 +401,6 @@ const ManageSalesOrder = () => {
     });
   };
 
-
   const [formConfig, setFormConfig] = useState(null);
 
   // if (!formConfig) return <div>Loading form...</div>;
@@ -525,7 +568,7 @@ const ManageSalesOrder = () => {
                               style={{ border: "none" }}
                             >
                               <ToolbarButton
-                                design="Default"
+                                design="emphasized"
                                 onClick={() => {
                                   navigate(
                                     "/Order/create/" +
@@ -537,9 +580,16 @@ const ManageSalesOrder = () => {
                                 }}
                                 text="Create"
                               />
+                              <ToolbarButton
+                                design="Transparent"
+                                onClick={handleExportPDF}
+                                text="Export"
+                              />
                             </Toolbar>
                           </FlexBox>
                         }
+                        selectionMode="MultiSelect"
+                        onRowSelect={handleRowSelect}
                         loading={loading}
                         showOverlay={page === 0 && loading}
                         noDataText={
@@ -590,18 +640,12 @@ const ManageSalesOrder = () => {
                             setIsLoadingMore(false);
                           }
                         }}
-                        onRowClick={(event) => {
-                          console.log("Row::", event.detail.row.original._id);
-                          //previewFormInModal(event.detail.row.original._id);
-                        }}
                         onRowExpandChange={() => {}}
                         onSort={() => {}}
                         onTableScroll={() => {}}
-                        selectionMode="SingleSelect"
-                        selectionBehavior="RowOnly"
+                        //selectionBehavior="RowOnly"
                         // tableHooks={[AnalyticalTableHooks.useManualRowSelect("isSelected")]}
                         // markNavigatedRow={markNavigatedRow}
-                        onRowSelect={onRowSelect}
                         // withRowHighlight
                         // adjustTableHeightOnPopIn
                         rowHeight={40}
