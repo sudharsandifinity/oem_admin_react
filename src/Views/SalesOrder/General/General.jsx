@@ -300,7 +300,7 @@ console.log("selectedData",selectedData,generalData)
                       name="CustomerRefNo"
                       disabled={mode === "view"}
                       style={{ width: "100%" }}
-                      value={autoCustomerRef || field.value}
+                      value={field.value}
                       onInput={(e) => field.onChange(e.target.value)}
                       onChange={handleChange}
                       valueState={errors.CustomerRefNo ? "Error" : "None"}

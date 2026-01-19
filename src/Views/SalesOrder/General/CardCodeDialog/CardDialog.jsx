@@ -34,7 +34,6 @@ const CardDialog = ({
     },
     { Header: "Card Name", accessor: "CardName" },
     { Header: "Contact Person", accessor: "ContactPerson" },
-    { Header: "Series", accessor: "Series" },
   ];
 
   const handleSelectionChange = (event) => {

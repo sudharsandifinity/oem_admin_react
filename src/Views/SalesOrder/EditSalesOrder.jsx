@@ -61,7 +61,7 @@ import {
   fetchSalesQuotationById,
   updateSalesQuotation,
 } from "../../store/slices/SalesQuotationSlice";
-import { fetchPurchaseOrderById } from "../../store/slices/purchaseorderSlice";
+import { fetchPurchaseOrderById, updatePurchaseOrder } from "../../store/slices/purchaseorderSlice";
 import {
   fetchPurchaseQuotationById,
   updatePurchaseQuotation,
@@ -361,6 +361,15 @@ const EditSalesOrder = () => {
                             amount: matched.UnitPrice,
                             discount: matched.DiscountPercent,
                             TaxRate: matched.TaxTotal,
+                             WarehouseCode: matched.WarehouseCode,
+                            ProjectCode: matched.ProjectCode,
+                            "1_ProfitCenterCode": matched.CostingCode,
+                            "2_ProfitCenterCode": matched.CostingCode2,
+
+                            "3_ProfitCenterCode": matched.CostingCode3,
+                            "4_ProfitCenterCode": matched.CostingCode4,
+                            "5_ProfitCenterCode": matched.CostingCode5,
+                          
                           }
                         : {
                             slno: index, // usually LineNum is 0-based
@@ -371,6 +380,14 @@ const EditSalesOrder = () => {
                             amount: item.UnitPrice,
                             discount: item.DiscountPercent,
                             TaxRate: item.TaxTotal,
+                             WarehouseCode: item.WarehouseCode,
+                            ProjectCode: item.ProjectCode,
+                            "1_ProfitCenterCode": item.CostingCode,
+                            "2_ProfitCenterCode": item.CostingCode2,
+
+                            "3_ProfitCenterCode": item.CostingCode3,
+                            "4_ProfitCenterCode": item.CostingCode4,
+                            "5_ProfitCenterCode": item.CostingCode5,
                           }; // no placeholder
                     })
                     .filter(Boolean) // remove nulls
@@ -393,6 +410,14 @@ const EditSalesOrder = () => {
                             amount: matched.UnitPrice,
                             discount: matched.DiscountPercent,
                             TaxRate: matched.TaxTotal,
+                             WarehouseCode: matched.WarehouseCode,
+                            ProjectCode: matched.ProjectCode,
+                            "1_ProfitCenterCode": matched.CostingCode,
+                            "2_ProfitCenterCode": matched.CostingCode2,
+
+                            "3_ProfitCenterCode": matched.CostingCode3,
+                            "4_ProfitCenterCode": matched.CostingCode4,
+                            "5_ProfitCenterCode": matched.CostingCode5,
                           }
                         : null; // no placeholder
                     })
@@ -607,6 +632,17 @@ const EditSalesOrder = () => {
             ItemDescription: line.ServiceName, // ✅ rename to ItemDescription
             TaxCode: line.TaxCode,
             UnitPrice: line.amount,
+            TaxCode: line.TaxCode,
+            WarehouseCode: line.WarehouseCode,
+            ProjectCode: line.ProjectCode,
+            VatGroup: line.TaxCode,
+            DiscountPercent: line.discount,
+            LineTotal: line.total,
+            CostingCode: line["1_ProfitCenterCode"] || null,
+            CostingCode2: line["2_ProfitCenterCode"] || null,
+            CostingCode3: line["3_ProfitCenterCode"] || null,
+            CostingCode4: line["4_ProfitCenterCode"] || null,
+            CostingCode5: line["5_ProfitCenterCode"] || null,
           })),
           data: userdefinedData || {},
           DocTotal: summaryData.DocTotal || 0,
@@ -669,7 +705,7 @@ const EditSalesOrder = () => {
         ).unwrap();
       } else if (formDetails[0]?.name === "Purchase Order") {
         res = await dispatch(
-          updateCustomerOrder({ id, data: formDataToSend })
+          updatePurchaseOrder({ id, data: formDataToSend })
         ).unwrap();
       } else if (formDetails[0]?.name === "Purchase Quotation") {
         res = await dispatch(

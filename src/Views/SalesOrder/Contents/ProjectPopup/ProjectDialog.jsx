@@ -1,20 +1,15 @@
-import { AnalyticalTable, Button, Dialog, DynamicPage, DynamicPageHeader, FlexBox, Grid } from "@ui5/webcomponents-react";
+import { AnalyticalTable, Button, Dialog, DynamicPage, DynamicPageHeader, FlexBox, Grid, Tag } from "@ui5/webcomponents-react";
 import React, { useContext, useEffect, useMemo, useState } from "react";
-import { FormConfigContext } from "../../../../../Components/Context/FormConfigContext";
 
 
-const TaxDialog = (props) => {
+const ProjectDialog = (props) => {
   const {
     isProjectDialogOpen,
     setisProjectDialogOpen,
     projectData,setProjectData,
-    itemdata,
-    setitemData,itemTabledata,setitemTableData, inputvalue,
                                     setInputValue,projectSelectionRow
   } = props;
-    const {
-      taxPopupFilterList
-    } = useContext(FormConfigContext);
+
       const [originalProjectData, setOriginalProjectData] = useState([]);
       useEffect(() => {
         console.log("projectdatauseefect1", originalProjectData);
@@ -46,31 +41,18 @@ const TaxDialog = (props) => {
       {
         Header:"Active",
         accessor: "Active",
+        Cell: ({ row }) =>
+          row.original.Active === "tYES" ? (
+            <Tag children="Yes" design="Positive" size="S" />
+          ) : (
+            <Tag children="No" design="Negative" size="S" />
+          ),
       },
        
     ],
     []
   );
-  const rowSelection = (e) => {
-    console.log("rowSelection", e,itemdata,itemTabledata);
-    setitemTableData((prev) =>
-      prev.map((r, idx) =>
-        idx === Number(e.detail.row.id)   
-          ? { ...r, TaxCode: e.detail.row.original.VatGroups_Lines[e.detail.row.original.VatGroups_Lines.length - 1]?.Rate }
-          : r
-      )
-    );
-    setitemData((prev) =>
-      prev.map((r, idx) =>
-        idx === Number(e.detail.row.id)
-          ? { ...r, TaxCode: e.detail.row.original.VatGroups_Lines[e.detail.row.original.VatGroups_Lines.length - 1]?.Rate }
-          : r
-      )
-    );
-    setTimeout(() => {
-      setisProjectDialogOpen(false);
-    }, 500);
-  };
+  
   const clearFilter = () => {
     // Implement clear filter logic here
       console.log("originalItemData", originalProjectData);
@@ -153,4 +135,4 @@ const TaxDialog = (props) => {
   );
 };
 
-export default TaxDialog;
+export default ProjectDialog;

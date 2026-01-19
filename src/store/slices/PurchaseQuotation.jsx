@@ -25,24 +25,27 @@ export const createPurchaseQuotation = createAsyncThunk(
       );
     }
   }
+ 
 );
 
 export const updatePurchaseQuotation = createAsyncThunk(
   'quotations/updatePurchaseQuotation',
-  async ({ id, data }, thunkApi) => {
+ async ({ id, data }, thunkApi) => { 
     try {
+      console.log("🚀 Sending order to API:", data);
       const response = await api.patch(`${API_QUOTATION}/${id}`, data, {
         withCredentials: true,
         timeout: 60000,
       });
       return response.data;
-    } catch (err) {
-        console.error("❌ API error:", err.response?.data || err.message);
+    } catch (error) {
+      console.error("❌ API error:", error.response?.data || error.message);
       return thunkApi.rejectWithValue(
-        err.response?.data || "Error creating request"
+        error.response?.data || "Error updating order"
       );
     }
   }
+  
 );
 
 export const deletePurchaseQuotation = createAsyncThunk('quotations/deletePurchaseQuotation', async (id) => {

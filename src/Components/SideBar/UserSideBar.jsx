@@ -147,7 +147,7 @@ const UserSideBar = (props) => {
             {/* <Text style={{ paddingLeft: '16px', paddingBottom: '20px' }}>Menu List</Text> */}
             <SideNavigation>
               {/* <SideNavigationItem text="Dashboard" icon="bbyd-dashboard" /> */}
-                <SideNavigationGroup text="User Menus" expanded>
+                <SideNavigationGroup text="User Modules" expanded>
                     {menulist.length > 0 &&
                     menulist.map((menu) =>
                         !menu.RoleMenu.can_list_view ? null : (

@@ -70,9 +70,17 @@ const RoleForm = ({
     resolver: yupResolver(schema, { context: { mode } }),
   });
 
+  const [selectedCompany, setSelectedCompany] = useState(
+    defaultValues.companyId ? defaultValues.companyId : ""
+  );
+
   const { companies } = useSelector((state) => state.companies);
   const { branches } = useSelector((state) => state.branches);
   const { usermenus, loading } = useSelector((state) => state.usermenus);
+
+  const branchList = selectedCompany
+    ? branches.filter((branch) => branch.Company.id === selectedCompany)
+    : branches;
 
   const dispatch = useDispatch();
   const permissionIds = watch("permissionIds");
@@ -533,7 +541,7 @@ const RoleForm = ({
                   Roles
                 </BreadcrumbsItem>
                 <BreadcrumbsItem data-route="/admin/roles/create">
-                  {mode === "edit" ? "Edit Branch " : "Create Branch"}
+                  {mode === "edit" ? "Edit Role " : "Create Role"}
                 </BreadcrumbsItem>
               </Breadcrumbs>
             </div>
@@ -666,7 +674,7 @@ const RoleForm = ({
               )}
             </FlexBox>
           </FlexBox>
-          {/* <FlexBox direction="Column" style={{ flex: " 28%" }}>
+           <FlexBox direction="Column" style={{ flex: " 28%" }}>
             <Label>Company</Label>{" "}
             <FlexBox label={<Label required>Company</Label>}>
               <Controller
@@ -708,7 +716,7 @@ const RoleForm = ({
                 </span>
               )}
             </FlexBox>
-          </FlexBox> */}
+          </FlexBox> 
           <FlexBox direction="Column" style={{ flex: " 28%" }}>
             <Label>Branch</Label>{" "}
             <FlexBox label={<Label required>Branch</Label>}>
@@ -731,7 +739,7 @@ const RoleForm = ({
                       Select
                     </Option>
 
-                    {branches
+                    {branchList
                       .filter((r) => r.status) /* active roles only    */
                       .map((r) => (
                         <Option key={r.id} value={r.id}>

@@ -278,7 +278,7 @@ const ManageSalesOrder = () => {
             >
               <Button
                 icon="edit"
-                disabled={isOverlay || isRowDisabled}
+                //disabled={isOverlay || isRowDisabled}
                 design="Transparent"
                 onClick={() => {
                   editRow(row.original);
@@ -556,7 +556,7 @@ const ManageSalesOrder = () => {
                             alignItems="Center"
                             style={{ width: "100%", padding: "4px 10px" }}
                           >
-                            <Title style={{ minWidth: "150px" }}>
+                            <Title style={{ minWidth: "200px" }}>
                               {`${
                                 formDetails && formDetails[0]?.name
                                   ? formDetails[0]?.name
