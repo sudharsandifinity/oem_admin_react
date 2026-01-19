@@ -35,9 +35,13 @@ import "@ui5/webcomponents-icons/dist/arrow-bottom.js";
 import "@ui5/webcomponents-icons/dist/settings.js";
 import SettingsDialog from "../SettingsDialog";
 import { Tooltip } from "recharts";
-import TaxDialog from "../Item/TaxPopup/TaxDialog";
 import FreightTable from "../FreightTable";
 import Freight from "../Freight/Freight";
+import TaxDialog from "../TaxPopup/TaxDialog";
+import ProfitCenterDialog from "../ProfitCenterPopup/ProfitCenter";
+import ProjectDialog from "../ProjectPopup/ProjectDialog";
+import WarehouseDialog from "../WarehousePopup/WarehouseDialog";
+
 
 const Servicetable = (props) => {
   const {
@@ -58,8 +62,22 @@ const Servicetable = (props) => {
     setServiceForm,
     serviceForm,
     dynamcicServiceCols,
+    dimensionCols ,
     taxData,
     setTaxData,
+    projectData,
+    setProjectData,
+    warehouseData,
+    setWarehouseData,
+    setisProfitCenterDialogOpen,
+    isProfitCenterDialogOpen,
+    dimensionData,
+    setDimensionData,
+    setSelectedProfitCenterRowIndex,
+    selectedProfitCenterRowIndex,
+    profitCenterData,
+    setProfitCenterData,
+    selectedDimensionColumnCode,
     freightData,
     setFreightData,
     totalFreightAmount,
@@ -73,7 +91,7 @@ const Servicetable = (props) => {
     summaryDiscountPercent,
     setSummaryDiscountPercent,
     roundOff,
-    setRoundOff,
+    setRoundOff,clearCellValue
   } = props;
   console.log("servicetableservicedata", servicedata);
   const menuRef = useRef();
@@ -102,9 +120,14 @@ const Servicetable = (props) => {
 
   const [serviceDialogOpen, setserviceDialogOpen] = useState(false);
   const [isTaxDialogOpen, setisTaxDialogOpen] = useState(false);
+    const [isProjectDialogOpen, setisProjectDialogOpen] = useState(false);
+    const [isWarehouseDialogOpen, setisWarehouseDialogOpen] = useState(false);
 
   const [inputvalue, setInputValue] = useState({});
   const [selectedTaxRowIndex, setSelectedTaxRowIndex] = useState("");
+   const [selectedProjectRowIndex, setSelectedProjectRowIndex] = useState("");
+    const [selectedWarehouseRowIndex, setSelectedWarehouseRowIndex] =
+      useState("");
 
   const [freightdialogOpen, setfreightDialogOpen] = useState(false);
   const [currentField, setCurrentField] = useState(null);
@@ -300,13 +323,13 @@ const Servicetable = (props) => {
   console.log("calculateRowTotalsrow", row);
 
   // Convert all required values to numbers safely
-  const quantity = Number(row.quantity) || 1;
-  const unitPrice = Number(row.amount || row.unitPrice) || 0;
-  const discount = Number(row.discount) || 0;
-  const taxPercent = Number(row.TaxRate) || 0;
+  const quantity = parseFloat(row.quantity) || 1;
+  const unitPrice = parseFloat(row.amount || row.unitPrice) || 0;
+  const discount = parseFloat(row.discount) || 0;
+  const taxPercent = parseFloat(row.TaxRate) || 0;
 
   const effectiveDiscount =
-    Number(discount) + Number(summaryDiscountPercent || 0);
+    (discount) + (summaryDiscountPercent || 0);
 
   // Calculations
   const baseAmount = quantity * unitPrice;
@@ -508,6 +531,7 @@ const Servicetable = (props) => {
                 e.detail.row.original.VatGroups_Lines[
                   e.detail.row.original.VatGroups_Lines.length - 1
                 ]?.Rate,
+                 TaxRate: rate,
             }
           : r
       )
@@ -516,13 +540,93 @@ const Servicetable = (props) => {
       setisTaxDialogOpen(false);
     }, 500);
   };
+  const projectSelectionRow = (e) => {
+    console.log("projectSelectionRow", e);
+    setserviceTableData((prev) =>
+      prev.map((r, idx) =>
+        idx === selectedProjectRowIndex
+          ? { ...r, ProjectCode: e.detail.row.original.Code }
+          : r
+      )
+    );
+    setserviceData((prev) =>
+      prev.map((r, idx) =>
+        idx === Number(e.detail.row.id)
+          ? {
+              ...r,
+              ProjectCode: e.detail.row.original.Code,
+            }
+          : r
+      )
+    );
+    setTimeout(() => {
+      setisProjectDialogOpen(false);
+    }, 500);
+  };
+  const warehouseSelectionRow = (e) => {
+    console.log("warehouseSelectionRow", e);
+    setserviceTableData((prev) =>
+      prev.map((r, idx) =>
+        idx === selectedWarehouseRowIndex
+          ? { ...r, WarehouseCode: e.detail.row.original.WarehouseCode }
+          : r
+      )
+    );
+    setserviceData((prev) =>
+      prev.map((r, idx) =>
+        idx === Number(e.detail.row.id)
+          ? {
+              ...r,
+              WarehouseCode: e.detail.row.original.WarehouseCode,
+            }
+          : r
+      )
+    );
+    setTimeout(() => {
+      setisWarehouseDialogOpen(false);
+    }, 500);
+  };
+  const profitCenterSelectionRow = (e) => {
+    const selectedRow = e.detail.row.original;
+
+    const codeKey = `${
+      selectedDimensionColumnCode[selectedDimensionColumnCode.length - 1]
+    }_ProfitCenterCode`;
+    const nameKey = `${
+      selectedDimensionColumnCode[selectedDimensionColumnCode.length - 1]
+    }_ProfitCenterName`;
+
+    setserviceTableData((prev) =>
+      prev.map((row, idx) =>
+        idx === selectedProfitCenterRowIndex
+          ? {
+              ...row,
+              [codeKey]: selectedRow.CenterCode,
+              [nameKey]: selectedRow.CenterName,
+            }
+          : row
+      )
+    );
+    setserviceData((prev) =>
+      prev.map((r, idx) =>
+        idx === Number(e.detail.row.id)
+          ? {
+              ...r,
+              [codeKey]: selectedRow.CenterCode,
+              [nameKey]: selectedRow.CenterName,
+            }
+          : r
+      )
+    );
+    setisProfitCenterDialogOpen(false);
+  };
   const columns = useMemo(() => {
     // Define all possible columns
     const allColumns = [
       {
         Header: "Sl No",
         accessor: "slno",
-        width: 100,
+        width: 50,
         Cell: ({ row }) => (
           <div disabled={mode === "view"}>{row.index + 1}</div>
         ),
@@ -637,7 +741,7 @@ const Servicetable = (props) => {
               });
             }}
              onInput={(e) => {
-                const newValue = Number(e.target.value) || 0;
+                const newValue = e.target.value;
               const rowIndex = row.index;
 
               setserviceTableData((prev) => {
@@ -714,8 +818,8 @@ const Servicetable = (props) => {
         Header: "Tax Code",
         accessor: "TaxCode",
         Cell: ({ row }) => (
-          <Input
-            value={row.original.TaxCode}
+          <><Input
+            value={row.original.TaxCode? row.original.TaxCode : ""}
             readonly
             disabled={mode === "view"}
             style={{
@@ -737,14 +841,20 @@ const Servicetable = (props) => {
               }
             }
           />
+          <Button
+                        icon="sap-icon://decline"
+                        design="Transparent"
+                        onClick={() => clearCellValue(row.index, "TaxCode")}
+                      />
+                    </>
         ),
       },
       {
         Header: "Tax Amount",
         accessor: "TaxRate",
         Cell: ({ row }) => (
-          <Input
-            value={row.original.TaxRate}
+          <><Input
+            value={row.original.TaxRate? row.original.TaxRate : ""}
             readonly
             disabled={mode === "view"}
             style={{
@@ -766,6 +876,12 @@ const Servicetable = (props) => {
               }
             }
           />
+          <Button
+                        icon="sap-icon://decline"
+                        design="Transparent"
+                        onClick={() => clearCellValue(row.index, "TaxRate")}
+                      />
+                    </>
         ),
       },
       {
@@ -804,6 +920,76 @@ const Servicetable = (props) => {
           />
         ),
       },
+       {
+              Header: "Project",
+              accessor: "project",
+              Cell: ({ row }) => (
+                <><Input
+                  value={row.original.ProjectCode?row.original.ProjectCode:""}
+                  readonly
+                  disabled={mode === "view"}
+                              style={{ textAlign: "right" }}
+      
+                  onFocus={(e) => (e.target.style.borderBottom = "1px solid #007aff")}
+                  onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
+                  onClick={() =>
+                    // !row.original.Project &&
+                    {
+                      setSelectedProjectRowIndex(row.index);
+                      setisProjectDialogOpen(true);
+                    }
+                  }
+                />
+                <Button
+                    icon="sap-icon://decline"
+                    design="Transparent"
+                    onClick={() => clearCellValue(row.index, "ProjectCode")}
+                  />
+                </>
+              ),
+            },
+            {
+              Header: "Warehouse",
+              accessor: "warehouse",
+              Cell: ({ row }) => (
+                <>
+                  {" "}
+                  <Input
+                    value={
+                      row.original.WarehouseCode ? row.original.WarehouseCode : ""
+                    }
+                    readonly
+                    disabled={mode === "view"}
+                    style={{
+                      border: "none",
+                      borderBottom: "1px solid #ccc",
+                      backgroundColor: "transparent",
+                      outline: "none",
+                      padding: "4px 0",
+                      fontSize: "14px",
+                      transition: "border-color 0.2s",
+                    }}
+                    onFocus={(e) =>
+                      (e.target.style.borderBottom = "1px solid #007aff")
+                    }
+                    onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
+                    onClick={() =>
+                      // !row.original.Warehouse &&
+                      {
+                        setSelectedWarehouseRowIndex(row.index);
+                        setisWarehouseDialogOpen(true);
+                      }
+                    }
+                  />
+                  <Button
+                    icon="sap-icon://decline"
+                    design="Transparent"
+                    onClick={() => clearCellValue(row.index, "WarehouseCode")}
+                  />
+                </>
+              ),
+            },
+            ...dimensionCols,
       {
         Header: "Actions",
         accessor: "actions",
@@ -812,7 +998,7 @@ const Servicetable = (props) => {
         disableResizing: true,
         disableSortBy: true,
         id: "actions",
-        width: 200,
+        width: 50,
 
         Cell: (instance) => {
           const { cell, row, webComponentsReactProperties } = instance;
@@ -848,7 +1034,7 @@ const Servicetable = (props) => {
     );
 
     return visibleColumns;
-  }, [serviceTabledata, mode, dynamicServiceColumnslist]);
+  }, [serviceTabledata, mode, dynamicServiceColumnslist,dimensionCols]);
 
   return (
     <>
@@ -925,11 +1111,14 @@ const Servicetable = (props) => {
         dynamicServiceColumnslist
       )}
       <AnalyticalTable
+      style={{ borderTop: "1px solid #d6dbe0" }}
         data={serviceTabledata}
         columns={columns}
         withNavigationHighlight
         getRowId={(row) => row.original.id.toString()}
         selectionMode="Multiple"
+         retainColumnWidth={true}
+        scaleWidthMode="Grow"
         //selectedRowIds={rowSelection && Object.keys(rowSelection)} // 👈 ensures rows are preselected
         onRowSelect={(e) => onRowSelect(e)}
         // markNavigatedRow={markNavigatedRow}
@@ -1013,6 +1202,10 @@ const Servicetable = (props) => {
                   onInput={(e) => {
                     const value = parseFloat(e.target.value) || 0;
                     setSummaryDiscountPercent(value);
+                    setSummaryData((prev) => ({
+                      ...prev,
+                      DiscountPercent: value,
+                    }));
                   }}
                 />
                 %
@@ -1080,6 +1273,10 @@ const Servicetable = (props) => {
                   if (!checked) {
                     setRoundOff(0);
                   }
+                   setSummaryData((prev) => ({
+                    ...prev,
+                    Rounding: checked ? "tYES" : "tNO",
+                  }));
                 }}
               />
               {roundingEnabled ? (
@@ -1087,7 +1284,13 @@ const Servicetable = (props) => {
                   type="number"
                   value={roundOff}
                   style={{ textAlign: "right" }}
-                  onInput={(e) => setRoundOff(parseFloat(e.target.value) || 0)}
+                  onInput={(e) => {setRoundOff(parseFloat(e.target.value) || 0)
+                    setSummaryData((prev) => ({
+                      ...prev,
+                      RoundingDiffAmount: e.target.value,
+                    }));
+                  }
+                  }
                 />
               ) : (
                 <Text>{roundOff&&roundOff.toFixed(2)}</Text>
@@ -1144,14 +1347,42 @@ const Servicetable = (props) => {
           Save
         </Button>
       </Dialog>
+      <ProfitCenterDialog
+        isProfitCenterDialogOpen={isProfitCenterDialogOpen}
+        setisProfitCenterDialogOpen={setisProfitCenterDialogOpen}
+        profitCenterData={profitCenterData.filter(
+          (pc) =>
+            pc.InWhichDimension ===
+            selectedDimensionColumnCode[selectedDimensionColumnCode.length - 1]
+        )}
+        setProfitCenterData={setProfitCenterData}
+        inputvalue={inputvalue}
+        setInputValue={setInputValue}
+        profitCenterSelectionRow={profitCenterSelectionRow}
+      />
+      <WarehouseDialog
+        isWarehouseDialogOpen={isWarehouseDialogOpen}
+        setisWarehouseDialogOpen={setisWarehouseDialogOpen}
+        warehouseData={warehouseData}
+        setWarehouseData={setWarehouseData}
+        inputvalue={inputvalue}
+        setInputValue={setInputValue}
+        warehouseSelectionRow={warehouseSelectionRow}
+      />
+      <ProjectDialog
+        isProjectDialogOpen={isProjectDialogOpen}
+        setisProjectDialogOpen={setisProjectDialogOpen}
+        projectData={projectData}
+        setProjectData={setProjectData}
+        inputvalue={inputvalue}
+        setInputValue={setInputValue}
+        projectSelectionRow={projectSelectionRow}
+      />
       <TaxDialog
         isTaxDialogOpen={isTaxDialogOpen}
         setisTaxDialogOpen={setisTaxDialogOpen}
         taxData={taxData}
         setTaxData={setTaxData}
-        itemdata={servicedata}
-        setitemData={setserviceData}
-        setitemTableData={setserviceTableData}
         inputvalue={inputvalue}
         setInputValue={setInputValue}
         taxSelectionRow={taxSelectionRow}

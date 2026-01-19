@@ -1,6 +1,5 @@
-import { AnalyticalTable, Button, Dialog, DynamicPage, DynamicPageHeader, FlexBox, Grid } from "@ui5/webcomponents-react";
+import { AnalyticalTable, Button, Dialog, DynamicPage, DynamicPageHeader, FlexBox, Grid, Tag } from "@ui5/webcomponents-react";
 import React, { useContext, useEffect, useMemo, useState } from "react";
-import { FormConfigContext } from "../../../../../Components/Context/FormConfigContext";
 
 
 const ProfitCenterDialog = (props) => {
@@ -8,13 +7,10 @@ const ProfitCenterDialog = (props) => {
     isProfitCenterDialogOpen,
     setisProfitCenterDialogOpen,
     profitCenterData,setProfitCenterData,
-    itemdata,
-    setitemData,itemTabledata,setitemTableData, inputvalue,
+   itemTabledata,setitemTableData, inputvalue,
                                     setInputValue,profitCenterSelectionRow
   } = props;
-    const {
-      taxPopupFilterList
-    } = useContext(FormConfigContext);
+  
       const [originalProfitCenterData, setOriginalProfitCenterData] = useState([]);
       useEffect(() => {
         console.log("profitCenterdatauseefect1", originalProfitCenterData);
@@ -51,39 +47,21 @@ const ProfitCenterDialog = (props) => {
         Header: "Group Code",
         accessor: "GroupCode",
       },
-      
-      {
-        Header: "In Which Dimension",
-        accessor: "InWhichDimension",
-      },
       {
         Header:"Active",
         accessor: "Active",
+         Cell: ({ row }) =>
+          row.original.Active === "tYES" ? (
+            <Tag children="Yes" design="Positive" size="S" />
+          ) : (
+            <Tag children="No" design="Negative" size="S" />
+          ),
       },
        
     ],
     []
   );
-  const rowSelection = (e) => {
-    console.log("rowSelection", e,itemdata,itemTabledata);
-    setitemTableData((prev) =>
-      prev.map((r, idx) =>
-        idx === Number(e.detail.row.id)   
-          ? { ...r, TaxCode: e.detail.row.original.VatGroups_Lines[e.detail.row.original.VatGroups_Lines.length - 1]?.Rate }
-          : r
-      )
-    );
-    setitemData((prev) =>
-      prev.map((r, idx) =>
-        idx === Number(e.detail.row.id)
-          ? { ...r, TaxCode: e.detail.row.original.VatGroups_Lines[e.detail.row.original.VatGroups_Lines.length - 1]?.Rate }
-          : r
-      )
-    );
-    setTimeout(() => {
-      setisProfitCenterDialogOpen(false);
-    }, 500);
-  };
+
   const clearFilter = () => {
     // Implement clear filter logic here
       console.log("originalItemData", originalProfitCenterData);

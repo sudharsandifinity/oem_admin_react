@@ -10,24 +10,36 @@ export const fetchSalesQuotations = createAsyncThunk('quotations/fetchSalesQuota
 
 export const createSalesQuotation = createAsyncThunk(
   'quotations/createSalesQuotation',
-  async (quotationData, { rejectWithValue }) => {
+  async (quotationData, thunkApi ) => {
     try {
-      const response = await api.post(API_QUOTATION, quotationData, { withCredentials: true,timeout: 50000 });
+      const response = await api.post(API_QUOTATION, quotationData, { headers: { "Content-Type": "multipart/form-data" }, withCredentials: true,timeout: 50000 });
       return response.data;
-    } catch (err) {
-      return rejectWithValue(err.response?.data);
+    } catch (error) {
+      console.error("❌ API error:", error.response?.data || error.message);
+      return thunkApi.rejectWithValue(
+        error.response?.data || "Error creating order"
+      );
     }
   }
 );
 
 export const updateSalesQuotation = createAsyncThunk(
   'quotations/updateSalesQuotation',
-  async ({ id, data }, { rejectWithValue }) => {
+  
+
+  async ({ id, data }, thunkApi) => { 
     try {
-      const response = await api.put(`${API_QUOTATION}/${id}`, data, { withCredentials: true,timeout: 50000 });
+      console.log("🚀 Sending order to API:", data);
+      const response = await api.patch(`${API_QUOTATION}/${id}`, data, {
+        withCredentials: true,
+        timeout: 60000,
+      });
       return response.data;
-    } catch (err) {
-      return rejectWithValue(err.response?.data);
+    } catch (error) {
+      console.error("❌ API error:", error.response?.data || error.message);
+      return thunkApi.rejectWithValue(
+        error.response?.data || "Error updating order"
+      );
     }
   }
 );

@@ -234,12 +234,9 @@ const Contents = (props) => {
   };
 
   const getSelectedDimensionCodes = (row) =>
-  Object.keys(row)
-    .filter(
-      (key) =>
-        key.endsWith("_ProfitCenterCode") && row[key]
-    )
-    .map((key) => Number(key.split("_")[0]));
+    Object.keys(row)
+      .filter((key) => key.endsWith("_ProfitCenterCode") && row[key])
+      .map((key) => Number(key.split("_")[0]));
   const dynamcicItemCols = [
     ...(itemTableColumn &&
       itemTableColumn.length &&
@@ -256,27 +253,36 @@ const Contents = (props) => {
       Header: dim.DimensionDescription || "Dimension",
       accessor: dim.DimensionDescription || "Dimension", // ✅ DATA KEY
       Cell: ({ row }) => (
-        <Input
-          //value={dim.DimensionCode===selectedDimensionColumnCode.map((code) => code === dim.DimensionCode)?row.original[selectedDimensionColumnCode + "_ProfitCenterCode"] :row.original[dim.DimensionDescription] || ""}
-          value={
-            getSelectedDimensionCodes(row.original).includes(dim.DimensionCode)
-              ? row.original[dim.DimensionCode + "_ProfitCenterCode"]
-              : row.original[dim.DimensionDescription] || ""
-          }
-          readonly
-          disabled={mode === "view"}
-          style={{
-            border: "none",
-            borderBottom: "1px solid #ccc",
-            backgroundColor: "transparent",
-            outline: "none",
-            padding: "4px 0",
-            fontSize: "14px",
-          }}
-          onClick={() => {
-            console.log("dynamicitem", row, dim);
-          }}
-        />
+        <>
+          <Input
+            //value={dim.DimensionCode===selectedDimensionColumnCode.map((code) => code === dim.DimensionCode)?row.original[selectedDimensionColumnCode + "_ProfitCenterCode"] :row.original[dim.DimensionDescription] || ""}
+            value={
+              getSelectedDimensionCodes(row.original).includes(
+                dim.DimensionCode
+              )
+                ? row.original[dim.DimensionCode + "_ProfitCenterCode"]
+                : row.original[dim.DimensionDescription] || ""
+            }
+            readonly
+            disabled={mode === "view"}
+            style={{
+              border: "none",
+              borderBottom: "1px solid #ccc",
+              backgroundColor: "transparent",
+              outline: "none",
+              padding: "4px 0",
+              fontSize: "14px",
+            }}
+            onClick={() => {
+              console.log("dynamicitem", row, dim);
+            }}
+          />
+          <Button
+            icon="sap-icon://decline"
+            design="Transparent"
+            onClick={() => clearItemCellValue(row.index, dim.DimensionCode + "_ProfitCenterCode")}
+          />
+        </>
       ),
     })),
   ];
@@ -287,12 +293,15 @@ const Contents = (props) => {
     return dimensionData.slice(0, 5).map((dim) => ({
       Header: dim.DimensionDescription,
       accessor: dim.DimensionDescription, // ✅ DATA KEY
+     
       Cell: ({ row }) => (
         <>
-          {console.log("dimensionrow", row,getSelectedDimensionCodes(row.original))}
+          
           <Input
             value={
-              getSelectedDimensionCodes(row.original).includes(dim.DimensionCode)
+              getSelectedDimensionCodes(row.original).includes(
+                dim.DimensionCode
+              )
                 ? row.original[dim.DimensionCode + "_ProfitCenterCode"]
                 : row.original[dim.DimensionDescription] || ""
             }
@@ -320,6 +329,12 @@ const Contents = (props) => {
               ]);
               setisProfitCenterDialogOpen(true);
             }}
+          />
+          <Button
+            icon="sap-icon://decline"
+            design="Transparent"
+                        onClick={() => {clearItemCellValue(row.index, dim.DimensionCode + "_ProfitCenterCode");clearServiceCellValue(row.index, dim.DimensionCode + "_ProfitCenterCode");}}
+
           />
         </>
       ),
@@ -371,8 +386,66 @@ const Contents = (props) => {
           Header: col.Header,
           accessor: col.accessor,
         }))),
+        ...dimensionData?.map((dim) => ({
+      Header: dim.DimensionDescription || "Dimension",
+      accessor: dim.DimensionDescription || "Dimension", // ✅ DATA KEY
+      Cell: ({ row }) => (
+        <>
+          <Input
+            //value={dim.DimensionCode===selectedDimensionColumnCode.map((code) => code === dim.DimensionCode)?row.original[selectedDimensionColumnCode + "_ProfitCenterCode"] :row.original[dim.DimensionDescription] || ""}
+            value={
+              getSelectedDimensionCodes(row.original).includes(
+                dim.DimensionCode
+              )
+                ? row.original[dim.DimensionCode + "_ProfitCenterCode"]
+                : row.original[dim.DimensionDescription] || ""
+            }
+            readonly
+            disabled={mode === "view"}
+            style={{
+              border: "none",
+              borderBottom: "1px solid #ccc",
+              backgroundColor: "transparent",
+              outline: "none",
+              padding: "4px 0",
+              fontSize: "14px",
+            }}
+            onClick={() => {
+              console.log("dynamicitem", row, dim);
+            }}
+          />
+          <Button
+            icon="sap-icon://decline"
+            design="Transparent"
+            onClick={() => clearServiceCellValue(row.index, dim.DimensionCode + "_ProfitCenterCode")}
+          />
+        </>
+      ),
+    })),
+  
   ];
-
+  const clearItemCellValue = (rowIndex, field) => {
+    console.log("clearcellvalue", rowIndex, field);
+    setitemTableData((prev) =>
+      prev.map((row, idx) =>
+        idx === rowIndex ? { ...row, [field]: null } : row
+      )
+    );
+    setitemData((prev) =>
+      prev.map((r, idx) => (idx === rowIndex ? { ...r, [field]: null } : r))
+    );
+  };
+   const clearServiceCellValue = (rowIndex, field) => {
+    console.log("clearcellvalue", rowIndex, field);
+    setserviceTableData((prev) =>
+      prev.map((row, idx) =>
+        idx === rowIndex ? { ...row, [field]: null } : row
+      )
+    );
+    setserviceData((prev) =>
+      prev.map((r, idx) => (idx === rowIndex ? { ...r, [field]: null } : r))
+    );
+  };
   const itemcolumns = useMemo(
     () => [
       {
@@ -581,7 +654,7 @@ const Contents = (props) => {
   const handleitemRowChange = (item) => {
     console.log("handleitemRowChange", item);
   };
-  
+
   const renderIteminput = (field, form, handleChange, SelectedType) => {
     //const value = form&&form[field.accessor] || "";
     switch (field.type) {
@@ -733,6 +806,7 @@ const Contents = (props) => {
                         selectedDimensionColumnCode={
                           selectedDimensionColumnCode
                         }
+                        clearCellValue={clearItemCellValue}
                         dimensionData={dimensionData}
                         setDimensionData={setDimensionData}
                         setSelectedProfitCenterRowIndex={
@@ -782,10 +856,34 @@ const Contents = (props) => {
                         setSelectedRowIndex={setSelectedRowIndex}
                         mode={mode}
                         selectedServices={selectedServices}
+                        dimensionCols={dimensionCols}
                         taxData={taxData}
                         setTaxData={setTaxData}
                         freightData={freightData}
                         setFreightData={setFreightData}
+                        projectData={projectData}
+                        setProjectData={setProjectData}
+                        warehouseData={warehouseData}
+                        setWarehouseData={setWarehouseData}
+                        profitCenterData={profitCenterData}
+                        setProfitCenterData={setProfitCenterData}
+                        selectedDimensionColumnCode={
+                          selectedDimensionColumnCode
+                        }
+                        clearCellValue={clearServiceCellValue}
+                        dimensionData={dimensionData}
+                        setDimensionData={setDimensionData}
+                        setSelectedProfitCenterRowIndex={
+                          setSelectedProfitCenterRowIndex
+                        }
+                        selectedProfitCenterRowIndex={
+                          selectedProfitCenterRowIndex
+                        }
+                        setisProfitCenterDialogOpen={
+                          setisProfitCenterDialogOpen
+                        }
+                        isProfitCenterDialogOpen={isProfitCenterDialogOpen}
+                        
                         setIsFreightTableVisible={setIsFreightTableVisible}
                         isFreightTableVisible={isFreightTableVisible}
                         totalFreightAmount={totalFreightAmount}

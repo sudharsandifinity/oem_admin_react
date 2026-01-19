@@ -75,7 +75,7 @@ const UserSideNav = ({
             </>
           }
         >
-          <SideNavigationGroup text="User Menus" expanded>
+          <SideNavigationGroup text="User Modules" expanded>
             {menulist.length > 0 &&
               menulist.map((menu) =>
                 !menu.RoleMenu.can_list_view ? null : (

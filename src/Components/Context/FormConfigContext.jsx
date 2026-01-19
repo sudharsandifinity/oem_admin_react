@@ -637,7 +637,8 @@ const FormConfigProvider = ({ children }) => {
     { Header: "Tax Amount", accessor: "TaxRate", type: "number" },
     { Header: "Discount", accessor: "discount", type: "number" },
     { Header: "Gross Total", accessor: "grosstotal", type: "number" },
-
+ { Header: "Project", accessor: "project", type: "text" },
+    { Header: "Warehouse", accessor: "warehouse", type: "text" },
   ];
   const fieldConfig = [
     {

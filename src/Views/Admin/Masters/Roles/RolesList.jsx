@@ -21,6 +21,7 @@ import { useNavigate } from "react-router-dom";
 import Admin from "../../Admin";
 import { deleteRole, fetchRoles } from "../../../../store/slices/roleSlice";
 import AppBar from "../../../../Components/Module/Appbar";
+import { fetchCompanies } from "../../../../store/slices/companiesSlice";
 const ViewRole = Loadable(lazy(() => import("./ViewRole")));
 
 const RolesList = () => {
@@ -29,6 +30,7 @@ const RolesList = () => {
   const { roles } = useSelector((state) => state.roles);
     const { user } = useSelector((state) => state.auth);
         const { branches } = useSelector((state) => state.branches);
+  const { companies } = useSelector((state) => state.companies);
     
   
   const [search, setSearch] = useState("");
@@ -40,6 +42,7 @@ const RolesList = () => {
     const fetchData = async () => {
       try {
         const res = await dispatch(fetchRoles()).unwrap();
+        await dispatch(fetchCompanies()).unwrap();
         console.log("resusers", res);
 
         if (res.message === "Please Login!") {
@@ -92,6 +95,16 @@ const RolesList = () => {
  {
         Header: "Scope",
         accessor: "scope",
+      },
+      {
+        Header:"Company",
+         accessor: "company",
+           Cell: ({ row }) => {
+          const company = companies.find((company) =>
+  company.Branches?.some((branch) => branch.id === row.original.branchId)
+);
+          return company ? company.name : "";
+        },
       },
       {
         Header:"Branche",

@@ -114,6 +114,8 @@ export default function SalesOrder() {
       quantity: "",
       amount: "",
       TaxCode: "",
+      Project: "",
+      Warehouse:""
     },
   ]);
   const [servicedata, setserviceData] = useState([
@@ -180,7 +182,7 @@ export default function SalesOrder() {
       );
       setLoading(true);
       let payload = {};
-      const isPurchaseQuotation = formDetails[0]?.name === "Purchase Quotation"|| formDetails[0]?.name === "Purchase Request";
+      const isPurchaseQuotation =  formDetails[0]?.name === "Purchase Order"||formDetails[0]?.name === "Purchase Quotation"|| formDetails[0]?.name === "Purchase Request";
       if (type === "Item") {
         payload = {
           CardCode: formData.CardCode || selectedcardcode,
@@ -289,11 +291,27 @@ export default function SalesOrder() {
           DocumentLines: serviceTabledata.map((line) => ({
             AccountCode: line.ServiceCode,
             ItemDescription: line.ServiceName,
-            TaxCode: line.TaxCode,
             UnitPrice: line.amount,
+            WarehouseCode: line.WarehouseCode,
+            ProjectCode: line.ProjectCode,
+            TaxCode: line.TaxCode,
+            VatGroup: line.TaxCode,
+            DiscountPercent: line.discount,
+            LineTotal: line.total,
+            CostingCode: line["1_ProfitCenterCode"] || null,
+  CostingCode2: line["2_ProfitCenterCode"] || null,
+  CostingCode3: line["3_ProfitCenterCode"] || null,
+  CostingCode4: line["4_ProfitCenterCode"] || null,
+  CostingCode5: line["5_ProfitCenterCode"] || null,
           })),
 
           data: userdefinedData || {},
+          Rounding: summaryData.Rounding || "tNO",
+          RoundingDiffAmount: summaryData.RoundingDiffAmount || 0,
+          DiscountPercent: summaryData.DiscountPercent || 0,
+          TotalDiscount: summaryData.TotalDiscount || 0,
+          Comments: summaryData.Remark || "",
+          VatSum: summaryData.VatSum || 0,
           DocumentAdditionalExpenses: Object.values(freightRowSelection).map(
             (freight) => ({
               ExpenseCode: freight.ExpensCode,

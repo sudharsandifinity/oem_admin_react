@@ -1,20 +1,15 @@
-import { AnalyticalTable, Button, Dialog, DynamicPage, DynamicPageHeader, FlexBox, Grid } from "@ui5/webcomponents-react";
+import { AnalyticalTable, Button, Dialog, DynamicPage, DynamicPageHeader, FlexBox, Grid, Tag, Text } from "@ui5/webcomponents-react";
 import React, { useContext, useEffect, useMemo, useState } from "react";
-import { FormConfigContext } from "../../../../../Components/Context/FormConfigContext";
 
 
-const TaxDialog = (props) => {
+const WarehouseDialog = (props) => {
   const {
     isWarehouseDialogOpen,
     setisWarehouseDialogOpen,
     warehouseData,setWarehouseData,
-    itemdata,
-    setitemData,itemTabledata,setitemTableData, inputvalue,
                                     setInputValue,warehouseSelectionRow
   } = props;
-    const {
-      taxPopupFilterList
-    } = useContext(FormConfigContext);
+  
       const [originalWarehouseData, setOriginalWarehouseData] = useState([]);
       useEffect(() => {
         console.log("warehousedatauseefect1", originalWarehouseData);
@@ -39,16 +34,23 @@ const TaxDialog = (props) => {
         Header: "Warehouse Name",
         accessor: "WarehouseName",
       },
+     
       {
-        Header: "Inactive",
+        Header:"Inactive",
         accessor: "Inactive",
+         Cell: ({ row }) =>
+          row.original.Inactive === "tYES" ? (
+            <Text children="Yes"  size="S" />
+          ) : (
+            <Text children="No"  size="S" />
+          ),
       },
      
     ],
     []
   );
   const rowSelection = (e) => {
-    console.log("rowSelection", e,itemdata,itemTabledata);
+    console.log("rowSelection", e,itemTabledata);
     setitemTableData((prev) =>
       prev.map((r, idx) =>
         idx === Number(e.detail.row.id)   
@@ -149,4 +151,4 @@ const TaxDialog = (props) => {
   );
 };
 
-export default TaxDialog;
+export default WarehouseDialog;

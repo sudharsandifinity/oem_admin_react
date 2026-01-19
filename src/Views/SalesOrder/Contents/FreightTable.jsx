@@ -83,11 +83,7 @@ console.log("calculatedrow",row,unitPrice,taxPercent)
         width: 200,
         accessor: "Name",
       },
-      {
-        Header: "Expense Code",
-        width: 200,
-        accessor: "ExpensCode",
-      },
+     
       {
         Header: "Remarks",
         width: 200,

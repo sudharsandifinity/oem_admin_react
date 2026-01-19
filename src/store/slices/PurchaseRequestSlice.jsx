@@ -10,18 +10,15 @@ export const fetchPurchaseRequest = createAsyncThunk('requests/fetchPurchaseRequ
 
 export const createPurchaseRequest = createAsyncThunk(
   'requests/createPurchaseRequest',
-  async (requestData, thunkApi) => {
+  
+   async (requestData, thunkApi) => {
     try {
-       const response = await api.post(API_REQUEST, requestData, {
-        headers: { "Content-Type": "multipart/form-data" },
-        withCredentials: true,
-        timeout: 50000,
-      });
+      const response = await api.post(API_REQUEST, requestData, { headers: { "Content-Type": "multipart/form-data" }, withCredentials: true,timeout: 50000 });
       return response.data;
-    } catch (err) {
-  console.error("❌ API error:", err.response?.data || err.message);
+    } catch (error) {
+      console.error("❌ API error:", error.response?.data || error.message);
       return thunkApi.rejectWithValue(
-        err.response?.data || "Error creating request"
+        error.response?.data || "Error creating request"
       );
     }
   }
@@ -29,18 +26,19 @@ export const createPurchaseRequest = createAsyncThunk(
 
 export const updatePurchaseRequest = createAsyncThunk(
   'requests/updatePurchaseRequest',
-  async ({ id, data }, thunkApi) => {
+  
+    async ({ id, data }, thunkApi) => { 
     try {
+      console.log("🚀 Sending order to API:", data);
       const response = await api.patch(`${API_REQUEST}/${id}`, data, {
-       headers: { "Content-Type": "multipart/form-data" },
         withCredentials: true,
         timeout: 60000,
       });
       return response.data;
-    } catch (err) {
-       console.error("❌ API error:", err.response?.data || err.message);
+    } catch (error) {
+      console.error("❌ API error:", error.response?.data || error.message);
       return thunkApi.rejectWithValue(
-        err.response?.data || "Error creating request"
+        error.response?.data || "Error updating request"
       );
     }
   }
