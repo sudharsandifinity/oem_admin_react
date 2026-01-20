@@ -87,8 +87,8 @@ export default function SalesOrder() {
   const [roundOff, setRoundOff] = useState(0);
   const [selectedcardcode, setSelectedCardCode] = useState([]);
 
-    const [dimensionData, setDimensionData] = useState([]);
-  
+  const [dimensionData, setDimensionData] = useState([]);
+  const [currencyType, setCurrencyType] = useState("GBP");
 
   const [itemTabledata, setitemTableData] = useState([
     {
@@ -99,7 +99,7 @@ export default function SalesOrder() {
       amount: "",
       TaxCode: "",
       Project: "",
-      Warehouse:""
+      Warehouse: "",
     },
   ]);
   const [summaryData, setSummaryData] = useState({});
@@ -115,7 +115,7 @@ export default function SalesOrder() {
       amount: "",
       TaxCode: "",
       Project: "",
-      Warehouse:""
+      Warehouse: "",
     },
   ]);
   const [servicedata, setserviceData] = useState([
@@ -170,7 +170,7 @@ export default function SalesOrder() {
     const newRows = form[key].filter((_, idx) => idx !== i);
     setForm({ ...form, [key]: newRows });
   };
-
+ 
   const handleSubmit = async () => {
     try {
       console.log(
@@ -182,7 +182,10 @@ export default function SalesOrder() {
       );
       setLoading(true);
       let payload = {};
-      const isPurchaseQuotation =  formDetails[0]?.name === "Purchase Order"||formDetails[0]?.name === "Purchase Quotation"|| formDetails[0]?.name === "Purchase Request";
+      const isPurchaseQuotation =
+        formDetails[0]?.name === "Purchase Order" ||
+        formDetails[0]?.name === "Purchase Quotation" ||
+        formDetails[0]?.name === "Purchase Request";
       if (type === "Item") {
         payload = {
           CardCode: formData.CardCode || selectedcardcode,
@@ -227,12 +230,12 @@ export default function SalesOrder() {
             TaxCode: line.TaxCode,
             VatGroup: line.TaxCode,
             DiscountPercent: line.discount,
-            LineTotal: line.total,
+            LineTotal: Number(line.total),
             CostingCode: line["1_ProfitCenterCode"] || null,
-  CostingCode2: line["2_ProfitCenterCode"] || null,
-  CostingCode3: line["3_ProfitCenterCode"] || null,
-  CostingCode4: line["4_ProfitCenterCode"] || null,
-  CostingCode5: line["5_ProfitCenterCode"] || null,
+            CostingCode2: line["2_ProfitCenterCode"] || null,
+            CostingCode3: line["3_ProfitCenterCode"] || null,
+            CostingCode4: line["4_ProfitCenterCode"] || null,
+            CostingCode5: line["5_ProfitCenterCode"] || null,
           })),
 
           data: userdefinedData || {},
@@ -244,8 +247,8 @@ export default function SalesOrder() {
           VatSum: summaryData.VatSum || 0,
           DocumentAdditionalExpenses: Object.values(freightRowSelection).map(
             (freight) => ({
-              ExpensCode: freight.ExpensCode,
-              LineTotal: freight.LineTotal,
+              ExpensCode: Number(freight.ExpensCode),
+              LineTotal: Number(freight.LineTotal),
               Remarks: freight.Remarks,
               TaxCode: freight.TaxCode,
               TaxPercent: freight.TaxGroup,
@@ -297,12 +300,12 @@ export default function SalesOrder() {
             TaxCode: line.TaxCode,
             VatGroup: line.TaxCode,
             DiscountPercent: line.discount,
-            LineTotal: line.total,
+            LineTotal: Number(line.total),
             CostingCode: line["1_ProfitCenterCode"] || null,
-  CostingCode2: line["2_ProfitCenterCode"] || null,
-  CostingCode3: line["3_ProfitCenterCode"] || null,
-  CostingCode4: line["4_ProfitCenterCode"] || null,
-  CostingCode5: line["5_ProfitCenterCode"] || null,
+            CostingCode2: line["2_ProfitCenterCode"] || null,
+            CostingCode3: line["3_ProfitCenterCode"] || null,
+            CostingCode4: line["4_ProfitCenterCode"] || null,
+            CostingCode5: line["5_ProfitCenterCode"] || null,
           })),
 
           data: userdefinedData || {},
@@ -314,8 +317,8 @@ export default function SalesOrder() {
           VatSum: summaryData.VatSum || 0,
           DocumentAdditionalExpenses: Object.values(freightRowSelection).map(
             (freight) => ({
-              ExpenseCode: freight.ExpensCode,
-              LineTotal: freight.grossTotal,
+              ExpenseCode: Number(freight.ExpensCode),
+              LineTotal: Number(freight.grossTotal),
               Remarks: freight.quantity,
               TaxCode: freight.TaxGroup,
               TaxPercent: freight.TaxCode,
@@ -423,11 +426,8 @@ export default function SalesOrder() {
         return null;
     }
   };
- 
-  console.log(
-    "freightRowSelection",
-    freightRowSelection,formDetails
-  );
+
+  console.log("freightRowSelection", freightRowSelection, formDetails);
   useEffect(() => {
     if (!user) return;
     if (formId) {
@@ -537,9 +537,7 @@ export default function SalesOrder() {
                       : "Sales Orders"}
                   </BreadcrumbsItem>
                   <BreadcrumbsItem>
-                    {formDetails
-                      ? "Create " + formDetails[0]?.name
-                      : "Create"}
+                    {formDetails ? "Create " + formDetails[0]?.name : "Create"}
                   </BreadcrumbsItem>
                 </Breadcrumbs>
               </>
@@ -549,11 +547,7 @@ export default function SalesOrder() {
                 {formDetails ? formDetails[0]?.name : "Sales Order"}
               </Title>
             }
-            navigationBar={
-              <Toolbar design="Transparent">
-               
-              </Toolbar>
-            }
+            navigationBar={<Toolbar design="Transparent"></Toolbar>}
           >
             <ObjectStatus>
               {/* <Button design="Transparent" icon="navigation-right-arrow"  onClick={openMenu} >
@@ -584,6 +578,8 @@ export default function SalesOrder() {
             selectedcardcode={selectedcardcode}
             setSelectedCardCode={setSelectedCardCode}
             formDetails={formDetails}
+            currencyType={currencyType}
+            setCurrencyType={setCurrencyType}
             defaultValues={{
               CardCode: "",
               DocDueDate: "1",
@@ -594,7 +590,7 @@ export default function SalesOrder() {
             apiError={apiError}
           />
         </ObjectPageSection>
-         {/* );
+        {/* );
         } else if (tab.name === "Contents") {
           return ( */}
         <ObjectPageSection
@@ -646,7 +642,7 @@ export default function SalesOrder() {
             setDimensionData={setDimensionData}
           />
         </ObjectPageSection>
-         {/* );
+        {/* );
         } else if (tab.name === "Logistics") { 
           return (  */}
         <ObjectPageSection
@@ -663,7 +659,7 @@ export default function SalesOrder() {
             handleChange={handleChange}
           />
         </ObjectPageSection>
-       {/* );
+        {/* );
         }
         else if (tab.name === "Accounting") {
           return (  */}
@@ -676,7 +672,7 @@ export default function SalesOrder() {
         >
           <Accounting />
         </ObjectPageSection>
-         {/* );
+        {/* );
         } else if (tab.name === "Attachments") {
           return (  */}
         <ObjectPageSection
@@ -692,7 +688,7 @@ export default function SalesOrder() {
             setAttachmentsList={setAttachmentsList}
           />
         </ObjectPageSection>
-         {/* );
+        {/* );
         } else if (tab.name === "User-defined-field") {
           return (  */}
         <ObjectPageSection
@@ -720,12 +716,12 @@ export default function SalesOrder() {
             setUserDefinedData={setUserDefinedData}
           />
         </ObjectPageSection>
-         {/* );
+        {/* );
         }
       }) } */}
       </ObjectPage>
       {/* </BusyIndicator> */}
-    
+
       <Dialog open={open} onAfterClose={() => setOpen(false)}>
         <div
           style={{
@@ -758,7 +754,7 @@ export default function SalesOrder() {
           <Button
             design="Emphasized"
             onClick={() => {
-              apiError ? setOpen(false):navigate(`/Sales/${formId}`) ;
+              apiError ? setOpen(false) : navigate(`/Sales/${formId}`);
             }}
           >
             OK

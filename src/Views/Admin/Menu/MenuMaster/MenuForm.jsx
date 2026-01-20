@@ -510,8 +510,8 @@ const MenuForm = ({
                           Select
                         </Option>
 
-                        {forms.length > 0 &&
-                          forms
+                        {formList.length > 0 &&
+                          formList
                             .filter((r) => r.status) /* active roles only    */
                             .map((r) => (
                               <Option key={r.id} value={r.id}>

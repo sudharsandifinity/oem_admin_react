@@ -71,7 +71,7 @@ const RoleForm = ({
   });
 
   const [selectedCompany, setSelectedCompany] = useState(
-    defaultValues.companyId ? defaultValues.companyId : ""
+    defaultValues.companyId ? defaultValues.companyId : "",
   );
 
   const { companies } = useSelector((state) => state.companies);
@@ -90,9 +90,11 @@ const RoleForm = ({
   const navigate = useNavigate();
   const formRef = useRef(null);
   const [currScope, setCurrscope] = useState(
-    mode === "edit" ? defaultValues.scope : "master"
+    mode === "edit" ? defaultValues.scope : "master",
   );
-  const [selectedBranch, setSelectedBranch] = useState(branchid ? branchid : "");
+  const [selectedBranch, setSelectedBranch] = useState(
+    branchid ? branchid : "",
+  );
 
   const grouped = {};
   permissions.forEach((perm) => {
@@ -140,80 +142,94 @@ const RoleForm = ({
   //   setValue("permissionIds", updated);
   // };
   const handleChange = (e, permissionName, menuId) => {
-    console.log("menuId", menuId);
+  const checked = e.target.checked;
 
-    if (currScope === "master") {
-      // ✅ Master scope → works as is
-      const permission = permissions.find(
-        (per) => per.name === permissionName.toLowerCase()
+  if (currScope === "master") {
+    // Master scope logic remains the same
+    const permission = permissions.find(
+      (per) => per.name === permissionName.toLowerCase()
+    );
+    if (!permission) return;
+
+    const id = permission.id;
+    let updated = checked
+      ? [...new Set([...permissionIds, id])]
+      : permissionIds.filter(pid => pid !== id);
+
+    setValue("permissionIds", updated, {
+      shouldValidate: true,
+      shouldDirty: true,
+      shouldTouch: true,
+    });
+
+  } else {
+    // User scope
+    let current = getValues("userMenus") || [];
+    console.log("current",current)
+    const existing = current.find((m) => m.menuId === menuId);
+
+    const defaultPerms = {
+      menuId,
+      can_list_view: false,
+      can_create: false,
+      can_edit: false,
+      can_view: false,
+      can_delete: false,
+    };
+
+    if (existing) {
+      current = current.map((m) =>
+        m.menuId === menuId ? { ...m, [permissionName]: checked } : m
       );
-      if (!permission) return;
-
-      const id = permission.id;
-      let updated;
-      if (e.target.checked) {
-        updated = [...new Set([...permissionIds, id])];
-      } else {
-        updated = permissionIds.filter((pid) => pid !== id);
-      }
-
-      setValue("permissionIds", updated, {
-        shouldValidate: true,
-        shouldDirty: true,
-        shouldTouch: true,
-      });
     } else {
-      // ✅ User scope → build full permission object
-      const current = getValues("userMenus") || [];
-      const existing = current.find((m) => m.menuId === menuId);
+      current = [...current, { ...defaultPerms, [permissionName]: checked }];
+    }
 
-      // default object structure
-      const defaultPerms = {
-        menuId,
-        can_list_view: false,
-        can_create: false,
-        can_edit: false,
-        can_view: false,
-        can_delete: false,
-      };
+    // Handle parent-child syncing only for List permission
+    if (permissionName === "can_list_view") {
+      const menu = menulist.find((m) => m.id === menuId);
 
-      let updated;
-      if (existing) {
-        // update the selected field
-        updated = current.map((m) =>
-          m.menuId === menuId ? { ...m, [permissionName]: e.target.checked } : m
+      // 1️⃣ Child → Parent
+      if (menu && menu.parentId) {
+        const siblings = menulist.filter((m) => m.parentId === menu.parentId);
+        const anySiblingChecked = siblings.some((sib) => 
+          sib.id === menuId ? checked : current.find(c => c.menuId === sib.id)?.can_list_view
         );
-      } else {
-        // create new entry with defaults + updated field
-        updated = [
-          ...current,
-          {
-            ...defaultPerms,
-            [permissionName]: e.target.checked,
-          },
-        ];
+
+        current = current.map((m) =>
+          m.menuId === menu.parentId
+            ? { ...m, can_list_view: anySiblingChecked }
+            : m
+        );
       }
 
-      setValue("userMenus", updated, {
-        shouldValidate: true,
-        shouldDirty: true,
-        shouldTouch: true,
-      });
+      // 2️⃣ Parent → Child
+      if (menu && !menu.parentId) {
+        const children = menulist.filter((m) => m.parentId === menuId);
+        current = current.map((m) =>
+          children.some((c) => c.id === m.menuId)
+            ? { ...m, can_list_view: checked }
+            : m
+        );
+      }
     }
-  };
+
+    setValue("userMenus", current, {
+      shouldValidate: true,
+      shouldDirty: true,
+      shouldTouch: true,
+    });
+  }
+};
+
 
   const menulist = selectedBranch
     ? usermenus
         .map((menu) =>
-          menu.children.filter(
-            (child) =>
-              child.branchId === selectedBranch 
-          )
+          menu.children.filter((child) => child.branchId === selectedBranch),
         )
         .flat()
-    : usermenus
-        .map((menu) =>
-          menu.children).flat();
+    : usermenus.map((menu) => menu.children).flat();
   console.log("menuList", usermenus, menulist, selectedBranch);
   // const filteredMenus = selectedCompany !
   //  selectedCompany !== ""
@@ -226,7 +242,7 @@ const RoleForm = ({
   //   : usermenus;
 
   useEffect(() => {
-    console.log("userMenuPermission",userMenus)
+    console.log("userMenuPermission", userMenus);
     if (mode === "edit" && userMenus?.length) {
       const prefilled = userMenus.map((menu) => ({
         menuId: menu.id, // id from your API object
@@ -244,202 +260,96 @@ const RoleForm = ({
       });
     }
   }, [mode, userMenus, setValue]);
-  const menuListData = menulist.map((menu) => ({
-    Module: menu.name,
-    id: menu.id,
-    List: "",
-    View: "",
-    Create: "",
-    Edit: "",
-    Delete: "",
-  }));
+  const buildMenuListData = () => {
+    const list = [];
+
+    (selectedBranch
+      ? usermenus.filter((menu) =>
+          menu.children.some((c) => c.branchId === selectedBranch),
+        )
+      : usermenus
+    ).forEach((menu) => {
+      // Add parent row
+      list.push({
+        Module: menu.name,
+        id: menu.id,
+        isParent: true,
+        List: "",
+        View: "",
+        Create: "",
+        Edit: "",
+        Delete: "",
+      });
+
+      // Add children rows
+      menu.children
+        .filter((child) => !selectedBranch || child.branchId === selectedBranch)
+        .forEach((child) => {
+          list.push({
+            Module: child.name,
+            id: child.id,
+            parentId: menu.id,
+            isParent: false,
+            List: "",
+            View: "",
+            Create: "",
+            Edit: "",
+            Delete: "",
+          });
+        });
+    });
+
+    return list;
+  };
+
+  const menuListData = buildMenuListData();
+
+  // const menuListData = menulist.map((menu) => ({
+  //   Module: menu.name,
+  //   id: menu.id,
+  //   List: "",
+  //   View: "",
+  //   Create: "",
+  //   Edit: "",
+  //   Delete: "",
+  // }));
   console.log("usermenus", usermenus, menulist, selectedBranch);
 
   const columns = useMemo(
     () => [
-      {
-        Header: "Module",
-        accessor: "Module",
-      },
+      { Header: "Module", accessor: "Module" },
 
-      {
-        Header: "List",
-        accessor: "List",
+      ...["List", "View", "Create", "Edit", "Delete"].map((col) => ({
+        Header: col,
+        accessor: col,
         Cell: ({ row }) => {
-          if (currScope === "master") {
-            const permName = (row.original.Module + "_list").toLowerCase();
-            const permission = permissions.find((opt) => opt.name === permName);
-            const isChecked = permission
-              ? permissionIds.includes(permission.id)
-              : false;
+          const fieldMap = {
+            List: "can_list_view",
+            View: "can_view",
+            Create: "can_create",
+            Edit: "can_edit",
+            Delete: "can_delete",
+          };
+          const permissionName = fieldMap[col];
 
-            return (
-              <CheckBox
-                checked={isChecked}
-                onChange={(e) => {
-                  handleChange(e, permName);
-                  console.log("onchange", permName);
-                }}
-              />
-            );
-          } else {
-            // const current = getValues("userMenus") || [];
-            // const existing = current.find((m) => m.menuId === row.original.id);
-            // const isChecked = existing ? existing["can_list_view"] : false; // default to false if not found
-            // return (
-            //   <CheckBox
-            //     checked={isChecked}
-            //     onChange={(e) =>
-            //       handleChange(e, "can_list_view", row.original.id)
-            //     }
-            //   />
-            // );
-            const current = getValues("userMenus") || [];
-            
-            const existing = current.find((m) => m.menuId === row.original.id);
-            const isChecked = existing ? existing[`can_list_view`] : false;
+          const isParent = row.original.isParent;
+          const current = getValues("userMenus") || [];
+          const existing = current.find((m) => m.menuId === row.original.id);
+          const isChecked = existing ? existing[permissionName] : false;
 
-            return (
-              <CheckBox
-                checked={isChecked}
-                onChange={(e) =>
-                  handleChange(e, "can_list_view", row.original.id)
-                }
-              />
-            );
-          }
+          return (
+            <CheckBox
+              checked={isChecked}
+              disabled={isParent && permissionName !== "can_list_view"} // optional: prevent editing parent for non-list
+              onChange={(e) => handleChange(e, permissionName, row.original.id)}
+            />
+          );
         },
-      },
-      {
-        Header: "View",
-        accessor: "View",
-        Cell: ({ row }) => {
-          if (currScope === "master") {
-            const permName = (row.original.Module + "_get").toLowerCase();
-            const permission = permissions.find((opt) => opt.name === permName);
-            const isChecked = permission
-              ? permissionIds.includes(permission.id)
-              : false;
-
-            return (
-              <CheckBox
-                checked={isChecked}
-                onChange={(e) => handleChange(e, permName)}
-              />
-            );
-          } else {
-            const current = getValues("userMenus") || [];
-            const existing = current.find((m) => m.menuId === row.original.id);
-            const isChecked = existing ? existing[`can_view`] : false; // default to false if not found
-
-            return (
-              <CheckBox
-                checked={isChecked}
-                onChange={(e) => handleChange(e, `can_view`, row.original.id)}
-              />
-            );
-          }
-        },
-      },
-      {
-        Header: "Create",
-        accessor: "Create",
-        Cell: ({ row }) => {
-          if (currScope === "master") {
-            const permName = (row.original.Module + "_create").toLowerCase();
-            const permission = permissions.find((opt) => opt.name === permName);
-            const isChecked = permission
-              ? permissionIds.includes(permission.id)
-              : false;
-
-            return (
-              <CheckBox
-                checked={isChecked}
-                onChange={(e) => handleChange(e, permName)}
-              />
-            );
-          } else {
-            // ✅ user scope → reflect from userMenus
-            const current = getValues("userMenus") || [];
-            const existing = current.find((m) => m.menuId === row.original.id);
-            //const isChecked = existing ? existing[`can_create`] : false; // default to false if not found
-           const isChecked = existing ? existing[`can_create`] : false; // default to false if not found
-            return (
-              <CheckBox
-                checked={isChecked}
-                onChange={(e) => handleChange(e, `can_create`, row.original.id)}
-              />
-            );
-          }
-        },
-      },
-      {
-        Header: "Edit",
-        accessor: "Edit",
-        Cell: ({ row }) => {
-          if (currScope === "master") {
-            const permName = (row.original.Module + "_update").toLowerCase();
-            const permission = permissions.find((opt) => opt.name === permName);
-            const isChecked = permission
-              ? permissionIds.includes(permission.id)
-              : false;
-
-            return (
-              <CheckBox
-                checked={isChecked}
-                onChange={(e) => handleChange(e, permName)}
-              />
-            );
-          } else {
-            // ✅ user scope → reflect from userMenus
-            const current = getValues("userMenus") || [];
-            const existing = current.find((m) => m.menuId === row.original.id);
-            //const isChecked = existing ? existing[`can_edit`] : false; // default to false if not found
-            const isChecked = existing ? existing[`can_edit`] : false; // default to false if not found
-            return (
-              <CheckBox
-                checked={isChecked}
-                onChange={(e) => handleChange(e, `can_edit`, row.original.id)}
-              />
-            );
-          }
-        },
-      },
-      {
-        Header: "Delete",
-        accessor: "Delete",
-        Cell: ({ row }) => {
-          if (currScope === "master") {
-            const permName = (row.original.Module + "_delete").toLowerCase();
-            const permission = permissions.find((opt) => opt.name === permName);
-            const isChecked = permission
-              ? permissionIds.includes(permission.id)
-              : false;
-
-            return (
-              <CheckBox
-                checked={isChecked}
-                onChange={(e) => handleChange(e, permName)}
-              />
-            );
-          } else {
-            // ✅ user scope → reflect from userMenus
-            const current = getValues("userMenus") || [];
-            const existing = current.find((m) => m.menuId === row.original.id);
-            //const isChecked = existing ? existing[`can_delete`] : false; // default to false if not found
-            const isChecked = existing ? existing[`can_delete`] : false; // default to false if not found
-            return (
-              <CheckBox
-                checked={isChecked}
-                onChange={(e) => handleChange(e, `can_delete`, row.original.id)}
-              />
-            );
-          }
-        },
-      },
+      })),
     ],
-    [permissionIds, permissions, currScope, getValues, userMenus]
+    [getValues, currScope, menuListData],
   );
+
   const data = [
     {
       Module: "Company",
@@ -508,15 +418,15 @@ const RoleForm = ({
   ];
   return (
     <>
-                    <style>
-                        {`
+      <style>
+        {`
                           ui5-page::part(content) {
                             padding: 15px;
                           }
                         `}
-                      </style>
-                    <FlexBox direction="Column" style={{width: '100%'}}>
-                     <AppBar
+      </style>
+      <FlexBox direction="Column" style={{ width: "100%" }}>
+        <AppBar
           design="Header"
           endContent={
             <Button
@@ -551,291 +461,294 @@ const RoleForm = ({
             {defaultValues.id ? "Edit Role" : "Create New Role"}
           </Title>
         </AppBar>
-    <Page
-      backgroundDesign="Solid"
-      footer={
-          <Bar
-          style={{ padding:0.5 }}
-            design="FloatingFooter"
-            endContent={
-              <>
-                <Button
-                  design="Emphasized"
-                  form="form" /* ← link button to that form id */
-                  type="Submit"
-                >
-                  {defaultValues.id ? "Edit Role" : "Create New Role"}
-                </Button>
-                {apiError && (
-                  <MessageStrip
-                    design="Negative"
-                    hideCloseButton={false}
-                    hideIcon={false}
-                    style={{ marginBottom: "1rem" }}
+        <Page
+          backgroundDesign="Solid"
+          footer={
+            <Bar
+              style={{ padding: 0.5 }}
+              design="FloatingFooter"
+              endContent={
+                <>
+                  <Button
+                    design="Emphasized"
+                    form="form" /* ← link button to that form id */
+                    type="Submit"
                   >
-                    {apiError}
-                  </MessageStrip>
-                )}
-              </>
-            }
-          />
-      }
-      // header={
-      //   <AppBar
-      //     design="Header"
-      //     endContent={
-      //       <Button
-      //         accessibleName="Settings"
-      //         icon="decline"
-      //         title="Go to Settings"
-      //         onClick={() => navigate(-1)} // Go back to previous page
-      //       />
-      //     }
-      //     startContent={
-      //       <div style={{ width: "200px" }}>
-      //         <Breadcrumbs
-      //           design="Standard"
-      //           onItemClick={(e) => {
-      //             const route = e.detail.item.dataset.route;
-      //             if (route) navigate(route);
-      //           }}
-      //           separators="Slash"
-      //         >
-      //           <BreadcrumbsItem data-route="/admin">Admin</BreadcrumbsItem>
-      //           <BreadcrumbsItem data-route="/admin/roles">
-      //             Roles
-      //           </BreadcrumbsItem>
-      //           <BreadcrumbsItem data-route="/admin/roles/create">
-      //             {mode === "edit" ? "Edit Branch " : "Create Branch"}
-      //           </BreadcrumbsItem>
-      //         </Breadcrumbs>
-      //       </div>
-      //     }
-      //   >
-      //     <Title level="h4">
-      //       {defaultValues.id ? "Edit Role" : "Create New Role"}
-      //     </Title>
-      //   </AppBar>
-      // }
-    >
-      {apiError && (
-        <MessageStrip
-          design="Negative"
-          hideCloseButton={false}
-          hideIcon={false}
-          style={{ marginBottom: "1rem" }}
+                    {defaultValues.id ? "Edit Role" : "Create New Role"}
+                  </Button>
+                  {apiError && (
+                    <MessageStrip
+                      design="Negative"
+                      hideCloseButton={false}
+                      hideIcon={false}
+                      style={{ marginBottom: "1rem" }}
+                    >
+                      {apiError}
+                    </MessageStrip>
+                  )}
+                </>
+              }
+            />
+          }
+          // header={
+          //   <AppBar
+          //     design="Header"
+          //     endContent={
+          //       <Button
+          //         accessibleName="Settings"
+          //         icon="decline"
+          //         title="Go to Settings"
+          //         onClick={() => navigate(-1)} // Go back to previous page
+          //       />
+          //     }
+          //     startContent={
+          //       <div style={{ width: "200px" }}>
+          //         <Breadcrumbs
+          //           design="Standard"
+          //           onItemClick={(e) => {
+          //             const route = e.detail.item.dataset.route;
+          //             if (route) navigate(route);
+          //           }}
+          //           separators="Slash"
+          //         >
+          //           <BreadcrumbsItem data-route="/admin">Admin</BreadcrumbsItem>
+          //           <BreadcrumbsItem data-route="/admin/roles">
+          //             Roles
+          //           </BreadcrumbsItem>
+          //           <BreadcrumbsItem data-route="/admin/roles/create">
+          //             {mode === "edit" ? "Edit Branch " : "Create Branch"}
+          //           </BreadcrumbsItem>
+          //         </Breadcrumbs>
+          //       </div>
+          //     }
+          //   >
+          //     <Title level="h4">
+          //       {defaultValues.id ? "Edit Role" : "Create New Role"}
+          //     </Title>
+          //   </AppBar>
+          // }
         >
-          {apiError}
-        </MessageStrip>
-      )}
+          {apiError && (
+            <MessageStrip
+              design="Negative"
+              hideCloseButton={false}
+              hideIcon={false}
+              style={{ marginBottom: "1rem" }}
+            >
+              {apiError}
+            </MessageStrip>
+          )}
 
-      <form
-        ref={formRef}
-        id="form"
-        onSubmit={handleSubmit((formData) => {
-          const fullData = {
-            ...formData,
-          };
-          onSubmit(fullData); // you already pass it upward
-        })}
-      >
-        <FlexBox style={{ paddingTop: "2rem" }}>
-          <FlexBox direction="Column" style={{ flex: " 28%" }}>
-            <Label>Scope</Label>{" "}
-            <FlexBox label={<Label required>Scope</Label>}>
-              <Controller
-                name="scope"
-                control={control}
-                render={({ field }) => (
-                  <Select
-                    style={{ width: "80%" }}
+          <form
+            ref={formRef}
+            id="form"
+            onSubmit={handleSubmit((formData) => {
+              const fullData = {
+                ...formData,
+              };
+              onSubmit(fullData); // you already pass it upward
+            })}
+          >
+            <FlexBox style={{ paddingTop: "2rem" }}>
+              <FlexBox direction="Column" style={{ flex: " 28%" }}>
+                <Label>Scope</Label>{" "}
+                <FlexBox label={<Label required>Scope</Label>}>
+                  <Controller
                     name="scope"
-                    value={field.value ?? "master"}
-                    onChange={(e) => {
-                      field.onChange(e.target.value);
-                      setCurrscope(e.target.value);
-                    }}
-                    valueState={errors.scope ? "Error" : "None"}
-                  >
-                    <Option value="master">master</Option>
+                    control={control}
+                    render={({ field }) => (
+                      <Select
+                        style={{ width: "80%" }}
+                        name="scope"
+                        value={field.value ?? "master"}
+                        onChange={(e) => {
+                          field.onChange(e.target.value);
+                          setCurrscope(e.target.value);
+                        }}
+                        valueState={errors.scope ? "Error" : "None"}
+                      >
+                        <Option value="master">master</Option>
 
-                    <Option value="user">User</Option>
-                  </Select>
-                )}
-              />
-
-              {errors.scope && (
-                <span
-                  slot="valueStateMessage"
-                  style={{ color: "var(--sapNegativeColor)" }}
-                >
-                  {errors.scope.message}
-                </span>
-              )}
-            </FlexBox>
-          </FlexBox>
-           <FlexBox direction="Column" style={{ flex: " 28%" }}>
-            <Label>Company</Label>{" "}
-            <FlexBox label={<Label required>Company</Label>}>
-              <Controller
-                name="companyId"
-                control={control}
-                render={({ field }) => (
-                  <Select
-                    style={{ width: "80%" }}
-                    disabled={currScope === "master"}
-                    name="companyId"
-                    value={field.value ?? ""}
-                    onChange={(e) => {
-                      field.onChange(e.target.value);
-                      setSelectedCompany(e.target.value);
-                    }}
-                    valueState={errors.companyId ? "Error" : "None"}
-                  >
-                    <Option key="select" value="">
-                      Select
-                    </Option>
-
-                    {companies
-                      .filter((r) => r.status) 
-                      .map((r) => (
-                        <Option key={r.id} value={r.id}>
-                          {r.name}
-                        </Option>
-                      ))}
-                  </Select>
-                )}
-              />
-
-              {errors.companyId && (
-                <span
-                  slot="valueStateMessage"
-                  style={{ color: "var(--sapNegativeColor)" }}
-                >
-                  {errors.companyId.message}
-                </span>
-              )}
-            </FlexBox>
-          </FlexBox> 
-          <FlexBox direction="Column" style={{ flex: " 28%" }}>
-            <Label>Branch</Label>{" "}
-            <FlexBox label={<Label required>Branch</Label>}>
-              <Controller
-                name="branchId"
-                control={control}
-                render={({ field }) => (
-                  <Select
-                    style={{ width: "80%" }}
-                    disabled={currScope === "master"}
-                    name="branchId"
-                    value={field.value ?? ""}
-                    onChange={(e) => {
-                      field.onChange(e.target.value);
-                      setSelectedBranch(e.target.value);
-                    }}
-                    valueState={errors.branchId ? "Error" : "None"}
-                  >
-                    <Option key="select" value="">
-                      Select
-                    </Option>
-
-                    {branchList
-                      .filter((r) => r.status) /* active roles only    */
-                      .map((r) => (
-                        <Option key={r.id} value={r.id}>
-                          {r.name}
-                        </Option>
-                      ))}
-                  </Select>
-                )}
-              />
-
-              {errors.branchId && (
-                <span
-                  slot="valueStateMessage"
-                  style={{ color: "var(--sapNegativeColor)" }}
-                >
-                  {errors.branchId.message}
-                </span>
-              )}
-            </FlexBox>
-          </FlexBox>
-          <FlexBox direction="Column" style={{ flex: " 28%" }}>
-            <Label>Role Name</Label>
-            <Controller
-              name="name"
-              control={control}
-              render={({ field }) => (
-                <FlexBox
-                  label={<Label required>Label Text</Label>}
-                  style={{ flex: "48%" }}
-                >
-                  <Input
-                    style={{ width: "80%" }}
-                    placeholder="Form Name"
-                    name="name"
-                    value={field.value ?? ""} // controlled value
-                    onInput={(e) => field.onChange(e.target.value)} // update RHF
-                    valueState={errors.name ? "Error" : "None"} // red border on error
-                  >
-                    {errors.name && (
-                      /* UI5 shows this automatically when valueState="Error" */
-                      <span slot="valueStateMessage">
-                        {errors.name.message}
-                      </span>
+                        <Option value="user">User</Option>
+                      </Select>
                     )}
-                  </Input>
+                  />
+
+                  {errors.scope && (
+                    <span
+                      slot="valueStateMessage"
+                      style={{ color: "var(--sapNegativeColor)" }}
+                    >
+                      {errors.scope.message}
+                    </span>
+                  )}
                 </FlexBox>
-              )}
-            />
-          </FlexBox>
+              </FlexBox>
+              <FlexBox direction="Column" style={{ flex: " 28%" }}>
+                <Label>Company</Label>{" "}
+                <FlexBox label={<Label required>Company</Label>}>
+                  <Controller
+                    name="companyId"
+                    control={control}
+                    render={({ field }) => (
+                      <Select
+                        style={{ width: "80%" }}
+                        disabled={currScope === "master"}
+                        name="companyId"
+                        value={field.value ?? ""}
+                        onChange={(e) => {
+                          field.onChange(e.target.value);
+                          setSelectedCompany(e.target.value);
+                        }}
+                        valueState={errors.companyId ? "Error" : "None"}
+                      >
+                        <Option key="select" value="">
+                          Select
+                        </Option>
 
-          <FlexBox direction="Column" style={{ flex: " 28%" }}>
-            <Label>Status</Label>{" "}
-            <FlexBox label={<Label required>Status</Label>}>
-              <Controller
-                name="status"
-                control={control}
-                render={({ field }) => (
-                  <Select
-                    style={{ width: "80%" }}
+                        {companies
+                          .filter((r) => r.status)
+                          .map((r) => (
+                            <Option key={r.id} value={r.id}>
+                              {r.name}
+                            </Option>
+                          ))}
+                      </Select>
+                    )}
+                  />
+
+                  {errors.companyId && (
+                    <span
+                      slot="valueStateMessage"
+                      style={{ color: "var(--sapNegativeColor)" }}
+                    >
+                      {errors.companyId.message}
+                    </span>
+                  )}
+                </FlexBox>
+              </FlexBox>
+              <FlexBox direction="Column" style={{ flex: " 28%" }}>
+                <Label>Branch</Label>{" "}
+                <FlexBox label={<Label required>Branch</Label>}>
+                  <Controller
+                    name="branchId"
+                    control={control}
+                    render={({ field }) => (
+                      <Select
+                        style={{ width: "80%" }}
+                        disabled={currScope === "master"}
+                        name="branchId"
+                        value={field.value ?? ""}
+                        onChange={(e) => {
+                          field.onChange(e.target.value);
+                          setSelectedBranch(e.target.value);
+                        }}
+                        valueState={errors.branchId ? "Error" : "None"}
+                      >
+                        <Option key="select" value="">
+                          Select
+                        </Option>
+
+                        {branchList
+                          .filter((r) => r.status) /* active roles only    */
+                          .map((r) => (
+                            <Option key={r.id} value={r.id}>
+                              {r.name}
+                            </Option>
+                          ))}
+                      </Select>
+                    )}
+                  />
+
+                  {errors.branchId && (
+                    <span
+                      slot="valueStateMessage"
+                      style={{ color: "var(--sapNegativeColor)" }}
+                    >
+                      {errors.branchId.message}
+                    </span>
+                  )}
+                </FlexBox>
+              </FlexBox>
+              <FlexBox direction="Column" style={{ flex: " 28%" }}>
+                <Label>Role Name</Label>
+                <Controller
+                  name="name"
+                  control={control}
+                  render={({ field }) => (
+                    <FlexBox
+                      label={<Label required>Label Text</Label>}
+                      style={{ flex: "48%" }}
+                    >
+                      <Input
+                        style={{ width: "80%" }}
+                        placeholder="Form Name"
+                        name="name"
+                        value={field.value ?? ""} // controlled value
+                        onInput={(e) => field.onChange(e.target.value)} // update RHF
+                        valueState={errors.name ? "Error" : "None"} // red border on error
+                      >
+                        {errors.name && (
+                          /* UI5 shows this automatically when valueState="Error" */
+                          <span slot="valueStateMessage">
+                            {errors.name.message}
+                          </span>
+                        )}
+                      </Input>
+                    </FlexBox>
+                  )}
+                />
+              </FlexBox>
+
+              <FlexBox direction="Column" style={{ flex: " 28%" }}>
+                <Label>Status</Label>{" "}
+                <FlexBox label={<Label required>Status</Label>}>
+                  <Controller
                     name="status"
-                    value={field.value ?? ""}
-                    onChange={(e) => field.onChange(e.target.value)}
-                    valueState={errors.status ? "Error" : "None"}
-                  >
-                   <Option key="" value="">Select</Option>
+                    control={control}
+                    render={({ field }) => (
+                      <Select
+                        style={{ width: "80%" }}
+                        name="status"
+                        value={field.value ?? ""}
+                        onChange={(e) => field.onChange(e.target.value)}
+                        valueState={errors.status ? "Error" : "None"}
+                      >
+                        <Option key="" value="">
+                          Select
+                        </Option>
 
-                    <Option value="1">Active</Option>
-                    <Option value="0">Inactive</Option>
-                  </Select>
-                )}
-              />
+                        <Option value="1">Active</Option>
+                        <Option value="0">Inactive</Option>
+                      </Select>
+                    )}
+                  />
 
-              {errors.status && (
-                <span
-                  slot="valueStateMessage"
-                  style={{ color: "var(--sapNegativeColor)" }}
-                >
-                  {errors.status.message}
-                </span>
-              )}
+                  {errors.status && (
+                    <span
+                      slot="valueStateMessage"
+                      style={{ color: "var(--sapNegativeColor)" }}
+                    >
+                      {errors.status.message}
+                    </span>
+                  )}
+                </FlexBox>
+              </FlexBox>
             </FlexBox>
-          </FlexBox>
-        </FlexBox>
-        <div>
-          <FlexBox direction="Column" style={{ marginTop: "1rem" }}>
-            <AnalyticalTable
-              columns={columns}
-              data={currScope === "master" ? data : menuListData}
-              
-              selectionMode="None"
-              visibleRows={10}
-            />
-          </FlexBox>
-        </div>
-      </form>
-    </Page></FlexBox></>
+            <div>
+              <FlexBox direction="Column" style={{ marginTop: "1rem" }}>
+                <AnalyticalTable
+                  columns={columns}
+                  data={currScope === "master" ? data : menuListData}
+                  selectionMode="None"
+                  visibleRows={10}
+                />
+              </FlexBox>
+            </div>
+          </form>
+        </Page>
+      </FlexBox>
+    </>
   );
 };
 

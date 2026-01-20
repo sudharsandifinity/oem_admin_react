@@ -3,7 +3,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 
 import Companyformdetails from "./Companyformdetails";
-import { fetchCompanyById, updateCompany } from "../../../../store/slices/companiesSlice";
+import {
+  fetchCompanyById,
+  updateCompany,
+} from "../../../../store/slices/companiesSlice";
 
 const EditCompany = () => {
   const { id } = useParams();
@@ -44,7 +47,7 @@ const EditCompany = () => {
       }
       navigate("/admin/companies");
     } catch (error) {
-      setApiError("Failed to update user");
+      setApiError(error.error || "Failed to update company");
     }
   };
   return (
@@ -66,5 +69,4 @@ const EditCompany = () => {
   );
 };
 
-
-export default EditCompany
+export default EditCompany;

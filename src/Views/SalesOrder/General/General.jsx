@@ -47,6 +47,7 @@ const General = ({
   selectedcardcode,
   setSelectedCardCode,
   formDetails,
+  setCurrencyType,
   apiError,
 }) => {
   const {
@@ -131,7 +132,14 @@ const General = ({
 
     fetchData();
   }, [dispatch,formDetails]);
-
+ useEffect(() => {
+    setCurrencyType(
+      generalData.find((r) => r.CardCode === selectedcardcode)?.Currency ||
+        "GBP"
+    );
+    console.log("currencytype",generalData.find((r) => r.CardCode === selectedcardcode)?.Currency ||
+        "GBP")
+  }, [selectedcardcode]);
   useEffect(() => {
     console.log("itemdatauseefect1", originalGeneralData, customerorder);
     if (dialogOpen) {

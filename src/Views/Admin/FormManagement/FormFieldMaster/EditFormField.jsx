@@ -70,7 +70,8 @@ const EditFormField = () => {
       }
       navigate("/admin/FormFields");
     } catch (error) {
-      setApiError("Failed to update user");
+            setApiError(error.error||"Failed to update form");
+
     }
   };
   return (

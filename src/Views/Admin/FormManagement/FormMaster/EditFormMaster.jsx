@@ -120,7 +120,8 @@ const EditFormMaster = () => {
       }
       navigate("/admin/FormMaster");
     } catch (error) {
-      setApiError("Failed to update user");
+            setApiError(error.error||"Failed to update form");
+
     }
   };
   console.log("form", form);

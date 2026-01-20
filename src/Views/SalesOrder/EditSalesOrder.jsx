@@ -104,6 +104,8 @@ const EditSalesOrder = () => {
   const [selectedcardcode, setSelectedCardCode] = useState([]);
   const [roundOff, setRoundOff] = useState(0);
 
+    const [currencyType, setCurrencyType] = useState("GBP");
+  
   const [dimensionData, setDimensionData] = useState([]);
 
   const [itemdata, setitemData] = useState([
@@ -964,6 +966,8 @@ const EditSalesOrder = () => {
                 formDetails={formDetails}
                 selectedcardcode={selectedcardcode}
                 setSelectedCardCode={setSelectedCardCode}
+            setCurrencyType={setCurrencyType}
+                currencyType={currencyType}
                 apiError={apiError}
               />
             )}

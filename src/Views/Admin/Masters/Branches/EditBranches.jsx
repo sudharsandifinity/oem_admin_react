@@ -56,7 +56,7 @@ const EditBranches = () => {
       }
       navigate("/admin/branches");
     } catch (error) {
-      setApiError("Failed to update user");
+      setApiError(error.error||"Failed to update branch");
     }
   };
   return (
