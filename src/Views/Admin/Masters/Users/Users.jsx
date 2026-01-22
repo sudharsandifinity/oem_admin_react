@@ -127,30 +127,25 @@ const Users = () => {
       {
         Header: "First Name",
         accessor: "first_name",
-        width: 200,
       },
       {
         Header: "Last Name",
         accessor: "last_name",
         filter: "text",
-        width: 200,
       },
       {
         Header: "Email",
         accessor: "email",
-        width: 300,
       },
       {
         Header: "User Category",
         accessor: "is_super_user",
-        width: 150,
         Cell: ({ row }) =>
           row.original.is_super_user === 1 ? "Super User" : "User",
       },
       {
         Header: "Company",
         // accessor: "Company",
-        width: 200,
         Cell: ({ row }) => {
           const companies =
             row.original.Branches?.map((b) => b.Company.name) || [];
@@ -163,7 +158,6 @@ const Users = () => {
       },
       {
         Header: "Role",
-        width: 230,
         accessor: "Role",
         Cell: ({ row }) =>
           row.original.Roles.map((role) => role.name).join(", ") || "N/A",
@@ -173,7 +167,6 @@ const Users = () => {
       {
         Header: "Status",
         accessor: "status",
-        width: 150,
         Cell: ({ row }) =>
           row.original.status === 1 ? (
             <Tag children="Active" design="Positive" size="S" />
@@ -184,13 +177,11 @@ const Users = () => {
       {
         Header: "Actions",
         accessor: ".",
-        width: 150,
         disableFilters: true,
         disableGroupBy: true,
         disableResizing: true,
         disableSortBy: true,
         id: "actions",
-
         Cell: (instance) => {
           const { cell, row, webComponentsReactProperties } = instance;
           const isOverlay = webComponentsReactProperties.showOverlay;

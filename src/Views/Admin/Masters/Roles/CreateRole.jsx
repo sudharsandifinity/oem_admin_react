@@ -61,7 +61,7 @@ const CreateRole = () => {
         navigate("/admin/roles");
       }
     } catch (error) {
-      console.error(error);
+      setApiError(error.error || "Failed to create role");
     }
   };
   return (

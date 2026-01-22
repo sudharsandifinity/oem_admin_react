@@ -126,7 +126,7 @@ const Contents = (props) => {
     useState([]);
   const [selectedProfitCenterRowIndex, setSelectedProfitCenterRowIndex] =
     useState("");
-
+const [currency, setCurrency] = useState("All Currency");
   const [itemForm, setItemForm] = useState([]);
   const [serviceForm, setserviceForm] = useState([]);
   const [viewItem, setViewItem] = useState([]);
@@ -278,7 +278,7 @@ const Contents = (props) => {
             }}
           />
           <Button
-            icon="sap-icon://decline"
+               icon="sap-icon://sys-minus"
             design="Transparent"
             onClick={() => clearItemCellValue(row.index, dim.DimensionCode + "_ProfitCenterCode")}
           />
@@ -331,7 +331,7 @@ const Contents = (props) => {
             }}
           />
           <Button
-            icon="sap-icon://decline"
+               icon="sap-icon://sys-minus"
             design="Transparent"
                         onClick={() => {clearItemCellValue(row.index, dim.DimensionCode + "_ProfitCenterCode");clearServiceCellValue(row.index, dim.DimensionCode + "_ProfitCenterCode");}}
 
@@ -415,7 +415,7 @@ const Contents = (props) => {
             }}
           />
           <Button
-            icon="sap-icon://decline"
+               icon="sap-icon://sys-minus"
             design="Transparent"
             onClick={() => clearServiceCellValue(row.index, dim.DimensionCode + "_ProfitCenterCode")}
           />
@@ -745,6 +745,7 @@ const Contents = (props) => {
           direction="Column"
           style={{ padding: "40px 30px", gap: "20px" }}
         >
+          <FlexBox alignItems="Center" justifyContent="SpaceBetween" direction="Row">
           <FlexBox alignItems="Center">
             <Label style={{ minWidth: "200px" }}>Item/Service Type:</Label>
             <Select value={type} style={{ width: "200px" }}>
@@ -752,6 +753,17 @@ const Contents = (props) => {
               <Option onClick={() => setType("Service")}>Service</Option>
             </Select>
           </FlexBox>
+           <FlexBox alignItems="Center">
+            <Label style={{ minWidth: "200px" }}>Currency</Label>
+            <Select value={currency} style={{ width: "200px" }}>
+              <Option onClick={() => setCurrency("All Currency")}>All Currency</Option>
+              <Option onClick={() => setCurrency("System Currency")}>System Currency</Option>
+              <Option onClick={() => setCurrency("GBP")}>GBP</Option>
+
+            </Select>
+          </FlexBox>
+          </FlexBox>
+
           <div>
             <FlexibleColumnLayout
               // style={{ height: "600px" }}
@@ -916,7 +928,7 @@ const Contents = (props) => {
                     <Bar
                       endContent={
                         <Button
-                          icon="sap-icon://decline"
+               icon="sap-icon://sys-minus"
                           title="close"
                           onClick={() => setLayout("OneColumn")}
                         />

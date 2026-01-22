@@ -80,7 +80,8 @@ const EditUser = () => {
       }
       navigate("/admin/users");
     } catch (error) {
-      setApiError("Failed to update user");
+           setApiError(error.error||"Failed to update user");
+
     }
   };
 

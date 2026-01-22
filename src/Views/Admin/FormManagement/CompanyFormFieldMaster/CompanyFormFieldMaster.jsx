@@ -106,7 +106,8 @@ const CompanyFormFieldMaster = () => {
       }
       navigate("/admin/CompanyFormFields");
     } catch (error) {
-      console.log("Failed to update user");
+            setApiError(error.error||"Failed to update company form field");
+
     }
     setformFieldpageopen(false);
   };

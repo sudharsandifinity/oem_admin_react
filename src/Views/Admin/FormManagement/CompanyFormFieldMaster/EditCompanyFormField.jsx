@@ -78,7 +78,8 @@ const EditCompanyFormField = () => {
         // }
         // navigate("/admin/CompanyFormFields");
       } catch (error) {
-        setApiError("Failed to update user");
+              setApiError(error.error||"Failed to update company form field");
+
       }
     });
   };

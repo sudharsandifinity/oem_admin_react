@@ -33,6 +33,7 @@ import "@ui5/webcomponents-icons/dist/delete.js";
 import "@ui5/webcomponents-icons/dist/arrow-top.js";
 import "@ui5/webcomponents-icons/dist/arrow-bottom.js";
 import "@ui5/webcomponents-icons/dist/settings.js";
+import "@ui5/webcomponents-icons/dist/sys-minus.js";
 import SettingsDialog from "../SettingsDialog";
 import { Tooltip } from "recharts";
 import ProjectDialog from "../ProjectPopup/ProjectDialog";
@@ -872,7 +873,7 @@ const Itemtable = (props) => {
             }
           />
           <Button
-              icon="sap-icon://decline"
+              icon="sap-icon://sys-minus"
               design="Transparent"
               onClick={() => clearCellValue(row.index, "TaxCode")}
             />
@@ -907,7 +908,7 @@ const Itemtable = (props) => {
             }
           />
           <Button
-              icon="sap-icon://decline"
+               icon="sap-icon://sys-minus"
               design="Transparent"
               onClick={() => clearCellValue(row.index, "TaxRate")}
             />
@@ -971,7 +972,7 @@ const Itemtable = (props) => {
             }
           />
           <Button
-              icon="sap-icon://decline"
+               icon="sap-icon://sys-minus"
               design="Transparent"
               onClick={() => clearCellValue(row.index, "ProjectCode")}
             />
@@ -1012,7 +1013,7 @@ const Itemtable = (props) => {
               }
             />
             <Button
-              icon="sap-icon://decline"
+               icon="sap-icon://sys-minus"
               design="Transparent"
               onClick={() => clearCellValue(row.index, "WarehouseCode")}
             />
