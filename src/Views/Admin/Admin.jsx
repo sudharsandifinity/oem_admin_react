@@ -37,6 +37,7 @@ import "@ui5/webcomponents-icons/dist/company-view.js";
 import "@ui5/webcomponents-icons/dist/menu.js";
 import "@ui5/webcomponents-icons/dist/menu2.js";
 import "@ui5/webcomponents-icons/dist/role.js";
+import "@ui5/webcomponents-icons/dist/employee.js";
 
 import Dashboard from "./Dashboard/Default/Dashboard";
 import DashboardPage from "./Dashboard/Default/DashboardPage";
@@ -158,7 +159,7 @@ useEffect(() => {
                 icon="user-edit"
                 data-key="users"
               />)}
-             
+           
                
             </SideNavigationItem>
            <SideNavigationItem

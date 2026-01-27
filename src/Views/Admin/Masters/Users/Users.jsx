@@ -248,12 +248,19 @@ const Users = () => {
             </div>
           }
           endContent={
-            <Button
+            <><Button
               design="Emphasized"
               onClick={() => navigate("/admin/users/create")}
             >
               Add User
             </Button>
+            <Button
+              design="Emphasized"
+              onClick={() => navigate("/admin/users/EmployeeCreate")}
+            >
+              Add Employee
+            </Button>
+            </>
           }
         ></AppBar>
         <Page
