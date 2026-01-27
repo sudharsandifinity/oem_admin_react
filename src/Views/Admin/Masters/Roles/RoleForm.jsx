@@ -165,10 +165,18 @@ const RoleForm = ({
   } else {
     // User scope
     let current = getValues("userMenus") || [];
-    console.log("current",current)
+    console.log("current",current,menuId)
     const existing = current.find((m) => m.menuId === menuId);
-
-    const defaultPerms = {
+const menu = menulist.find((m) => m.id === menuId);
+    const defaultPermsParent = {
+      menuId: menu && menu.parentUserMenuId ? menu.parentUserMenuId : null,
+      can_list_view: true,
+      can_create: false,
+      can_edit: false,
+      can_view: false,
+      can_delete: false,
+    };
+ const defaultPerms = {
       menuId,
       can_list_view: false,
       can_create: false,
@@ -176,43 +184,45 @@ const RoleForm = ({
       can_view: false,
       can_delete: false,
     };
-
     if (existing) {
       current = current.map((m) =>
         m.menuId === menuId ? { ...m, [permissionName]: checked } : m
       );
     } else {
-      current = [...current, { ...defaultPerms, [permissionName]: checked }];
+      current = [...current,{...defaultPermsParent}, { ...defaultPerms, [permissionName]: checked }];
     }
 
     // Handle parent-child syncing only for List permission
-    if (permissionName === "can_list_view") {
-      const menu = menulist.find((m) => m.id === menuId);
-
+    console.log("permissionName",permissionName,menulist)
+    //if (permissionName === "can_list_view") {
+      console.log("menu::->",menu)
       // 1️⃣ Child → Parent
-      if (menu && menu.parentId) {
-        const siblings = menulist.filter((m) => m.parentId === menu.parentId);
+      if (menu && menu.parentUserMenuId) {
+        const siblings = menulist.filter((m) => m.parentUserMenuId === menu.parentUserMenuId);
+        console.log("siblings",siblings)
         const anySiblingChecked = siblings.some((sib) => 
           sib.id === menuId ? checked : current.find(c => c.menuId === sib.id)?.can_list_view
         );
-
+        console.log("anySiblingChecked",anySiblingChecked,current)
         current = current.map((m) =>
-          m.menuId === menu.parentId
+          m.menuId === menu.parentUserMenuId
             ? { ...m, can_list_view: anySiblingChecked }
             : m
         );
+        
+        console.log("currentaftersiblng",current)
       }
 
       // 2️⃣ Parent → Child
-      if (menu && !menu.parentId) {
-        const children = menulist.filter((m) => m.parentId === menuId);
+      if (menu && !menu.parentUserMenuId) {
+        const children = menulist.filter((m) => m.parentUserMenuId === menuId);
         current = current.map((m) =>
           children.some((c) => c.id === m.menuId)
             ? { ...m, can_list_view: checked }
             : m
         );
       }
-    }
+    //}
 
     setValue("userMenus", current, {
       shouldValidate: true,

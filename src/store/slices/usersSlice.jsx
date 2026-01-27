@@ -3,8 +3,13 @@ import api from '../../api/axios';
 
 // API Base URL
 const API_URL = '/admin/users';
+const EMPL_API_URL = '/admin/users/sync';
 
 // Thunks for API calls
+export const createEmployee = createAsyncThunk('Employees/createEmployee', async (userData) => {
+  const response = await api.post(EMPL_API_URL, userData, {withCredentials: true});
+  return response.data;
+});
 export const fetchUsers = createAsyncThunk('users/fetchUsers', async () => {
   const response = await api.get(API_URL, {withCredentials: true});
   return response.data;
@@ -35,6 +40,7 @@ const usersSlice = createSlice({
   name: 'users',
   initialState: {
     users: [],
+    Employees: [],
     loading: false,
     error: null
   },
@@ -52,6 +58,9 @@ const usersSlice = createSlice({
       .addCase(fetchUsers.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
+      })
+      .addCase(createEmployee.fulfilled, (state, action) => {
+        state.Employees.push(action.payload);
       })
       .addCase(createUser.fulfilled, (state, action) => {
         state.users.push(action.payload);

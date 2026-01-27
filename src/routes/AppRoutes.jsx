@@ -61,6 +61,7 @@ import Inventory from "../Views/Inventory/Inventory";
 import CreateInventory from "../Views/Inventory/CreateInventory";
 import EditInventory from "../Views/Inventory/EditInventory";
 import ViewInventory from "../Views/Inventory/ViewInventory";
+import CreateEmployee from "../Views/Admin/Masters/Employees/CreateEmployee";
 
 const AppRoutes = () => {
   return (
@@ -91,6 +92,9 @@ const AppRoutes = () => {
           <Route path="users" element={<Users />} />
           <Route path="users/create" element={<CreateUser />} />
           <Route path="users/edit/:id" element={<EditUser />} />
+
+          <Route path="users/EmployeeCreate" element={<CreateEmployee />} />
+
           <Route path="roles" element={<RolesList />} />
           <Route path="roles/create" element={<CreateRole />} />
           <Route path="roles/edit/:id" element={<EditRole />} />
