@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import BranchForm from "./BranchForm";
 import { fetchCompanies } from "../../../../store/slices/companiesSlice";
 import { createBranch } from "../../../../store/slices/branchesSlice";
+import { set } from "react-hook-form";
 
 const CreateBranch = () => {
   const dispatch = useDispatch();
@@ -23,6 +24,7 @@ const CreateBranch = () => {
         }
       } catch (err) {
         console.log("Failed to fetch user", err.message);
+        setApiError(err.message);
         err.message && navigate("/");
       }
     };

@@ -4,6 +4,8 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { createForm } from "../../../../store/slices/formmasterSlice";
 import MenuForm from "./MenuForm";
 import { fetchUserMenusById, updateUserMenus } from "../../../../store/slices/usermenusSlice";
+import { fetchBranch } from "../../../../store/slices/branchesSlice";
+import { set } from "react-hook-form";
 
 const EditUserChildMenu = () => {
   const { id,action } = useParams();
@@ -15,7 +17,7 @@ const location = useLocation();
     const [loading, setLoading] = useState(true);
   
   const { usermenus } = useSelector((state) => state.usermenus);
-
+const {branches} = useSelector((state)=>state.branches);
   const usermenu = usermenus.flatMap((item) => item.children || []).find((c) => c.id === id);
 console.log("usermenuedituserchild",usermenu)
   const editedUserMenu={
@@ -24,7 +26,8 @@ console.log("usermenuedituserchild",usermenu)
     scope: usermenu.scope || "user",
 
     parent: usermenu.parentUserMenuId || "",
-    companyId: usermenu.companyId || "",
+           companyId:usermenu.companyId?usermenu.companyId:(branches.find(b => b.id === usermenu.branchId)?.companyId ? String(branches.find(b => b.id === usermenu.branchId)?.companyId) : 'null'),
+
     parent: usermenu.parentUserMenuId || "",
     
     branchId: usermenu.branchId || "",
@@ -38,6 +41,7 @@ console.log("usermenuedituserchild",usermenu)
         try {
           if (!usermenu) {
             const res = await dispatch(fetchUserMenusById(id)).unwrap();
+            await dispatch(fetchBranch()).unwrap();
             if (res.message === "Please Login!") {
               navigate("/login");
             }
@@ -55,7 +59,7 @@ console.log("usermenuedituserchild",usermenu)
     try {
        const payload = {
         parentUserMenuId:data.parent||null,
-        companyId:data.companyId,
+        companyId:data.companyId||null,
         branchId:data.branchId,
         formId:data.formId,
         scope:data.scope,
@@ -73,6 +77,7 @@ console.log("usermenuedituserchild",usermenu)
         navigate("/admin/MenuMaster");
       }
     } catch (error) {
+      setApiError(error?.message || "Failed to update Menu");
       console.error(error);
     }
   };{console.log("action",location.pathname.includes("/view/"))}

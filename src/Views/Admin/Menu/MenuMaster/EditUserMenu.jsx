@@ -7,6 +7,7 @@ import {
   fetchUserMenusById,
   updateUserMenus,
 } from "../../../../store/slices/usermenusSlice";
+import { fetchBranch } from "../../../../store/slices/branchesSlice";
 
 const EditUserMenu = () => {
   const { id } = useParams();
@@ -17,6 +18,7 @@ const EditUserMenu = () => {
   const [loading, setLoading] = useState(true);
 
   const { usermenus } = useSelector((state) => state.usermenus);
+  const {branches} = useSelector((state)=>state.branches);
 
   const usermenu = usermenus.find((c) => c.id === id);
   console.log("editusermenu", usermenu);
@@ -32,7 +34,8 @@ const EditUserMenu = () => {
     status: JSON.stringify(usermenu.status),
 
     parentUserMenuId: usermenu.parentUserMenuId || "",
-    companyId: usermenu.companyId || "",
+               companyId:usermenu.companyId?usermenu.companyId:(branches.find(b => b.id === usermenu.branchId)?.companyId ? String(branches.find(b => b.id === usermenu.branchId)?.companyId) : 'null'),
+
     parent: usermenu.parent || "",
   };
   useEffect(() => {
@@ -40,6 +43,7 @@ const EditUserMenu = () => {
       try {
         if (!usermenu) {
           const res = await dispatch(fetchUserMenusById(id)).unwrap();
+          await dispatch(fetchBranch()).unwrap();
           if (res.message === "Please Login!") {
             navigate("/login");
           }
@@ -77,6 +81,7 @@ const EditUserMenu = () => {
         navigate("/admin/MenuMaster");
       }
     } catch (error) {
+      setApiError(error?.message || "Failed to update Menu");
       console.error(error);
     }
   };

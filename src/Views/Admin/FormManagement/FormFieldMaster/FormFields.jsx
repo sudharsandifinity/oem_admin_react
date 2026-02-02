@@ -23,6 +23,7 @@ import {
   fetchFormFields,
 } from "../../../../store/slices/FormFieldSlice";
 import AppBar from "../../../../Components/Module/Appbar";
+import { set } from "react-hook-form";
 const ViewFormFields = Loadable(lazy(() => import("./ViewFormFields")));
 
 const FormFields = () => {
@@ -34,6 +35,7 @@ const FormFields = () => {
   const [search, setSearch] = useState("");
   const [layout, setLayout] = useState("OneColumn");
   const [ViewId, setViewId] = useState("");
+  const [apiError, setApiError] = useState(null);
 
   useEffect(() => {
     //dispatch(fetchFormFields());
@@ -47,6 +49,7 @@ const FormFields = () => {
         }
       } catch (err) {
         console.log("Failed to fetch user", err.message);
+        setApiError(err.message);
         err.message && navigate("/");
       }
     };
@@ -64,6 +67,7 @@ const FormFields = () => {
           navigate("/login");
         }
       } catch (error) {
+        setApiError(error?.message || "Failed to delete user");
         console.error("Error deleting user:", error);
       }
     }
@@ -277,6 +281,16 @@ const FormFields = () => {
               onSearch={(e) => setSearch(e.target.value)}
             />
           </FlexBox>
+          {apiError && (
+        <MessageStrip
+          design="Negative"
+          hideCloseButton={false}
+          hideIcon={false}
+          style={{ marginBottom: "1rem" }}
+        >
+          {apiError}
+        </MessageStrip>
+      )}
           <FlexibleColumnLayout
             // style={{ height: "600px" }}
             layout={layout}

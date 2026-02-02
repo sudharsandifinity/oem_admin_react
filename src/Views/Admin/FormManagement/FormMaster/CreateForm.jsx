@@ -5,6 +5,7 @@ import Form from "./Form";
 import { createForm } from "../../../../store/slices/formmasterSlice";
 import { fetchCompanies } from "../../../../store/slices/companiesSlice";
 import { fetchBranch } from "../../../../store/slices/branchesSlice";
+import { set } from "react-hook-form";
 
 const CreateForm = () => {
   const dispatch = useDispatch();
@@ -47,6 +48,7 @@ const CreateForm = () => {
   },
 ];
   const [formTabs, setFormTabs] = useState(tabData);
+  const [apiError, setApiError] = useState(null);
 
   useEffect(() => {
     //dispatch(fetchRoles());
@@ -61,6 +63,7 @@ const CreateForm = () => {
         }
       } catch (err) {
         console.log("Failed to fetch user", err.message);
+        setApiError(err.message);
         err.message && navigate("/");
       }
     };
@@ -91,6 +94,7 @@ const CreateForm = () => {
         navigate("/admin/FormMaster");
       }
     } catch (error) {
+      setApiError(error?.message || "Failed to create Form");
       console.error(error);
     }
   };
@@ -100,6 +104,7 @@ const CreateForm = () => {
       formTabs={formTabs}
       setFormTabs={setFormTabs}
       mode="create"
+      apiError={apiError}
     />
   );
 };

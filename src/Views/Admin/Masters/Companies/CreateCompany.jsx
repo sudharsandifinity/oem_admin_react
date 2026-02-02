@@ -8,6 +8,7 @@ import Companyformdetails from "./Companyformdetails";
 const CreateCompany = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [apiError, setApiError] = React.useState(null);
 
   const handleCreate = async (data) => {
     console.log("handlecreate", data);
@@ -19,11 +20,13 @@ const CreateCompany = () => {
         navigate("/admin/companies");
       }
     } catch (error) {
+      setApiError(error.message);
       console.error(error);
     }
   };
+ 
   return (
-    <Companyformdetails onSubmit={handleCreate} mode="create" />
+    <Companyformdetails onSubmit={handleCreate} mode="create" apiError={apiError}/>
     //<Form onSubmit={handleCreate} mode="create" />
   );
 };

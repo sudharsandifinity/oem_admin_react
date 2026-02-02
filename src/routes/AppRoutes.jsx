@@ -62,6 +62,7 @@ import CreateInventory from "../Views/Inventory/CreateInventory";
 import EditInventory from "../Views/Inventory/EditInventory";
 import ViewInventory from "../Views/Inventory/ViewInventory";
 import CreateEmployee from "../Views/Admin/Masters/Employees/CreateEmployee";
+import ChangePassword from "../Views/pages/authentication/ChangePassword";
 
 const AppRoutes = () => {
   return (
@@ -76,6 +77,9 @@ const AppRoutes = () => {
         <Route index element={<AuthLogin />} replace />
         <Route path="/login" element={<AuthLogin />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        
+        
+        <Route path="/reset-password/:token" element={<ForgotPassword />} />
       </Route>
 
       <Route
@@ -86,6 +90,7 @@ const AppRoutes = () => {
         }
       >
         <Route path="/dashboard" element={<UserSideNavWrapper />} />
+        <Route path="/change-password" element={<ChangePassword />} />
         <Route path="/Admin" element={<SideNavWrapper />} />
         <Route path="/admin" element={<SideNavWrapper />}>
           <Route path="dashboard" element={<Dashboard />} />

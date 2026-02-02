@@ -1,7 +1,8 @@
-import actionSettingsIcon from '@ui5/webcomponents-icons/dist/action-settings.js';
+import actionSettingsIcon from "@ui5/webcomponents-icons/dist/action-settings.js";
+import "@ui5/webcomponents-icons/dist/user-edit.js";
 import { ThemingParameters } from "@ui5/webcomponents-react-base";
 import { setTheme } from "@ui5/webcomponents-base/dist/config/Theme.js";
-import paletteIcon from '@ui5/webcomponents-icons/dist/initiative.js';
+import paletteIcon from "@ui5/webcomponents-icons/dist/initiative.js";
 import { logout } from "../../store/slices/authSlice";
 
 import {
@@ -9,24 +10,24 @@ import {
   Text,
   UserMenu,
   UserMenuAccount,
-  UserMenuItem
-} from '@ui5/webcomponents-react';
+  UserMenuItem,
+} from "@ui5/webcomponents-react";
 
-import { forwardRef, useEffect, useState } from 'react';
-import avatarPng from '../../assets/Image/no-profile.png';
-import { useDispatch, useSelector } from 'react-redux';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { forwardRef, useEffect, useState } from "react";
+import avatarPng from "../../assets/Image/no-profile.png";
+import { useDispatch, useSelector } from "react-redux";
+import { Navigate, useNavigate } from "react-router-dom";
 
 const ManageUser = forwardRef((props, ref) => {
   const { open, setOpen } = props;
 
   const [accountsLoading, setAccountsLoading] = useState(false);
-  const [selectedAccount, setSelectedAccount] = useState('0');
+  const [selectedAccount, setSelectedAccount] = useState("0");
   const [messageBoxOpen, setMessageBoxOpen] = useState(false);
-    const [fioriTheme, setFioriTheme] = useState('');
-    const dispatch = useDispatch();
-    const navigate = useNavigate();
-    const { user } = useSelector((state) => state.auth);
+  const [fioriTheme, setFioriTheme] = useState("");
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { user } = useSelector((state) => state.auth);
 
   const handleChangeAccount = (e) => {
     setAccountsLoading(true);
@@ -36,15 +37,18 @@ const ManageUser = forwardRef((props, ref) => {
       setAccountsLoading(false);
     }, 1000);
   };
-
+  const handleChangePasswordClick = () => {
+    setOpen(false);
+    navigate("/change-password");
+  };
   const handleSignOutClick = (e) => {
     e.preventDefault();
     setMessageBoxOpen(true);
   };
 
   const handleMessageBoxClose = (e) => {
-    if (e === 'OK') {
-      console.log('Signed out!');
+    if (e === "OK") {
+      console.log("Signed out!");
       dispatch(logout());
       localStorage.removeItem("token");
       localStorage.removeItem("user");
@@ -58,12 +62,12 @@ const ManageUser = forwardRef((props, ref) => {
     setUserSettingsOpen(true);
   };
 
-    useEffect(() => {
+  useEffect(() => {
     if (fioriTheme) {
       setTheme(fioriTheme);
       document.body.style.setProperty(
-        'background-color',
-        ThemingParameters.sapBackgroundColor
+        "background-color",
+        ThemingParameters.sapBackgroundColor,
       );
     }
   }, [fioriTheme]);
@@ -74,8 +78,8 @@ const ManageUser = forwardRef((props, ref) => {
         ref={ref}
         open={open}
         onClose={() => setOpen(false)}
-        onAvatarClick={() => console.log('Avatar clicked!')}
-        onEditAccountsClick={() => console.log('Edit Account clicked!')}
+        onAvatarClick={() => console.log("Avatar clicked!")}
+        onEditAccountsClick={() => console.log("Edit Account clicked!")}
         onChangeAccount={handleChangeAccount}
         onSignOutClick={handleSignOutClick}
         accounts={
@@ -83,11 +87,11 @@ const ManageUser = forwardRef((props, ref) => {
             <UserMenuAccount
               loading={accountsLoading}
               avatarSrc={avatarPng}
-              titleText={user?.first_name+' '+user?.last_name}
+              titleText={user?.first_name + " " + user?.last_name}
               subtitleText={user?.email}
               description={user?.Roles[0].name}
               data-key="0"
-              selected={selectedAccount === '0'}
+              selected={selectedAccount === "0"}
             />
             <UserMenuAccount
               loading={accountsLoading}
@@ -96,7 +100,7 @@ const ManageUser = forwardRef((props, ref) => {
               subtitleText="john.walker@sap.com"
               description="Project Manager"
               data-key="1"
-              selected={selectedAccount === '1'}
+              selected={selectedAccount === "1"}
             />
             <UserMenuAccount
               loading={accountsLoading}
@@ -105,27 +109,57 @@ const ManageUser = forwardRef((props, ref) => {
               subtitleText="david.wilson@sap.com"
               description="Project Manager"
               data-key="2"
-              selected={selectedAccount === '2'}
+              selected={selectedAccount === "2"}
             />
           </>
         }
       >
-        <UserMenuItem icon={actionSettingsIcon} text="Setting" data-id="setting" onClick={handleSettingsClick} />
-         <UserMenuItem icon={paletteIcon} text="Theme">
-          <UserMenuItem text="Fiori 3" onClick={() => setFioriTheme('sap_fiori_3')} />
-          <UserMenuItem text="Fiori 3 Dark" onClick={() => setFioriTheme('sap_fiori_3_dark')} />
-          <UserMenuItem text="Fiori 3 HCB" onClick={() => setFioriTheme('sap_fiori_3_hcb')} />
-          <UserMenuItem text="Horizon" onClick={() => setFioriTheme('sap_horizon')} />
-          <UserMenuItem text="Horizon Dark" onClick={() => setFioriTheme('sap_horizon_dark')} />
+        <UserMenuItem
+          icon={actionSettingsIcon}
+          text="Setting"
+          data-id="setting"
+          onClick={handleSettingsClick}
+        />
+        <UserMenuItem
+           icon="user-edit"
+          text="Change Password"
+          data-id="change-password"
+          onClick={handleChangePasswordClick}
+        />
+        <UserMenuItem icon={paletteIcon} text="Theme">
+          <UserMenuItem
+            text="Fiori 3"
+            onClick={() => setFioriTheme("sap_fiori_3")}
+          />
+          <UserMenuItem
+            text="Fiori 3 Dark"
+            onClick={() => setFioriTheme("sap_fiori_3_dark")}
+          />
+          <UserMenuItem
+            text="Fiori 3 HCB"
+            onClick={() => setFioriTheme("sap_fiori_3_hcb")}
+          />
+          <UserMenuItem
+            text="Horizon"
+            onClick={() => setFioriTheme("sap_horizon")}
+          />
+          <UserMenuItem
+            text="Horizon Dark"
+            onClick={() => setFioriTheme("sap_horizon_dark")}
+          />
         </UserMenuItem>
       </UserMenu>
 
-      <MessageBox open={messageBoxOpen} titleText="Sign Out" onClose={handleMessageBoxClose}>
+      <MessageBox
+        open={messageBoxOpen}
+        titleText="Sign Out"
+        onClose={handleMessageBoxClose}
+      >
         <Text>Are you sure you want to sign out?</Text>
       </MessageBox>
     </>
   );
 });
 
-ManageUser.displayName = 'ManageUser';
+ManageUser.displayName = "ManageUser";
 export default ManageUser;

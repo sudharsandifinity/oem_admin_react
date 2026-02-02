@@ -4,6 +4,7 @@ import RoleForm from './RoleForm';
 import { useEffect, useState } from 'react';
 import { fetchPermissions } from '../../../../store/slices/permissionSlice';
 import { fetchRoleById, updateRole } from '../../../../store/slices/roleSlice';
+import { fetchBranch } from '../../../../store/slices/branchesSlice';
 
 const EditRole = () => {
     const dispatch = useDispatch();
@@ -12,6 +13,7 @@ const EditRole = () => {
     const [apiError, setApiError] = useState(null);
     const { permissions, loading: permissionsLoading } = useSelector(state => state.permissions);
     const { currentRole, loading: roleLoading } = useSelector(state => state.roles);
+    const branches = useSelector(state => state.branches.branches);
 
     useEffect(() => {
         //dispatch(fetchPermissions());
@@ -19,6 +21,7 @@ const EditRole = () => {
  const fetchData = async () => {
           try {
             const res = await dispatch(fetchPermissions()).unwrap();
+            await dispatch(fetchBranch()).unwrap();
             console.log("resusers", res);
             dispatch(fetchRoleById(id));
             if (res.message === "Please Login!") {
@@ -74,6 +77,7 @@ const EditRole = () => {
                 name: currentRole.name || '',
                 scope:currentRole.scope || 'user',
                 branchId: currentRole.branchId ? String(currentRole.branchId) : 'null',
+                companyId:branches.find(b => b.id === currentRole.branchId)?.companyId ? String(branches.find(b => b.id === currentRole.branchId)?.companyId) : 'null',
                 status: String(currentRole.status ?? '1'),
                 permissionIds: Array.isArray(currentRole.Permissions)
                 ? currentRole.Permissions.map(p => p.id)

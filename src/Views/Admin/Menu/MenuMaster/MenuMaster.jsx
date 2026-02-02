@@ -29,6 +29,7 @@ import {
 import AppBar from "../../../../Components/Module/Appbar";
 import { fetchCompanies } from "../../../../store/slices/companiesSlice";
 import { fetchBranch } from "../../../../store/slices/branchesSlice";
+import { set } from "react-hook-form";
 const ViewMenuMaster = Loadable(lazy(() => import("./ViewMenuMaster")));
 
 const MenuMaster = () => {
@@ -40,7 +41,8 @@ const MenuMaster = () => {
   const [ViewId, setViewId] = useState("");
   const [selectedMenu, setSelectedMenu] = useState(null);
   const { companies } = useSelector((state) => state.companies);
-    const { branches } = useSelector((state) => state.branches);
+  const { branches } = useSelector((state) => state.branches);
+  const [apiError, setApiError] = useState(null);
 
   useEffect(() => {
     //dispatch(fetchForm());
@@ -56,6 +58,7 @@ const MenuMaster = () => {
         }
       } catch (err) {
         console.log("Failed to fetch user", err.message);
+        setApiError(err.message);
         err.message && navigate("/");
       }
     };
@@ -70,6 +73,7 @@ const MenuMaster = () => {
         }
       } catch (error) {
         console.error("Error deleting menu:", error);
+        setApiError(error?.message || "Failed to delete menu");
       }
     }
   };
@@ -81,7 +85,7 @@ const MenuMaster = () => {
   const handleView = (menu) => {
     //navigate(`/MenuMaster/${menu.id}`);
     console.log("menu", menu);
-    setSelectedMenu(menu.name)
+    setSelectedMenu(menu.name);
     setViewId(menu.id);
   };
 
@@ -92,12 +96,11 @@ const MenuMaster = () => {
         menu.name.toLowerCase().includes(search.toLowerCase()) ||
         menu.display_name.toLowerCase().includes(search.toLowerCase()) ||
         menu.order_number.toString().includes(search) ||
-        menu.scope&&menu.scope.toLowerCase().includes(search.toLowerCase())
+        (menu.scope && menu.scope.toLowerCase().includes(search.toLowerCase())),
     );
 
   const columns = useMemo(
     () => [
-    
       {
         Header: "Display Name",
         accessor: "display_name",
@@ -113,26 +116,36 @@ const MenuMaster = () => {
       {
         Header: "Company Name ",
         accessor: "Company.name",
-           Cell: ({ row }) => {
-          const company = companies.find((item) => item.id === row.original.companyId);
+        Cell: ({ row }) => {
+          let company;
+          if (!row.original.companyId && row.original.branchId) {
+            const companyId = branches.find(
+              (b) => b.id === row.original.branchId,
+            )?.companyId;
+             company = companies.find((item) => item.id === companyId);
+            console.log("company:::->", companyId, company);
+          } else {
+            company = companies.find(
+              (item) => item.id === row.original.companyId,
+            );
+          }
           return company ? company.name : "";
         },
-
       },
-       {
+      {
         Header: "Branch Name ",
         accessor: "Branch.name",
-           Cell: ({ row }) => {
-          const branch = branches.find((item) => item.id === row.original.branchId);
+        Cell: ({ row }) => {
+          const branch = branches.find(
+            (item) => item.id === row.original.branchId,
+          );
           return branch ? branch.name : "";
         },
-
       },
       {
         Header: "Scope",
         accessor: "scope",
       },
-     
 
       {
         Header: "Status",
@@ -187,21 +200,21 @@ const MenuMaster = () => {
         },
       },
     ],
-    [usermenus]
+    [usermenus],
   );
   return (
-      <>
-        <style>
-            {`
+    <>
+      <style>
+        {`
               ui5-page::part(content) {
                 padding: 15px;
               }
             `}
-          </style>
-        <FlexBox direction="Column" style={{width: '100%'}}>
-         <AppBar
-         design="Header"
-              title={"Menu list(" + filteredRows.length + ")"}
+      </style>
+      <FlexBox direction="Column" style={{ width: "100%" }}>
+        <AppBar
+          design="Header"
+          title={"Menu list(" + filteredRows.length + ")"}
           startContent={
             <div style={{ width: "150px" }}>
               <Breadcrumbs
@@ -227,133 +240,146 @@ const MenuMaster = () => {
               Add Menu
             </Button>
           }
+        ></AppBar>
+        <Page
+          backgroundDesign="Solid"
+          footer={<div></div>}
+          // header={
+          //   <AppBar
+          //     design="Header"
+          //     startContent={
+          //       <div style={{ width: "150px" }}>
+          //         <Breadcrumbs
+          //           design="Standard"
+          //           separators="Slash"
+          //           onItemClick={(e) => {
+          //             const route = e.detail.item.dataset.route;
+          //             if (route) navigate(route);
+          //           }}
+          //         >
+          //           <BreadcrumbsItem data-route="/admin">Admin</BreadcrumbsItem>
+          //           <BreadcrumbsItem data-route="/admin/MenuMaster">
+          //             MenuMaster
+          //           </BreadcrumbsItem>
+          //         </Breadcrumbs>
+          //       </div>
+          //     }
+          //     endContent={
+          //       <Button
+          //         design="Emphasized"
+          //         onClick={() => navigate("/admin/MenuMaster/create")}
+          //       >
+          //         Add Menu
+          //       </Button>
+          //     }
+          //   >
+          //     <Title level="H4">Menu List</Title>
+          //   </AppBar>
+          // }
         >
-        
-        </AppBar>
-    <Page
-      backgroundDesign="Solid"
-      footer={<div></div>}
-      // header={
-      //   <AppBar
-      //     design="Header"
-      //     startContent={
-      //       <div style={{ width: "150px" }}>
-      //         <Breadcrumbs
-      //           design="Standard"
-      //           separators="Slash"
-      //           onItemClick={(e) => {
-      //             const route = e.detail.item.dataset.route;
-      //             if (route) navigate(route);
-      //           }}
-      //         >
-      //           <BreadcrumbsItem data-route="/admin">Admin</BreadcrumbsItem>
-      //           <BreadcrumbsItem data-route="/admin/MenuMaster">
-      //             MenuMaster
-      //           </BreadcrumbsItem>
-      //         </Breadcrumbs>
-      //       </div>
-      //     }
-      //     endContent={
-      //       <Button
-      //         design="Emphasized"
-      //         onClick={() => navigate("/admin/MenuMaster/create")}
-      //       >
-      //         Add Menu
-      //       </Button>
-      //     }
-      //   >
-      //     <Title level="H4">Menu List</Title>
-      //   </AppBar>
-      // }
-    >
-      <Card
-        style={{
-          height: "auto",
-          width: "100%",
-          //padding: "0.5rem",
-          maxHeight: '560px'
-        }}
-      >
-        <FlexBox direction="Column" style={{padding: 0}}>
-          <FlexBox
-            justifyContent="End"
-            alignItems="Center"
-            style={{ margin: "10px" }}
+          <Card
+            style={{
+              height: "auto",
+              width: "100%",
+              //padding: "0.5rem",
+              maxHeight: "560px",
+            }}
           >
-            <Search
-              onClose={function Xs() {}}
-              onInput={(e) => setSearch(e.target.value)}
-              onOpen={function Xs() {}}
-              onScopeChange={function Xs() {}}
-              onSearch={(e) => setSearch(e.target.value)}
-            />
-          </FlexBox>
-          {console.log("filteredRows", filteredRows)}
-          <FlexibleColumnLayout
-            // style={{ height: "600px" }}
-            layout={layout}
-            startColumn={
-              <FlexBox direction="Column">
-                <div>
-                  <FlexBox direction="Column">
-                    {console.log("filteredRows", filteredRows)}
-                    <AnalyticalTable
-                      columns={columns}
-                      data={filteredRows || []}
-                      // header={<Title level="H5" style={{ paddingLeft: 5 }}>  {
-                      //   "Menu list(" + filteredRows.length + ")"}</Title>}
-                      style={{padding: '10px'}}
-                         // visibleRows={8}
-                      subRowsKey="children" // 👈 enables tree structure
-                      filterable
-                      onAutoResize={() => {}}
-                      onColumnsReorder={() => {}}
-                      onGroup={() => {}}
-                      onLoadMore={() => {}}
-                      onRowClick={() => {}}
-                      onRowExpandChange={() => {}}
-                      onRowSelect={() => {}}
-                      onSort={() => {}}
-                      onTableScroll={() => {}}
-                    />
-                  </FlexBox>
-                </div>
-              </FlexBox>
-            }
-            midColumn={
-              <Page
-                header={
-                  <Bar
-                    endContent={
-                      <Button
-                        icon="sap-icon://decline"
-                        title="close"
-                        onClick={() => setLayout("OneColumn")}
-                      />
-                    }
-                    startContent={<Title level="H5">{selectedMenu+" Menu List"}</Title>}
-                  ></Bar>
-                }
+            <FlexBox direction="Column" style={{ padding: 0 }}>
+              <FlexBox
+                justifyContent="End"
+                alignItems="Center"
+                style={{ margin: "10px" }}
               >
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "row",
-                    justifyContent: "center",
-                    alignItems: "start",
-                    //height: "90%",
-                    verticalAlign: "middle",
-                  }}
-                >
-                  <ViewMenuMaster id={ViewId} />
-                </div>
-              </Page>
-            }
-          />
-        </FlexBox>
-      </Card>
-      
-    </Page></FlexBox></>
+                <Search
+                  onClose={function Xs() {}}
+                  onInput={(e) => setSearch(e.target.value)}
+                  onOpen={function Xs() {}}
+                  onScopeChange={function Xs() {}}
+                  onSearch={(e) => setSearch(e.target.value)}
+                />
+              </FlexBox>
+              {console.log("filteredRows", filteredRows)}
+              {apiError && (
+                      <MessageStrip
+                        design="Negative"
+                        hideCloseButton={false}
+                        hideIcon={false}
+                        style={{ marginBottom: "1rem" }}
+                      >
+                        {apiError}
+                      </MessageStrip>
+                    )}
+              <FlexibleColumnLayout
+                // style={{ height: "600px" }}
+                layout={layout}
+                startColumn={
+                  <FlexBox direction="Column">
+                    <div>
+                      <FlexBox direction="Column">
+                        {console.log("filteredRows", filteredRows)}
+                        <AnalyticalTable
+                          columns={columns}
+                          data={filteredRows || []}
+                          // header={<Title level="H5" style={{ paddingLeft: 5 }}>  {
+                          //   "Menu list(" + filteredRows.length + ")"}</Title>}
+                          style={{ padding: "10px" }}
+                          // visibleRows={8}
+                          subRowsKey="children" // 👈 enables tree structure
+                          filterable
+                          onAutoResize={() => {}}
+                          onColumnsReorder={() => {}}
+                          onGroup={() => {}}
+                          onLoadMore={() => {}}
+                          onRowClick={() => {}}
+                          onRowExpandChange={() => {}}
+                          onRowSelect={() => {}}
+                          onSort={() => {}}
+                          onTableScroll={() => {}}
+                        />
+                      </FlexBox>
+                    </div>
+                  </FlexBox>
+                }
+                midColumn={
+                  <Page
+                    header={
+                      <Bar
+                        endContent={
+                          <Button
+                            icon="sap-icon://decline"
+                            title="close"
+                            onClick={() => setLayout("OneColumn")}
+                          />
+                        }
+                        startContent={
+                          <Title level="H5">
+                            {selectedMenu + " Menu List"}
+                          </Title>
+                        }
+                      ></Bar>
+                    }
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "row",
+                        justifyContent: "center",
+                        alignItems: "start",
+                        //height: "90%",
+                        verticalAlign: "middle",
+                      }}
+                    >
+                      <ViewMenuMaster id={ViewId} />
+                    </div>
+                  </Page>
+                }
+              />
+            </FlexBox>
+          </Card>
+        </Page>
+      </FlexBox>
+    </>
   );
 };
 
