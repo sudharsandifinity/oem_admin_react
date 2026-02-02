@@ -23,6 +23,7 @@ import {
 } from "../../../../store/slices/branchesSlice";
 import { fetchCompanies } from "../../../../store/slices/companiesSlice";
 import AppBar from "../../../../Components/Module/Appbar";
+import { set } from "react-hook-form";
 
 const ViewBranch = Loadable(lazy(() => import("./ViewBranch")));
 
@@ -36,6 +37,7 @@ const Branches = () => {
 
   const [search, setSearch] = useState("");
   const [ViewId, setViewId] = useState("");
+  const [apiError, setApiError] = useState(null);
 
   useEffect(() => {
     //dispatch(fetchBranch());
@@ -50,6 +52,7 @@ const Branches = () => {
         }
       } catch (err) {
         console.log("Failed to fetch user", err.message);
+        setApiError(err.message);
         err.message && navigate("/");
       }
     };
@@ -88,6 +91,17 @@ const Branches = () => {
     b.address.toLowerCase().includes(search.toLowerCase())
     );
   }, [branches, search]);
+
+{apiError && (
+        <MessageStrip
+          design="Negative"
+          hideCloseButton={false}
+          hideIcon={false}
+          style={{ marginBottom: "1rem" }}
+        >
+          {apiError}
+        </MessageStrip>
+      )}
 
   const columns = useMemo(
     () => [

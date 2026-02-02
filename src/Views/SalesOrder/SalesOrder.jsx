@@ -247,13 +247,13 @@ export default function SalesOrder() {
           VatSum: summaryData.VatSum || 0,
           DocumentAdditionalExpenses: Object.values(freightRowSelection).map(
             (freight) => ({
-              ExpensCode: Number(freight.ExpensCode),
+              //ExpensCode: Number(freight.ExpensCode),
               LineTotal: Number(freight.LineTotal),
               Remarks: freight.Remarks,
               TaxCode: freight.TaxCode,
-              TaxPercent: freight.TaxGroup,
-              TaxSum: freight.TotalTaxAmount,
-              LineGross: freight.LineGross,
+              TaxPercent: Number(freight.TaxGroup),
+              TaxSum: Number(freight.TotalTaxAmount),
+              LineGross: Number(freight.LineGross),
             })
           ),
         };
@@ -317,13 +317,13 @@ export default function SalesOrder() {
           VatSum: summaryData.VatSum || 0,
           DocumentAdditionalExpenses: Object.values(freightRowSelection).map(
             (freight) => ({
-              ExpenseCode: Number(freight.ExpensCode),
+              //ExpenseCode: Number(freight.ExpensCode),
               LineTotal: Number(freight.grossTotal),
               Remarks: freight.quantity,
               TaxCode: freight.TaxGroup,
-              TaxPercent: freight.TaxCode,
-              TaxSum: freight.TotalTaxAmount,
-              LineGross: freight.amount,
+              TaxPercent: Number(freight.TaxCode),
+              TaxSum: Number(freight.TotalTaxAmount),
+              LineGross: Number(freight.amount),
             })
           ),
         };
@@ -426,7 +426,23 @@ export default function SalesOrder() {
         return null;
     }
   };
+const getUserFriendlyMessage = (error) => {
+  if (!error) return "An unexpected error occurred.";
 
+  if (error.code === "-5002") {
+    return "The selected customer is not valid for this document.";
+  }
+
+  if (error.code === "-10") {
+    return "Tax information is missing or incorrect.";
+  }
+
+  if (error.message?.includes("Network")) {
+    return "Unable to connect to the server.";
+  }
+
+  return "Please review the details and try again.";
+};
   console.log("freightRowSelection", freightRowSelection, formDetails);
   useEffect(() => {
     if (!user) return;
@@ -736,10 +752,10 @@ export default function SalesOrder() {
             <>
               <Icon
                 name="message-error"
-                style={{ fontSize: "2rem", color: "red" }}
+                style={{ fontSize: "1rem", color: "red" }}
               ></Icon>
-              <h2 style={{ marginTop: "1rem" }}>Error!</h2>
-              <p>{apiError}</p>
+              <h3 style={{ marginTop: "1rem" }}>{formDetails[0]?.name + " Not Created"}</h3>
+              <p>{getUserFriendlyMessage(apiError)}</p>
             </>
           ) : (
             <>

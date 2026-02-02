@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 const CreateUser = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [apiError, setApiError] = useState(null);
   const [addDetail, setAddDetail] = useState({
       companyId: "",
       formId: "",
@@ -36,6 +37,7 @@ console.log("handlecreate payload", payload, addDetail);
       }
     } catch (error) {
       console.error(error);
+      setApiError(error.message || "Failed to create user");
     }
   };
 
@@ -53,7 +55,7 @@ console.log("handlecreate payload", payload, addDetail);
     //formId: [],
     branchIds: [],
     adddetail: [],
-}} onSubmitCreate={handleCreate} mode="create" />;
+}} onSubmitCreate={handleCreate} mode="create" apiError={apiError} />;
 };
 
 export default CreateUser;

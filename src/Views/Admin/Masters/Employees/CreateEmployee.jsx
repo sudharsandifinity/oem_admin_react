@@ -7,6 +7,7 @@ import { createEmployee } from "../../../../store/slices/usersSlice";
 const CreateEmployee = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+   const [apiError, setApiError] = useState(null);
   const [addDetail, setAddDetail] = useState({
       companyId: "",
       formId: "",
@@ -29,8 +30,9 @@ console.log("handlecreate payload", payload, addDetail);
       } else {
         navigate("/admin/employees");
       }
-    } catch (error) {
-      console.error(error);
+    } catch (err) {
+      console.log("err",err)
+      setApiError(err?.message || "Failed to create Employee");
     }
   };
 
@@ -38,7 +40,7 @@ console.log("handlecreate payload", payload, addDetail);
     roleIds: [],
     companyId: "",
     branchIds: [],
-}} onSubmitCreate={handleCreate} mode="create" />;
+}} onSubmitCreate={handleCreate} mode="create" apiError={apiError}/>;
 };
 
 

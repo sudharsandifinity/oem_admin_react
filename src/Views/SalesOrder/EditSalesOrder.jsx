@@ -742,6 +742,23 @@ const EditSalesOrder = () => {
       }))
     ) || [];
   const childOptions = menuBlocks.length > 0 ? menuBlocks[0].children : [];
+  const getUserFriendlyMessage = (error) => {
+  if (!error) return "An unexpected error occurred.";
+
+  if (error.code === "-5002") {
+    return "The selected customer is not valid for this document.";
+  }
+
+  if (error.code === "-10") {
+    return "Tax information is missing or incorrect.";
+  }
+
+  if (error.message?.includes("Network")) {
+    return "Unable to connect to the server.";
+  }
+
+  return "Please review the details and try again.";
+};
   useEffect(() => {
     if (!user) return;
 
@@ -1108,8 +1125,8 @@ const EditSalesOrder = () => {
               >
                 {" "}
               </Icon>
-              <h2 style={{ marginTop: "1rem" }}>Error!</h2>
-              <p>{apiError}</p>
+               <h3 style={{ marginTop: "1rem" }}>{formDetails[0]?.name + " Not Updated"}</h3>
+              <p>{getUserFriendlyMessage(apiError)}</p>
             </>
           ) : (
             <>

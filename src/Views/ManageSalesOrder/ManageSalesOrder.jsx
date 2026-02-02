@@ -3,6 +3,7 @@ import {
   Bar,
   Breadcrumbs,
   BreadcrumbsItem,
+  BusyIndicator,
   Button,
   DynamicPage,
   DynamicPageHeader,
@@ -60,10 +61,10 @@ const ManageSalesOrder = () => {
 
   const { companyformfield } = useSelector((state) => state.companyformfield);
   const { companyformfielddata } = useSelector(
-    (state) => state.companyformfielddata
+    (state) => state.companyformfielddata,
   );
   const { customerorder, businessPartner, loading, error } = useSelector(
-    (state) => state.customerorder
+    (state) => state.customerorder,
   );
   const [tableData, settableData] = useState([]);
   const [formDetails, setFormDetails] = useState([]);
@@ -97,23 +98,23 @@ const ManageSalesOrder = () => {
         let res = "";
         if (formDetails[0]?.name === "Sales Order") {
           res = await dispatch(
-            fetchCustomerOrder({ top: pageSize, skip: 0 })
+            fetchCustomerOrder({ top: pageSize, skip: 0 }),
           ).unwrap();
         } else if (formDetails[0]?.name === "Sales Quotation") {
           res = await dispatch(
-            fetchSalesQuotations({ top: pageSize, skip: 0 })
+            fetchSalesQuotations({ top: pageSize, skip: 0 }),
           ).unwrap();
         } else if (formDetails[0]?.name === "Purchase Order") {
           res = await dispatch(
-            fetchPurchaseOrder({ top: pageSize, skip: 0 })
+            fetchPurchaseOrder({ top: pageSize, skip: 0 }),
           ).unwrap();
         } else if (formDetails[0]?.name === "Purchase Quotation") {
           res = await dispatch(
-            fetchPurchaseQuotation({ top: pageSize, skip: 0 })
+            fetchPurchaseQuotation({ top: pageSize, skip: 0 }),
           ).unwrap();
         } else if (formDetails[0]?.name === "Purchase Request") {
           res = await dispatch(
-            fetchPurchaseRequest({ top: pageSize, skip: 0 })
+            fetchPurchaseRequest({ top: pageSize, skip: 0 }),
           ).unwrap();
         }
 
@@ -124,8 +125,8 @@ const ManageSalesOrder = () => {
         const list = Array.isArray(raw)
           ? raw
           : raw
-          ? [raw] // if it's single object
-          : []; // if null or undefined
+            ? [raw] // if it's single object
+            : []; // if null or undefined
 
         const initialData = list.map((item) => ({
           DocEntry: item.DocEntry,
@@ -163,7 +164,7 @@ const ManageSalesOrder = () => {
     const { selectedRowIds, rowsById } = e.detail;
 
     const selectedRows = Object.keys(selectedRowIds).map(
-      (rowId) => rowsById[rowId].original
+      (rowId) => rowsById[rowId].original,
     );
 
     setSelectedRows(selectedRows);
@@ -226,7 +227,7 @@ const ManageSalesOrder = () => {
       }
 
       return null;
-    }).filter(Boolean)
+    }).filter(Boolean),
   );
   console.log("object", menuChildMap[0].menuName);
   const ManageSalesOrderTableCols =
@@ -315,7 +316,7 @@ const ManageSalesOrder = () => {
         },
       },
     ],
-    [ManageSalesOrderTableCols]
+    [ManageSalesOrderTableCols],
   );
 
   const disabledCellStyle = {
@@ -390,7 +391,7 @@ const ManageSalesOrder = () => {
             item[fieldname]
               ?.toString()
               .toLowerCase()
-              .includes(value.toLowerCase())
+              .includes(value.toLowerCase()),
           ) || [];
 
         settableData(filteredList);
@@ -410,8 +411,8 @@ const ManageSalesOrder = () => {
       // Fetch form data based on formId
       const formDetails = user?.Roles?.flatMap((role) =>
         role.UserMenus.flatMap((menu) =>
-          menu.children.filter((submenu) => submenu.Form.id === formId)
-        )
+          menu.children.filter((submenu) => submenu.Form.id === formId),
+        ),
       );
       //setTabList((formDetails && formDetails[0]?.Form.FormTabs) || []);
       setFormDetails(formDetails);
@@ -447,7 +448,7 @@ const ManageSalesOrder = () => {
             >
               {console.log(
                 "ManageSalesOderHeaderField",
-                ManageSalesOderHeaderField
+                ManageSalesOderHeaderField,
               )}
               {ManageSalesOderHeaderField.map((field) => {
                 const filteredData = {
@@ -535,7 +536,7 @@ const ManageSalesOrder = () => {
               startColumn={
                 <FlexBox direction="Column">
                   <div>
-                    <FlexBox direction="Column">
+                    <FlexBox direction="Column">{console.log("loading",loading)}
                       <AnalyticalTable
                         columns={columns}
                         data={tableData}
@@ -575,7 +576,7 @@ const ManageSalesOrder = () => {
                                       formId +
                                       "/" +
                                       (tableData.length > 0 &&
-                                        tableData[0]?.DocEntry + 1)
+                                        tableData[0]?.DocEntry + 1),
                                   );
                                 }}
                                 text="Create"
@@ -593,7 +594,19 @@ const ManageSalesOrder = () => {
                         loading={loading}
                         showOverlay={page === 0 && loading}
                         noDataText={
-                          !customerorder ? "Loading data..." : "No data found!"
+                          loading ? (
+                            "Loading data..."
+                          ) : tableData.length === 0 ? (
+                            <FlexBox
+                              justifyContent="Center"
+                              alignItems="Center"
+                              style={{ height: "80vh", width: "100%" }}
+                            >
+                              <BusyIndicator delay={1000} active size="M" />
+                            </FlexBox>
+                          ) : (
+                            ""
+                          )
                         }
                         sortable
                         filterable
@@ -616,7 +629,7 @@ const ManageSalesOrder = () => {
                               fetchCustomerOrder({
                                 top: pageSize,
                                 skip: page * pageSize,
-                              })
+                              }),
                             ).unwrap();
 
                             if (res.length < pageSize) {

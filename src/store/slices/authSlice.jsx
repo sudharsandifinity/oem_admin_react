@@ -2,6 +2,9 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import api from '../../api/axios';
 
 const API_URL = '/auth/login';
+const ChangePasswordURL = '/auth/change-password';
+
+
 
 export const login = createAsyncThunk('auth/login', async (credentials, thunkAPI) => {
   try {
@@ -14,6 +17,14 @@ export const login = createAsyncThunk('auth/login', async (credentials, thunkAPI
   }
 });
 
+export const changePassword = createAsyncThunk('auth/change-password', async (data, thunkAPI) => {
+  try {
+    const response = await api.post(ChangePasswordURL, data);
+    return response.data;
+  } catch (error) {
+    return thunkAPI.rejectWithValue(error.response?.data || 'Something went wrong');
+  }
+});
 export const forgotPassword = createAsyncThunk('auth/forgotPassword', async (email, thunkAPI) => {
   try {
     const response = await api.post('/auth/forgot-password', { email });
@@ -82,6 +93,19 @@ const authSlice = createSlice({
         state.loading = false;
         state.error = action.payload || 'Login failed';
       })
+      // Change Password
+      .addCase(changePassword.pending, (state) => {
+        state.status = 'loading';
+        state.error = null;
+      })
+      .addCase(changePassword.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+      })
+      .addCase(changePassword.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload || 'Something went wrong';
+      })
+
 
       // Forgot Password
       .addCase(forgotPassword.pending, (state) => {

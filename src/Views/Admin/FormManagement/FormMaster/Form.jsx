@@ -27,7 +27,8 @@ import {
 } from "@ui5/webcomponents-react";
 import { useNavigate } from "react-router-dom";
 import AppBar from "../../../../Components/Module/Appbar";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchBranch } from "../../../../store/slices/branchesSlice";
 
 // Validation schema
 const schema = yup.object().shape({
@@ -73,6 +74,7 @@ const Form = ({
     console.log("form ready", form);
     formRef.current = form;
   }, []);
+  const dispatch = useDispatch();
 
   const { branches } = useSelector((state) => state.branches);
   const { companies } = useSelector((state) => state.companies);
@@ -127,7 +129,23 @@ const Form = ({
     const filtered = formTabs.filter((_, index) => index !== rowIndex);
     setFormTabs(filtered);
   };
+  useEffect(() => {
+    //dispatch(fetchRoles());
+    const fetchData = async () => {
+      try {
+        const res = await dispatch(fetchBranch()).unwrap();
+        console.log("resusers", res);
 
+        if (res.message === "Please Login!") {
+          navigate("/");
+        }
+      } catch (err) {
+        console.log("Failed to fetch user", err.message);
+        err.message && navigate("/");
+      }
+    };
+    fetchData();
+  }, [dispatch]);
   const columns = [
     {
       Header: "Tab Name",

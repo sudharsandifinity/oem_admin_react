@@ -22,6 +22,7 @@ import Admin from "../../Admin";
 import { deleteRole, fetchRoles } from "../../../../store/slices/roleSlice";
 import AppBar from "../../../../Components/Module/Appbar";
 import { fetchCompanies } from "../../../../store/slices/companiesSlice";
+import { set } from "react-hook-form";
 const ViewRole = Loadable(lazy(() => import("./ViewRole")));
 
 const RolesList = () => {
@@ -36,6 +37,7 @@ const RolesList = () => {
   const [search, setSearch] = useState("");
   const [layout, setLayout] = useState("OneColumn");
   const [ViewId, setViewId] = useState("");
+  const [apiError, setApiError] = useState(null);
 
   useEffect(() => {
     //dispatch(fetchRoles());
@@ -50,6 +52,7 @@ const RolesList = () => {
         }
       } catch (err) {
         console.log("Failed to fetch user", err.message);
+        setApiError(err.message);
         err.message && navigate("/");
       }
     };
@@ -67,6 +70,7 @@ const RolesList = () => {
           navigate("/login");
         }
       } catch (error) {
+        setApiError(error?.message || "Failed to delete role");
         console.error("Error deleting role:", error);
       }
     }
@@ -294,6 +298,16 @@ const RolesList = () => {
             />
           </FlexBox>
           {console.log("filteredRows", filteredRows)}
+          {apiError && (
+                  <MessageStrip
+                    design="Negative"
+                    hideCloseButton={false}
+                    hideIcon={false}
+                    style={{ marginBottom: "1rem" }}
+                  >
+                    {apiError}
+                  </MessageStrip>
+                )}
           <FlexibleColumnLayout
             // style={{ height: "600px" }}
             layout={layout}

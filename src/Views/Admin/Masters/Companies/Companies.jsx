@@ -28,6 +28,7 @@ const ViewCompany = Loadable(lazy(() => import("./ViewCompany")));
 const Companies = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+    const [apiError, setApiError] = useState(null);
   const { companies } = useSelector((state) => state.companies);
   const { user } = useSelector((state) => state.auth);
   const [search, setSearch] = useState("");
@@ -47,6 +48,7 @@ const Companies = () => {
         }
       } catch (err) {
         console.log("Failed to fetch user", err.message);
+        setApiError(err.message);
         err.message && navigate("/");
       }
     };
@@ -61,6 +63,7 @@ const Companies = () => {
         }
       } catch (error) {
         console.error("Error deleting company:", error);
+        setApiError(error.message);
       }
     }
   };
@@ -176,7 +179,16 @@ const filteredRows = companies?.filter((company) =>
       navigate("/login");
     }
   }, [user])
-
+{apiError && (
+        <MessageStrip
+          design="Negative"
+          hideCloseButton={false}
+          hideIcon={false}
+          style={{ marginBottom: "1rem" }}
+        >
+          {apiError}
+        </MessageStrip>
+      )}
   return (
 
     <>

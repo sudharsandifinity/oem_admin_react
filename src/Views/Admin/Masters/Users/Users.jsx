@@ -21,7 +21,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchUsers, deleteUser } from "../../../../store/slices/usersSlice";
 import { useNavigate } from "react-router-dom";
 import Admin from "../../Admin";
-import { fetchCompanies } from "../../../../store/slices/companiesSlice";
 import AppBar from "../../../../Components/Module/Appbar";
 const ViewUser = Loadable(lazy(() => import("./ViewUser")));
 
@@ -35,18 +34,20 @@ const Users = () => {
   const [layout, setLayout] = useState("OneColumn");
   const [ViewId, setViewId] = useState("");
   const [selectedCompany, setSelectedCompany] = useState("");
+  const [apiError, setApiError] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const res = await dispatch(fetchUsers()).unwrap();
-        dispatch(fetchCompanies());
+       
         console.log("resusers", res);
         if (res.message === "Please Login!") {
          // navigate("/");
         }
       } catch (err) {
         console.log("Failed to fetch user", err.message);
+        setApiError(err.message);
        // err.message && navigate("/");
       }
     };
@@ -122,6 +123,16 @@ const Users = () => {
       navigate("/login");
     }
   }, [users]);
+  {apiError && (
+              <MessageStrip
+                design="Negative"
+                hideCloseButton={false}
+                hideIcon={false}
+                style={{ marginBottom: "1rem" }}
+              >
+                {apiError}
+              </MessageStrip>
+            )}
   const columns = useMemo(
     () => [
       {
