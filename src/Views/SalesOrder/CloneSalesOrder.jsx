@@ -82,6 +82,8 @@ const CloneSalesOrder = () => {
   const [oldAttachmentFiles, setOldAttachmentFiles] = useState([]);
   const [freightRowSelection, setFreightRowSelection] = useState([]);
   const [copyFrom, setCopyFrom] = useState("");
+  const [currencyType, setCurrencyType] = useState("GBP");
+  const [dimensionData, setDimensionData] = useState([]);
 
   const [tabList, setTabList] = useState([]);
   const [formDetails, setFormDetails] = useState([]);
@@ -108,6 +110,8 @@ const CloneSalesOrder = () => {
       quantity: "",
       amount: "",
       TaxCode: "",
+      Project: "",
+      Warehouse: "",
     },
   ]);
   const [itemTabledata, setitemTableData] = useState([
@@ -124,7 +128,7 @@ const CloneSalesOrder = () => {
     CardName: "",
     RefNo: "",
     DocNo: "",
-    DocDate: "",
+    PostingDate: "",
     Remarks: "",
     DocTotal: 0,
     items: [{ ItemCode: "", ItemName: "", Quantity: 0, Price: 0 }],
@@ -188,14 +192,16 @@ const CloneSalesOrder = () => {
           setFormData({
             CardCode: orderListById.CardCode,
             CardName: orderListById.CardName,
+            CustomerRefNo: orderListById.NumAtCard ||  "",
+
             DocDueDate: orderListById.DocDueDate
               ? new Date(orderListById.DocDueDate).toISOString().split("T")[0]
               : new Date().toISOString().split("T")[0],
-            DocDate: orderListById.DocDate
+            PostingDate: orderListById.DocDate
               ? new Date(orderListById.DocDate).toISOString().split("T")[0]
               : new Date().toISOString().split("T")[0],
-            CreationDate: orderListById.CreationDate
-              ? new Date(orderListById.CreationDate).toISOString().split("T")[0]
+            TaxDate: orderListById.TaxDate
+              ? new Date(orderListById.TaxDate).toISOString().split("T")[0]
               : new Date().toISOString().split("T")[0],
             DocumentLines: orderListById.DocumentLines || [],
             formData: orderListById.formData,
@@ -209,9 +215,9 @@ const CloneSalesOrder = () => {
                   orderList.value
                     .map((item, index) => {
                       const matched = orderListById.DocumentLines.find(
-                        (line) => line.ItemCode === item.ItemCode
+                        (line) => line.ItemCode === item.ItemCode,
                       );
-                      console.log("setitemeditpage", item, matched);
+                      console.log("setitemeditpagefetchitem", matched);
                       return matched !== undefined
                         ? {
                             slno: index, // usually LineNum is 0-based
@@ -220,8 +226,18 @@ const CloneSalesOrder = () => {
                             quantity: matched.quantity,
                             TaxCode: matched.TaxCode,
                             amount: matched.amount,
+                            WarehouseCode: matched.WarehouseCode,
+                            ProjectCode: matched.ProjectCode,
                             discount: matched.discount,
                             TaxRate: matched.TaxRate,
+                            "1_ProfitCenterCode": matched.CostingCode,
+                            "2_ProfitCenterCode": matched.CostingCode2,
+
+                            "3_ProfitCenterCode": matched.CostingCode3,
+                            "4_ProfitCenterCode": matched.CostingCode4,
+                            "5_ProfitCenterCode": matched.CostingCode5,
+                            grosstotal: parseFloat(matched.grosstotal) || 0,
+                            BaseAmount: parseFloat(matched.BaseAmount) || 0,
                           }
                         : {
                             slno: index, // usually LineNum is 0-based
@@ -230,18 +246,28 @@ const CloneSalesOrder = () => {
                             quantity: item.quantity,
                             TaxCode: item.TaxCode,
                             amount: item.amount,
+                            WarehouseCode: item.WarehouseCode,
+                            ProjectCode: item.ProjectCode,
                             discount: item.discount,
                             TaxRate: item.TaxRate,
+                            "1_ProfitCenterCode": item.CostingCode,
+                            "2_ProfitCenterCode": item.CostingCode2,
+
+                            "3_ProfitCenterCode": item.CostingCode3,
+                            "4_ProfitCenterCode": item.CostingCode4,
+                            "5_ProfitCenterCode": item.CostingCode5,
+                            grosstotal: parseFloat(item.grosstotal) || 0,
+                            BaseAmount: parseFloat(item.BaseAmount) || 0,
                           }; // no placeholder
                     })
-                    .filter(Boolean) // remove nulls
+                    .filter(Boolean), // remove nulls
               );
               setitemTableData(
                 () =>
                   orderList.value
                     .map((item) => {
                       const matched = orderListById.DocumentLines.find(
-                        (line) => line.ItemCode === item.ItemCode
+                        (line) => line.ItemCode === item.ItemCode,
                       );
 
                       return matched
@@ -251,19 +277,29 @@ const CloneSalesOrder = () => {
                             ItemName: matched.ItemName,
                             quantity: matched.quantity,
                             TaxCode: matched.TaxCode,
+                            WarehouseCode: matched.WarehouseCode,
+                            ProjectCode: matched.ProjectCode,
                             amount: matched.amount,
                             discount: matched.discount,
                             TaxRate: matched.TaxRate,
+                            "1_ProfitCenterCode": matched.CostingCode,
+                            "2_ProfitCenterCode": matched.CostingCode2,
+
+                            "3_ProfitCenterCode": matched.CostingCode3,
+                            "4_ProfitCenterCode": matched.CostingCode4,
+                            "5_ProfitCenterCode": matched.CostingCode5,
+                            grosstotal: parseFloat(matched.grosstotal) || 0,
+                            BaseAmount: parseFloat(matched.BaseAmount) || 0,
                           }
                         : null; // no placeholder
                     })
-                    .filter(Boolean) // remove nulls
+                    .filter(Boolean), // remove nulls
               );
               if (orderList.value?.length > 0) {
                 const preselected = {};
                 orderListById.DocumentLines.forEach((line) => {
                   const idx = orderList.value.findIndex(
-                    (o) => o.ItemCode === line.ItemCode
+                    (o) => o.ItemCode === line.ItemCode,
                   );
                   if (idx !== -1) {
                     preselected[idx] = orderList.value[idx];
@@ -279,7 +315,7 @@ const CloneSalesOrder = () => {
                   serviceList.value
                     .map((item, index) => {
                       const matched = orderListById.DocumentLines.find(
-                        (line) => line.ServiceCode === item.Code
+                        (line) => line.ServiceCode === item.Code,
                       );
                       return matched !== undefined
                         ? {
@@ -290,8 +326,16 @@ const CloneSalesOrder = () => {
                             amount: matched.amount,
                             discount: matched.discount,
                             TaxRate: matched.TaxRate,
-                            grosstotal: matched.grosstotal,
-                            BaseAmount: matched.BaseAmount,
+                            WarehouseCode: matched.WarehouseCode,
+                            ProjectCode: matched.ProjectCode,
+                            "1_ProfitCenterCode": matched.CostingCode,
+                            "2_ProfitCenterCode": matched.CostingCode2,
+
+                            "3_ProfitCenterCode": matched.CostingCode3,
+                            "4_ProfitCenterCode": matched.CostingCode4,
+                            "5_ProfitCenterCode": matched.CostingCode5,
+                            grosstotal: parseFloat(matched.grosstotal) || 0,
+                            BaseAmount: parseFloat(matched.BaseAmount) || 0,
                           }
                         : {
                             slno: index, // usually LineNum is 0-based
@@ -301,17 +345,25 @@ const CloneSalesOrder = () => {
                             amount: item.amount,
                             discount: item.discount,
                             TaxRate: item.TaxRate,
-                            grosstotal: item.grosstotal,
-                            BaseAmount: item.BaseAmount,
+                            grosstotal: parseFloat(item.grosstotal) || 0,
+                            BaseAmount: parseFloat(item.BaseAmount) || 0,
+                            WarehouseCode: item.WarehouseCode,
+                            ProjectCode: item.ProjectCode,
+                            "1_ProfitCenterCode": item.CostingCode,
+                            "2_ProfitCenterCode": item.CostingCode2,
+
+                            "3_ProfitCenterCode": item.CostingCode3,
+                            "4_ProfitCenterCode": item.CostingCode4,
+                            "5_ProfitCenterCode": item.CostingCode5,
                           }; // no placeholder
                     })
-                    .filter(Boolean) // remove nulls
+                    .filter(Boolean), // remove nulls
               );
               setserviceTableData(() =>
                 serviceList.value
                   .map((item) => {
                     const matched = orderListById.DocumentLines.find(
-                      (line) => line.ServiceCode === item.Code
+                      (line) => line.ServiceCode === item.Code,
                     );
 
                     return matched
@@ -323,19 +375,27 @@ const CloneSalesOrder = () => {
                           amount: Number(matched.amount) || 0,
                           discount: Number(matched.discount) || 0,
                           TaxRate: Number(matched.TaxRate) || 0,
-                          BaseAmount: Number(matched.BaseAmount) || 0,
-                          grosstotal: Number(matched.grosstotal) || 0,
+                          BaseAmount: parseFloat(matched.BaseAmount) || 0,
+                          grosstotal: parseFloat(matched.grosstotal) || 0,
+                          WarehouseCode: matched.WarehouseCode,
+                          ProjectCode: matched.ProjectCode,
+                          "1_ProfitCenterCode": matched.CostingCode,
+                          "2_ProfitCenterCode": matched.CostingCode2,
+
+                          "3_ProfitCenterCode": matched.CostingCode3,
+                          "4_ProfitCenterCode": matched.CostingCode4,
+                          "5_ProfitCenterCode": matched.CostingCode5,
                         }
                       : null;
                   })
-                  .filter(Boolean)
+                  .filter(Boolean),
               );
 
               if (serviceList.value?.length > 0) {
                 const preselected = {};
                 orderListById.DocumentLines.forEach((line) => {
                   const idx = serviceList.value.findIndex(
-                    (o) => o.Code === line.ServiceCode
+                    (o) => o.Code === line.ServiceCode,
                   );
                   if (idx !== -1) {
                     preselected[idx] = orderList.value[idx];
@@ -352,7 +412,7 @@ const CloneSalesOrder = () => {
               orderListById.DocumentLines,
               orderListById,
               "formData",
-              formData
+              formData,
             );
 
             // 3. Preselect rows
@@ -368,15 +428,19 @@ const CloneSalesOrder = () => {
             VatSum: orderListById.VatSum,
           }));
           // set general header edit data
-          console.log("copydata", orderListById);
+          console.log("copydata", orderListById.DiscountPercent);
           setSummaryDiscountPercent(orderListById.DiscountPercent);
           setRoundingEnabled(orderListById.Rounding === "tYES");
           setRoundOff(orderListById.RoundingDiffAmount);
           setgeneraleditdata({
             CardCode: orderListById.CardCode,
             CardName: orderListById.CardName,
-            PostingDate: orderListById.CreationDate,
-            DocDate: orderListById.DocDate
+            CustomerRefNo: orderListById.NumAtCard ||  "",
+
+            TaxDate: orderListById.TaxDate
+              ? new Date(orderListById.TaxDate).toISOString().split("T")[0]
+              : "",
+            PostingDate: orderListById.DocDate
               ? new Date(orderListById.DocDate).toISOString().split("T")[0]
               : "",
             DeliveryDate: orderListById.DocDueDate
@@ -442,8 +506,8 @@ const CloneSalesOrder = () => {
         itemTabledata.some(
           (tableItem) =>
             tableItem.ItemCode === item.ItemCode &&
-            tableItem.ItemName === item.ItemName
-        )
+            tableItem.ItemName === item.ItemName,
+        ),
       );
     }
     //   const filteredData = itemdata.filter(item =>
@@ -457,16 +521,43 @@ const CloneSalesOrder = () => {
     let payload = {};
     try {
       setLoading(true);
+      const isPurchaseQuotation =
+        formDetails[0]?.name === "Purchase Order" ||
+        formDetails[0]?.name === "Purchase Quotation" ||
+        formDetails[0]?.name === "Purchase Request";
       if (type === "Item") {
         payload = {
           CardCode: formData.CardCode || selectedcardcode,
-
+ DocDate: formData.PostingDate
+            ? new Date(formData.PostingDate)
+                .toISOString()
+                .split("T")[0]
+                .replace(/-/g, "")
+            : new Date().toISOString().split("T")[0].replace(/-/g, ""),
           DocDueDate: formData.DocDueDate
             ? new Date(formData.DocDueDate)
                 .toISOString()
                 .split("T")[0]
                 .replace(/-/g, "")
             : new Date().toISOString().split("T")[0].replace(/-/g, ""),
+            TaxDate: formData.TaxDate
+            ? new Date(formData.TaxDate)
+                .toISOString()
+                .split("T")[0]
+                .replace(/-/g, "")
+            : new Date().toISOString().split("T")[0].replace(/-/g, ""),
+           
+          ...(isPurchaseQuotation && {
+            RequriedDate: formData.ReqDate
+              ? new Date(formData.ReqDate)
+                  .toISOString()
+                  .split("T")[0]
+                  .replace(/-/g, "")
+              : new Date().toISOString().split("T")[0].replace(/-/g, ""),
+          }),
+          NumAtCard: formData.CustomerRefNo || "",
+          DocumentStatus: "open",
+          ContactPerson: formData.ContactPerson || "",
           DocType: "dDocument_Items",
           DocumentLines: Object.values(itemTabledata).map((line, index) => {
             const existingLine = formData.formData?.DocumentLines?.[index];
@@ -477,14 +568,15 @@ const CloneSalesOrder = () => {
               BaseType: copyFrom?.includes("Purchase Quotation")
                 ? "540000006"
                 : copyFrom?.includes("Purchase Order")
-                ? "22"
-                : copyFrom?.includes("Purchase Request")
-                ? "202"
-                : copyFrom?.includes("Sales Order")
-                ? "17"
-                : copyFrom?.includes("Sales Quotation")
-                ? "23"                
-                : "0",
+                  ? "22"
+                  : copyFrom?.includes("Purchase Request")
+                    ? "202"
+                    : copyFrom?.includes("Sales Order")
+                      ? "17"
+                      : copyFrom?.includes("Sales Quotation")
+                        ? "23"
+                        : "0",
+                        ItemCode: line.ItemCode,
               ItemDescription: line.ItemName,
               Quantity: line.quantity,
               UnitPrice: line.amount,
@@ -494,38 +586,66 @@ const CloneSalesOrder = () => {
               VatGroup: line.TaxCode,
               DiscountPercent: line.discount,
               LineTotal: line.total,
+               CostingCode: line["1_ProfitCenterCode"] || null,
+            CostingCode2: line["2_ProfitCenterCode"] || null,
+            CostingCode3: line["3_ProfitCenterCode"] || null,
+            CostingCode4: line["4_ProfitCenterCode"] || null,
+            CostingCode5: line["5_ProfitCenterCode"] || null,
             };
           }),
           data: userdefinedData || {},
           DocTotal: summaryData.DocTotal || 0,
-          Rounding: summaryData.Rounding  || "tNO",
-          RoundingDiffAmount: summaryData.RoundingDiffAmount  || 0,
-          DiscountPercent: summaryData.DiscountPercent  || 0,
-          TotalDiscount: summaryData.TotalDiscount  || 0,
-          Comments: summaryData.Remark  || "",
-          VatSum: summaryData.VatSum  || 0,
+          Rounding: summaryData.Rounding || "tNO",
+          RoundingDiffAmount: summaryData.RoundingDiffAmount || 0,
+          DiscountPercent: summaryData.DiscountPercent || 0,
+          TotalDiscount: summaryData.TotalDiscount || 0,
+          Comments: summaryData.Remark || "",
+          VatSum: summaryData.VatSum || 0,
           //freight: totalFreightAmount,
           DocumentAdditionalExpenses: Object.values(freightRowSelection).map(
             (freight) => ({
-              ExpenseCode: freight.ExpensCode,
-              LineTotal: freight.grossTotal,
-              Remarks: freight.quantity,
-              TaxCode: freight.TaxGroup,
-              TaxPercent: freight.TaxCode,
-              TaxSum: freight.TotalTaxAmount,
-              LineGross: freight.amount,
-            })
+             LineTotal: Number(freight.LineTotal),
+              Remarks: freight.Remarks,
+              TaxCode: freight.TaxCode,
+              TaxPercent: Number(freight.TaxGroup),
+              TaxSum: Number(freight.TotalTaxAmount),
+              LineGross: Number(freight.LineGross),
+            }),
           ),
         };
       } else {
         payload = {
           CardCode: formData.CardCode || selectedcardcode,
+          DocDate: formData.PostingDate
+            ? new Date(formData.PostingDate)
+                .toISOString()
+                .split("T")[0]
+                .replace(/-/g, "")
+            : new Date().toISOString().split("T")[0].replace(/-/g, ""),
           DocDueDate: formData.DocDueDate
             ? new Date(formData.DocDueDate)
                 .toISOString()
                 .split("T")[0]
                 .replace(/-/g, "")
             : new Date().toISOString().split("T")[0].replace(/-/g, ""),
+            TaxDate: formData.TaxDate
+            ? new Date(formData.TaxDate)
+                .toISOString()
+                .split("T")[0]
+                .replace(/-/g, "")
+            : new Date().toISOString().split("T")[0].replace(/-/g, ""),
+          
+          ...(isPurchaseQuotation && {
+            RequriedDate: formData.ReqDate
+              ? new Date(formData.ReqDate)
+                  .toISOString()
+                  .split("T")[0]
+                  .replace(/-/g, "")
+              : new Date().toISOString().split("T")[0].replace(/-/g, ""),
+          }),
+           DocumentStatus: "open",
+           NumAtCard: formData.CustomerRefNo || "",
+          ContactPerson: formData.ContactPerson || "",
           DocumentLines: Object.values(itemTabledata).map((line, index) => {
             const existingLine = formData.formData?.DocumentLines?.[index];
 
@@ -534,31 +654,40 @@ const CloneSalesOrder = () => {
               BaseEntry: existingLine.DocEntry || "",
               BaseType: formDetails[0]?.name.includes("Purchase") ? "22" : "17",
               AccountCode: line.ServiceCode,
-              ItemDescription: line.ServiceName, // ✅ rename to ItemDescription
-              TaxCode: line.TaxCode,
-              UnitPrice: line.amount,
+            ItemDescription: line.ServiceName,
+            UnitPrice: Number(line.amount),
+            WarehouseCode: line.WarehouseCode,
+            ProjectCode: line.ProjectCode,
+            TaxCode: line.TaxCode,
+            VatGroup: line.TaxCode,
+            DiscountPercent: Number(line.discount),
+            LineTotal: Number(line.total),
+            CostingCode: line["1_ProfitCenterCode"] || null,
+            CostingCode2: line["2_ProfitCenterCode"] || null,
+            CostingCode3: line["3_ProfitCenterCode"] || null,
+            CostingCode4: line["4_ProfitCenterCode"] || null,
+            CostingCode5: line["5_ProfitCenterCode"] || null,
             };
           }),
 
           data: userdefinedData || {},
           DocTotal: summaryData.DocTotal || 0,
-          Rounding: summaryData.Rounding  || "tNO",
-          RoundingDiffAmount: summaryData.RoundingDiffAmount  || 0,
-          DiscountPercent: summaryData.DiscountPercent  || 0,
-          TotalDiscount: summaryData.TotalDiscount  || 0,
-          Comments: summaryData.Remark  || "",
-          VatSum: summaryData.VatSum  || 0,
+          Rounding: summaryData.Rounding || "tNO",
+          RoundingDiffAmount: summaryData.RoundingDiffAmount || 0,
+          DiscountPercent: summaryData.DiscountPercent || 0,
+          TotalDiscount: summaryData.TotalDiscount || 0,
+          Comments: summaryData.Remark || "",
+          VatSum: summaryData.VatSum || 0,
           //freight: totalFreightAmount,
           DocumentAdditionalExpenses: Object.values(freightRowSelection).map(
             (freight) => ({
-              ExpenseCode: freight.ExpensCode,
-              LineTotal: freight.grossTotal,
+             LineTotal: Number(freight.grossTotal),
               Remarks: freight.quantity,
               TaxCode: freight.TaxGroup,
-              TaxPercent: freight.TaxCode,
-              TaxSum: freight.TotalTaxAmount,
-              LineGross: freight.amount,
-            })
+              TaxPercent: Number(freight.TaxCode),
+              TaxSum: Number(freight.TotalTaxAmount),
+              LineGross: Number(freight.amount),
+            }),
           ),
         };
       }
@@ -571,11 +700,11 @@ const CloneSalesOrder = () => {
 
       formDataToSend.append(
         "DocumentLines",
-        JSON.stringify(payload.DocumentLines)
+        JSON.stringify(payload.DocumentLines),
       );
       formDataToSend.append(
         "DocumentAdditionalExpenses",
-        JSON.stringify(payload.DocumentAdditionalExpenses)
+        JSON.stringify(payload.DocumentAdditionalExpenses),
       );
       formDataToSend.append("data", JSON.stringify(payload.data));
 
@@ -592,25 +721,26 @@ const CloneSalesOrder = () => {
         "formdatatosend",
         payload,
         formDataToSend,
-        formDetails[0]?.name
+        formDetails[0]?.name,
       );
-      let res = "";
-      if (formDetails[0]?.name === "Sales Order") {
-        res = await dispatch(createCustomerOrder(formDataToSend)).unwrap();
-      } else if (formDetails[0]?.name === "Sales Quotation") {
-        res = await dispatch(createSalesQuotation(formDataToSend)).unwrap();
-      } else if (formDetails[0]?.name === "Purchase Order") {
-        //dispatch(createPurchaseOrder(formDataToSend)).unwrap();
-        res = await dispatch(createPurchaseOrder(formDataToSend)).unwrap();
-      } else if (formDetails[0]?.name === "Purchase Quotation") {
-        res = await dispatch(createPurchaseQuotation(formDataToSend)).unwrap();
-      } else if (formDetails[0]?.name === "Purchase Request") {
-        res = await dispatch(createPurchaseRequest(formDataToSend)).unwrap();
-      }
+       let res = "";
+      // if (formDetails[0]?.name === "Sales Order") {
+      //   res = await dispatch(createCustomerOrder(formDataToSend)).unwrap();
+      // } else if (formDetails[0]?.name === "Sales Quotation") {
+      //   res = await dispatch(createSalesQuotation(formDataToSend)).unwrap();
+      // } else if (formDetails[0]?.name === "Purchase Order") {
+      //   //dispatch(createPurchaseOrder(formDataToSend)).unwrap();
+      //   res = await dispatch(createPurchaseOrder(formDataToSend)).unwrap();
+      // } else if (formDetails[0]?.name === "Purchase Quotation") {
+      //   res = await dispatch(createPurchaseQuotation(formDataToSend)).unwrap();
+      // } else if (formDetails[0]?.name === "Purchase Request") {
+      //   res = await dispatch(createPurchaseRequest(formDataToSend)).unwrap();
+      // }
 
       if (res.message === "Please Login!") {
         navigate("/login");
       }
+      setApiError(null);
       setOpen(true);
     } catch (err) {
       setApiError(err?.message || "Failed to create branch");
@@ -629,8 +759,8 @@ const CloneSalesOrder = () => {
       // Fetch form data based on formId
       const formDetails = user?.Roles?.flatMap((role) =>
         role.UserMenus.flatMap((menu) =>
-          menu.children.filter((submenu) => submenu.id === pageId)
-        )
+          menu.children.filter((submenu) => submenu.id === pageId),
+        ),
       );
       console.log("useeffectformDetails", formDetails);
       setTabList((formDetails && formDetails[0]?.Form.FormTabs) || []);
@@ -784,6 +914,8 @@ const CloneSalesOrder = () => {
                 selectedcardcode={selectedcardcode}
                 setSelectedCardCode={setSelectedCardCode}
                 formDetails={formDetails}
+                currencyType={currencyType}
+                setCurrencyType={setCurrencyType}
                 defaultValues={formData} // ✅ now passes edit data properly
                 apiError={apiError}
               />
@@ -812,6 +944,7 @@ const CloneSalesOrder = () => {
               summaryData={summaryData}
               setSummaryData={setSummaryData}
               orderItems={orderItems}
+              formDetails={formDetails}
               loading={loading}
               form={form}
               handleRowChange={handleRowChange}
@@ -834,6 +967,8 @@ const CloneSalesOrder = () => {
               setRoundOff={setRoundOff}
               freightRowSelection={freightRowSelection}
               setFreightRowSelection={setFreightRowSelection}
+              dimensionData={dimensionData}
+              setDimensionData={setDimensionData}
             />
           </ObjectPageSection>
 

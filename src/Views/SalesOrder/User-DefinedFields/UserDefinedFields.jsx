@@ -170,7 +170,7 @@ const UserDefinedFields = ({
      }
    }, [dialogOpen]);
   return (
-    <div>
+    <div style={{minHeight:"320px"}}>
       <form
         ref={formRef}
         id="form"

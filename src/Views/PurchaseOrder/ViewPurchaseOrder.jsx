@@ -79,7 +79,7 @@ const ViewPurchaseOrder = () => {
     CardName: "",
     RefNo: "",
     DocNo: "",
-    DocDate: "",
+    PostingDate: "",
     Remarks: "",
     DocTotal: 0,
     items: [{ ItemCode: "", ItemName: "", Quantity: 0, Price: 0 }],

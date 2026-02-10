@@ -328,6 +328,7 @@ const Itemtable = (props) => {
   };
 
   const calculateRowTotals = (row) => {
+    console.log("calculateRowTotalsrowitem",row)
     const quantity = parseFloat(row.quantity) || 0;
     const unitPrice = parseFloat(row.unitPrice || row.amount) || 0;
     const discount = parseFloat(row.discount) || 0;
@@ -1234,7 +1235,7 @@ const Itemtable = (props) => {
                   style={{ textAlign: "right" }}
                   value={summaryDiscountPercent}
                   onInput={(e) => {
-                    const value = parseFloat(e.target.value) || 0;
+                    const value = parseFloat(e.target.value);
                     setSummaryDiscountPercent(value);
                     setSummaryData((prev) => ({
                       ...prev,

@@ -294,7 +294,7 @@ console.log("uniquebranch",uniquebranch,branches)
                     control={control}
                     render={({ field }) => (
                       <MultiComboBox
-                        style={{ width: "80%" }}
+                        style={{ minWidth: "80%", maxWidth: "80%" }}
                         name="branchIds"
                         disabled={
                           !branchlist ||
@@ -346,7 +346,7 @@ console.log("uniquebranch",uniquebranch,branches)
                 control={control}
                 render={({ field }) => (
                   <MultiComboBox
-                    style={{ width: "80%" }}
+                    style={{ minWidth: "80%", maxWidth: "80%" }}
                     name="roleIds"
                     value={field.value ?? []} // 👈 make sure it's an array, not string
                     onSelectionChange={(e) => {

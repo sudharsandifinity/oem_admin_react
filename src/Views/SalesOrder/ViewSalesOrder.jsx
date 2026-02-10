@@ -126,7 +126,7 @@ const ViewSalesOrder = () => {
     CardName: "",
     RefNo: "",
     DocNo: "",
-    DocDate: "",
+    PostingDate: "",
     Remarks: "",
     DocTotal: 0,
     items: [{ ItemCode: "", ItemName: "", Quantity: 0, Price: 0 }],
@@ -219,14 +219,16 @@ const ViewSalesOrder = () => {
               docEntry: orderListById.DocEntry,
               CardCode: orderListById.CardCode,
               CardName: orderListById.CardName,
+            CustomerRefNo: orderListById.NumAtCard ||  "",
+
               DocDueDate: orderListById.DocDueDate
                 ? new Date(orderListById.DocDueDate).toISOString().split("T")[0]
                 : new Date().toISOString().split("T")[0],
-              DocDate: orderListById.DocDate
+              PostingDate: orderListById.DocDate
                 ? new Date(orderListById.DocDate).toISOString().split("T")[0]
                 : new Date().toISOString().split("T")[0],
-              CreationDate: orderListById.CreationDate
-                ? new Date(orderListById.CreationDate).toISOString().split("T")[0]
+              TaxDate: orderListById.TaxDate
+                ? new Date(orderListById.TaxDate).toISOString().split("T")[0]
                 : new Date().toISOString().split("T")[0],
               DocumentLines: orderListById.DocumentLines || [],
               formData: orderListById.formData,
@@ -450,12 +452,17 @@ const ViewSalesOrder = () => {
             setgeneraleditdata({
               CardCode: orderListById.CardCode,
               CardName: orderListById.CardName,
+            CustomerRefNo: orderListById.NumAtCard ||  "",
+
               PostingDate: orderListById.CreationDate,
-              DocDate: orderListById.DocDate
+              PostingDate: orderListById.DocDate
                 ? new Date(orderListById.DocDate).toISOString().split("T")[0]
                 : "",
               DeliveryDate: orderListById.DocDueDate
                 ? new Date(orderListById.DocDueDate).toISOString().split("T")[0]
+                : "",
+                TaxDate: orderListById.TaxDate
+                ? new Date(orderListById.TaxDate).toISOString().split("T")[0]
                 : "",
               DocEntry: orderListById.DocEntry,
               DocumentStatus: orderListById.DocumentStatus,
