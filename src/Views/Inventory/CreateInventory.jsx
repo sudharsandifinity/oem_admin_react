@@ -119,7 +119,7 @@ export default function CreateInventory() {
     CardName: "",
     RefNo: "",
     DocNo: "",
-    DocDate: "",
+    PostingDate: "",
     Remarks: "",
     DocTotal: 0,
     items: [{ ItemCode: "", ItemName: "", Quantity: 0, Price: 0 }],
@@ -178,8 +178,8 @@ export default function CreateInventory() {
       if (type === "Item") {
         payload = {
           CardCode: formData.CardCode,
-          DocDate: formData.DocDate
-            ? new Date(formData.DocDate)
+          DocDate: formData.PostingDate
+            ? new Date(formData.PostingDate)
                 .toISOString()
                 .split("T")[0]
                 .replace(/-/g, "")
@@ -243,8 +243,8 @@ export default function CreateInventory() {
         payload = {
           CardCode: formData.CardCode,
           DocType: "dDocument_Service",
-          DocDate: formData.DocDate
-            ? new Date(formData.DocDate)
+          DocDate: formData.PostingDate
+            ? new Date(formData.PostingDate)
                 .toISOString()
                 .split("T")[0]
                 .replace(/-/g, "")
@@ -557,8 +557,8 @@ export default function CreateInventory() {
             defaultValues={{
               CardCode: "",
               DocDueDate: "1",
-              DeliveryDate: "",
-              DocDate: "",
+              taxdate: "",
+              PostingDate: "",
               DocumentLines: [],
             }}
             apiError={apiError}

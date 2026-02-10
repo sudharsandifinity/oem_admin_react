@@ -15,6 +15,7 @@ import {
   Input,
   Label,
   List,
+  ListItemStandard,
   MessageStrip,
   Option,
   Page,
@@ -142,75 +143,104 @@ const RoleForm = ({
   //   setValue("permissionIds", updated);
   // };
   const handleChange = (e, permissionName, menuId) => {
-  const checked = e.target.checked;
+    const checked = e.target.checked;
 
-  if (currScope === "master") {
-    // Master scope logic remains the same
-    const permission = permissions.find(
-      (per) => per.name === permissionName.toLowerCase()
-    );
-    if (!permission) return;
-
-    const id = permission.id;
-    let updated = checked
-      ? [...new Set([...permissionIds, id])]
-      : permissionIds.filter(pid => pid !== id);
-
-    setValue("permissionIds", updated, {
-      shouldValidate: true,
-      shouldDirty: true,
-      shouldTouch: true,
-    });
-
-  } else {
-    // User scope
-    let current = getValues("userMenus") || [];
-    console.log("current",current,menuId)
-    const existing = current.find((m) => m.menuId === menuId);
-const menu = menulist.find((m) => m.id === menuId);
-    const defaultPermsParent = {
-      menuId: menu && menu.parentUserMenuId ? menu.parentUserMenuId : null,
-      can_list_view: true,
-      can_create: false,
-      can_edit: false,
-      can_view: false,
-      can_delete: false,
-    };
- const defaultPerms = {
-      menuId,
-      can_list_view: false,
-      can_create: false,
-      can_edit: false,
-      can_view: false,
-      can_delete: false,
-    };
-    if (existing) {
-      current = current.map((m) =>
-        m.menuId === menuId ? { ...m, [permissionName]: checked } : m
+    if (currScope === "master") {
+      // Master scope logic remains the same
+      const permission = permissions.find(
+        (per) => per.name === permissionName.toLowerCase(),
       );
-    } else {
-      current = [...current,{...defaultPermsParent}, { ...defaultPerms, [permissionName]: checked }];
-    }
+      if (!permission) return;
 
-    // Handle parent-child syncing only for List permission
-    console.log("permissionName",permissionName,menulist)
-    //if (permissionName === "can_list_view") {
-      console.log("menu::->",menu)
+      const id = permission.id;
+      let updated = checked
+        ? [...new Set([...permissionIds, id])]
+        : permissionIds.filter((pid) => pid !== id);
+
+      setValue("permissionIds", updated, {
+        shouldValidate: true,
+        shouldDirty: true,
+        shouldTouch: true,
+      });
+    } else {
+      // User scope
+      let current = getValues("userMenus") || [];
+      console.log("current", current, menuId);
+      const existing = current.find((m) => m.menuId === menuId);
+      const menu = menulist.find((m) => m.id === menuId);
+      const defaultPermsParent = {
+        menuId: menu && menu.parentUserMenuId ? menu.parentUserMenuId : "",
+        can_list_view: true,
+        can_create: false,
+        can_edit: false,
+        can_view: false,
+        can_delete: false,
+      };
+      const defaultPerms = {
+        menuId,
+        can_list_view: false,
+        can_create: false,
+        can_edit: false,
+        can_view: false,
+        can_delete: false,
+      };
+      if (existing) {
+        current = current.map((m) =>
+          m.menuId === menuId ? { ...m, [permissionName]: checked } : m,
+        );
+      } else {
+        //current = [...current,{...defaultPermsParent}, { ...defaultPerms, [permissionName]: checked }];
+        const newEntries = [];
+
+        // ✅ Add parent ONLY if it exists
+        if (menu?.parentUserMenuId) {
+          newEntries.push({
+            menuId: menu.parentUserMenuId,
+            can_list_view: true,
+            can_create: false,
+            can_edit: false,
+            can_view: false,
+            can_delete: false,
+          });
+        }
+
+        // ✅ Always add current menu
+        newEntries.push({
+          menuId,
+          can_list_view: false,
+          can_create: false,
+          can_edit: false,
+          can_view: false,
+          can_delete: false,
+          [permissionName]: checked,
+        });
+
+        current = [...current, ...newEntries];
+      }
+
+      // Handle parent-child syncing only for List permission
+      console.log("permissionName", permissionName, menulist);
+      //if (permissionName === "can_list_view") {
+      console.log("menu::->", menu);
       // 1️⃣ Child → Parent
       if (menu && menu.parentUserMenuId) {
-        const siblings = menulist.filter((m) => m.parentUserMenuId === menu.parentUserMenuId);
-        console.log("siblings",siblings)
-        const anySiblingChecked = siblings.some((sib) => 
-          sib.id === menuId ? checked : current.find(c => c.menuId === sib.id)?.can_list_view
+        const siblings = menulist.filter(
+          (m) => m.parentUserMenuId === menu.parentUserMenuId,
         );
-        console.log("anySiblingChecked",anySiblingChecked,current)
+        console.log("siblings", siblings);
+        const anySiblingChecked = siblings.some((sib) =>
+          sib.id === menuId
+            ? checked
+            : current.find((c) => c.menuId === sib.id)?.can_list_view,
+        );
+        console.log("anySiblingChecked", anySiblingChecked, current);
         current = current.map((m) =>
           m.menuId === menu.parentUserMenuId
             ? { ...m, can_list_view: anySiblingChecked }
-            : m
+            : m,
         );
-        
-        console.log("currentaftersiblng",current)
+
+        console.log("currentaftersiblng", current);
       }
 
       // 2️⃣ Parent → Child
@@ -219,19 +249,18 @@ const menu = menulist.find((m) => m.id === menuId);
         current = current.map((m) =>
           children.some((c) => c.id === m.menuId)
             ? { ...m, can_list_view: checked }
-            : m
+            : m,
         );
       }
-    //}
+      //}
 
-    setValue("userMenus", current, {
-      shouldValidate: true,
-      shouldDirty: true,
-      shouldTouch: true,
-    });
-  }
-};
-
+      setValue("userMenus", current, {
+        shouldValidate: true,
+        shouldDirty: true,
+        shouldTouch: true,
+      });
+    }
+  };
 
   const menulist = selectedBranch
     ? usermenus
@@ -274,9 +303,7 @@ const menu = menulist.find((m) => m.id === menuId);
     const list = [];
 
     (selectedBranch
-      ? usermenus.filter((menu) =>
-          menu.children.some((c) => c.branchId === selectedBranch),
-        )
+      ? usermenus.filter((m) => m.branchId === selectedBranch)
       : usermenus
     ).forEach((menu) => {
       // Add parent row
@@ -290,7 +317,6 @@ const menu = menulist.find((m) => m.id === menuId);
         Edit: "",
         Delete: "",
       });
-
       // Add children rows
       menu.children
         .filter((child) => !selectedBranch || child.branchId === selectedBranch)
@@ -308,7 +334,7 @@ const menu = menulist.find((m) => m.id === menuId);
           });
         });
     });
-
+    console.log("buildmenulist", list);
     return list;
   };
 
@@ -600,6 +626,11 @@ const menu = menulist.find((m) => m.id === menuId);
                   <Controller
                     name="companyId"
                     control={control}
+                    style={{
+                      width: "80%",
+                      maxHeight: "20px",
+                      overflowY: "auto",
+                    }}
                     render={({ field }) => (
                       <Select
                         style={{ width: "80%" }}
@@ -607,6 +638,7 @@ const menu = menulist.find((m) => m.id === menuId);
                         name="companyId"
                         value={field.value ?? ""}
                         onChange={(e) => {
+                          console.log("e.targetliststandard", e.target);
                           field.onChange(e.target.value);
                           setSelectedCompany(e.target.value);
                         }}
@@ -615,6 +647,7 @@ const menu = menulist.find((m) => m.id === menuId);
                         <Option key="select" value="">
                           Select
                         </Option>
+                        {console.log("companieasass", companies)}
 
                         {companies
                           .filter((r) => r.status)

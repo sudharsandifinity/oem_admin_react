@@ -126,7 +126,7 @@ export default function SalesOrder() {
     CardName: "",
     RefNo: "",
     DocNo: "",
-    DocDate: "",
+    PostingDate: "",
     Remarks: "",
     DocTotal: 0,
     items: [{ ItemCode: "", ItemName: "", Quantity: 0, Price: 0 }],
@@ -170,7 +170,7 @@ export default function SalesOrder() {
     const newRows = form[key].filter((_, idx) => idx !== i);
     setForm({ ...form, [key]: newRows });
   };
- 
+
   const handleSubmit = async () => {
     try {
       console.log(
@@ -178,8 +178,9 @@ export default function SalesOrder() {
         dimensionData,
         itemTabledata,
         formData,
-        freightRowSelection
+        freightRowSelection,
       );
+      console.log("formDatahandlesubmit", formData);
       setLoading(true);
       let payload = {};
       const isPurchaseQuotation =
@@ -189,8 +190,8 @@ export default function SalesOrder() {
       if (type === "Item") {
         payload = {
           CardCode: formData.CardCode || selectedcardcode,
-          DocDate: formData.DocDate
-            ? new Date(formData.DocDate)
+          DocDate: formData.PostingDate
+            ? new Date(formData.PostingDate)
                 .toISOString()
                 .split("T")[0]
                 .replace(/-/g, "")
@@ -201,12 +202,13 @@ export default function SalesOrder() {
                 .split("T")[0]
                 .replace(/-/g, "")
             : new Date().toISOString().split("T")[0].replace(/-/g, ""),
-          CreationDate: formData.CreationDate
-            ? new Date(formData.CreationDate)
+          TaxDate: formData.TaxDate
+            ? new Date(formData.TaxDate)
                 .toISOString()
                 .split("T")[0]
                 .replace(/-/g, "")
             : new Date().toISOString().split("T")[0].replace(/-/g, ""),
+         
           ...(isPurchaseQuotation && {
             RequriedDate: formData.ReqDate
               ? new Date(formData.ReqDate)
@@ -219,12 +221,13 @@ export default function SalesOrder() {
           //DocEntry: formData.DocEntry,
           DocumentStatus: "open",
           ContactPerson: formData.ContactPerson || "",
+          NumAtCard: formData.CustomerRefNo || "",
           DocType: "dDocument_Items",
           DocumentLines: itemTabledata.map((line) => ({
             ItemCode: line.ItemCode,
             ItemDescription: line.ItemName,
             Quantity: Number(line.quantity),
-            UnitPrice:Number(line.amount),
+            UnitPrice: Number(line.amount),
             WarehouseCode: line.WarehouseCode,
             ProjectCode: line.ProjectCode,
             TaxCode: line.TaxCode,
@@ -254,15 +257,15 @@ export default function SalesOrder() {
               TaxPercent: Number(freight.TaxGroup),
               TaxSum: Number(freight.TotalTaxAmount),
               LineGross: Number(freight.LineGross),
-            })
+            }),
           ),
         };
       } else {
         payload = {
           CardCode: formData.CardCode || selectedcardcode,
           DocType: "dDocument_Service",
-          DocDate: formData.DocDate
-            ? new Date(formData.DocDate)
+          DocDate: formData.PostingDate
+            ? new Date(formData.PostingDate)
                 .toISOString()
                 .split("T")[0]
                 .replace(/-/g, "")
@@ -273,12 +276,13 @@ export default function SalesOrder() {
                 .split("T")[0]
                 .replace(/-/g, "")
             : new Date().toISOString().split("T")[0].replace(/-/g, ""),
-          CreationDate: formData.CreationDate
-            ? new Date(formData.CreationDate)
+          TaxDate: formData.TaxDate
+            ? new Date(formData.TaxDate)
                 .toISOString()
                 .split("T")[0]
                 .replace(/-/g, "")
             : new Date().toISOString().split("T")[0].replace(/-/g, ""),
+         
           ...(isPurchaseQuotation && {
             RequriedDate: formData.ReqDate
               ? new Date(formData.ReqDate)
@@ -290,7 +294,7 @@ export default function SalesOrder() {
           //DocEntry: formData.DocEntry,
           DocumentStatus: "open",
           ContactPerson: formData.ContactPerson || "",
-
+          NumAtCard: formData.CustomerRefNo || "",
           DocumentLines: serviceTabledata.map((line) => ({
             AccountCode: line.ServiceCode,
             ItemDescription: line.ServiceName,
@@ -324,7 +328,7 @@ export default function SalesOrder() {
               TaxPercent: Number(freight.TaxCode),
               TaxSum: Number(freight.TotalTaxAmount),
               LineGross: Number(freight.amount),
-            })
+            }),
           ),
         };
       }
@@ -338,11 +342,11 @@ export default function SalesOrder() {
 
       formDataToSend.append(
         "DocumentLines",
-        JSON.stringify(payload.DocumentLines)
+        JSON.stringify(payload.DocumentLines),
       );
       formDataToSend.append(
         "DocumentAdditionalExpenses",
-        JSON.stringify(payload.DocumentAdditionalExpenses)
+        JSON.stringify(payload.DocumentAdditionalExpenses),
       );
       formDataToSend.append("data", JSON.stringify(payload.data));
 
@@ -374,7 +378,7 @@ export default function SalesOrder() {
         //navigate("/login");
         return;
       }
-
+      setApiError(null);
       setOpen(true);
     } catch (err) {
       console.error("Failed to create order:", err);
@@ -426,23 +430,23 @@ export default function SalesOrder() {
         return null;
     }
   };
-const getUserFriendlyMessage = (error) => {
-  if (!error) return "An unexpected error occurred.";
+  const getUserFriendlyMessage = (error) => {
+    if (!error) return "An unexpected error occurred.";
 
-  if (error.code === "-5002") {
-    return "The selected customer is not valid for this document.";
-  }
+    if (error.code === "-5002") {
+      return "The selected customer is not valid for this document.";
+    }
 
-  if (error.code === "-10") {
-    return "Tax information is missing or incorrect.";
-  }
+    if (error.code === "-10") {
+      return "Tax information is missing or incorrect.";
+    }
 
-  if (error.message?.includes("Network")) {
-    return "Unable to connect to the server.";
-  }
+    if (error.message?.includes("Network")) {
+      return "Unable to connect to the server.";
+    }
 
-  return "Please review the details and try again.";
-};
+    return "Please review the details and try again.";
+  };
   console.log("freightRowSelection", freightRowSelection, formDetails);
   useEffect(() => {
     if (!user) return;
@@ -450,8 +454,8 @@ const getUserFriendlyMessage = (error) => {
       // Fetch form data based on formId
       const formDetails = user?.Roles?.flatMap((role) =>
         role.UserMenus.flatMap((menu) =>
-          menu.children.filter((submenu) => submenu.Form.id === formId)
-        )
+          menu.children.filter((submenu) => submenu.Form.id === formId),
+        ),
       );
       setTabList((formDetails && formDetails[0]?.Form.FormTabs) || []);
       setFormDetails(formDetails);
@@ -599,8 +603,8 @@ const getUserFriendlyMessage = (error) => {
             defaultValues={{
               CardCode: "",
               DocDueDate: "1",
-              DeliveryDate: "",
-              DocDate: "",
+              TaxDate: "",
+              PostingDate: "",
               DocumentLines: [],
             }}
             apiError={apiError}
@@ -754,7 +758,9 @@ const getUserFriendlyMessage = (error) => {
                 name="message-error"
                 style={{ fontSize: "1rem", color: "red" }}
               ></Icon>
-              <h3 style={{ marginTop: "1rem" }}>{formDetails[0]?.name + " Not Created"}</h3>
+              <h3 style={{ marginTop: "1rem" }}>
+                {formDetails[0]?.name + " Not Created"}
+              </h3>
               <p>{getUserFriendlyMessage(apiError)}</p>
             </>
           ) : (

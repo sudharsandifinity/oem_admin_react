@@ -184,7 +184,7 @@ const payload = {currentPassword: currentPassword, newPassword: newPassword, con
                     navigate("/login");
                   }}
               >
-                Back to Login
+                Back
               </Link>
             </FlexBox>
           </form>

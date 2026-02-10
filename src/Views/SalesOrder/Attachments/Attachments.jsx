@@ -146,6 +146,7 @@ const Attachments = (props) => {
     gridTemplateColumns: "repeat(3, 1fr)", // 3 columns
     gap: "0.75rem",
     width: "40%", // your specified location width
+    minHeight: "300px" // optional, for better appearance when empty
   }}
 >
   {attachmentsList.map((file) => (
@@ -159,6 +160,7 @@ const Attachments = (props) => {
         alignItems: "center",
         justifyContent: "space-between",
         gap: "0.5rem",
+        height: "60px", // ensures a minimum height for better appearance
       }}
     >
       {/* Left: Attachment icon + name */}

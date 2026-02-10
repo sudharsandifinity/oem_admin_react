@@ -1035,8 +1035,10 @@ const Servicetable = (props) => {
     );
 
     return visibleColumns;
-  }, [serviceTabledata, mode, dynamicServiceColumnslist,dimensionCols]);
-
+  }, [ mode, dynamicServiceColumnslist,dimensionCols]);
+useEffect(() => {
+  setTotalFreightAmount(totalFreightFromPopup);
+}, [totalFreightFromPopup]);
   return (
     <>
       <FlexBox style={{ justifyContent: "end" }}>
@@ -1240,7 +1242,7 @@ const Servicetable = (props) => {
             </Button>
             <FlexBox style={{ width: "100%" }} justifyContent="End">
               {console.log("itemFreightAmount", totalFreightFromPopup)}
-              {setTotalFreightAmount(totalFreightFromPopup)}{" "}
+              
               <Text>
                 {" "}
                 {totalFreightAmount.toLocaleString(undefined, {

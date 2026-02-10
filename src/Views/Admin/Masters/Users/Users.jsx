@@ -7,6 +7,7 @@ import {
   Card,
   FlexBox,
   FlexibleColumnLayout,
+  MessageStrip,
   Option,
   Page,
   Search,

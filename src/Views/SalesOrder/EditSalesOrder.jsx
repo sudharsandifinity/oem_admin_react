@@ -61,7 +61,10 @@ import {
   fetchSalesQuotationById,
   updateSalesQuotation,
 } from "../../store/slices/SalesQuotationSlice";
-import { fetchPurchaseOrderById, updatePurchaseOrder } from "../../store/slices/purchaseorderSlice";
+import {
+  fetchPurchaseOrderById,
+  updatePurchaseOrder,
+} from "../../store/slices/purchaseorderSlice";
 import {
   fetchPurchaseQuotationById,
   updatePurchaseQuotation,
@@ -104,8 +107,8 @@ const EditSalesOrder = () => {
   const [selectedcardcode, setSelectedCardCode] = useState([]);
   const [roundOff, setRoundOff] = useState(0);
 
-    const [currencyType, setCurrencyType] = useState("GBP");
-  
+  const [currencyType, setCurrencyType] = useState("GBP");
+
   const [dimensionData, setDimensionData] = useState([]);
 
   const [itemdata, setitemData] = useState([
@@ -134,7 +137,7 @@ const EditSalesOrder = () => {
     CardName: "",
     RefNo: "",
     DocNo: "",
-    DocDate: "",
+    PostingDate: "",
     Remarks: "",
     DocTotal: 0,
     items: [{ ItemCode: "", ItemName: "", Quantity: 0, Price: 0 }],
@@ -156,11 +159,12 @@ const EditSalesOrder = () => {
     console.log(
       "copiedformdata",
       data,
-      tabledata,
+      "tabledata",
+      itemTabledata,
       summaryData,
       formData,
       "attachment",
-      oldAttachmentFiles
+      oldAttachmentFiles,
     );
     setCopiedFormData({
       ...data,
@@ -172,6 +176,13 @@ const EditSalesOrder = () => {
       DocType: type === "Item" ? "dDocument_Items" : "dDocument_Service",
       AttachmentEntrys: attachmentsList,
       oldAttachmentFiles: oldAttachmentFiles,
+      Remark: summaryData.Remark,
+      DocTotal: summaryData.DocTotal,
+      Rounding: summaryData.Rounding,
+      RoundingDiffAmount: summaryData.RoundingDiffAmount,
+      DiscountPercent: summaryData.DiscountPercent,
+      TotalDiscount: summaryData.TotalDiscount,
+      VatSum: summaryData.VatSum,
     });
   };
   useEffect(() => {
@@ -192,7 +203,7 @@ const EditSalesOrder = () => {
 
           case "Sales Quotation":
             orderListById = await dispatch(
-              fetchSalesQuotationById(id)
+              fetchSalesQuotationById(id),
             ).unwrap();
             break;
 
@@ -201,12 +212,12 @@ const EditSalesOrder = () => {
             break;
           case "Purchase Quotation":
             orderListById = await dispatch(
-              fetchPurchaseQuotationById(id)
+              fetchPurchaseQuotationById(id),
             ).unwrap();
             break;
           case "Purchase Request":
             orderListById = await dispatch(
-              fetchPurchaseRequestById(id)
+              fetchPurchaseRequestById(id),
             ).unwrap();
             break;
           default:
@@ -217,9 +228,10 @@ const EditSalesOrder = () => {
         const orderList = await dispatch(fetchOrderItems()).unwrap();
         const serviceList = await dispatch(fetchOrderServices()).unwrap();
         console.log("res,res1", orderListById, orderList, serviceList);
+        console.log("orderListByIdedit", orderListById);
         if (orderListById.AttachmentEntry) {
           const attachmentListById = await dispatch(
-            fetchAttachmentDetailsById(orderListById.AttachmentEntry)
+            fetchAttachmentDetailsById(orderListById.AttachmentEntry),
           ).unwrap();
           console.log("attachmentListById", attachmentListById);
           setOldAttachmentFiles((prev) => ({
@@ -233,15 +245,20 @@ const EditSalesOrder = () => {
           setFormData({
             docEntry: orderListById.DocEntry,
             CardCode: orderListById.CardCode,
+            CustomerRefNo: orderListById.NumAtCard ||  "",
+
             CardName: orderListById.CardName,
             DocDueDate: orderListById.DocDueDate
               ? new Date(orderListById.DocDueDate).toISOString().split("T")[0]
               : new Date().toISOString().split("T")[0],
-            DocDate: orderListById.DocDate
+            PostingDate: orderListById.DocDate
               ? new Date(orderListById.DocDate).toISOString().split("T")[0]
               : new Date().toISOString().split("T")[0],
-            CreationDate: orderListById.CreationDate
-              ? new Date(orderListById.CreationDate).toISOString().split("T")[0]
+            TaxDate: orderListById.TaxDate
+              ? new Date(orderListById.TaxDate).toISOString().split("T")[0]
+              : new Date().toISOString().split("T")[0],
+              ReqDate: orderListById.RequriedDate  
+              ? new Date(orderListById.RequriedDate).toISOString().split("T")[0]
               : new Date().toISOString().split("T")[0],
             DocumentLines: orderListById.DocumentLines || [],
             formData: orderListById.formData,
@@ -255,11 +272,11 @@ const EditSalesOrder = () => {
                   orderList.value
                     .map((item, index) => {
                       const matched = orderListById.DocumentLines.find(
-                        (line) => line.ItemCode === item.ItemCode
+                        (line) => line.ItemCode === item.ItemCode,
                       );
-                      
-                      console.log("setitemeditpage", item, matched);
-                     
+
+                      console.log("setitemeditpage", matched);
+
                       return matched !== undefined
                         ? {
                             slno: index, // usually LineNum is 0-based
@@ -271,7 +288,7 @@ const EditSalesOrder = () => {
                             WarehouseCode: matched.WarehouseCode,
                             ProjectCode: matched.ProjectCode,
                             discount: matched.DiscountPercent,
-                            TaxRate: matched.TaxTotal,
+                            TaxRate: matched.TaxPercentagePerRow,
                             "1_ProfitCenterCode": matched.CostingCode,
                             "2_ProfitCenterCode": matched.CostingCode2,
 
@@ -289,8 +306,8 @@ const EditSalesOrder = () => {
                             ProjectCode: item.ProjectCode,
                             amount: item.UnitPrice,
                             discount: item.DiscountPercent,
-                            TaxRate: item.TaxTotal,
-                              "1_ProfitCenterCode": item.CostingCode,
+                            TaxRate: item.TaxPercentagePerRow,
+                            "1_ProfitCenterCode": item.CostingCode,
                             "2_ProfitCenterCode": item.CostingCode2,
 
                             "3_ProfitCenterCode": item.CostingCode3,
@@ -298,14 +315,14 @@ const EditSalesOrder = () => {
                             "5_ProfitCenterCode": item.CostingCode5,
                           }; // no placeholder
                     })
-                    .filter(Boolean) // remove nulls
+                    .filter(Boolean), // remove nulls
               );
               setitemTableData(
                 () =>
                   orderList.value
                     .map((item) => {
                       const matched = orderListById.DocumentLines.find(
-                        (line) => line.ItemCode === item.ItemCode
+                        (line) => line.ItemCode === item.ItemCode,
                       );
 
                       return matched
@@ -319,8 +336,8 @@ const EditSalesOrder = () => {
                             ProjectCode: matched.ProjectCode,
                             amount: matched.UnitPrice,
                             discount: matched.DiscountPercent,
-                            TaxRate: matched.TaxTotal,
-                              "1_ProfitCenterCode": matched.CostingCode,
+                            TaxRate: matched.TaxPercentagePerRow,
+                            "1_ProfitCenterCode": matched.CostingCode,
                             "2_ProfitCenterCode": matched.CostingCode2,
 
                             "3_ProfitCenterCode": matched.CostingCode3,
@@ -329,13 +346,13 @@ const EditSalesOrder = () => {
                           }
                         : null; // no placeholder
                     })
-                    .filter(Boolean) // remove nulls
+                    .filter(Boolean), // remove nulls
               );
               if (orderList.value?.length > 0) {
                 const preselected = {};
                 orderListById.DocumentLines.forEach((line) => {
                   const idx = orderList.value.findIndex(
-                    (o) => o.ItemCode === line.ItemCode
+                    (o) => o.ItemCode === line.ItemCode,
                   );
                   if (idx !== -1) {
                     preselected[idx] = orderList.value[idx];
@@ -351,7 +368,7 @@ const EditSalesOrder = () => {
                   serviceList.value
                     .map((item, index) => {
                       const matched = orderListById.DocumentLines.find(
-                        (line) => line.AccountCode === item.Code
+                        (line) => line.AccountCode === item.Code,
                       );
                       return matched !== undefined
                         ? {
@@ -362,8 +379,8 @@ const EditSalesOrder = () => {
                             TaxCode: matched.TaxCode,
                             amount: matched.UnitPrice,
                             discount: matched.DiscountPercent,
-                            TaxRate: matched.TaxTotal,
-                             WarehouseCode: matched.WarehouseCode,
+                            TaxRate: matched.TaxPercentagePerRow,
+                            WarehouseCode: matched.WarehouseCode,
                             ProjectCode: matched.ProjectCode,
                             "1_ProfitCenterCode": matched.CostingCode,
                             "2_ProfitCenterCode": matched.CostingCode2,
@@ -371,7 +388,6 @@ const EditSalesOrder = () => {
                             "3_ProfitCenterCode": matched.CostingCode3,
                             "4_ProfitCenterCode": matched.CostingCode4,
                             "5_ProfitCenterCode": matched.CostingCode5,
-                          
                           }
                         : {
                             slno: index, // usually LineNum is 0-based
@@ -381,8 +397,8 @@ const EditSalesOrder = () => {
                             TaxCode: item.TaxCode,
                             amount: item.UnitPrice,
                             discount: item.DiscountPercent,
-                            TaxRate: item.TaxTotal,
-                             WarehouseCode: item.WarehouseCode,
+                            TaxRate: item.TaxPercentagePerRow,
+                            WarehouseCode: item.WarehouseCode,
                             ProjectCode: item.ProjectCode,
                             "1_ProfitCenterCode": item.CostingCode,
                             "2_ProfitCenterCode": item.CostingCode2,
@@ -392,14 +408,14 @@ const EditSalesOrder = () => {
                             "5_ProfitCenterCode": item.CostingCode5,
                           }; // no placeholder
                     })
-                    .filter(Boolean) // remove nulls
+                    .filter(Boolean), // remove nulls
               );
               setserviceTableData(
                 () =>
                   serviceList.value
                     .map((item) => {
                       const matched = orderListById.DocumentLines.find(
-                        (line) => line.AccountCode === item.Code
+                        (line) => line.AccountCode === item.Code,
                       );
 
                       return matched
@@ -411,8 +427,8 @@ const EditSalesOrder = () => {
                             TaxCode: matched.TaxCode,
                             amount: matched.UnitPrice,
                             discount: matched.DiscountPercent,
-                            TaxRate: matched.TaxTotal,
-                             WarehouseCode: matched.WarehouseCode,
+                            TaxRate: matched.TaxPercentagePerRow,
+                            WarehouseCode: matched.WarehouseCode,
                             ProjectCode: matched.ProjectCode,
                             "1_ProfitCenterCode": matched.CostingCode,
                             "2_ProfitCenterCode": matched.CostingCode2,
@@ -423,13 +439,13 @@ const EditSalesOrder = () => {
                           }
                         : null; // no placeholder
                     })
-                    .filter(Boolean) // remove nulls
+                    .filter(Boolean), // remove nulls
               );
               if (serviceList.value?.length > 0) {
                 const preselected = {};
                 orderListById.DocumentLines.forEach((line) => {
                   const idx = serviceList.value.findIndex(
-                    (o) => o.Code === line.AccountCode
+                    (o) => o.Code === line.AccountCode,
                   );
                   if (idx !== -1) {
                     preselected[idx] = orderList.value[idx];
@@ -446,7 +462,7 @@ const EditSalesOrder = () => {
               orderListById.DocumentLines,
               orderListById,
               "formData",
-              formData
+              formData,
             );
 
             // 3. Preselect rows
@@ -454,10 +470,16 @@ const EditSalesOrder = () => {
           setSummaryData((prev) => ({
             ...prev,
             Remark: orderListById.Comments,
+            DocTotal: orderListById.DocTotal,
+            Rounding: orderListById.Rounding,
+            RoundingDiffAmount: orderListById.RoundingDiffAmount,
+            DiscountPercent: orderListById.DiscountPercent,
+            TotalDiscount: orderListById.TotalDiscount,
+            VatSum: orderListById.VatSum,
           }));
           // set general header edit data
           setFreightRowSelection(
-            orderListById.DocumentAdditionalExpenses || []
+            orderListById.DocumentAdditionalExpenses || [],
           );
           setSummaryDiscountPercent(orderListById.DiscountPercent);
           setRoundingEnabled(orderListById.Rounding === "tYES");
@@ -465,9 +487,12 @@ const EditSalesOrder = () => {
           setgeneraleditdata({
             CardCode: orderListById.CardCode,
             CardName: orderListById.CardName,
-            PostingDate: orderListById.CreationDate,
-            DocDate: orderListById.DocDate
-              ? new Date(orderListById.DocDate).toISOString().split("T")[0]
+            CustomerRefNo: orderListById.NumAtCard ||  "",
+            TaxDate: orderListById.TaxDate
+              ? new Date(orderListById.TaxDate).toISOString().split("T")[0]
+              : "",
+            PostingDate: orderListById.PostingDate
+              ? new Date(orderListById.PostingDate).toISOString().split("T")[0]
               : "",
             DeliveryDate: orderListById.DocDueDate
               ? new Date(orderListById.DocDueDate).toISOString().split("T")[0]
@@ -532,8 +557,8 @@ const EditSalesOrder = () => {
         itemTabledata.some(
           (tableItem) =>
             tableItem.ItemCode === item.ItemCode &&
-            tableItem.ItemName === item.ItemName
-        )
+            tableItem.ItemName === item.ItemName,
+        ),
       );
     }
     //   const filteredData = itemdata.filter(item =>
@@ -551,14 +576,21 @@ const EditSalesOrder = () => {
       if (type === "Item") {
         payload = {
           CardCode: formData.CardCode || selectedcardcode,
+           DocDate: formData.PostingDate
+            ? new Date(formData.PostingDate)
+                .toISOString()
+                .split("T")[0]
+                .replace(/-/g, "")
+            : new Date().toISOString().split("T")[0].replace(/-/g, ""),
           DocDueDate: formData.DocDueDate
             ? new Date(formData.DocDueDate)
                 .toISOString()
                 .split("T")[0]
                 .replace(/-/g, "")
             : new Date().toISOString().split("T")[0].replace(/-/g, ""),
-          CreationDate: formData.CreationDate
-            ? new Date(formData.CreationDate)
+         
+             TaxDate: formData.TaxDate
+            ? new Date(formData.TaxDate)
                 .toISOString()
                 .split("T")[0]
                 .replace(/-/g, "")
@@ -571,6 +603,7 @@ const EditSalesOrder = () => {
                   .replace(/-/g, "")
               : new Date().toISOString().split("T")[0].replace(/-/g, ""),
           }),
+          NumAtCard: formData.CustomerRefNo || "",
           DocType: "dDocument_Items",
           DocumentLines: Object.values(itemTabledata).map((line) => ({
             ItemCode: line.ItemCode,
@@ -607,20 +640,31 @@ const EditSalesOrder = () => {
               TaxPercent: freight.TaxCode,
               TaxSum: freight.TotalTaxAmount,
               LineGross: freight.amount,
-            })
+            }),
           ),
         };
       } else {
         payload = {
           CardCode: formData.CardCode || selectedcardcode,
           DocType: "dDocument_Service",
+           DocDate: formData.PostingDate
+            ? new Date(formData.PostingDate)
+                .toISOString()
+                .split("T")[0]
+                .replace(/-/g, "")
+            : new Date().toISOString().split("T")[0].replace(/-/g, ""),
           DocDueDate: formData.DocDueDate
             ? new Date(formData.DocDueDate)
                 .toISOString()
                 .split("T")[0]
                 .replace(/-/g, "")
             : new Date().toISOString().split("T")[0].replace(/-/g, ""),
-
+TaxDate: formData.TaxDate
+            ? new Date(formData.TaxDate)
+                .toISOString()
+                .split("T")[0]
+                .replace(/-/g, "")
+            : new Date().toISOString().split("T")[0].replace(/-/g, ""),
           ...(isPurchaseQuotation && {
             RequriedDate: formData.ReqDate
               ? new Date(formData.ReqDate)
@@ -629,6 +673,7 @@ const EditSalesOrder = () => {
                   .replace(/-/g, "")
               : new Date().toISOString().split("T")[0].replace(/-/g, ""),
           }),
+          NumAtCard: formData.CustomerRefNo || "",
           DocumentLines: Object.values(serviceTabledata).map((line) => ({
             AccountCode: line.ServiceCode,
             ItemDescription: line.ServiceName, // ✅ rename to ItemDescription
@@ -664,7 +709,7 @@ const EditSalesOrder = () => {
               TaxPercent: freight.TaxCode,
               TaxSum: freight.TotalTaxAmount,
               LineGross: freight.amount,
-            })
+            }),
           ),
         };
       }
@@ -677,11 +722,11 @@ const EditSalesOrder = () => {
 
       formDataToSend.append(
         "DocumentLines",
-        JSON.stringify(payload.DocumentLines)
+        JSON.stringify(payload.DocumentLines),
       );
       formDataToSend.append(
         "DocumentAdditionalExpenses",
-        JSON.stringify(payload.DocumentAdditionalExpenses)
+        JSON.stringify(payload.DocumentAdditionalExpenses),
       );
       formDataToSend.append("data", JSON.stringify(payload.data));
 
@@ -699,23 +744,23 @@ const EditSalesOrder = () => {
       let res = "";
       if (formDetails[0]?.name === "Sales Order") {
         res = await dispatch(
-          updateCustomerOrder({ id, data: formDataToSend })
+          updateCustomerOrder({ id, data: formDataToSend }),
         ).unwrap();
       } else if (formDetails[0]?.name === "Sales Quotation") {
         res = await dispatch(
-          updateSalesQuotation({ id, data: formDataToSend })
+          updateSalesQuotation({ id, data: formDataToSend }),
         ).unwrap();
       } else if (formDetails[0]?.name === "Purchase Order") {
         res = await dispatch(
-          updatePurchaseOrder({ id, data: formDataToSend })
+          updatePurchaseOrder({ id, data: formDataToSend }),
         ).unwrap();
       } else if (formDetails[0]?.name === "Purchase Quotation") {
         res = await dispatch(
-          updatePurchaseQuotation({ id, data: formDataToSend })
+          updatePurchaseQuotation({ id, data: formDataToSend }),
         ).unwrap();
       } else if (formDetails[0]?.name === "Purchase Request") {
         res = await dispatch(
-          updatePurchaseRequest({ id, data: formDataToSend })
+          updatePurchaseRequest({ id, data: formDataToSend }),
         ).unwrap();
       }
       if (res.message === "Please Login!") {
@@ -734,31 +779,31 @@ const EditSalesOrder = () => {
   const menuBlocks =
     user?.Roles?.flatMap((role) =>
       role.UserMenus?.filter((menu) =>
-        menu.children?.some((child) => child.Form?.id === formId)
+        menu.children?.some((child) => child.Form?.id === formId),
       ).map((menu) => ({
         roleId: role.id,
         roleName: role.name,
         ...menu,
-      }))
+      })),
     ) || [];
   const childOptions = menuBlocks.length > 0 ? menuBlocks[0].children : [];
   const getUserFriendlyMessage = (error) => {
-  if (!error) return "An unexpected error occurred.";
+    if (!error) return "An unexpected error occurred.";
 
-  if (error.code === "-5002") {
-    return "The selected customer is not valid for this document.";
-  }
+    if (error.code === "-5002") {
+      return "The selected customer is not valid for this document.";
+    }
 
-  if (error.code === "-10") {
-    return "Tax information is missing or incorrect.";
-  }
+    if (error.code === "-10") {
+      return "Tax information is missing or incorrect.";
+    }
 
-  if (error.message?.includes("Network")) {
-    return "Unable to connect to the server.";
-  }
+    if (error.message?.includes("Network")) {
+      return "Unable to connect to the server.";
+    }
 
-  return "Please review the details and try again.";
-};
+    return "Please review the details and try again.";
+  };
   useEffect(() => {
     if (!user) return;
 
@@ -766,8 +811,8 @@ const EditSalesOrder = () => {
       // Fetch form data based on formId
       const formDetails = user?.Roles?.flatMap((role) =>
         role.UserMenus.flatMap((menu) =>
-          menu.children.filter((submenu) => submenu.Form.id === formId)
-        )
+          menu.children.filter((submenu) => submenu.Form.id === formId),
+        ),
       );
       setTabList((formDetails && formDetails[0]?.Form.FormTabs) || []);
       setFormDetails(formDetails);
@@ -891,7 +936,7 @@ const EditSalesOrder = () => {
                     onClick={copyForm}
                     icon="sap-icon://copy"
                   />
-
+                  {console.log("copiesformdataeditsalesorder", copiedFormData)}
                   <Select
                     onChange={(e) => {
                       const selectPage = e.detail.selectedOption.dataset.id;
@@ -899,7 +944,7 @@ const EditSalesOrder = () => {
                         "/cloneorder/create/" + formId + "/" + selectPage,
                         {
                           state: { copyFormData: copiedFormData },
-                        }
+                        },
                       );
                     }}
 
@@ -983,7 +1028,7 @@ const EditSalesOrder = () => {
                 formDetails={formDetails}
                 selectedcardcode={selectedcardcode}
                 setSelectedCardCode={setSelectedCardCode}
-            setCurrencyType={setCurrencyType}
+                setCurrencyType={setCurrencyType}
                 currencyType={currencyType}
                 apiError={apiError}
               />
@@ -1125,7 +1170,9 @@ const EditSalesOrder = () => {
               >
                 {" "}
               </Icon>
-               <h3 style={{ marginTop: "1rem" }}>{formDetails[0]?.name + " Not Updated"}</h3>
+              <h3 style={{ marginTop: "1rem" }}>
+                {formDetails[0]?.name + " Not Updated"}
+              </h3>
               <p>{getUserFriendlyMessage(apiError)}</p>
             </>
           ) : (

@@ -297,6 +297,7 @@ console.log("selectedData",selectedData,generalData)
                   )}
                 />
               </FlexBox>
+              {formDetails[0]?.name !== "Purchase Request" && (
               <FlexBox alignItems="Center">
                 <Label style={{ minWidth: "200px" }}>Customer Ref.No</Label>
                 <Controller
@@ -321,7 +322,7 @@ console.log("selectedData",selectedData,generalData)
                     </Input>
                   )}
                 />
-              </FlexBox>
+              </FlexBox>)}
               <FlexBox alignItems="Center">
                 <Label style={{ minWidth: "200px" }}>Document Number:</Label>
                 <Controller
@@ -347,29 +348,7 @@ console.log("selectedData",selectedData,generalData)
                   )}
                 />
               </FlexBox>
-              <FlexBox style={{ display: "flex", gap: "2rem" }}>
-                          {/* Left Column */}
-                          {/* <div style={{ flex: 1 }}>
-                            {Accountingdetails.filter(
-                              (field) =>
-                                field.Position === "Header" && field.DisplayType === "Left"
-                            ).map((field) => (
-                              <FormItem
-                                key={field.FieldName}
-                                label={field.DisplayName}
-                                labelContent={<Label>{field.DisplayName}</Label>}
-                              >
-                                {AccountingRenderInput(
-                                  field,
-                                  form,
-                                  handleChange,
-                                  form[field.FieldName],
-                                  setForm
-                                )}
-                              </FormItem>
-                            ))}
-                          </div> */}
-                        </FlexBox>
+             
             </FlexBox>
             <div
               style={{
@@ -380,7 +359,8 @@ console.log("selectedData",selectedData,generalData)
             />
             <FlexBox direction="Column" style={{ width: "100%", gap: "8px" }}>
               
-             
+             {formDetails[0]?.name === "Purchase Quotation" ||
+        formDetails[0]?.name === "Purchase Request" && (
                    <FlexBox alignItems="Center">
                 <Label style={{ minWidth: "200px" }}>Required Date:</Label>
                 <Controller
@@ -389,7 +369,8 @@ console.log("selectedData",selectedData,generalData)
                   render={({ field }) => (
                     <Input
                       placeholder="Required Date"
-                      name="ReqDate"
+                      name="
+                      "
                       type="date"
                       disabled={mode === "view"}
                       min="2025-01-01"
@@ -413,34 +394,34 @@ console.log("selectedData",selectedData,generalData)
                     </Input>
                   )}
                 />
-              </FlexBox>
+              </FlexBox> )}
               <FlexBox alignItems="Center">
                 <Label style={{ minWidth: "200px" }}>Posting Date:</Label>
                 <Controller
-                  name="CreationDate"
+                  name="PostingDate"
                   control={control}
                   render={({ field }) => (
                     <Input
                       placeholder="Posting Date"
-                      name="CreationDate"
+                      name="PostingDate"
                       type="date"
                       disabled={mode === "view"}
                       min="2025-01-01"
                       style={{ width: "100%" }}
                       value={
-                        formData.CreationDate
-                          ? new Date(formData.CreationDate)
+                        formData.PostingDate
+                          ? new Date(formData.PostingDate)
                               .toISOString()
                               .split("T")[0]
                           : new Date().toISOString().split("T")[0]
                       }
                       onInput={(e) => field.onChange(e.target.value)}
                       onChange={handleChange}
-                      valueState={errors.CreationDate ? "Error" : "None"}
+                      valueState={errors.PostingDate ? "Error" : "None"}
                     >
-                      {errors.CreationDate && (
+                      {errors.PostingDate && (
                         <span slot="valueStateMessage">
-                          {errors.CreationDate.message}
+                          {errors.PostingDate.message}
                         </span>
                       )}
                     </Input>
@@ -448,7 +429,7 @@ console.log("selectedData",selectedData,generalData)
                 />
               </FlexBox>
               <FlexBox alignItems="Center">
-                <Label style={{ minWidth: "200px" }}>Delivery Date:</Label>
+                <Label style={{ minWidth: "200px" }}>{formDetails[0]?.name === "Sales Order"||formDetails[0]?.name === "Purchase Order" ?"Delivery Date:": "Valid Until:" }</Label>
                 <Controller
                   name="DocDueDate"
                   control={control}
@@ -483,30 +464,30 @@ console.log("selectedData",selectedData,generalData)
               <FlexBox alignItems="Center">
                 <Label style={{ minWidth: "200px" }}>Document Date:</Label>
                 <Controller
-                  name="DocDate"
+                  name="TaxDate"
                   control={control}
                   render={({ field }) => (
                     <Input
                       placeholder="Document Date"
-                      name="DocDate"
+                      name="TaxDate"
                       type="date"
                       disabled={mode === "view"}
                       min="2025-01-01"
                       style={{ width: "100%" }}
                       value={
-                        formData.DocDate
-                          ? new Date(formData.DocDate)
+                        formData.TaxDate
+                          ? new Date(formData.TaxDate)
                               .toISOString()
                               .split("T")[0]
                           : new Date().toISOString().split("T")[0]
                       }
                       onInput={(e) => field.onChange(e.target.value)}
                       onChange={handleChange}
-                      valueState={errors.DocDueDate ? "Error" : "None"}
+                      valueState={errors.TaxDate ? "Error" : "None"}
                     >
-                      {errors.DocDueDate && (
+                      {errors.TaxDate && (
                         <span slot="valueStateMessage">
-                          {errors.DocDueDate.message}
+                          {errors.TaxDate.message}
                         </span>
                       )}
                     </Input>

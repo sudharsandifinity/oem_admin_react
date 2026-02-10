@@ -44,7 +44,7 @@ const EditRole = () => {
             name: data.name,
             scope: data.scope,
             status: parseInt(data.status),
-            branchId: data.branchId === "null" ? "null" : data.branchId,
+            branchId: data.branchId === "null" ? null : data.branchId,
         ...(data.scope === "master"
           ? {
               // master → use permissionIds only

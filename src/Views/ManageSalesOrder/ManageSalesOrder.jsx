@@ -58,6 +58,7 @@ const ManageSalesOrder = () => {
 
   const [isClearFilter, setisClearFilter] = useState(false);
   const user = useSelector((state) => state.auth.user);
+  const [apiError, setApiError] = useState(null);
 
   const { companyformfield } = useSelector((state) => state.companyformfield);
   const { companyformfielddata } = useSelector(
@@ -142,6 +143,7 @@ const ManageSalesOrder = () => {
         setPage(1);
       } catch (err) {
         console.error("Initial load failed", err);
+setApiError(err.message || "Failed to load data");
       }
     };
 
@@ -530,6 +532,16 @@ const ManageSalesOrder = () => {
       >
         <div className="tab">
           <div>
+             {apiError && (
+                    <MessageStrip
+                      design="Negative"
+                      hideCloseButton={false}
+                      hideIcon={false}
+                      style={{ marginBottom: "1rem" }}
+                    >
+                      {"Data couldn’t be loaded. Refresh to retry."}
+                    </MessageStrip>
+                  )}
             <FlexibleColumnLayout
               // style={{ height: "600px" }}
               layout={layout}
