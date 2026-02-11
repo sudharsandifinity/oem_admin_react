@@ -29,6 +29,7 @@ const Users = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { users, loading } = useSelector((state) => state.users);
+   const { user } = useSelector((state) => state.auth);
   const { companies } = useSelector((state) => state.companies);
 
   const [search, setSearch] = useState("");
@@ -119,11 +120,11 @@ const Users = () => {
     return filteredRows;
   };
   useEffect(() => {
-    console.log("user", users);
-    if (users === "null" || users.length === 0) {
+    console.log("user", user);
+    if (user === "null" || user.length === 0) {
       navigate("/login");
     }
-  }, [users]);
+  }, [user]);
   {apiError && (
               <MessageStrip
                 design="Negative"

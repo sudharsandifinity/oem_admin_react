@@ -73,7 +73,9 @@ const UserForm = ({
   const companyidList = watch("companyId");
   const dispatch = useDispatch();
   const { roles } = useSelector((state) => state.roles);
-  const [selectedCompanyList, setSelectedCompanyList] = useState(companyidList || []);
+  const [selectedCompanyList, setSelectedCompanyList] = useState(
+    companyidList || [],
+  );
   const [selectedCompany, setSelectedCompany] = useState(null);
   const [selectedBranch, setSelectedBranch] = useState(null);
   const [selectedRole, setSelectedRole] = useState(null);
@@ -124,8 +126,8 @@ const UserForm = ({
         (r) =>
           r.status &&
           selectedBranch.some((id) => id === r.branchId) &&
-          !roleList.find((role) => role.id === r.id)
-      )
+          !roleList.find((role) => role.id === r.id),
+      ),
     );
     console.log("rolelist", roleList);
     setRoleList(roleList);
@@ -136,7 +138,7 @@ const UserForm = ({
       companyforms,
       branches,
       company,
-      roles
+      roles,
     );
     const selectedCompany = [...selectedCompanyList];
 
@@ -145,14 +147,14 @@ const UserForm = ({
     console.log("selectedCompany", selectedCompany);
 
     const companyList = companyforms.filter(
-      (r) => r.status && company === r.Company.id
+      (r) => r.status && company === r.Company.id,
     );
     const uniqueform = Array.from(
-      new Map(companyList.map((item) => [item.Form?.id, item])).values()
+      new Map(companyList.map((item) => [item.Form?.id, item])).values(),
     );
-  
+
     const uniquebranch = branches.filter(
-      (r) => r.status && selectedCompany.includes(r.Company.id)
+      (r) => r.status && selectedCompany.includes(r.Company.id),
     );
 
     setFormlist(uniqueform);
@@ -170,19 +172,19 @@ const UserForm = ({
   }, [mode, defaultValues]);
 
   return (
-      <>
-        <style>
-            {`
+    <>
+      <style>
+        {`
               ui5-page::part(content) {
                 padding: 15px;
               }
             `}
-          </style>
-        <FlexBox direction="Column" style={{width: '100%'}}>
-          <AppBar
+      </style>
+      <FlexBox direction="Column" style={{ width: "100%" }}>
+        <AppBar
           design="Header"
           endContent={
-           <Button
+            <Button
               accessibleName="Settings"
               icon="decline"
               title="Go to Settings"
@@ -190,7 +192,7 @@ const UserForm = ({
             />
           }
           startContent={
-            <div style={{ width: "210px" }}>
+            <div style={{ width: "250px" }}>
               <Breadcrumbs
                 design="Standard"
                 onItemClick={(e) => {
@@ -214,413 +216,427 @@ const UserForm = ({
             {mode === "edit" ? "Edit User" : "Create New User"}
           </Title>
         </AppBar>
-    <Page
-      backgroundDesign="Solid"
-      footer={
-          <Bar
-          style={{ padding:0.5 }}
-            design="FloatingFooter"
-            endContent={
-              <>
-                <Button
-                  design="Emphasized"
-                  form="userForm" /* ← link button to that form id */
-                  type="Submit"
-                >
-                  {mode === "edit" ? "Update User" : "Create User"}
-                </Button>
-              </>
-            }
-          />
-      }
-      // header={
-      //   <AppBar
-      //     design="Header"
-      //     endContent={
-      //      <Button
-      //         accessibleName="Settings"
-      //         icon="decline"
-      //         title="Go to Settings"
-      //         onClick={() => navigate(-1)} // Go back to previous page
-      //       />
-      //     }
-      //     startContent={
-      //       <div style={{ width: "210px" }}>
-      //         <Breadcrumbs
-      //           design="Standard"
-      //           onItemClick={(e) => {
-      //             const route = e.detail.item.dataset.route;
-      //             if (route) navigate(route);
-      //           }}
-      //           separators="Slash"
-      //         >
-      //           <BreadcrumbsItem data-route="/admin">Admin</BreadcrumbsItem>
-      //           <BreadcrumbsItem data-route="/admin/users">
-      //             Users
-      //           </BreadcrumbsItem>
-      //           <BreadcrumbsItem data-route="/admin/users/create">
-      //             {mode === "edit" ? "Edit User" : "Create New User"}
-      //           </BreadcrumbsItem>
-      //         </Breadcrumbs>
-      //       </div>
-      //     }
-      //   >
-      //     <Title level="h4">
-      //       {mode === "edit" ? "Edit User" : "Create New User"}
-      //     </Title>
-      //   </AppBar>
-      // }
-    >
-      {apiError && (
-        <MessageStrip
-          design="Negative"
-          hideCloseButton={false}
-          hideIcon={false}
-          style={{ marginBottom: "1rem" }}
+        <Page
+          backgroundDesign="Solid"
+          footer={
+            <Bar
+              style={{ padding: 0.5 }}
+              design="FloatingFooter"
+              endContent={
+                <>
+                  <Button
+                    design="Emphasized"
+                    form="userForm" /* ← link button to that form id */
+                    type="Submit"
+                  >
+                    {mode === "edit" ? "Update User" : "Create User"}
+                  </Button>
+                </>
+              }
+            />
+          }
+          // header={
+          //   <AppBar
+          //     design="Header"
+          //     endContent={
+          //      <Button
+          //         accessibleName="Settings"
+          //         icon="decline"
+          //         title="Go to Settings"
+          //         onClick={() => navigate(-1)} // Go back to previous page
+          //       />
+          //     }
+          //     startContent={
+          //       <div style={{ width: "210px" }}>
+          //         <Breadcrumbs
+          //           design="Standard"
+          //           onItemClick={(e) => {
+          //             const route = e.detail.item.dataset.route;
+          //             if (route) navigate(route);
+          //           }}
+          //           separators="Slash"
+          //         >
+          //           <BreadcrumbsItem data-route="/admin">Admin</BreadcrumbsItem>
+          //           <BreadcrumbsItem data-route="/admin/users">
+          //             Users
+          //           </BreadcrumbsItem>
+          //           <BreadcrumbsItem data-route="/admin/users/create">
+          //             {mode === "edit" ? "Edit User" : "Create New User"}
+          //           </BreadcrumbsItem>
+          //         </Breadcrumbs>
+          //       </div>
+          //     }
+          //   >
+          //     <Title level="h4">
+          //       {mode === "edit" ? "Edit User" : "Create New User"}
+          //     </Title>
+          //   </AppBar>
+          // }
         >
-          {apiError}
-        </MessageStrip>
-      )}
+          {apiError && (
+            <MessageStrip
+              design="Negative"
+              hideCloseButton={false}
+              hideIcon={false}
+              style={{ marginBottom: "1rem" }}
+            >
+              {apiError}
+            </MessageStrip>
+          )}
 
-      <form
-        ref={formRef}
-        id="userForm"
-        onSubmit={handleSubmit((formData) => {
-          const fullData = {
-            ...formData,
-          };
-          onSubmitCreate(fullData); // you already pass it upward
-        })}
-      >
-        <FlexBox
-          wrap="Wrap" // allow line breaks
-          style={{ gap: "1rem", marginTop: "2rem" }}
-        >
-          <FlexBox direction="Column" style={{ flex: " 28%" }}>
-            <Label>First Name</Label>
-            <Controller
-              name="first_name"
-              control={control}
-              render={({ field }) => (
-                <FlexBox
-                  label={<Label required>Label Text</Label>}
-                  style={{ flex: "48%" }}
-                >
-                  <Input
-                    style={{ width: "80%" }}
-                    placeholder="First Name"
-                    name="first_name"
-                    value={field.value ?? ""} // controlled value
-                    onInput={(e) => field.onChange(e.target.value)} // update RHF
-                    valueState={errors.first_name ? "Error" : "None"} // red border on error
-                  >
-                    {errors.first_name && (
-                      /* UI5 shows this automatically when valueState="Error" */
-                      <span slot="valueStateMessage">
-                        {errors.first_name.message}
-                      </span>
-                    )}
-                  </Input>
-                </FlexBox>
-              )}
-            />
-          </FlexBox>
-
-          <FlexBox direction="Column" style={{ flex: " 28%" }}>
-            <Label>Last Name</Label>
-            <Controller
-              name="last_name"
-              control={control}
-              render={({ field }) => (
-                <FlexBox
-                  label={<Label required>Label Text</Label>}
-                  style={{ flex: "48%" }}
-                >
-                  <Input
-                    style={{ width: "80%" }}
-                    placeholder="last Name"
-                    name="last_name"
-                    value={field.value ?? ""} // controlled value
-                    onInput={(e) => field.onChange(e.target.value)} // update RHF
-                    valueState={errors.last_name ? "Error" : "None"} // red border on error
-                  >
-                    {errors.last_name && (
-                      /* UI5 shows this automatically when valueState="Error" */
-                      <span slot="valueStateMessage">
-                        {errors.last_name.message}
-                      </span>
-                    )}
-                  </Input>
-                </FlexBox>
-              )}
-            />
-          </FlexBox>
-
-          <FlexBox direction="Column" style={{ flex: " 28%" }}>
-            <Label>Email</Label>
-            <Controller
-              name="email"
-              control={control}
-              type="email"
-              render={({ field }) => (
-                <FlexBox
-                  label={<Label required>Label Text</Label>}
-                  style={{ flex: "48%" }}
-                >
-                  <Input
-                    style={{ width: "80%" }}
-                    placeholder="Email"
-                    name="email"
-                    value={field.value ?? ""} // controlled value
-                    onInput={(e) => field.onChange(e.target.value)} // update RHF
-                    valueState={errors.email ? "Error" : "None"} // red border on error
-                  >
-                    {errors.email && (
-                      /* UI5 shows this automatically when valueState="Error" */
-                      <span slot="valueStateMessage">
-                        {errors.email.message}
-                      </span>
-                    )}
-                  </Input>
-                </FlexBox>
-              )}
-            />
-          </FlexBox>
-          {mode === "create" && (
-            <FlexBox direction="Column" style={{ flex: " 28%" }}>
-              <Label>Password</Label>
-              <Controller
-                name="password"
-                control={control}
-                render={({ field }) => (
-                  <FlexBox
-                    label={<Label required>Label Text</Label>}
-                    style={{ flex: "48%" }}
-                  >
-                    <Input
-                      style={{ width: "80%" }}
-                      placeholder="Password"
-                      name="password"
-                      type="Password" /* hides characters */
-                      value={field.value ?? ""} // controlled value
-                      onInput={(e) => field.onChange(e.target.value)} // update RHF
-                      valueState={errors.password ? "Error" : "None"} // red border on error
+          <form
+            ref={formRef}
+            id="userForm"
+            onSubmit={handleSubmit((formData) => {
+              const fullData = {
+                ...formData,
+              };
+              onSubmitCreate(fullData); // you already pass it upward
+            })}
+          >
+            <FlexBox
+              wrap="Wrap" // allow line breaks
+              style={{ gap: "1rem", marginTop: "2rem" }}
+            >
+              <FlexBox direction="Column" style={{ flex: " 28%" }}>
+                <Label>First Name</Label>
+                <Controller
+                  name="first_name"
+                  control={control}
+                  render={({ field }) => (
+                    <FlexBox
+                      label={<Label required>Label Text</Label>}
+                      style={{ flex: "48%" }}
                     >
-                      {errors.password && (
-                        /* UI5 shows this automatically when valueState="Error" */
-                        <span slot="valueStateMessage">
-                          {errors.password.message}
+                      <Input
+                        style={{ width: "80%" }}
+                        placeholder="First Name"
+                        name="first_name"
+                        value={field.value ?? ""} // controlled value
+                        onInput={(e) => field.onChange(e.target.value)} // update RHF
+                        valueState={errors.first_name ? "Error" : "None"} // red border on error
+                      >
+                        {errors.first_name && (
+                          /* UI5 shows this automatically when valueState="Error" */
+                          <span slot="valueStateMessage">
+                            {errors.first_name.message}
+                          </span>
+                        )}
+                      </Input>
+                    </FlexBox>
+                  )}
+                />
+              </FlexBox>
+
+              <FlexBox direction="Column" style={{ flex: " 28%" }}>
+                <Label>Last Name</Label>
+                <Controller
+                  name="last_name"
+                  control={control}
+                  render={({ field }) => (
+                    <FlexBox
+                      label={<Label required>Label Text</Label>}
+                      style={{ flex: "48%" }}
+                    >
+                      <Input
+                        style={{ width: "80%" }}
+                        placeholder="last Name"
+                        name="last_name"
+                        value={field.value ?? ""} // controlled value
+                        onInput={(e) => field.onChange(e.target.value)} // update RHF
+                        valueState={errors.last_name ? "Error" : "None"} // red border on error
+                      >
+                        {errors.last_name && (
+                          /* UI5 shows this automatically when valueState="Error" */
+                          <span slot="valueStateMessage">
+                            {errors.last_name.message}
+                          </span>
+                        )}
+                      </Input>
+                    </FlexBox>
+                  )}
+                />
+              </FlexBox>
+
+              <FlexBox direction="Column" style={{ flex: " 28%" }}>
+                <Label>Email</Label>
+                <Controller
+                  name="email"
+                  control={control}
+                  type="email"
+                  render={({ field }) => (
+                    <FlexBox
+                      label={<Label required>Label Text</Label>}
+                      style={{ flex: "48%" }}
+                    >
+                      <Input
+                        style={{ width: "80%" }}
+                        placeholder="Email"
+                        name="email"
+                        value={field.value ?? ""} // controlled value
+                        onInput={(e) => field.onChange(e.target.value)} // update RHF
+                        valueState={errors.email ? "Error" : "None"} // red border on error
+                      >
+                        {errors.email && (
+                          /* UI5 shows this automatically when valueState="Error" */
+                          <span slot="valueStateMessage">
+                            {errors.email.message}
+                          </span>
+                        )}
+                      </Input>
+                    </FlexBox>
+                  )}
+                />
+              </FlexBox>
+              {mode === "create" && (
+                <FlexBox direction="Column" style={{ flex: " 28%" }}>
+                  <Label>Password</Label>
+                  <Controller
+                    name="password"
+                    control={control}
+                    render={({ field }) => (
+                      <FlexBox
+                        label={<Label required>Label Text</Label>}
+                        style={{ flex: "48%" }}
+                      >
+                        <Input
+                          style={{ width: "80%" }}
+                          placeholder="Password"
+                          name="password"
+                          type="Password" /* hides characters */
+                          value={field.value ?? ""} // controlled value
+                          onInput={(e) => field.onChange(e.target.value)} // update RHF
+                          valueState={errors.password ? "Error" : "None"} // red border on error
+                        >
+                          {errors.password && (
+                            /* UI5 shows this automatically when valueState="Error" */
+                            <span slot="valueStateMessage">
+                              {errors.password.message}
+                            </span>
+                          )}
+                        </Input>
+                      </FlexBox>
+                    )}
+                  />
+                </FlexBox>
+              )}
+              <FlexBox direction="Column" style={{ flex: "28%" }}>
+                <Label>Is Super User</Label>
+                <FlexBox label={<Label required>Is Super User</Label>}>
+                  <Controller
+                    name="is_super_user"
+                    control={control}
+                    render={({ field }) => (
+                      <Select
+                        style={{ width: "80%" }}
+                        disabled={mode === "edit"}
+                        name="is_super_user"
+                        value={field.value ?? ""}
+                        onChange={(e) => {
+                          field.onChange(e.target.value);
+                          setIs_super_user(e.target.value);
+                        }}
+                        valueState={errors.is_super_user ? "Error" : "None"}
+                      >
+                        <Option key="" value="">
+                          Select
+                        </Option>
+
+                        <Option value="1">Yes</Option>
+                        <Option value="0">No</Option>
+                      </Select>
+                    )}
+                  />
+
+                  {errors.is_super_user && (
+                    <span
+                      slot="valueStateMessage"
+                      style={{ color: "var(--sapNegativeColor)" }}
+                    >
+                      {errors.is_super_user.message}
+                    </span>
+                  )}
+                </FlexBox>
+              </FlexBox>
+              {is_super_user && is_super_user === "0" && (
+                <>
+                  <FlexBox direction="Column" style={{ flex: "28%" }}>
+                    <label>Company</label>
+                    <FlexBox label={<Label required>companyId</Label>}>
+                      <Controller
+                        name="companyId"
+                        control={control}
+                        render={({ field }) => {
+                          // Map selected IDs to names for display
+                          const selectedNames = field.value
+                            ? companies
+                                .filter((c) => field.value.includes(c.id))
+                                .map((c) => c.name)
+                            : [];
+
+                          return (
+                            <MultiComboBox
+                              style={{ minWidth: "80%", maxWidth: "80%" }}
+                              name="companyId"
+                              //value={selectedNames} // display names in input field
+                              onSelectionChange={(e) => {
+                                const selectedIds = e.detail.items.map((item) =>
+                                  item.getAttribute("value"),
+                                );
+                                // optional: call your handler
+                                selectedIds.forEach((id) =>
+                                  handleselectedCompany(id),
+                                );
+
+                                field.onChange(selectedIds); // store IDs internally
+                              }}
+                              valueState={errors.companyId ? "Error" : "None"}
+                            >
+                              {companies
+                                .filter((r) => r.status)
+                                .map((r) => (
+                                  <MultiComboBoxItem
+                                    key={r.id}
+                                    value={r.id} // still store ID
+                                    text={r.name} // text displayed in dropdown
+                                    selected={field.value?.includes(r.id)}
+                                  />
+                                ))}
+                            </MultiComboBox>
+                          );
+                        }}
+                      />
+
+                      {errors.companyId && (
+                        <span
+                          slot="valueStateMessage"
+                          style={{ color: "var(--sapNegativeColor)" }}
+                        >
+                          {errors.companyId.message}
                         </span>
                       )}
-                    </Input>
+                    </FlexBox>
                   </FlexBox>
-                )}
-              />
-            </FlexBox>
-          )}
-          <FlexBox direction="Column" style={{ flex: "28%" }}>
-            <Label>Is Super User</Label>
-            <FlexBox label={<Label required>Is Super User</Label>}>
-              <Controller
-                name="is_super_user"
-                control={control}
-                render={({ field }) => (
-                  <Select
-                    style={{ width: "80%" }}
-                    disabled={mode === "edit"}
-                    name="is_super_user"
-                    value={field.value ?? ""}
-                    onChange={(e) => {
-                      field.onChange(e.target.value);
-                      setIs_super_user(e.target.value);
-                    }}
-                    valueState={errors.is_super_user ? "Error" : "None"}
-                  >
-                    <Option key="" value="">
-                      Select
-                    </Option>
 
-                    <Option value="1">Yes</Option>
-                    <Option value="0">No</Option>
-                  </Select>
-                )}
-              />
-
-              {errors.is_super_user && (
-                <span
-                  slot="valueStateMessage"
-                  style={{ color: "var(--sapNegativeColor)" }}
-                >
-                  {errors.is_super_user.message}
-                </span>
-              )}
-            </FlexBox>
-          </FlexBox>
-          {is_super_user && is_super_user === "0" && (
-            <>
-              <FlexBox direction="Column" style={{ flex: "28%" }}>
-                <label>Company</label>
-                <FlexBox label={<Label required>companyId</Label>}>
-                  <Controller
-                    name="companyId"
-                    control={control}
-                    render={({ field }) => (
-                      <MultiComboBox
-                        style={{ minWidth: "80%",maxWidth:"80%" }}
-                        name="companyId"
-              
-                        value={field.value ?? ""}
-                        onSelectionChange={(e) => {
-                          console.log("e.detail.selectedItems", e.detail.items);
-                          const selectedItems = e.detail.items.map((item) =>
-                            item.getAttribute("value")
-                          );
-                          selectedItems.map((item) =>
-                            handleselectedCompany(item)
-                          );
-
-                          field.onChange(selectedItems);
-                        }}
-                        valueState={errors.companyId ? "Error" : "None"}
-                      >
-                        {companies
-                          .filter((r) => r.status) /* active roles only    */
-                          .map((r) => (
-                            <MultiComboBoxItem
-                              key={r.id}
-                              value={r.id}
-                              text={r.name}
-                              selected={field.value?.includes(r.id)}
-                            />
-                          ))}
-                      </MultiComboBox>
-                    )}
-                  />
-
-                  {errors.companyId && (
-                    <span
-                      slot="valueStateMessage"
-                      style={{ color: "var(--sapNegativeColor)" }}
-                    >
-                      {errors.companyId.message}
-                    </span>
-                  )}
-                </FlexBox>
-              </FlexBox>
-              <FlexBox direction="Column" style={{ flex: "28%" }}>
-                <label>Branch</label>
-                <FlexBox label={<Label required>branchId</Label>}>
-                  <Controller
-                    name="branchIds"
-                    control={control}
-                    render={({ field }) => (
-                      <MultiComboBox
-                        style={{ minWidth: "80%",maxWidth:"80%" }}
+                  <FlexBox direction="Column" style={{ flex: "28%" }}>
+                    <label>Branch</label>
+                    <FlexBox label={<Label required>branchId</Label>}>
+                      <Controller
                         name="branchIds"
-                        disabled={
-                          !branchlist ||
-                          (branchlist.length === 0 && mode !== "edit")
-                        }
-                        value={field.value || []}
+                        control={control}
+                        render={({ field }) => (
+                          <MultiComboBox
+                            style={{ minWidth: "80%", maxWidth: "80%" }}
+                            name="branchIds"
+                            disabled={
+                              !branchlist ||
+                              (branchlist.length === 0 && mode !== "edit")
+                            }
+                            //value={field.value || []}
+                            onSelectionChange={(e) => {
+                              console.log(
+                                "e.detail.selectedItems",
+                                e.detail.items,
+                              );
+                              const selectedItems = e.detail.items.map((item) =>
+                                item.getAttribute("value"),
+                              );
+                              handleSelectBranch(selectedItems);
+                              field.onChange(selectedItems);
+                            }}
+                            valueState={errors.branchIds ? "Error" : "None"}
+                          >
+                            {branchlist.length > 0 &&
+                              branchlist.map((r) => (
+                                <MultiComboBoxItem
+                                  key={r.id}
+                                  value={r.id}
+                                  text={
+                                    r.name +
+                                    "-" +
+                                    companies.find((c) => c.id === r.companyId)
+                                      .name
+                                  }
+                                  selected={field.value?.includes(r.id)}
+                                />
+                              ))}
+                          </MultiComboBox>
+                        )}
+                      />
+
+                      {errors.branchIds && (
+                        <span
+                          slot="valueStateMessage"
+                          style={{ color: "var(--sapNegativeColor)" }}
+                        >
+                          {errors.branchIds.message}
+                        </span>
+                      )}
+                    </FlexBox>
+                  </FlexBox>
+                </>
+              )}
+              <FlexBox direction="Column" style={{ flex: "28%" }}>
+                <Label>Role</Label>
+                <FlexBox label={<Label required>roleId</Label>}>
+                  <Controller
+                    name="roleIds"
+                    control={control}
+                    render={({ field }) => (
+                      <MultiComboBox
+                        style={{ minWidth: "80%", maxWidth: "80%" }}
+                        name="roleIds"
+                        //value={field.value ?? []} // 👈 make sure it's an array, not string
                         onSelectionChange={(e) => {
-                          console.log("e.detail.selectedItems", e.detail.items);
                           const selectedItems = e.detail.items.map((item) =>
-                            item.getAttribute("value")
+                            item.getAttribute("value"),
                           );
-                          handleSelectBranch(selectedItems);
                           field.onChange(selectedItems);
                         }}
-                        valueState={errors.branchIds ? "Error" : "None"}
+                        valueState={errors.roleIds ? "Error" : "None"}
                       >
-                        {branchlist.length>0&&branchlist.map((r) => (
-                          <MultiComboBoxItem
-                            key={r.id}
-                            value={r.id}
-                            text={
-                              r.name +
-                              "-" +
-                              companies.find((c) => c.id === r.companyId).name
-                            }
-                            selected={field.value?.includes(r.id)}
-                          />
-                        ))}
+                        {is_super_user === "1"
+                          ? roles.length > 0 &&
+                            roles
+                              .filter((r) => r.status) // active roles only
+                              .map((r) => (
+                                <MultiComboBoxItem
+                                  key={r.id}
+                                  value={r.id}
+                                  text={r.name}
+                                  selected={field.value?.includes(r.id)}
+                                />
+                              ))
+                          : (roleList ?? [])
+                              .filter((r) => r.status)
+                              .map((r) => (
+                                <MultiComboBoxItem
+                                  key={r.id}
+                                  value={r.id}
+                                  text={
+                                    r.name +
+                                    "-" +
+                                    (branches.find((c) => c.id === r.branchId)
+                                      ?.name || "")
+                                  }
+                                  selected={field.value?.includes(r.id)}
+                                />
+                              ))}
                       </MultiComboBox>
                     )}
                   />
 
-                  {errors.branchIds && (
+                  {errors.roleIds && (
                     <span
                       slot="valueStateMessage"
                       style={{ color: "var(--sapNegativeColor)" }}
                     >
-                      {errors.branchIds.message}
+                      {errors.roleIds.message}
                     </span>
                   )}
                 </FlexBox>
               </FlexBox>
-            </>
-          )}
-          <FlexBox direction="Column" style={{ flex: "28%" }}>
-            <Label>Role</Label>
-            <FlexBox label={<Label required>roleId</Label>}>
-              <Controller
-                name="roleIds"
-                control={control}
-                render={({ field }) => (
-                  <MultiComboBox
-                    style={{ minWidth: "80%",maxWidth:"80%" }}
-                    name="roleIds"
-                    value={field.value ?? []} // 👈 make sure it's an array, not string
-                    onSelectionChange={(e) => {
-                      const selectedItems = e.detail.items.map((item) =>
-                        item.getAttribute("value")
-                      );
-                      field.onChange(selectedItems);
-                    }}
-                    valueState={errors.roleIds ? "Error" : "None"}
-                  >
-                   
-                    {is_super_user === "1"
-                      ? roles.length>0&&roles
-                          .filter((r) => r.status) // active roles only
-                          .map((r) => (
-                            <MultiComboBoxItem
-                              key={r.id}
-                              value={r.id}
-                              text={r.name}
-                              selected={field.value?.includes(r.id)}
-                            />
-                          ))
-                      : (roleList ?? [])
-                          .filter((r) => r.status)
-                          .map((r) => (
-                            <MultiComboBoxItem
-                              key={r.id}
-                              value={r.id}
-                              text={
-                                r.name +
-                                "-" +
-                                (branches.find((c) => c.id === r.branchId)
-                                  ?.name || "")
-                              }
-                              selected={field.value?.includes(r.id)}
-                            />
-                          ))}
-                  </MultiComboBox>
-                )}
-              />
-
-              {errors.roleIds && (
-                <span
-                  slot="valueStateMessage"
-                  style={{ color: "var(--sapNegativeColor)" }}
-                >
-                  {errors.roleIds.message}
-                </span>
-              )}
-            </FlexBox>
-          </FlexBox>
-          {/* <FlexBox direction="Column" style={{ flex: "28%" }}>
+              {/* <FlexBox direction="Column" style={{ flex: "28%" }}>
             <label>Form</label>
             <FlexBox label={<Label required>formId</Label>}>
               <Controller
@@ -672,46 +688,46 @@ const UserForm = ({
             </FlexBox> 
           </FlexBox> */}
 
-          <FlexBox direction="Column" style={{ flex: "28%" }}>
-            <Label>Status</Label>
-            <FlexBox label={<Label required>Status</Label>}>
-              <Controller
-                name="status"
-                control={control}
-                render={({ field }) => (
-                  <Select
-                    style={
-                      is_super_user === "0"
-                        ? { width: "80%" }
-                        : { width: "26%" }
-                    }
+              <FlexBox direction="Column" style={{ flex: "28%" }}>
+                <Label>Status</Label>
+                <FlexBox label={<Label required>Status</Label>}>
+                  <Controller
                     name="status"
-                    value={field.value ?? ""}
-                    onChange={(e) => field.onChange(e.target.value)}
-                    valueState={errors.status ? "Error" : "None"}
-                  >
-                    <Option key="" value="">
-                      Select
-                    </Option>
+                    control={control}
+                    render={({ field }) => (
+                      <Select
+                        style={
+                          is_super_user === "0"
+                            ? { width: "80%" }
+                            : { width: "26%" }
+                        }
+                        name="status"
+                        value={field.value ?? ""}
+                        onChange={(e) => field.onChange(e.target.value)}
+                        valueState={errors.status ? "Error" : "None"}
+                      >
+                        <Option key="" value="">
+                          Select
+                        </Option>
 
-                    <Option value="1">Active</Option>
-                    <Option value="0">Inactive</Option>
-                  </Select>
-                )}
-              />
+                        <Option value="1">Active</Option>
+                        <Option value="0">Inactive</Option>
+                      </Select>
+                    )}
+                  />
 
-              {errors.status && (
-                <span
-                  slot="valueStateMessage"
-                  style={{ color: "var(--sapNegativeColor)" }}
-                >
-                  {errors.status.message}
-                </span>
-              )}
-            </FlexBox>
-          </FlexBox>
+                  {errors.status && (
+                    <span
+                      slot="valueStateMessage"
+                      style={{ color: "var(--sapNegativeColor)" }}
+                    >
+                      {errors.status.message}
+                    </span>
+                  )}
+                </FlexBox>
+              </FlexBox>
 
-          {/* <AssignBranch
+              {/* <AssignBranch
           assignEnabled={assignBranchEnabled}
           setAssignEnabled={setAssignBranchEnabled}
           selectedCompany={selectedCompany}
@@ -719,7 +735,7 @@ const UserForm = ({
           selectedBranchIds={selectedBranchIds}
           setSelectedBranchIds={setSelectedBranchIds}
         /> */}
-          {/* <FlexBox
+              {/* <FlexBox
           direction="Column"
           style={{ marginTop: "2rem", gap: "0.5rem" }}
         >
@@ -804,15 +820,17 @@ const UserForm = ({
           justifyContent="End"
           style={{ marginTop: "1.5rem" }} // mt={3} ~= 24px or 1.5rem
         ></FlexBox> */}
-        </FlexBox>
-      </form>
-      {/* <AddDetailsDialog
+            </FlexBox>
+          </form>
+          {/* <AddDetailsDialog
         addDetailDialog={addDetailDialog}
         onClose={handleCloseDialog}
         onSubmitFormField={handleUserDetails}
         mode="create"
       />  */}
-    </Page></FlexBox></>
+        </Page>
+      </FlexBox>
+    </>
   );
 };
 

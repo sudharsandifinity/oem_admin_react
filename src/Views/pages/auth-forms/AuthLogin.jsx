@@ -12,6 +12,7 @@ const AuthLogin = () => {
   const { loading, error } = useSelector((state) => state.auth);
 
   const [showPassword, setShowPassword] = useState(false);
+  const [authError, setAuthError] = useState(null);
   const [credentials, setCredentials] = useState({
     email: "",
     password: ""
@@ -29,20 +30,27 @@ const AuthLogin = () => {
   const handleChange = (e) => {
     setCredentials({ ...credentials, [e.target.name]: e.target.value });
   };
-
-  const handleSubmit = async (e) => {
+   const handleSubmit = async (e) => {
     e.preventDefault();
+    setAuthError(null); // reset previous error
 
     try {
-      const res = dispatch(login(credentials));
-        console.log(res);
-        if (res.payload.message !== "Login successful") {
-          navigate("/");
-      } 
-    } catch (error) {
-      console.error(error);
+      const res = await dispatch(login(credentials)).unwrap(); // unwrap returns payload directly
+      console.log("Login successful:", res);
+
+      // navigate if login successful
+      if (res?.message === "Login successful") {
+         navigate("/");
+      } else {
+        setAuthError(res?.message || "Login failed");
+      }
+    } catch (err) {
+      console.error("Login failed:", err);
+      setAuthError(err?.message || "Invalid credentials");
     }
   };
+
+
 
   return (
     <Page
@@ -93,6 +101,11 @@ const AuthLogin = () => {
             />
           </div>
         </div>
+        {authError && (
+  <MessageStrip design="Negative" style={{ marginTop: "10px" }}>
+    {authError}
+  </MessageStrip>
+)}
             <form
               onSubmit={handleSubmit}
               style={{
@@ -106,11 +119,7 @@ const AuthLogin = () => {
               <FlexBox
                 direction="Column"
               >
-                 {error && (
-            <MessageStrip design="Negative" style={{ marginBottom: "1rem" }}>
-              {error}
-            </MessageStrip>
-          )}
+               
                 {/* <Title level="H4" style={{textAlign: 'center', marginBottom: '15px', marginTop: '25px'}}>Sign in</Title> */}
                 <Label for="email">Email Address</Label>
                 <Input
@@ -141,7 +150,7 @@ const AuthLogin = () => {
                   icon={<Icon name={showPassword ? "hide" : "show"} onClick={()=>setShowPassword(!showPassword)}/>}
                   showIcon
                   style={{ width: "100%", marginBottom: "1rem" }}
-                />
+                /> 
                 <Button
                   type="Submit"
                   design="Emphasized"

@@ -373,9 +373,10 @@ export default function SalesOrder() {
       } else if (formDetails[0]?.name === "Purchase Request") {
         res = await dispatch(createPurchaseRequest(formDataToSend)).unwrap();
       }
+      console.log("reshandlesubmit", res);
 
       if (res.message === "Please Login!") {
-        //navigate("/login");
+        navigate("/login");
         return;
       }
       setApiError(null);
