@@ -181,7 +181,7 @@ const Itemtable = (props) => {
     const rowId = e.detail.row.id;
     const isSelected = e.detail.isSelected;
     const row = e.detail.row.original;
-    console.log("onrowselect", row);
+    console.log("onselectFreightRowselected", row);
 
     setFreightRowSelection((prev) => {
       const updated = { ...prev };
@@ -193,7 +193,7 @@ const Itemtable = (props) => {
         // ❌ remove deselected row
         delete updated[rowId];
       }
-
+console.log("updatedafterdelete",updated)
       return updated;
     });
   };

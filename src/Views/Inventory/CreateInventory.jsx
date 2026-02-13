@@ -283,7 +283,7 @@ export default function CreateInventory() {
           data: userdefinedData,
           DocumentAdditionalExpenses: Object.values(freightRowSelection).map(
             (freight) => ({
-              ExpenseCode: freight.ExpensCode,
+              ExpensCode: freight.ExpensCode,
               LineTotal: freight.grossTotal,
               Remarks: freight.quantity,
               TaxCode: freight.TaxGroup,

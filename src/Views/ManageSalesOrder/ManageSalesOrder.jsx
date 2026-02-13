@@ -141,9 +141,24 @@ const ManageSalesOrder = () => {
 
         settableData(initialData);
         setPage(1);
+        if (res.message === "Please Login!") {
+        navigate("/login");
+      }
       } catch (err) {
-        console.error("Initial load failed", err);
-setApiError(err.message || "Failed to load data");
+        console.log("Err object:", err);
+
+        // Safely read status
+        const statusCode = err?.status || err?.response?.status || 0;
+        const message = err?.message || "Failed to load data";
+
+        console.error("c:", statusCode, "Message:", message);
+        setApiError(message);
+
+        // If 401, redirect to login
+        if (statusCode === 401) {
+          navigate("/");
+        }
+        setApiError(err.message || "Failed to load data");
       }
     };
 
@@ -532,23 +547,24 @@ setApiError(err.message || "Failed to load data");
       >
         <div className="tab">
           <div>
-             {apiError && (
-                    <MessageStrip
-                      design="Negative"
-                      hideCloseButton={false}
-                      hideIcon={false}
-                      style={{ marginBottom: "1rem" }}
-                    >
-                      {"Data couldn’t be loaded. Refresh to retry."}
-                    </MessageStrip>
-                  )}
+            {apiError && (
+              <MessageStrip
+                design="Negative"
+                hideCloseButton={false}
+                hideIcon={false}
+                style={{ marginBottom: "1rem" }}
+              >
+                {"Data couldn’t be loaded. Refresh to retry."}
+              </MessageStrip>
+            )}
             <FlexibleColumnLayout
               // style={{ height: "600px" }}
               layout={layout}
               startColumn={
                 <FlexBox direction="Column">
                   <div>
-                    <FlexBox direction="Column">{console.log("loading",loading)}
+                    <FlexBox direction="Column">
+                      {console.log("loading", loading)}
                       <AnalyticalTable
                         columns={columns}
                         data={tableData}
