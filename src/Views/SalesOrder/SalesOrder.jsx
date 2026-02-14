@@ -250,11 +250,11 @@ export default function SalesOrder() {
           VatSum: summaryData.VatSum || 0,
           DocumentAdditionalExpenses: Object.values(freightRowSelection).map(
             (freight) => ({
-              //ExpensCode: Number(freight.ExpensCode),
+              ExpenseCode: Number(freight.ExpensCode),
               LineTotal: Number(freight.LineTotal),
               Remarks: freight.Remarks,
               TaxCode: freight.TaxCode,
-              TaxPercent: Number(freight.TaxGroup),
+              TaxPercent: Number(freight.TaxPercent),
               TaxSum: Number(freight.TotalTaxAmount),
               LineGross: Number(freight.LineGross),
             }),
@@ -321,11 +321,11 @@ export default function SalesOrder() {
           VatSum: summaryData.VatSum || 0,
           DocumentAdditionalExpenses: Object.values(freightRowSelection).map(
             (freight) => ({
-              //ExpenseCode: Number(freight.ExpensCode),
+              ExpenseCode: Number(freight.ExpensCode),
               LineTotal: Number(freight.grossTotal),
               Remarks: freight.quantity,
-              TaxCode: freight.TaxGroup,
-              TaxPercent: Number(freight.TaxCode),
+              TaxCode: freight.TaxCode,
+              TaxPercent: Number(freight.TaxPercent),
               TaxSum: Number(freight.TotalTaxAmount),
               LineGross: Number(freight.amount),
             }),
@@ -450,7 +450,10 @@ export default function SalesOrder() {
   };
   console.log("freightRowSelection", freightRowSelection, formDetails);
   useEffect(() => {
-    if (!user) return;
+    //if (!user) return;
+       if (user === "null" || user.length === 0) {
+          navigate("/login");
+        }
     if (formId) {
       // Fetch form data based on formId
       const formDetails = user?.Roles?.flatMap((role) =>

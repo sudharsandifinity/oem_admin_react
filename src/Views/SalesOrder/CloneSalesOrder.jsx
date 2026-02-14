@@ -604,10 +604,11 @@ const CloneSalesOrder = () => {
           //freight: totalFreightAmount,
           DocumentAdditionalExpenses: Object.values(freightRowSelection).map(
             (freight) => ({
-             LineTotal: Number(freight.LineTotal),
+              ExpenseCode: Number(freight.ExpensCode),
+              LineTotal: Number(freight.LineTotal),
               Remarks: freight.Remarks,
               TaxCode: freight.TaxCode,
-              TaxPercent: Number(freight.TaxGroup),
+              TaxPercent: Number(freight.TaxPercent),
               TaxSum: Number(freight.TotalTaxAmount),
               LineGross: Number(freight.LineGross),
             }),
@@ -681,12 +682,13 @@ const CloneSalesOrder = () => {
           //freight: totalFreightAmount,
           DocumentAdditionalExpenses: Object.values(freightRowSelection).map(
             (freight) => ({
-             LineTotal: Number(freight.grossTotal),
-              Remarks: freight.quantity,
-              TaxCode: freight.TaxGroup,
-              TaxPercent: Number(freight.TaxCode),
+              ExpenseCode: Number(freight.ExpensCode),
+              LineTotal: Number(freight.LineTotal),
+              Remarks: freight.Remarks,
+              TaxCode: freight.TaxCode,
+              TaxPercent: Number(freight.TaxPercent),
               TaxSum: Number(freight.TotalTaxAmount),
-              LineGross: Number(freight.amount),
+              LineGross: Number(freight.LineGross),
             }),
           ),
         };

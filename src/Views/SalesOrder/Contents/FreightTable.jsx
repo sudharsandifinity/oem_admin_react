@@ -25,7 +25,12 @@ const FreightTable = (props) => {
   const [isTaxDialogOpen, setisTaxDialogOpen] = useState(false);
   const [selectedTaxRowIndex, setSelectedTaxRowIndex] = useState("");
   const taxSelectionRow = (e) => {
-    console.log("taxSelectionRow",selectedTaxRowIndex, freightData, e.detail.row.original);
+    console.log(
+      "taxSelectionRow",
+      selectedTaxRowIndex,
+      freightData,
+      e.detail.row.original,
+    );
     // setitemTableData((prev) =>
     //       prev.map((r, idx) =>
     //         idx === selectedTaxRowIndex
@@ -36,16 +41,27 @@ const FreightTable = (props) => {
     const rate = e.detail.row.original.VatGroups_Lines.at(-1)?.Rate;
     const code = e.detail.row.original.Code;
 
-             
     setFreightData((prev) =>
-       
-        prev.map((r, idx) =>
-         idx === selectedTaxRowIndex
-           ? { ...r, TaxCode: rate, TaxGroup: code,TotalTaxAmount: ((Number(r.LineTotal&&r.LineTotal.replace(/,/g, '')) * Number(rate)) / 100).toFixed(2),
-            LineGross: (Number(r.LineTotal&&r.LineTotal.replace(/,/g, '')) + ((Number(r.LineTotal&&r.LineTotal.replace(/,/g, '')) * Number(rate)) / 100)).toFixed(2)
+      prev.map((r, idx) =>
+        idx === selectedTaxRowIndex
+          ? {
+              ...r,
+              TaxPercent: rate,
+              TaxCode: code,
+              TotalTaxAmount: (
+                (Number(r.LineTotal && r.LineTotal.replace(/,/g, "")) *
+                  Number(rate)) /
+                100
+              ).toFixed(2),
+              LineGross: (
+                Number(r.LineTotal && r.LineTotal.replace(/,/g, "")) +
+                (Number(r.LineTotal && r.LineTotal.replace(/,/g, "")) *
+                  Number(rate)) /
+                  100
+              ).toFixed(2),
             }
-           : r
-       ) 
+          : r,
+      ),
     );
     setTimeout(() => {
       setisTaxDialogOpen(false);
@@ -53,8 +69,8 @@ const FreightTable = (props) => {
   };
   const calculateRowTotals = (row) => {
     const unitPrice = parseFloat(row.LineTotal) || 0;
-    const taxPercent = parseFloat(row.TaxCode) || 0;
-console.log("calculatedrow",row,unitPrice,taxPercent)
+    const taxPercent = parseFloat(row.TaxPercent) || 0;
+    console.log("calculatedrow", row, unitPrice, taxPercent);
 
     const taxAmt = unitPrice * (taxPercent / 100);
     const LineGross = unitPrice + taxAmt;
@@ -83,12 +99,12 @@ console.log("calculatedrow",row,unitPrice,taxPercent)
         width: 200,
         accessor: "Name",
       },
-     
+
       {
         Header: "Remarks",
         width: 200,
         accessor: "Remarks",
-         Cell: ({ row, value }) => (
+        Cell: ({ row, value }) => (
           <Input
             style={{ textAlign: "right" }}
             disabled={mode === "view"}
@@ -162,9 +178,9 @@ console.log("calculatedrow",row,unitPrice,taxPercent)
         Header: "Tax Group",
         width: 150,
         accessor: "",
-         Cell: ({ row }) => (
+        Cell: ({ row }) => (
           <Input
-            value={row.original.TaxGroup}
+            value={row.original.TaxCode}
             readonly
             disabled={mode === "view"}
             style={{
@@ -193,9 +209,9 @@ console.log("calculatedrow",row,unitPrice,taxPercent)
         width: 150,
 
         accessor: "",
-         Cell: ({ row }) => (
+        Cell: ({ row }) => (
           <Input
-            value={row.original.TaxCode}
+            value={row.original.TaxPercent}
             readonly
             disabled={mode === "view"}
             style={{
@@ -209,13 +225,13 @@ console.log("calculatedrow",row,unitPrice,taxPercent)
             }}
             onFocus={(e) => (e.target.style.borderBottom = "1px solid #007aff")}
             onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
-             onInput={(e) => {
+            onInput={(e) => {
               const newValue = e.target.value;
               const rowIndex = row.index;
 
               setFreightData((prev) => {
                 const updated = [...prev];
-                const newRow = { ...updated[rowIndex], TaxCode: newValue };
+                const newRow = { ...updated[rowIndex], TaxPercent: newValue };
                 updated[rowIndex] = calculateRowTotals(newRow);
                 return updated;
               });
@@ -266,7 +282,7 @@ console.log("calculatedrow",row,unitPrice,taxPercent)
 
         accessor: "DistributionMethod",
       },
-      
+
       {
         width: 150,
         Header: "Status",
@@ -276,9 +292,9 @@ console.log("calculatedrow",row,unitPrice,taxPercent)
         width: 150,
         Header: "Gross Amount",
         accessor: "",
-         Cell: ({ row }) => (
+        Cell: ({ row }) => (
           <Input
-            value={row.original.LineGross}//(  row.original.amount && row.original.TotalTaxAmount) ? (Number(row.original.amount.replace(/,/g, '')) + Number(row.original.TotalTaxAmount)).toFixed(2) : row.original.amount}
+            value={row.original.LineGross} //(  row.original.amount && row.original.TotalTaxAmount) ? (Number(row.original.amount.replace(/,/g, '')) + Number(row.original.TotalTaxAmount)).toFixed(2) : row.original.amount}
             readonly
             disabled={mode === "view"}
             style={{
@@ -292,7 +308,6 @@ console.log("calculatedrow",row,unitPrice,taxPercent)
             }}
             onFocus={(e) => (e.target.style.borderBottom = "1px solid #007aff")}
             onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
-           
           />
         ),
       },
@@ -313,49 +328,73 @@ console.log("calculatedrow",row,unitPrice,taxPercent)
         accessor: "Project",
       },
     ],
-    []
+    [],
   );
   const freightTableData = useMemo(() => {
-  return freightData.map(row => ({
-    ...row,
-    id: row.ExpensCode-1 // use ExpensCode as row id
-  }));
-}, [freightData]);
+    return freightData.map((row) => ({
+      ...row,
+      id: row.ExpensCode - 1, // use ExpensCode as row id
+    }));
+  }, [freightData]);
 
-const mergedFreightData = useMemo(() => {
-  return freightTableData.map(row => {
-    const matched = freightRowSelection.length>0&&freightRowSelection.find(
-      f => Number(f.ExpenseCode) === Number(row.ExpensCode)
-    );
+  const mergedFreightData = useMemo(() => {
+    return freightTableData.map((row) => {
+      const matched =
+        freightRowSelection.length > 0 &&
+        freightRowSelection.find(
+          (f) => Number(f.ExpenseCode) === Number(row.ExpensCode),
+        );
 
-    return matched
-      ? {
-          ...row,
-          ...matched   // Amount, Tax, etc
+      return matched
+        ? {
+            ...row,
+            ...matched, // Amount, Tax, etc
+          }
+        : row;
+    });
+  }, [freightTableData, freightRowSelection]);
+
+  const selectedRowIds = useMemo(() => {
+    const ids = {};
+    console.log("selectedrowid", mergedFreightData, freightRowSelection);
+    if (mode === "create") {
+      mergedFreightData.forEach((row) => {
+        const isSelected =
+          freightRowSelection.length > 0 &&
+          Object.values(freightRowSelection).some(
+            (f) => Number(f.ExpensCode) === Number(row.ExpensCode),
+          );
+        console.log("isSelected", isSelected);
+        if (isSelected) {
+          ids[row.id] = true;
         }
-      : row;
-  });
-}, [freightTableData, freightRowSelection]);
-
-const selectedRowIds = useMemo(() => {
-  const ids = {};
-
-  mergedFreightData.forEach(row => {
-    const isSelected = freightRowSelection.length>0&&freightRowSelection.some(
-      f => Number(f.ExpenseCode) === Number(row.ExpensCode)
-    );
-
-    if (isSelected) {
-      ids[row.id] = true;
+      });
+    } else {
+      mergedFreightData.forEach((row) => {
+        const isSelected =
+          freightRowSelection.length > 0 &&
+          freightRowSelection.some(
+            (f) => Number(f.ExpenseCode) === Number(row.ExpensCode),
+          );
+        console.log("isSelected", isSelected);
+        if (isSelected) {
+          ids[row.id] = true;
+        }
+      });
     }
-  });
-
-  return ids;
-}, [mergedFreightData, freightRowSelection]);
+    console.log("ids",ids)
+    return ids;
+  }, [mergedFreightData, freightRowSelection]);
 
   return (
     <div>
-      {console.log("freightDatatable", freightData,freightRowSelection,selectedRowIds,mergedFreightData)}
+      {console.log(
+        "freightDatatable",
+        freightData,
+        freightRowSelection,
+        selectedRowIds,
+        mergedFreightData,
+      )}
       {/* <AnalyticalTable
         data={freightData}
         columns={Column}
@@ -366,15 +405,15 @@ const selectedRowIds = useMemo(() => {
         selectedRowIds={freightRowSelection}
         
       /> */}
-   <AnalyticalTable
-  data={mode==="create"?freightData:mergedFreightData}
-  columns={Column}
-  header={`Freights (${mergedFreightData.length})`}
-  selectionMode="Multiple"
-  selectionBehavior="RowSelector"
-  selectedRowIds={mode==="create"?freightRowSelection:selectedRowIds}
-  onRowSelect={onselectFreightRow}
-/>
+      <AnalyticalTable
+        data={mode === "create" ? freightData : mergedFreightData}
+        columns={Column}
+        header={`Freights (${mergedFreightData.length})`}
+        selectionMode="Multiple"
+        selectionBehavior="RowSelector"
+        selectedRowIds={ Object.values(freightRowSelection) }
+        onRowSelect={onselectFreightRow}
+      />
       {/* <Dialog
               headerText="Select Item"
               open={freightdialogOpen}

@@ -42,7 +42,7 @@ const Freight = (props) => {
         onAfterClose={() => setfreightDialogOpen(false)}
         footer={<Bar design="Footer" endContent={<Button
           onClick={() => {
-            setFreightData(originalfreightData);
+            //setFreightData(originalfreightData);
             setfreightDialogOpen(false);
           }}
         >
