@@ -40,7 +40,7 @@ import ServiceViewpage from "./Service/ServiceViewpage";
 import Itemtable from "./Item/Itemtable";
 import ServiceTable from "./Service/ServiceTable";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { Await, useNavigate } from "react-router-dom";
 import { fetchOrderItems } from "../../../store/slices/CustomerOrderItemsSlice";
 import { set } from "react-hook-form";
 import { fetchOrderServices } from "../../../store/slices/CustomerOrderServiceSlice";
@@ -52,10 +52,12 @@ import {
   fetchSalesOrderAddDetails,
   fetchWarehousesDetails,
   fetchDimensionDetails,
+  fetchitemprices,
 } from "../../../store/slices/salesAdditionalDetailsSlice";
 
 const Contents = (props) => {
   const {
+    selectedcardcode,
     form,
     orderItems,
     loading,
@@ -625,32 +627,89 @@ const [currency, setCurrency] = useState("All Currency");
   //   });
 
   // };
-  const saveItem = (item, index) => {
-    setSelectedItems(rowSelection);
+const getItemPrice = async (cardCode, itemCode) => {
+  console.log("getItempriceval",cardCode,itemCode)
+  try {
+    const response = await dispatch(
+      fetchitemprices({ cardCode: cardCode, itemCode: itemCode })
+    ).unwrap();
+
+    console.log("getitemprice",response.value, response.value[0].Price
+);
+
+    // SAP returns array in response.value
+    if (response?.value?.length > 0) {
+      return response.value[0];  // ✅ Correct
+    }
+
+    return 0;
+  } catch (error) {
+    console.error("Price fetch failed", error);
+    return 0;
+  }
+};
+
+const saveItem = async (item) => {
+  const newItems = Array.isArray(item) ? item : Object.values(item);
+
+  for (const newItem of newItems) {
+    const itemresponse = await getItemPrice(selectedcardcode, newItem.ItemCode);
+    const price = itemresponse ? itemresponse.Price : 0;
+    const PriceListNum = itemresponse ? itemresponse.PriceListNum : 1; // You can replace this with any logic to determine the default quantity
 
     setitemTableData((prev) => {
       let updated = [...prev];
 
-      if (updated.length > 0 && updated[updated.length - 1]?.ItemCode === "") {
+      if (
+        updated.length > 0 &&
+        updated[updated.length - 1]?.ItemCode === ""
+      ) {
         updated.pop();
       }
 
-      let nextSlno =
-        updated.length > 0 ? updated[updated.length - 1].slno + 1 : 0;
+      const nextSlno =
+        updated.length > 0
+          ? updated[updated.length - 1].slno + 1
+          : 0;
 
-      const newItems = Array.isArray(item) ? item : Object.values(item);
-
-      newItems.forEach((newItem) => {
-        updated.push({
-          ...newItem,
-          slno: nextSlno,
-        });
-        nextSlno++;
+      updated.push({
+        ...newItem,
+        slno: nextSlno,
+        amount: price,   // 🔥 Auto fill price
+        //quantity:PriceListNum, // 🔥 Default quantity to 1 or any logic you want
       });
 
       return updated;
     });
-  };
+  }
+};
+
+  // const saveItem = (item, index) => {
+  //   setSelectedItems(rowSelection);
+
+  //   setitemTableData((prev) => {
+  //     let updated = [...prev];
+
+  //     if (updated.length > 0 && updated[updated.length - 1]?.ItemCode === "") {
+  //       updated.pop();
+  //     }
+
+  //     let nextSlno =
+  //       updated.length > 0 ? updated[updated.length - 1].slno + 1 : 0;
+
+  //     const newItems = Array.isArray(item) ? item : Object.values(item); 
+
+  //     newItems.forEach((newItem) => {
+  //       updated.push({
+  //         ...newItem,
+  //         slno: nextSlno,
+  //       });
+  //       nextSlno++;
+  //     });
+
+  //     return updated;
+  //   });
+  // };
   const handleitemRowChange = (item) => {
     console.log("handleitemRowChange", item);
   };

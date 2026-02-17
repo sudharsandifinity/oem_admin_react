@@ -89,7 +89,7 @@ const ManageUser = forwardRef((props, ref) => {
               avatarSrc={avatarPng}
               titleText={user?.first_name + " " + user?.last_name}
               subtitleText={user?.email}
-              description={user?.Roles[0].name}
+              description={user && user?.Roles.length > 0 ? user?.Roles[0].name : ""}
               data-key="0"
               selected={selectedAccount === "0"}
             />

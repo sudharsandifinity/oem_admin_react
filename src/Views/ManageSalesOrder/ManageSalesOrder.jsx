@@ -69,6 +69,7 @@ const ManageSalesOrder = () => {
   );
   const [tableData, settableData] = useState([]);
   const [formDetails, setFormDetails] = useState([]);
+  const [originalCustomerData, setOriginalCustomerData] = useState([]); // to store original data for reset/clear filter
 
   const placeholderRows = Array(5).fill({
     CustomerCode: "Loading...",
@@ -151,12 +152,12 @@ const ManageSalesOrder = () => {
         const statusCode = err?.status || err?.response?.status || 0;
         const message = err?.message || "Failed to load data";
 
-        console.error("c:", statusCode, "Message:", message);
+        console.error("c    :", statusCode, "Message:", message);
         setApiError(message);
 
-        // If 401, redirect to login
+        // If 401, redirect to login 
         if (statusCode === 401) {
-          navigate("/");
+          navigate("/login");
         }
         setApiError(err.message || "Failed to load data");
       }
@@ -437,6 +438,7 @@ const ManageSalesOrder = () => {
       navigate("/");
     }
   }, [user, formId]);
+ 
   return (
     <div style={{ width: "100%" }}>
       <DynamicPage
@@ -465,7 +467,7 @@ const ManageSalesOrder = () => {
             >
               {console.log(
                 "ManageSalesOderHeaderField",
-                ManageSalesOderHeaderField,
+                ManageSalesOderHeaderField,customerorder
               )}
               {ManageSalesOderHeaderField.map((field) => {
                 const filteredData = {
@@ -488,14 +490,16 @@ const ManageSalesOrder = () => {
                     isClearFilter={isClearFilter}
                     setisClearFilter={setisClearFilter}
                     formDetails={formDetails}
+                    originalCustomerData={originalCustomerData}
+                    setOriginalCustomerData={setOriginalCustomerData}
                   />
                 );
-              })}
+              })}{console.log("originalCustomerData",originalCustomerData)}
               <Button
                 style={{ width: "100px", marginBottom: "2px" }}
                 onClick={() => {
                   setisClearFilter(true);
-                  settabledata(customerorder);
+                  settableData(originalCustomerData);
                   setFilters({
                     FromDate: "",
                     ToDate: "",
@@ -564,7 +568,7 @@ const ManageSalesOrder = () => {
                 <FlexBox direction="Column">
                   <div>
                     <FlexBox direction="Column">
-                      {console.log("loading", loading)}
+                      {console.log("loading", loading,tableData)}
                       <AnalyticalTable
                         columns={columns}
                         data={tableData}

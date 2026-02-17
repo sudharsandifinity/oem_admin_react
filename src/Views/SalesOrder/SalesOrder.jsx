@@ -372,7 +372,7 @@ export default function SalesOrder() {
         res = await dispatch(createPurchaseQuotation(formDataToSend)).unwrap();
       } else if (formDetails[0]?.name === "Purchase Request") {
         res = await dispatch(createPurchaseRequest(formDataToSend)).unwrap();
-      }
+      } 
       console.log("reshandlesubmit", res);
 
       if (res.message === "Please Login!") {
@@ -383,6 +383,16 @@ export default function SalesOrder() {
       setOpen(true);
     } catch (err) {
       console.error("Failed to create order:", err);
+      const statusCode = err?.status || err?.response?.status || 0;
+        const message = err?.message || "Failed to load data";
+
+        console.error("c:", statusCode, "Message:", message);
+        setApiError(message);
+
+        // If 401, redirect to login
+        if (statusCode === 401) {
+          navigate("/login");
+        }
       setApiError(err.message || "Error creating order");
     } finally {
       setTimeout(() => {
@@ -625,6 +635,7 @@ export default function SalesOrder() {
           titleText="Contents"
         >
           <Contents
+          selectedcardcode={selectedcardcode}
             rowSelection={rowSelection}
             setRowSelection={setRowSelection}
             itemdata={itemdata}

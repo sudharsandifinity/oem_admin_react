@@ -19,14 +19,15 @@ import "@ui5/webcomponents-icons/dist/value-help.js";
 import HeaderFilterDialog from "./HeaderFilterDialog";
 
 export const HeaderFilterBar = ({
+  key,
   field,
   tableData,
   settableData,
   handleChange,
-  setFilters,
   filters,
   menuChildMap,
-  settabledata,customerorder,isClearFilter,setisClearFilter,formDetails
+  setFilters,
+  customerorder,isClearFilter,setisClearFilter,formDetails,originalCustomerData,setOriginalCustomerData
 }) => {
   const [value, setvalue] = useState("");
   const [fieldName, setfieldName] = useState("");
@@ -76,6 +77,13 @@ useEffect(()=>{
     setFilterDialogOpen(false);
   };
   console.log("field", field);
+   useEffect(() => {
+        console.log("itemdatauseefect1", originalCustomerData, tableData);
+        if (filterdialogOpen) {
+          console.log("itemdatauseefect", tableData);
+          setOriginalCustomerData(tableData); // backup (for reset/clear filter)
+        }
+      }, [filterdialogOpen]);
   switch (field.inputType) {
     case "text":
     case "number":

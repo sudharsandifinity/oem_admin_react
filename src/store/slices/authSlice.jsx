@@ -73,19 +73,48 @@ export const fetchAuthUser = createAsyncThunk(
   async (_, thunkAPI) => {
     try {
       const res = await api.get("/auth/profile", { withCredentials: true });
+      console.log("fetchAuthUserres",res)
       return res.data;
     } catch (err) {
-      return thunkAPI.rejectWithValue(
-        err.response?.data || "Not authenticated",
-      );
-    }
-  },
+      // return thunkAPI.rejectWithValue(
+      //   err.response?.data || "Not authenticated",
+      // );
+      console.error("❌ API error:", err.response?.data || err.message);
+       console.log("error.response",err)
+      return thunkAPI.rejectWithValue({
+        status: err.response?.status,
+        message: err.response?.data?.message || "Not authenticated",
+    }   );
+  }
+}
+);
+export const fetchAuthUsercheck = createAsyncThunk(
+  "auth/fetchCurrentUser",
+  async (_, thunkAPI) => {
+    try {
+      const res = await api.get("/auth/profile", { withCredentials: true });
+      console.log("fetchAuthUserres",res)
+      return localStorage.getItem("user") ? JSON.parse(storedUser) : res.data;
+    } catch (err) {
+      // return thunkAPI.rejectWithValue(
+      //   err.response?.data || "Not authenticated",
+      // );
+      console.error("❌ API error:", err.response?.data || err.message);
+       console.log("error.response",err)
+      return thunkAPI.rejectWithValue({
+        status: err.response?.status,
+        message: err.response?.data?.message || "Not authenticated",
+    }   );
+  }
+}
 );
 const storedUser = localStorage.getItem("user");
+const storedToken = localStorage.getItem("token");
 const authSlice = createSlice({
   name: "auth",
   initialState: {
-    user: storedUser ? JSON.parse(storedUser) : null,
+    user: localStorage.getItem("user") ? JSON.parse(storedUser) : null,
+    token: storedToken || null,
     permissions: [],
     status: "idle",
     error: null,
@@ -98,8 +127,11 @@ const authSlice = createSlice({
   reducers: {
     logout: (state) => {
       state.user = null;
+      state.token = null; 
       state.permissions = [];
       state.loading = false;
+      localStorage.removeItem("token");
+  localStorage.removeItem("user");
     },
   },
   extraReducers: (builder) => {
@@ -111,15 +143,15 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(login.fulfilled, (state, action) => {
-        state.loading = false;
-        state.status = "succeeded";
-        state.user = action.payload.user;
-        state.permissions = action.payload?.user?.Role?.Permissions.map(
-          (permission) => {
-            return permission.name;
-          },
-        );
-      })
+  state.loading = false;
+  state.status = "succeeded";
+  state.user = action.payload.user;
+  state.token = action.payload.token; // <-- add this
+  state.permissions = action.payload?.user?.Role?.Permissions.map(
+    (permission) => permission.name
+  );
+  localStorage.setItem("token", action.payload.token); // optional
+})
       .addCase(login.rejected, (state, action) => {
         state.status = "failed";
         state.loading = false;
