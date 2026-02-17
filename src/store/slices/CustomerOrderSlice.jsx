@@ -32,9 +32,10 @@ export const fetchCustomerOrder = createAsyncThunk(
       });
       return response.data;
     } catch (error) {
-      return thunkApi.rejectWithValue(
-        error.response?.data || "Error fetching orders"
-      );
+      return thunkApi.rejectWithValue({
+        status: error.response?.status,
+        message: error.response?.data?.message || "Login failed",
+      });
     }
   }
 );

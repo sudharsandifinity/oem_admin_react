@@ -19,13 +19,27 @@ import {
   Line,
   CartesianGrid,
 } from "recharts";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { BulletChart } from "@ui5/webcomponents-react-charts";
+import { useDispatch } from "react-redux";
+import { fetchCustomerOrder } from "../../store/slices/CustomerOrderSlice";
+import { fetchPurchaseOrder } from "../../store/slices/purchaseorderSlice";
+import { fetchSalesQuotations } from "../../store/slices/SalesQuotationSlice";
+import { fetchPurchaseQuotation } from "../../store/slices/PurchaseQuotation";
+import { fetchPurchaseRequest } from "../../store/slices/PurchaseRequestSlice";
 
 const UserDashboard = () => {
+  const dispatch = useDispatch();
+  const [selectedType, setSelectedType] = useState("Sales Order");
+  const [selectedOrderData, setSelectedOrderData] = useState([]);
+  const [selectedOrderDetails, setSelectedOrderDetails] = useState([]);
   const cardData = [
-    { title: "Sales", color: "#5b2c58ff" },
-    { title: "Purchase", color: "#e35305ff" },
+    { title: "Sales Order", color: "#5b2c58ff" },
+    { title: "Sales Quotation", color: "#1b4965ff" },
+    { title: "Purchase Order", color: "#e35305ff" },
+      
+      { title: "Purchase Quotation", color: "#9b2226ff" },
+      { title: "Purchase Request", color: "#2a9d8fff" },
   ];
   const data = [
     { name: "Jan", value: 30 },
@@ -34,6 +48,89 @@ const UserDashboard = () => {
     { name: "Apr", value: 50 },
     { name: "May", value: 75 },
   ];
+const salesData = [
+  { name: "Jan", value: 4000 },
+  { name: "Feb", value: 6000 },
+  { name: "Mar", value: 8000 },
+];
+
+const purchaseData = [
+  { name: "Jan", value: 3000 },
+  { name: "Feb", value: 3500 },
+  { name: "Mar", value: 5000 },
+]
+
+useEffect(() => {
+  // Simulate fetching data for sales and purchase orders
+const fetchInitialData = async() => {
+  try{
+     let res = "";
+            if (selectedType === "Sales Order") {
+              res = await dispatch(
+                fetchCustomerOrder({ top: 100, skip: 0 }),
+              ).unwrap();
+            } else if (selectedType === "Sales Quotation") {
+              res = await dispatch(
+                fetchSalesQuotations({ top: 100, skip: 0 }),
+              ).unwrap();
+            } else if (selectedType === "Purchase Order") {
+              res = await dispatch(
+                fetchPurchaseOrder({ top: 100, skip: 0 }),
+              ).unwrap();
+            } else if (selectedType === "Purchase Quotation") {
+              res = await dispatch(
+                fetchPurchaseQuotation({ top: 100, skip: 0 }),
+              ).unwrap();
+            } else if (selectedType === "Purchase Request") {
+              res = await dispatch(
+                fetchPurchaseRequest({ top: 100, skip: 0 }),
+              ).unwrap();
+            }
+    
+            console.log("quotationdata", "sales", res, selectedType);
+            const raw = res?.data?.value ?? res?.data ?? res;
+    
+            // Ensure it's an array
+            const list = Array.isArray(raw)
+              ? raw
+              : raw
+                ? [raw] // if it's single object
+                : []; // if null or undefined
+              setSelectedOrderData(list.map(order=>({ name: order.DocEntry, value: order.DocTotal })));
+              setSelectedOrderDetails(list)
+    console.log("selectedorderdata",selectedOrderData,list)
+            
+  }catch(err){
+    console.error("Error fetching data:", err);
+  }
+}
+  fetchInitialData();
+}, [selectedType]);
+const getMonthlyPerformance = (orders) => {
+  const months = {};
+
+  orders.forEach(order => {
+    const month = new Date(order.DocDate).toLocaleString("default", {
+      month: "short"
+    });
+
+    if (!months[month]) {
+      months[month] = {
+        month,
+        totalAmount: 0,
+        orderCount: 0
+      };
+    }
+
+    months[month].totalAmount += Number(order.DocTotal);
+    months[month].orderCount += 1;
+  });
+
+  return Object.values(months);
+};
+const monthlyData = React.useMemo(() => {
+  return getMonthlyPerformance(selectedOrderDetails); // your API data
+}, [selectedOrderDetails]);
 
   return (
     <>
@@ -53,166 +150,93 @@ const UserDashboard = () => {
           {/* <Title level="H2" style={{marginBottom: '15px'}}>Welcome, Admin</Title> */}
 
           {/* Colored Cards - Single Row */}
-          <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
-            {cardData.map(({ title, color }) => (
-              <div
-                key={title}
-                style={{
-                  backgroundColor: color,
-                  color: "white",
-                  borderRadius: "10px",
-                  padding: "1rem",
-                  width: "150px",
-                }}
-              >
-                <h3>{title}</h3>
-                <p>{Math.floor(Math.random() * 100)}</p>
-              </div>
-            ))}
-          </div>
+         <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
+  {cardData.map(({ title, color }) => {
+    const isActive = selectedType === title;
+
+    return (
+      <div
+        key={title}
+        onClick={() => setSelectedType(title)}
+        style={{
+          backgroundColor: color,
+          color: "white",
+          borderRadius: "10px",
+          padding: "1rem",
+          width: "150px",
+          cursor: "pointer",
+          opacity: isActive ? 1 : 0.6,
+          border: isActive ? "3px solid #000" : "none",
+          transition: "0.3s",
+        }}
+      >
+        <h3>{title}</h3>
+        <p>{Math.floor(Math.random() * 100)}</p>
+      </div>
+    );
+  })}
+</div>
+
 
           {/* Charts Row */}
           <FlexBox
-            direction={FlexBoxDirection.Row}
-            style={{ marginTop: "1rem", gap: "2rem" }}
-          >
-            <Card
-              header={<CardHeader titleText="User Distribution" />}
-              style={{ width: "58%" }}
-            >
-              <div style={{ width: "100%", height: 300, marginTop: "2rem" }}>
-                <ResponsiveContainer>
-                  <LineChart data={data}>
-                    <Line
-                      type="monotone"
-                      dataKey="value"
-                      stroke="#0070f2"
-                      strokeWidth={2}
-                    />
-                    <CartesianGrid stroke="#ccc" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-            </Card>
+  direction={FlexBoxDirection.Row}
+  style={{ marginTop: "1rem", gap: "2rem" }}
+>
+  {/* Line Chart */}
+  <Card
+    header={
+      <CardHeader
+        titleText={`${selectedType} Monthly Trend`}
+      />
+    }
+    style={{ width: "58%" }}
+  >
+    <div style={{ width: "100%", height: 300, marginTop: "2rem" }}>
+      <ResponsiveContainer>
+        <LineChart
+          data={selectedOrderData}
+        >
+          <Line
+            type="monotone"
+            dataKey="value"
+            stroke={selectedType === "Sales Order" ? "#5b2c58ff" : selectedType === "Sales Quotation" ? "#1b4965ff" : selectedType === "Purchase Order" ? "#e35305ff" : selectedType === "Purchase Quotation" ? "#9b2226ff" : "#2a9d8fff"}
+            strokeWidth={2}
+          />
+          <CartesianGrid stroke="#ccc" />
+          <XAxis dataKey="name" />
+          <YAxis />
+          <Tooltip />
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
+  </Card>
 
-            <Card
-              header={<CardHeader titleText="User Activity" />}
-              style={{ width: "48%" }}
-            >
-              <div style={{ width: "100%", height: 350, marginTop: "2rem" }}>
-                <ResponsiveContainer>
-                  <BulletChart
-                    dataset={[
-                      {
-                        name: "January",
-                        sessions: 300,
-                        users: 100,
-                        volume: 350,
-                      },
-                      {
-                        name: "February",
-                        sessions: 330,
-                        users: 90,
-                        volume: 370,
-                      },
-                      {
-                        name: "March",
-                        sessions: 404,
-                        users: 0,
-                        volume: 446,
-                      },
-                      {
-                        name: "April",
-                        sessions: 80,
-                        users: 0,
-                        volume: 250,
-                      },
-                      {
-                        name: "May",
-                        sessions: 300,
-                        users: 0,
-                        volume: 450,
-                      },
-                      {
-                        name: "June",
-                        sessions: 330,
-                        users: 0,
-                        volume: 500,
-                      },
-                      {
-                        name: "July",
-                        sessions: 300,
-                        users: 65,
-                        volume: 300,
-                      },
-                      {
-                        name: "August",
-                        sessions: 180,
-                        users: 12,
-                        volume: 104,
-                      },
-                      {
-                        name: "September",
-                        sessions: 360,
-                        users: 99,
-                        volume: 300,
-                      },
-                      {
-                        name: "October",
-                        sessions: 500,
-                        users: 120,
-                        volume: 200,
-                      },
-                      {
-                        name: "November",
-                        sessions: 404,
-                        users: 130,
-                        volume: 600,
-                      },
-                      {
-                        name: "December",
-                        sessions: 80,
-                        users: 100,
-                        volume: 320,
-                      },
-                    ]}
-                    dimensions={[
-                      {
-                        accessor: "name",
-                        formatter: function _ie() {},
-                        interval: 0,
-                      },
-                    ]}
-                    layout="horizontal"
-                    measures={[
-                      {
-                        accessor: "sessions",
-                        label: "Active Sessions",
-                        type: "primary",
-                      },
-                      {
-                        accessor: "users",
-                        label: "Users",
-                        type: "additional",
-                      },
-                      {
-                        accessor: "volume",
-                        formatter: function _ie() {},
-                        label: "Volume",
-                        type: "comparison",
-                      },
-                    ]}
-                    onClick={function _ie() {}}
-                    onDataPointClick={function _ie() {}}
-                    onLegendClick={function _ie() {}}
-                  />
-                </ResponsiveContainer>
-              </div>
-            </Card>
-          </FlexBox>
+  {/* Bullet Chart */}
+  <Card
+  header={<CardHeader titleText={`${selectedType} Performance`} />}
+  style={{ width: "100%" }}
+>
+  <div style={{ width: "100%", height: 350, marginTop: "2rem" }}>
+    <ResponsiveContainer>
+      <LineChart data={monthlyData}>
+        <CartesianGrid stroke="#ccc" />
+        <XAxis dataKey="month" />
+        <YAxis />
+        <Tooltip />
+        <Line
+          type="monotone"
+          dataKey="totalAmount"
+          stroke="#5b2c58ff"
+          strokeWidth={3}
+        />
+      </LineChart>
+    </ResponsiveContainer>
+  </div>
+</Card>
+
+</FlexBox>
+
         </div>
       {/* </div> */}
     </Page>

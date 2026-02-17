@@ -7,7 +7,8 @@ export default function PrivateRoute({ children }) {
   // if (!user) {
   //   return <Navigate to="/login" replace />;
   // }
-
+const { token } = useSelector((state) => state.auth);
+console.log("privateroute",token)
 if (!user) {
   const stored = localStorage.getItem("user");
   if (stored) return null; // wait until Redux loads

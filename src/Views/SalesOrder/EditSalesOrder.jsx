@@ -75,6 +75,7 @@ import {
   fetchPurchaseRequestById,
   updatePurchaseRequest,
 } from "../../store/slices/PurchaseRequestSlice";
+import BarDesign from "@ui5/webcomponents/dist/types/BarDesign.js";
 
 const EditSalesOrder = () => {
   const { id, formId } = useParams();
@@ -829,13 +830,21 @@ TaxDate: formData.TaxDate
         }}
         active={loading}
       >
+         <style>
+        {`
+            ._footer_17oaz_164{
+              position: static
+            }
+          `}
+      </style>
         <ObjectPage
+          className="sales-order-page"
           footerArea={
             <>
               {" "}
               <Bar
-                style={{ padding: 0.5 }}
-                design="FloatingFooter"
+                style={{ padding: 0.5,marginBottom: "16px" }}
+                design={BarDesign.FloatingFooter}
                 endContent={
                   <>
                     <Button design="Positive" onClick={() => handleSubmit()}>
@@ -893,7 +902,6 @@ TaxDate: formData.TaxDate
           onToggleHeaderArea={function Xs() {}}
           selectedSectionId="section1"
           style={{
-            height: "700px",
             maxHeight: "90vh",
           }}
           titleArea={

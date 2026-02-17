@@ -329,7 +329,7 @@ console.log("updatedafterdelete",updated)
 
   const calculateRowTotals = (row) => {
     console.log("calculateRowTotalsrowitem",row)
-    const quantity = parseFloat(row.quantity) || 0;
+    const quantity = parseFloat(row.quantity) || 1;
     const unitPrice = parseFloat(row.unitPrice || row.amount) || 0;
     const discount = parseFloat(row.discount) || 0;
     const taxPercent = parseFloat(row.TaxRate) || 0;
@@ -722,12 +722,13 @@ console.log("updatedafterdelete",updated)
             style={{ textAlign: "right" }}
             type="Number"
             disabled={mode === "view"}
-            value={value || ""}
+            value={value ||""}
             onChange={(e) => {
               const newValue = e.target.value;
               const rowIndex = row.index;
               setitemTableData((prev) => {
                 const updated = [...prev];
+                
                 updated[rowIndex] = {
                   ...updated[rowIndex],
                   quantity: newValue.toLocaleString(undefined, {

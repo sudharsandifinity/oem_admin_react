@@ -54,6 +54,7 @@ export default function TopNav({
 
   const handleCompanyClick = (companyName) => {
     if (isDashboardSelected) {
+      
       dispatch(setActiveCompany());
       dispatch(switchCompany({ companyId: companyName }));
       setSelectedCompany(companyName);
@@ -68,6 +69,7 @@ export default function TopNav({
     setSelectedBranch(branchname);
   };
   // Remove duplicate companies by Company.id
+  console.log("companies",companies,user)
   const uniqueCompanies = companies
     ? Object.values(
         companies.reduce((acc, item) => {

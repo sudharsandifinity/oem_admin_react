@@ -10,7 +10,22 @@ const API_FREIGHT_URL = "/sap/others/freights";
 const API_ATTACHMENTS_URL = "/sap/attachments";
 const API_PROFITCENTER_URL = "/sap/profit-centers";
 const API_DIMENSION_URL = "/sap/dimensions";
+const API_ITEMPRICE_URL = "/sap/SpecialPrices";
 
+
+export const fetchitemprices = createAsyncThunk(
+  "itemprices/fetchitemprices", 
+  async ({ cardCode, itemCode }, thunkApi) => {
+    try {
+      const response = await api.get(`${API_ITEMPRICE_URL}?cardCode=${cardCode}&itemCode=${itemCode}`, { withCredentials: true });
+      return response.data;
+    } catch (error) {
+      return thunkApi.rejectWithValue(
+        error.response?.data || "Error fetching item price details"
+      );
+    }
+  }
+);
 export const fetchProfitCenterDetails = createAsyncThunk(
   "profitcenterdetails/fetchProfitCenterDetails", 
   async (_, thunkApi) => {

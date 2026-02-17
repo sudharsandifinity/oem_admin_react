@@ -23,7 +23,7 @@ const AuthLogin = () => {
   useEffect(() => {
     console.log("authlogintoken", token);
     if (token) {
-      navigate("/dashboard");
+      navigate("/");
     }
   }, [token, navigate]);
 

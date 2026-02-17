@@ -3,10 +3,25 @@ import api from '../../api/axios';
 
 const API_QUOTATION = '/sap/quotations';
 
-export const fetchSalesQuotations = createAsyncThunk('quotations/fetchSalesQuotations', async () => {
-  const response = await api.get(API_QUOTATION, { withCredentials: true });
-  return response.data;
-});
+export const fetchSalesQuotations = createAsyncThunk(
+  'quotations/fetchSalesQuotations',
+  async ( _,thunkApi) => {        // <- notice you need `_` as first param
+    try {
+      const response = await api.get(API_QUOTATION, { withCredentials: true });
+      console.log("quotationresponse",response)
+      return response.data;
+    } catch (error) {
+      console.log("error.response",error)
+      return thunkApi.rejectWithValue({
+        status: error.response?.status,
+        message: error.response?.data?.message || "Login failed",
+      });
+      // return thunkApi.rejectWithValue(
+      //   error.response?.data || "Error creating order"
+      // );f
+    }
+  }
+);
 
 export const createSalesQuotation = createAsyncThunk(
   'quotations/createSalesQuotation',
@@ -16,9 +31,14 @@ export const createSalesQuotation = createAsyncThunk(
       return response.data;
     } catch (error) {
       console.error("❌ API error:", error.response?.data || error.message);
-      return thunkApi.rejectWithValue(
-        error.response?.data || "Error creating order"
-      );
+       console.log("error.response",error)
+      return thunkApi.rejectWithValue({
+        status: error.response?.status,
+        message: error.response?.data?.message || "Login failed",
+      });
+      // return thunkApi.rejectWithValue(
+      //   error.response?.data || "Error creating order"
+      // );
     }
   }
 );
@@ -37,6 +57,11 @@ export const updateSalesQuotation = createAsyncThunk(
       return response.data;
     } catch (error) {
       console.error("❌ API error:", error.response?.data || error.message);
+       console.log("error.response",error)
+      // return thunkApi.rejectWithValue({
+      //   status: error.response?.status,
+      //   message: error.response?.data?.message || "Login failed",
+      // });
       return thunkApi.rejectWithValue(
         error.response?.data || "Error updating order"
       );
@@ -56,7 +81,12 @@ export const fetchSalesQuotationById = createAsyncThunk(
       const response = await api.get(`${API_QUOTATION}/${id}`, { withCredentials: true });
       return response.data;
     } catch (error) {
-      return thunkAPI.rejectWithValue(error.response?.data || 'Error fetching Sales quotations');
+      // return thunkAPI.rejectWithValue(error.response?.data || 'Error fetching Sales quotations');
+       console.log("error.response",error)
+      return thunkApi.rejectWithValue({
+        status: error.response?.status,
+        message: error.response?.data?.message || "Login failed",
+      });
     }
   }
 );

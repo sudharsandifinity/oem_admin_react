@@ -192,13 +192,13 @@ const CloneSalesOrder = () => {
           setFormData({
             CardCode: orderListById.CardCode,
             CardName: orderListById.CardName,
-            CustomerRefNo: orderListById.NumAtCard ||  "",
+            CustomerRefNo: orderListById.CustomerRefNo ||  "",
 
             DocDueDate: orderListById.DocDueDate
               ? new Date(orderListById.DocDueDate).toISOString().split("T")[0]
               : new Date().toISOString().split("T")[0],
-            PostingDate: orderListById.DocDate
-              ? new Date(orderListById.DocDate).toISOString().split("T")[0]
+            PostingDate: orderListById.PostingDate
+              ? new Date(orderListById.PostingDate).toISOString().split("T")[0]
               : new Date().toISOString().split("T")[0],
             TaxDate: orderListById.TaxDate
               ? new Date(orderListById.TaxDate).toISOString().split("T")[0]
@@ -429,19 +429,22 @@ const CloneSalesOrder = () => {
           }));
           // set general header edit data
           console.log("copydata", orderListById.DiscountPercent);
+           setFreightRowSelection(
+            orderListById.freightRowSelection || [],
+          );
           setSummaryDiscountPercent(orderListById.DiscountPercent);
           setRoundingEnabled(orderListById.Rounding === "tYES");
           setRoundOff(orderListById.RoundingDiffAmount);
           setgeneraleditdata({
             CardCode: orderListById.CardCode,
             CardName: orderListById.CardName,
-            CustomerRefNo: orderListById.NumAtCard ||  "",
+            CustomerRefNo: orderListById.CustomerRefNo ||  "",
 
             TaxDate: orderListById.TaxDate
               ? new Date(orderListById.TaxDate).toISOString().split("T")[0]
               : "",
-            PostingDate: orderListById.DocDate
-              ? new Date(orderListById.DocDate).toISOString().split("T")[0]
+            PostingDate: orderListById.PostingDate
+              ? new Date(orderListById.PostingDate).toISOString().split("T")[0]
               : "",
             DeliveryDate: orderListById.DocDueDate
               ? new Date(orderListById.DocDueDate).toISOString().split("T")[0]
@@ -497,6 +500,7 @@ const CloneSalesOrder = () => {
     setForm({ ...form, [key]: newRows });
   };
   const handleSubmit = async (form) => {
+    try {
     console.log("Form submitted:", formData, itemTabledata, itemdata);
     let filteredData = [];
     if (itemdata.length === 1 && itemdata[0].ItemCode === "") {
@@ -518,9 +522,7 @@ const CloneSalesOrder = () => {
     //   )
     // );
 
-    let payload = {};
-    try {
-      setLoading(true);
+     let payload = {};
       const isPurchaseQuotation =
         formDetails[0]?.name === "Purchase Order" ||
         formDetails[0]?.name === "Purchase Quotation" ||
@@ -528,7 +530,7 @@ const CloneSalesOrder = () => {
       if (type === "Item") {
         payload = {
           CardCode: formData.CardCode || selectedcardcode,
- DocDate: formData.PostingDate
+          DocDate: formData.PostingDate
             ? new Date(formData.PostingDate)
                 .toISOString()
                 .split("T")[0]
@@ -540,13 +542,13 @@ const CloneSalesOrder = () => {
                 .split("T")[0]
                 .replace(/-/g, "")
             : new Date().toISOString().split("T")[0].replace(/-/g, ""),
-            TaxDate: formData.TaxDate
+          TaxDate: formData.TaxDate
             ? new Date(formData.TaxDate)
                 .toISOString()
                 .split("T")[0]
                 .replace(/-/g, "")
             : new Date().toISOString().split("T")[0].replace(/-/g, ""),
-           
+         
           ...(isPurchaseQuotation && {
             RequriedDate: formData.ReqDate
               ? new Date(formData.ReqDate)
@@ -555,9 +557,11 @@ const CloneSalesOrder = () => {
                   .replace(/-/g, "")
               : new Date().toISOString().split("T")[0].replace(/-/g, ""),
           }),
-          NumAtCard: formData.CustomerRefNo || "",
+
+          //DocEntry: formData.DocEntry,
           DocumentStatus: "open",
           ContactPerson: formData.ContactPerson || "",
+          NumAtCard: formData.CustomerRefNo || "",
           DocType: "dDocument_Items",
           DocumentLines: Object.values(itemTabledata).map((line, index) => {
             const existingLine = formData.formData?.DocumentLines?.[index];
@@ -574,19 +578,19 @@ const CloneSalesOrder = () => {
                     : copyFrom?.includes("Sales Order")
                       ? "17"
                       : copyFrom?.includes("Sales Quotation")
-                        ? "23"
+                        ? 23
                         : "0",
-                        ItemCode: line.ItemCode,
-              ItemDescription: line.ItemName,
-              Quantity: line.quantity,
-              UnitPrice: line.amount,
-              WarehouseCode: line.WarehouseCode,
-              ProjectCode: line.ProjectCode,
-              TaxCode: line.TaxCode,
-              VatGroup: line.TaxCode,
-              DiscountPercent: line.discount,
-              LineTotal: line.total,
-               CostingCode: line["1_ProfitCenterCode"] || null,
+                       ItemCode: line.ItemCode,
+            ItemDescription: line.ItemName,
+            Quantity: Number(line.quantity),
+            UnitPrice: Number(line.amount),
+            WarehouseCode: line.WarehouseCode,
+            ProjectCode: line.ProjectCode,
+            TaxCode: line.TaxCode,
+            VatGroup: line.TaxCode,
+            DiscountPercent: Number(line.discount),
+            LineTotal: Number(line.total),
+            CostingCode: line["1_ProfitCenterCode"] || null,
             CostingCode2: line["2_ProfitCenterCode"] || null,
             CostingCode3: line["3_ProfitCenterCode"] || null,
             CostingCode4: line["4_ProfitCenterCode"] || null,
@@ -594,14 +598,12 @@ const CloneSalesOrder = () => {
             };
           }),
           data: userdefinedData || {},
-          DocTotal: summaryData.DocTotal || 0,
           Rounding: summaryData.Rounding || "tNO",
           RoundingDiffAmount: summaryData.RoundingDiffAmount || 0,
           DiscountPercent: summaryData.DiscountPercent || 0,
           TotalDiscount: summaryData.TotalDiscount || 0,
           Comments: summaryData.Remark || "",
           VatSum: summaryData.VatSum || 0,
-          //freight: totalFreightAmount,
           DocumentAdditionalExpenses: Object.values(freightRowSelection).map(
             (freight) => ({
               ExpenseCode: Number(freight.ExpensCode),
@@ -617,6 +619,7 @@ const CloneSalesOrder = () => {
       } else {
         payload = {
           CardCode: formData.CardCode || selectedcardcode,
+          DocType: "dDocument_Service",
           DocDate: formData.PostingDate
             ? new Date(formData.PostingDate)
                 .toISOString()
@@ -629,13 +632,13 @@ const CloneSalesOrder = () => {
                 .split("T")[0]
                 .replace(/-/g, "")
             : new Date().toISOString().split("T")[0].replace(/-/g, ""),
-            TaxDate: formData.TaxDate
+          TaxDate: formData.TaxDate
             ? new Date(formData.TaxDate)
                 .toISOString()
                 .split("T")[0]
                 .replace(/-/g, "")
             : new Date().toISOString().split("T")[0].replace(/-/g, ""),
-          
+         
           ...(isPurchaseQuotation && {
             RequriedDate: formData.ReqDate
               ? new Date(formData.ReqDate)
@@ -644,9 +647,10 @@ const CloneSalesOrder = () => {
                   .replace(/-/g, "")
               : new Date().toISOString().split("T")[0].replace(/-/g, ""),
           }),
-           DocumentStatus: "open",
-           NumAtCard: formData.CustomerRefNo || "",
+          //DocEntry: formData.DocEntry,
+          DocumentStatus: "open",
           ContactPerson: formData.ContactPerson || "",
+          NumAtCard: formData.CustomerRefNo || "",
           DocumentLines: Object.values(itemTabledata).map((line, index) => {
             const existingLine = formData.formData?.DocumentLines?.[index];
 
@@ -654,7 +658,7 @@ const CloneSalesOrder = () => {
               BaseLine: existingLine?.LineNum, // ✅ REQUIRED
               BaseEntry: existingLine.DocEntry || "",
               BaseType: formDetails[0]?.name.includes("Purchase") ? "22" : "17",
-              AccountCode: line.ServiceCode,
+             AccountCode: line.ServiceCode,
             ItemDescription: line.ServiceName,
             UnitPrice: Number(line.amount),
             WarehouseCode: line.WarehouseCode,
@@ -672,27 +676,26 @@ const CloneSalesOrder = () => {
           }),
 
           data: userdefinedData || {},
-          DocTotal: summaryData.DocTotal || 0,
           Rounding: summaryData.Rounding || "tNO",
           RoundingDiffAmount: summaryData.RoundingDiffAmount || 0,
           DiscountPercent: summaryData.DiscountPercent || 0,
           TotalDiscount: summaryData.TotalDiscount || 0,
           Comments: summaryData.Remark || "",
           VatSum: summaryData.VatSum || 0,
-          //freight: totalFreightAmount,
           DocumentAdditionalExpenses: Object.values(freightRowSelection).map(
             (freight) => ({
               ExpenseCode: Number(freight.ExpensCode),
-              LineTotal: Number(freight.LineTotal),
-              Remarks: freight.Remarks,
+              LineTotal: Number(freight.grossTotal),
+              Remarks: freight.quantity,
               TaxCode: freight.TaxCode,
               TaxPercent: Number(freight.TaxPercent),
               TaxSum: Number(freight.TotalTaxAmount),
-              LineGross: Number(freight.LineGross),
+              LineGross: Number(freight.amount),
             }),
           ),
         };
       }
+
       const formDataToSend = new FormData();
       attachmentsList.forEach((f) => {
         if (f.rawFile) {
@@ -726,18 +729,18 @@ const CloneSalesOrder = () => {
         formDetails[0]?.name,
       );
        let res = "";
-      // if (formDetails[0]?.name === "Sales Order") {
-      //   res = await dispatch(createCustomerOrder(formDataToSend)).unwrap();
-      // } else if (formDetails[0]?.name === "Sales Quotation") {
-      //   res = await dispatch(createSalesQuotation(formDataToSend)).unwrap();
-      // } else if (formDetails[0]?.name === "Purchase Order") {
-      //   //dispatch(createPurchaseOrder(formDataToSend)).unwrap();
-      //   res = await dispatch(createPurchaseOrder(formDataToSend)).unwrap();
-      // } else if (formDetails[0]?.name === "Purchase Quotation") {
-      //   res = await dispatch(createPurchaseQuotation(formDataToSend)).unwrap();
-      // } else if (formDetails[0]?.name === "Purchase Request") {
-      //   res = await dispatch(createPurchaseRequest(formDataToSend)).unwrap();
-      // }
+      if (formDetails[0]?.name === "Sales Order") {
+        res = await dispatch(createCustomerOrder(formDataToSend)).unwrap();
+      } else if (formDetails[0]?.name === "Sales Quotation") {
+        res = await dispatch(createSalesQuotation(formDataToSend)).unwrap();
+      } else if (formDetails[0]?.name === "Purchase Order") {
+        //dispatch(createPurchaseOrder(formDataToSend)).unwrap();
+        res = await dispatch(createPurchaseOrder(formDataToSend)).unwrap();
+      } else if (formDetails[0]?.name === "Purchase Quotation") {
+        res = await dispatch(createPurchaseQuotation(formDataToSend)).unwrap();
+      } else if (formDetails[0]?.name === "Purchase Request") {
+        res = await dispatch(createPurchaseRequest(formDataToSend)).unwrap();
+      }
 
       if (res.message === "Please Login!") {
         navigate("/login");
