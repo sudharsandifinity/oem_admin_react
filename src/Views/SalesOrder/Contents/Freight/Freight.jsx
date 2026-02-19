@@ -27,9 +27,7 @@ const Freight = (props) => {
   } = props;
   const [originalfreightData, setOriginalFreightData] = useState([]);
   useEffect(() => {
-    console.log("itemdatauseefect1", originalfreightData);
     if (freightdialogOpen) {
-      console.log("itemdatauseefect", freightData);
       setOriginalFreightData(freightData); // backup (for reset/clear filter)
     }
   }, [freightdialogOpen]);

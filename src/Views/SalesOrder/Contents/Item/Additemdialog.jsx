@@ -78,7 +78,26 @@ const Additemdialog = (props) => {
   //     [e.detail.row.original.slno]: e.detail.row.original,
   //   }));
   // };
+//   const onitemchildRowSelect = (e) => {
+//   const row = e.detail.row.original;
+//   const rowId = row.ItemCode; // stable unique id
+//   const isSelected = e.detail.isSelected;
+
+//   setRowSelection((prev) => {
+//     const updated = { ...prev };
+
+//     if (isSelected) {
+//       updated[rowId] = row;
+//     } else {
+//       delete updated[rowId];
+//     }
+
+//     return updated;
+//   });
+// };
+
   const onitemchildRowSelect = (e) => {
+    console.log("e.detail.row.original",e.detail.row.original)
     const rowId = e.detail.row.original.slno;
     const isSelected = e.detail.isSelected;
     setRowSelection((prev) => {
@@ -97,9 +116,7 @@ const Additemdialog = (props) => {
   };
 
   useEffect(() => {
-    console.log("itemdatauseefect1", originalItemData);
     if (addItemdialogOpen) {
-      console.log("itemdatauseefect", itemdata);
       setOriginalItemData(itemdata); // backup (for reset/clear filter)
     }
   }, [addItemdialogOpen]);
@@ -242,7 +259,6 @@ const Additemdialog = (props) => {
     // ItemPopupFilterList.forEach((field) => {
     //   clearedFilters[field.name] = ""; // reset each input field
     // });
-    console.log("originalItemData", originalItemData);
     setInputValue([]);
     setitemData(originalItemData);
   };
@@ -327,11 +343,7 @@ const Additemdialog = (props) => {
         <div className="tab">
           <FlexBox direction="Column">
             <div>
-              {console.log(
-                "itemTabledataadditemdialog",
-                itemTabledata,
-                itemdata
-              )}
+             
               {/* <AnalyticalTable
                 columns={itemcolumns.length > 0 ? itemcolumns : []}
                 data={itemdata}
@@ -340,7 +352,6 @@ const Additemdialog = (props) => {
                 onRowSelect={onitemchildRowSelect}
  
               /> */}
-              {console.log("itemdatadialog", itemdata, rowSelection)}
               {/* <AnalyticalTable
                 columns={itemcolumns}
                 data={itemdata}

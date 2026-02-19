@@ -112,7 +112,6 @@ const Contents = (props) => {
     quantity: "-",
     amount: "-",
   });
-  console.log("orderitem", orderItems);
 
   const [addItemdialogOpen, setAddItemDialogOpen] = useState(false);
   const [addServiceDialogOpen, setAddServicedialogOpen] = useState(false);
@@ -145,7 +144,6 @@ const [currency, setCurrency] = useState("All Currency");
   const [layout, setLayout] = useState("OneColumn");
 
   useEffect(() => {
-    console.log("formDetailstaxcode", formDetails);
     const fetchData = async () => {
       try {
         const res = await dispatch(fetchOrderItems()).unwrap();
@@ -164,25 +162,20 @@ const [currency, setCurrency] = useState("All Currency");
         }
         const warehouseData = await dispatch(fetchWarehousesDetails()).unwrap();
         setWarehouseData(warehouseData.value);
-        console.log("warehousedata", warehouseData.value);
 
         const projectData = await dispatch(fetchProjectsDetails()).unwrap();
         setProjectData(projectData.value);
-        console.log("projectData", projectData.value);
 
         const profitCenterData = await dispatch(
           fetchProfitCenterDetails()
         ).unwrap();
         setProfitCenterData(profitCenterData.value);
-        console.log("profitCenterData", profitCenterData.value);
 
         const dimensionData = await dispatch(fetchDimensionDetails()).unwrap();
         setDimensionData(dimensionData.value);
-        console.log("dimensionDataVal", dimensionData.value);
 
         const freightData = await dispatch(fetchfreightDetails()).unwrap();
         setFreightData(freightData.value);
-        console.log("resusersfetchitems", res, taxCode, freightData);
         if (res.value?.length > 0) {
           const tableconfig = res.value.map((item, index) => ({
             slno: index,
@@ -196,7 +189,6 @@ const [currency, setCurrency] = useState("All Currency");
         }
 
         const serviceorder = await dispatch(fetchOrderServices()).unwrap();
-        console.log("serviceorder", serviceorder);
         if (res.value?.length > 0) {
           const tableconfig = serviceorder.value.map((item, index) => ({
             slno: index,
@@ -216,7 +208,6 @@ const [currency, setCurrency] = useState("All Currency");
     fetchData();
   }, [dispatch, formDetails]);
   const onRowSelect = (e) => {
-    console.log("onRowSelect", e.detail.row.original);
     //selectionChangeHandler(e.detail.row.original);
     setRowSelection((prev) => ({
       ...prev,
@@ -288,7 +279,6 @@ const [currency, setCurrency] = useState("All Currency");
       ),
     })),
   ];
-  console.log("dimensionData", dimensionData, dynamcicItemCols);
   const dimensionCols = useMemo(() => {
     if (!dimensionData?.length) return [];
 
@@ -318,12 +308,7 @@ const [currency, setCurrency] = useState("All Currency");
               fontSize: "14px",
             }}
             onClick={() => {
-              console.log(
-                "dimensionCols",
-                row,
-                dim.DimensionCode,
-                selectedDimensionColumnCode
-              );
+              
               setSelectedProfitCenterRowIndex(row.index);
               setSelectedDimensionColumnCode((prev) => [
                 ...prev,
@@ -427,7 +412,6 @@ const [currency, setCurrency] = useState("All Currency");
   
   ];
   const clearItemCellValue = (rowIndex, field) => {
-    console.log("clearcellvalue", rowIndex, field);
     setitemTableData((prev) =>
       prev.map((row, idx) =>
         idx === rowIndex ? { ...row, [field]: null } : row
@@ -438,7 +422,6 @@ const [currency, setCurrency] = useState("All Currency");
     );
   };
    const clearServiceCellValue = (rowIndex, field) => {
-    console.log("clearcellvalue", rowIndex, field);
     setserviceTableData((prev) =>
       prev.map((row, idx) =>
         idx === rowIndex ? { ...row, [field]: null } : row
@@ -578,10 +561,8 @@ const [currency, setCurrency] = useState("All Currency");
   const [selectedServices, setSelectedServices] = useState({});
   const saveService = (item) => {
     setSelectedServices(rowSelection);
-    console.log("itemForm", itemForm, item);
     setserviceTableData((prev) => {
       let updated = [...prev];
-      console.log("updated", updated);
       // Remove the last row if it's an empty placeholder
       if (updated[updated.length - 1]?.ServiceCode === "") {
         updated.pop();
@@ -628,14 +609,11 @@ const [currency, setCurrency] = useState("All Currency");
 
   // };
 const getItemPrice = async (cardCode, itemCode) => {
-  console.log("getItempriceval",cardCode,itemCode)
   try {
     const response = await dispatch(
       fetchitemprices({ cardCode: cardCode, itemCode: itemCode })
     ).unwrap();
 
-    console.log("getitemprice",response.value, response.value[0].Price
-);
 
     // SAP returns array in response.value
     if (response?.value?.length > 0) {
@@ -655,7 +633,7 @@ const saveItem = async (item) => {
   for (const newItem of newItems) {
     const itemresponse = await getItemPrice(selectedcardcode, newItem.ItemCode);
     const price = itemresponse ? itemresponse.Price : 0;
-    const PriceListNum = itemresponse ? itemresponse.PriceListNum : 1; // You can replace this with any logic to determine the default quantity
+    const discount = itemresponse ? itemresponse.DiscountPercent : ""; // You can replace this with any logic to determine the default quantity
 
     setitemTableData((prev) => {
       let updated = [...prev];
@@ -676,6 +654,7 @@ const saveItem = async (item) => {
         ...newItem,
         slno: nextSlno,
         amount: price,   // 🔥 Auto fill price
+        discount:discount,
         //quantity:PriceListNum, // 🔥 Default quantity to 1 or any logic you want
       });
 
@@ -842,7 +821,6 @@ const saveItem = async (item) => {
                           rowHeight={44}
                           headerRowHeight={48}
                         /> */}
-                    {console.log("itemTabledata", itemTabledata, itemdata)}
                     {type === "Item" ? (
                       <Itemtable
                         addItemdialogOpen={addItemdialogOpen}

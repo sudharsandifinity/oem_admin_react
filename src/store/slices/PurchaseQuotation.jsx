@@ -20,9 +20,10 @@ export const createPurchaseQuotation = createAsyncThunk(
       return response.data;
     } catch (err) {
          console.error("❌ API error:", err.response?.data || err.message);
-      return thunkApi.rejectWithValue(
-        err.response?.data || "Error creating quotation"
-      );
+       return thunkApi.rejectWithValue({
+        status: err.response?.status,
+        message: err.response?.data?.message || "Login failed",
+      });
     }
   }
  
@@ -40,9 +41,10 @@ export const updatePurchaseQuotation = createAsyncThunk(
       return response.data;
     } catch (error) {
       console.error("❌ API error:", error.response?.data || error.message);
-      return thunkApi.rejectWithValue(
-        error.response?.data || "Error updating order"
-      );
+       return thunkApi.rejectWithValue({
+        status: error.response?.status,
+        message: error.response?.data?.message || "Login failed",
+      });
     }
   }
   
@@ -60,7 +62,10 @@ export const fetchPurchaseQuotationById = createAsyncThunk(
       const response = await api.get(`${API_QUOTATION}/${id}`, { withCredentials: true });
       return response.data;
     } catch (error) {
-      return thunkAPI.rejectWithValue(error.response?.data || 'Error fetching Purchase quotations');
+      return thunkAPI.rejectWithValue({
+        status: error.response?.status,
+        message: error.response?.data?.message || "Login failed",
+      }); 
     }
   }
 );

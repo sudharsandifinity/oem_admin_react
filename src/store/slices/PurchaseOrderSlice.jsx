@@ -15,9 +15,10 @@ export const fetchPurBusinessPartner = createAsyncThunk(
       });
       return response.data.value; // usually wrapped in { value: [...] }
     } catch (error) {
-      return thunkApi.rejectWithValue(
-        error.response?.data || "Error fetching business partners",
-      );
+       return thunkApi.rejectWithValue({
+        status: error.response?.status,
+        message: error.response?.data?.message || "Login failed",
+      });
     }
   },
 );
@@ -30,9 +31,10 @@ export const fetchPurchaseOrder = createAsyncThunk(
       const response = await api.get(API_URL, { withCredentials: true });
       return response.data.value;
     } catch (error) {
-      return thunkApi.rejectWithValue(
-        error.response?.data || "Error fetching orders",
-      );
+      return thunkApi.rejectWithValue({
+        status: error.response?.status,
+        message: error.response?.data?.message || "Error fetching orders",
+      });
     }
   },
 );
@@ -47,9 +49,10 @@ export const fetchPurchaseOrderById = createAsyncThunk(
       });
       return response.data;
     } catch (error) {
-      return thunkApi.rejectWithValue(
-        error.response?.data || "Error fetching order by ID",
-      );
+      return thunkApi.rejectWithValue({
+        status: error.response?.status,
+        message: error.response?.data?.message || "Error fetching order by ID",
+      });
     }
   },
 );
@@ -69,9 +72,10 @@ export const createPurchaseOrder = createAsyncThunk(
       return response.data;
     } catch (error) {
       console.error("❌ API error:", error.response?.data || error.message);
-      return thunkApi.rejectWithValue(
-        error.response?.data || "Error creating order",
-      );
+      return thunkApi.rejectWithValue({
+        status: error.response?.status,
+        message: error.response?.data?.message || "Error creating order",
+      });
     }
   },
 );
@@ -90,9 +94,10 @@ export const updatePurchaseOrder = createAsyncThunk(
       return response.data;
     } catch (error) {
       console.error("❌ API error:", error.response?.data || error.message);
-      return thunkApi.rejectWithValue(
-        error.response?.data || "Error updating order",
-      );
+       return thunkApi.rejectWithValue({
+        status: error.response?.status,
+        message: error.response?.data?.message || "Login failed",
+      });
     }
   },
 );
@@ -105,9 +110,10 @@ export const deletePurchaseOrder = createAsyncThunk(
       await api.delete(`${API_URL}(${id})`, { withCredentials: true });
       return id;
     } catch (error) {
-      return thunkApi.rejectWithValue(
-        error.response?.data || "Error deleting order",
-      );
+       return thunkApi.rejectWithValue({
+        status: error.response?.status,
+        message: error.response?.data?.message || "Login failed",
+      });
     }
   },
 );

@@ -12,9 +12,7 @@ const WarehouseDialog = (props) => {
   
       const [originalWarehouseData, setOriginalWarehouseData] = useState([]);
       useEffect(() => {
-        console.log("warehousedatauseefect1", originalWarehouseData);
         if (isWarehouseDialogOpen) {
-          console.log("itemdatauseefect", warehouseData);
           setOriginalWarehouseData(warehouseData); // backup (for reset/clear filter)
         }
       }, [isWarehouseDialogOpen]);

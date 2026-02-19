@@ -50,9 +50,10 @@ export const fetchCustomerOrderById = createAsyncThunk(
       });
       return response.data;
     } catch (error) {
-      return thunkApi.rejectWithValue(
-        error.response?.data || "Error fetching order by ID"
-      );
+      return thunkApi.rejectWithValue({
+        status: error.response?.status,
+        message: error.response?.data?.message || "Login failed",
+      });
     }
   }
 );
@@ -72,9 +73,10 @@ export const createCustomerOrder = createAsyncThunk(
       return response.data;
     } catch (error) {
       console.error("❌ API error:", error.response?.data || error.message);
-      return thunkApi.rejectWithValue(
-        error.response?.data || "Error creating order"
-      );
+       return thunkApi.rejectWithValue({
+        status: error.response?.status,
+        message: error.response?.data?.message || "Login failed",
+      });
     }
   }
 );
@@ -92,9 +94,10 @@ export const updateCustomerOrder = createAsyncThunk(
       return response.data;
     } catch (error) {
       console.error("❌ API error:", error.response?.data || error.message);
-      return thunkApi.rejectWithValue(
-        error.response?.data || "Error updating order"
-      );
+       return thunkApi.rejectWithValue({
+        status: error.response?.status,
+        message: error.response?.data?.message || "Login failed",
+      });
     }
   }
 );
@@ -107,9 +110,10 @@ export const deleteCustomerOrder = createAsyncThunk(
       await api.delete(`${API_URL}(${id})`, { withCredentials: true });
       return id;
     } catch (error) {
-      return thunkApi.rejectWithValue(
-        error.response?.data || "Error deleting order"
-      );
+       return thunkApi.rejectWithValue({
+        status: error.response?.status,
+        message: error.response?.data?.message || "Login failed",
+      });
     }
   }
 );
