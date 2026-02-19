@@ -150,7 +150,6 @@ const Itemtable = (props) => {
     setdynamicItemColumnslist((prev) =>
       prev.filter((col) => !selectedAccessors.includes(col.accessor))
     );
-    console.log("Selected Accessors:", selectedAccessors);
   };
   const onRowSelect = (e) => {
     setDisable(false);
@@ -159,7 +158,6 @@ const Itemtable = (props) => {
     setSelectedRowIndex(index);
     setSelectedRowIds(e.detail.selectedRowIds);
     const selectedIdsArray = Object.keys(e.detail.selectedRowIds);
-    console.log("onRowSelect", itemTabledata, e.detail, selectedIdsArray);
 
     setRowSelection((prev) => {
       const updated = { ...prev }; // keep old selections
@@ -172,7 +170,6 @@ const Itemtable = (props) => {
           updated[id] = rowData;
         }
       });
-      console.log("updated", updated);
       return updated;
     });
   };
@@ -181,11 +178,9 @@ const Itemtable = (props) => {
     const rowId = e.detail.row.id;
     const isSelected = e.detail.isSelected;
     const row = e.detail.row.original;
-    console.log("onselectFreightRowselected", row);
 
     setFreightRowSelection((prev) => {
       const updated = { ...prev };
-      console.log("onitemrowselect", rowId, e.detail, updated);
       if (isSelected) {
         // ✅ add selected row
         updated[rowId] = e.detail.row.original;
@@ -193,7 +188,6 @@ const Itemtable = (props) => {
         // ❌ remove deselected row
         delete updated[rowId];
       }
-console.log("updatedafterdelete",updated)
       return updated;
     });
   };
@@ -241,7 +235,6 @@ console.log("updatedafterdelete",updated)
   const duplicateRow = () => {
     if (!selectedRow?.original) return;
 
-    console.log("duplicateRow", selectedRow.original);
 
     setitemTableData((prev) => {
       const updated = [...prev];
@@ -328,7 +321,6 @@ console.log("updatedafterdelete",updated)
   };
 
   const calculateRowTotals = (row) => {
-    console.log("calculateRowTotalsrowitem",row)
     const quantity = parseFloat(row.quantity) || 1;
     const unitPrice = parseFloat(row.unitPrice || row.amount) || 0;
     const discount = parseFloat(row.discount) || 0;
@@ -432,10 +424,7 @@ console.log("updatedafterdelete",updated)
     setDialogOpen(false);
   };
   const totalFreightFromPopup = useMemo(() => {
-    console.log(
-      " Object.values(freightRowSelection",
-      Object.values(freightRowSelection)
-    );
+   
 
     const rows = Object.values(freightRowSelection || {});
 
@@ -464,29 +453,51 @@ console.log("updatedafterdelete",updated)
     };
   }, [itemTabledata]);
 
-  useMemo(() => {
-    const total = parseFloat(summaryCalculation.totalBeforeDiscount) || 0;
-    const discountAmount = (total * summaryDiscountPercent) / 100;
-    setSummaryDiscountAmount(discountAmount.toFixed(2));
-  }, [summaryDiscountPercent, summaryCalculation.totalBeforeDiscount]);
+  useEffect(() => {
+  const total = parseFloat(summaryCalculation.totalBeforeDiscount) || 0;
+  const discountAmount = (total * summaryDiscountPercent) / 100;
+  setSummaryDiscountAmount(discountAmount.toFixed(2));
+}, [summaryDiscountPercent, summaryCalculation.totalBeforeDiscount]);
+  // useMemo(() => {
+  //   const total = parseFloat(summaryCalculation.totalBeforeDiscount) || 0;
+  //   const discountAmount = (total * summaryDiscountPercent) / 100;
+  //   setSummaryDiscountAmount(discountAmount.toFixed(2));
+  // }, [summaryDiscountPercent, summaryCalculation.totalBeforeDiscount]);
 
-  useMemo(() => {
-    const bdTotal = parseFloat(summaryCalculation.totalBeforeDiscount) || 0;
-    const discount = parseFloat(summaryDiscountAmount) || 0;
-    const totalTax = parseFloat(summaryCalculation.totalTaxAmount) || 0;
-    const r = roundingEnabled ? parseFloat(roundOff) || 0 : 0;
-    const freightamount = parseFloat(totalFreightAmount) || 0;
+  useEffect(() => {
+  const bdTotal = parseFloat(summaryCalculation.totalBeforeDiscount) || 0;
+  const discount = parseFloat(summaryDiscountAmount) || 0;
+  const totalTax = parseFloat(summaryCalculation.totalTaxAmount) || 0;
+  const r = roundingEnabled ? parseFloat(roundOff) || 0 : 0;
+  const freightamount = parseFloat(totalFreightAmount) || 0;
 
-    const result = bdTotal - discount + totalTax + r + freightamount;
-    setFinalTotal(result.toFixed(2));
-  }, [
-    summaryCalculation.totalBeforeDiscount,
-    summaryCalculation.totalTaxAmount,
-    summaryDiscountAmount,
-    roundOff,
-    roundingEnabled,
-    totalFreightAmount,
-  ]);
+  const result = bdTotal - discount + totalTax + r + freightamount;
+  setFinalTotal(result.toFixed(2));
+}, [
+  summaryCalculation.totalBeforeDiscount,
+  summaryCalculation.totalTaxAmount,
+  summaryDiscountAmount,
+  roundOff,
+  roundingEnabled,
+  totalFreightAmount,
+]);
+  // useMemo(() => {
+  //   const bdTotal = parseFloat(summaryCalculation.totalBeforeDiscount) || 0;
+  //   const discount = parseFloat(summaryDiscountAmount) || 0;
+  //   const totalTax = parseFloat(summaryCalculation.totalTaxAmount) || 0;
+  //   const r = roundingEnabled ? parseFloat(roundOff) || 0 : 0;
+  //   const freightamount = parseFloat(totalFreightAmount) || 0;
+
+  //   const result = bdTotal - discount + totalTax + r + freightamount;
+  //   setFinalTotal(result.toFixed(2));
+  // }, [
+  //   summaryCalculation.totalBeforeDiscount,
+  //   summaryCalculation.totalTaxAmount,
+  //   summaryDiscountAmount,
+  //   roundOff,
+  //   roundingEnabled,
+  //   totalFreightAmount,
+  // ]);
 
   useEffect(() => {
     setSummaryData((prev) => ({
@@ -498,7 +509,7 @@ console.log("updatedafterdelete",updated)
   }, [summaryCalculation.totalTaxAmount, finalTotal]);
 
   const totaltax = useMemo(() => {
-    console.log("itemTaxCode", itemTabledata);
+   
     return itemTabledata.reduce((sum, item) => {
       const amt = parseFloat(item.TaxCode) || 0;
       return sum + amt;
@@ -506,7 +517,6 @@ console.log("updatedafterdelete",updated)
   }, [itemTabledata]);
 
   const taxSelectionRow = (e) => {
-    console.log("taxSelectionRow", itemTabledata, e);
     // setitemTableData((prev) =>
     //       prev.map((r, idx) =>
     //         idx === selectedTaxRowIndex
@@ -544,7 +554,6 @@ console.log("updatedafterdelete",updated)
     }, 500);
   };
   const projectSelectionRow = (e) => {
-    console.log("projectSelectionRow", itemTabledata, e);
     setitemTableData((prev) =>
       prev.map((r, idx) =>
         idx === selectedProjectRowIndex
@@ -567,7 +576,6 @@ console.log("updatedafterdelete",updated)
     }, 500);
   };
   const warehouseSelectionRow = (e) => {
-    console.log("warehouseSelectionRow", itemTabledata, e);
     setitemTableData((prev) =>
       prev.map((r, idx) =>
         idx === selectedWarehouseRowIndex
@@ -1064,13 +1072,7 @@ console.log("updatedafterdelete",updated)
     const visibleColumns = allColumns.filter(
       (col) => visibleAccessors.includes(col.accessor) || col.id === "actions" // always include actions
     );
-    console.log(
-      "visibleColumns",
-      visibleColumns,
-      allColumns,
-      visibleAccessors,
-      dynamicItemColumnslist
-    );
+ 
     return visibleColumns;
   }, [mode, dynamicItemColumnslist, dimensionCols]);
 
@@ -1143,7 +1145,6 @@ console.log("updatedafterdelete",updated)
           icon="sap-icon://settings"
         ></Button> */}
       </FlexBox>
-      {console.log("itemtableupdatedvaal", itemTabledata)}
       <AnalyticalTable
         style={{ borderTop: "1px solid #d6dbe0" }}
         data={itemTabledata}
@@ -1185,7 +1186,6 @@ console.log("updatedafterdelete",updated)
           marginTop: "3rem",
         }}
       >
-        {console.log("summaryDataremark", summaryData)}
         <FlexBox direction="Column" style={{ width: "50%" }}>
           <Text>Remark</Text>
           <TextArea
@@ -1194,7 +1194,7 @@ console.log("updatedafterdelete",updated)
             value={
               summaryData?.Remark !== "undefined" ? summaryData?.Remark : ""
             }
-            onInput={(e) => {
+            onBlur={(e) => {
               setSummaryData((prev) => ({
                 ...prev,
                 Remark: e.target.value,
@@ -1235,7 +1235,7 @@ console.log("updatedafterdelete",updated)
                   type="Number"
                   style={{ textAlign: "right" }}
                   value={summaryDiscountPercent}
-                  onInput={(e) => {
+                  onBlur={(e) => {
                     const value = parseFloat(e.target.value);
                     setSummaryDiscountPercent(value);
                     setSummaryData((prev) => ({
@@ -1274,8 +1274,9 @@ console.log("updatedafterdelete",updated)
               />
             </Button>
             <FlexBox style={{ width: "100%" }} justifyContent="End">
-              {console.log("itemFreightAmount", totalFreightFromPopup)}
-              {setTotalFreightAmount(totalFreightFromPopup)}{" "}
+              {useEffect(() => {
+  setTotalFreightAmount(totalFreightFromPopup);
+}, [totalFreightFromPopup])}{" "}
               <Text>
                 {" "}
                 {totalFreightAmount.toLocaleString(undefined, {
@@ -1320,7 +1321,7 @@ console.log("updatedafterdelete",updated)
                   type="number"
                   value={roundOff}
                   style={{ textAlign: "right" }}
-                  onInput={(e) => {
+                  onBlur={(e) => {
                     setRoundOff(parseFloat(e.target.value) || 0);
                     setSummaryData((prev) => ({
                       ...prev,

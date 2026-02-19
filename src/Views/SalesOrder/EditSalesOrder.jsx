@@ -769,7 +769,20 @@ TaxDate: formData.TaxDate
       }
       setOpen(true);
     } catch (err) {
-      setApiError(err?.message || "Failed to update");
+      console.log("Err object:", err);
+
+        // Safely read status
+        const statusCode = err?.status || err?.response?.status || 0;
+        const message = err?.message || "Failed to load data";
+
+        console.error("c    :", statusCode, "Message:", message);
+        setApiError(message);
+
+        // If 401, redirect to login 
+        if (statusCode === 401) {
+          navigate("/login");
+        }
+        setApiError(err.message || "Failed to load data");
     } finally {
       setTimeout(() => {
         setLoading(false);

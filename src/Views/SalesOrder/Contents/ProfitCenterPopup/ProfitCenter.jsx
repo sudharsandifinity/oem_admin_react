@@ -13,9 +13,7 @@ const ProfitCenterDialog = (props) => {
   
       const [originalProfitCenterData, setOriginalProfitCenterData] = useState([]);
       useEffect(() => {
-        console.log("profitCenterdatauseefect1", originalProfitCenterData);
         if (isProfitCenterDialogOpen) {
-          console.log("itemdatauseefect", profitCenterData);
           setOriginalProfitCenterData(profitCenterData); // backup (for reset/clear filter)
         }
       }, [isProfitCenterDialogOpen]);

@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api from "../../api/axios";
+import { set } from "react-hook-form";
 
 const API_URL = "/auth/login";
 const ChangePasswordURL = "/auth/change-password";
@@ -92,9 +93,11 @@ export const fetchAuthUsercheck = createAsyncThunk(
   "auth/fetchCurrentUser",
   async (_, thunkAPI) => {
     try {
-      const res = await api.get("/auth/profile", { withCredentials: true });
+      const res = await api.get("/auth/profile", { withCredentials: true ,timeout: 50000 });
       console.log("fetchAuthUserres",res)
-      return localStorage.getItem("user") ? JSON.parse(storedUser) : res.data;
+        return localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : res.data;
+     
+     
     } catch (err) {
       // return thunkAPI.rejectWithValue(
       //   err.response?.data || "Not authenticated",

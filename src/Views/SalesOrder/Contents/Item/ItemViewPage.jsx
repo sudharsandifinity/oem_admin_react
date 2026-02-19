@@ -7,7 +7,6 @@ import {
   FlexBoxDirection,
 } from "@ui5/webcomponents-react";
 const ItemViewPage = (viewItem) => {
-  console.log("viewItem", viewItem);
   return (
     <div style={{ height: "flex", width: "300px",marginTop:"20px" }}>
       <List>

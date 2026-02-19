@@ -58,13 +58,11 @@ export const updateSalesQuotation = createAsyncThunk(
     } catch (error) {
       console.error("❌ API error:", error.response?.data || error.message);
        console.log("error.response",error)
-      // return thunkApi.rejectWithValue({
-      //   status: error.response?.status,
-      //   message: error.response?.data?.message || "Login failed",
-      // });
-      return thunkApi.rejectWithValue(
-        error.response?.data || "Error updating order"
-      );
+      return thunkApi.rejectWithValue({
+        status: error.response?.status,
+        message: error.response?.data?.message || "Login failed",
+      });
+     
     }
   }
 );

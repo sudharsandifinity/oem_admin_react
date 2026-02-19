@@ -1,5 +1,5 @@
 // DynamicForm.jsx
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { Suspense, useCallback, useContext, useEffect, useRef, useState } from "react";
 import {
   Form,
   FormItem,
@@ -43,7 +43,8 @@ import api from "../../api/axios";
 
 import { SalesOrderRenderInput } from "./SalesOrderRenderInput";
 import General from "./General/General";
-import Contents from "./Contents/Contents";
+// import Contents from "./Contents/Contents";
+const Contents = React.lazy(() => import("./Contents/Contents"));
 import Logistics from "./Logistics/Logistics";
 import { useNavigate, useParams } from "react-router-dom";
 import CustomerSelection from "./Header/CustomerSelection";
@@ -152,12 +153,12 @@ export default function SalesOrder() {
     // Top-level fields
   };
 
-  const handleRowChange = (i, name, key, value) => {
+const handleRowChange = useCallback((row) => {
     //const key = tab === "Items" ? "items" : "additional";
     const newRows = [...form[key]];
     newRows[i][name] = value;
     setForm({ ...form, [key]: newRows });
-  };
+ }, []);
 
   const addRow = (key) => {
     //const key = tab === "Items" ? "items" : "additional";
@@ -175,7 +176,7 @@ export default function SalesOrder() {
     try {
       console.log(
         "itemTabledatahandleSubmit",
-        dimensionData,
+        dimensionData,"itemTabledata",
         itemTabledata,
         formData,
         freightRowSelection,
@@ -208,7 +209,7 @@ export default function SalesOrder() {
                 .split("T")[0]
                 .replace(/-/g, "")
             : new Date().toISOString().split("T")[0].replace(/-/g, ""),
-         
+
           ...(isPurchaseQuotation && {
             RequriedDate: formData.ReqDate
               ? new Date(formData.ReqDate)
@@ -282,7 +283,7 @@ export default function SalesOrder() {
                 .split("T")[0]
                 .replace(/-/g, "")
             : new Date().toISOString().split("T")[0].replace(/-/g, ""),
-         
+
           ...(isPurchaseQuotation && {
             RequriedDate: formData.ReqDate
               ? new Date(formData.ReqDate)
@@ -372,7 +373,7 @@ export default function SalesOrder() {
         res = await dispatch(createPurchaseQuotation(formDataToSend)).unwrap();
       } else if (formDetails[0]?.name === "Purchase Request") {
         res = await dispatch(createPurchaseRequest(formDataToSend)).unwrap();
-      } 
+      }
       console.log("reshandlesubmit", res);
 
       if (res.message === "Please Login!") {
@@ -384,15 +385,15 @@ export default function SalesOrder() {
     } catch (err) {
       console.error("Failed to create order:", err);
       const statusCode = err?.status || err?.response?.status || 0;
-        const message = err?.message || "Failed to load data";
+      const message = err?.message || "Failed to load data";
 
-        console.error("c:", statusCode, "Message:", message);
-        setApiError(message);
+      console.error("c:", statusCode, "Message:", message);
+      setApiError(message);
 
-        // If 401, redirect to login
-        if (statusCode === 401) {
-          navigate("/login");
-        }
+      // If 401, redirect to login
+      if (statusCode === 401) {
+        navigate("/login");
+      }
       setApiError(err.message || "Error creating order");
     } finally {
       setTimeout(() => {
@@ -458,12 +459,11 @@ export default function SalesOrder() {
 
     return "Please review the details and try again.";
   };
-  console.log("freightRowSelection", freightRowSelection, formDetails);
   useEffect(() => {
     //if (!user) return;
-       if (user === "null" || user.length === 0) {
-          navigate("/login");
-        }
+    if (user === "null" || user.length === 0) {
+      navigate("/login");
+    }
     if (formId) {
       // Fetch form data based on formId
       const formDetails = user?.Roles?.flatMap((role) =>
@@ -602,8 +602,6 @@ export default function SalesOrder() {
           style={{ height: "100%" }}
           titleText="General"
         >
-          {/* <General form={form} SubForms={tab.SubForms} handleChange={handleChange} /> */}
-          {console.log("generalformdata", formData)}
           <General
             onSubmit={handleSubmit}
             setFormData={setFormData}
@@ -633,9 +631,15 @@ export default function SalesOrder() {
             height: "100%",
           }}
           titleText="Contents"
-        >
-          <Contents
-          selectedcardcode={selectedcardcode}
+        ><Suspense fallback={ <FlexBox
+      style={{ height: "300px" }}
+      justifyContent="Center"
+      alignItems="Center"
+    >
+      <BusyIndicator size="Medium" active />
+    </FlexBox>}>
+  <Contents
+            selectedcardcode={selectedcardcode}
             rowSelection={rowSelection}
             setRowSelection={setRowSelection}
             itemdata={itemdata}
@@ -676,6 +680,8 @@ export default function SalesOrder() {
             dimensionData={dimensionData}
             setDimensionData={setDimensionData}
           />
+          
+</Suspense>
         </ObjectPageSection>
         {/* );
         } else if (tab.name === "Logistics") { 

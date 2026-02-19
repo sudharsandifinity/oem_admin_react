@@ -25,12 +25,7 @@ const FreightTable = (props) => {
   const [isTaxDialogOpen, setisTaxDialogOpen] = useState(false);
   const [selectedTaxRowIndex, setSelectedTaxRowIndex] = useState("");
   const taxSelectionRow = (e) => {
-    console.log(
-      "taxSelectionRow",
-      selectedTaxRowIndex,
-      freightData,
-      e.detail.row.original,
-    );
+   
     // setitemTableData((prev) =>
     //       prev.map((r, idx) =>
     //         idx === selectedTaxRowIndex
@@ -70,7 +65,6 @@ const FreightTable = (props) => {
   const calculateRowTotals = (row) => {
     const unitPrice = parseFloat(row.LineTotal) || 0;
     const taxPercent = parseFloat(row.TaxPercent) || 0;
-    console.log("calculatedrow", row, unitPrice, taxPercent);
 
     const taxAmt = unitPrice * (taxPercent / 100);
     const LineGross = unitPrice + taxAmt;
@@ -356,7 +350,6 @@ const FreightTable = (props) => {
 
   const selectedRowIds = useMemo(() => {
     const ids = {};
-    console.log("selectedrowid", mergedFreightData, freightRowSelection);
     if (mode === "create") {
       mergedFreightData.forEach((row) => {
         const isSelected =
@@ -364,7 +357,6 @@ const FreightTable = (props) => {
           Object.values(freightRowSelection).some(
             (f) => Number(f.ExpensCode) === Number(row.ExpensCode),
           );
-        console.log("isSelected", isSelected);
         if (isSelected) {
           ids[row.id] = true;
         }
@@ -376,25 +368,17 @@ const FreightTable = (props) => {
           freightRowSelection.some(
             (f) => Number(f.ExpenseCode) === Number(row.ExpensCode),
           );
-        console.log("isSelected", isSelected);
         if (isSelected) {
           ids[row.id] = true;
         }
       });
     }
-    console.log("ids",ids)
     return ids;
   }, [mergedFreightData, freightRowSelection]);
 
   return (
     <div>
-      {console.log(
-        "freightDatatable",
-        freightData,
-        freightRowSelection,
-        selectedRowIds,
-        mergedFreightData,
-      )}
+      
       {/* <AnalyticalTable
         data={freightData}
         columns={Column}

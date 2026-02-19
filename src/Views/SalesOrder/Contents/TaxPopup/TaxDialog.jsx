@@ -17,9 +17,7 @@ const TaxDialog = (props) => {
     } = useContext(FormConfigContext);
       const [originalTaxData, setOriginalTaxData] = useState([]);
       useEffect(() => {
-        console.log("taxdatauseefect1", originalTaxData);
         if (isTaxDialogOpen) {
-          console.log("itemdatauseefect", taxData);
           setOriginalTaxData(taxData); // backup (for reset/clear filter)
         }
       }, [isTaxDialogOpen]);
