@@ -132,18 +132,18 @@ const UserForm = ({
     console.log("rolelist", roleList);
     setRoleList(roleList);
   };
-  const handleselectedCompany = (company) => {
+  const handleselectedCompany = (companies) => {
     console.log(
       "handleselectedCompany",
       companyforms,
       branches,
-      company,
+      companies,
       roles,
     );
     const selectedCompany = [...selectedCompanyList];
 
-    selectedCompany.push(company);
-    setSelectedCompanyList(selectedCompany);
+    selectedCompany.push(companies);
+    setSelectedCompanyList(companies);
     console.log("selectedCompany", selectedCompany);
 
     const companyList = companyforms.filter(
@@ -154,7 +154,7 @@ const UserForm = ({
     );
 
     const uniquebranch = branches.filter(
-      (r) => r.status && selectedCompany.includes(r.Company.id),
+      (r) => r.status && companies.includes(r.Company.id),
     );
 
     setFormlist(uniqueform);
@@ -483,10 +483,12 @@ const UserForm = ({
                                 const selectedIds = e.detail.items.map((item) =>
                                   item.getAttribute("value"),
                                 );
+                                console.log("companyselectedIds",selectedIds)
+                                handleselectedCompany(selectedIds);
                                 // optional: call your handler
-                                selectedIds.forEach((id) =>
-                                  handleselectedCompany(id),
-                                );
+                                // selectedIds.forEach((id) =>
+                                //   handleselectedCompany(id),
+                                // );
 
                                 field.onChange(selectedIds); // store IDs internally
                               }}

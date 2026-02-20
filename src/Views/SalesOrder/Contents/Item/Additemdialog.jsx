@@ -97,7 +97,7 @@ const Additemdialog = (props) => {
 // };
 
   const onitemchildRowSelect = (e) => {
-    console.log("e.detail.row.original",e.detail.row.original)
+    console.log("e.detail.row.original",e.detail.row)
     const rowId = e.detail.row.original.slno;
     const isSelected = e.detail.isSelected;
     setRowSelection((prev) => {
@@ -157,10 +157,10 @@ const Additemdialog = (props) => {
         Header: "Item Code",
         accessor: "ItemCode",
       },
-      {
-        Header: "Foriegn Name",
-        accessor: "ForeignName",
-      },
+      // {
+      //   Header: "Foriegn Name",
+      //   accessor: "ForeignName",
+      // },
       // {
       //   Header: "Quantity",
       //   accessor: "quantity",
@@ -291,9 +291,53 @@ const Additemdialog = (props) => {
           </Button>
         </FlexBox>
       }
-      style={{ width: "80%" }}
+      style={{ width: "40%" }}
+    ><FlexBox direction="Column" style={{ height: "100%" }}>
+  {/* Header Area */}
+  <DynamicPageHeader>
+    <FlexBox
+      direction="Row"
+      alignItems="Center"
+      justifyContent="SpaceBetween"
     >
-      <DynamicPage
+      <Grid
+        defaultIndent="XL0 L0 M0 S0"
+        defaultSpan="XL4 L4 M6 S12"
+        hSpacing="1rem"
+        vSpacing="1rem"
+      >
+        {ItemPopupFilterList.map((field) =>
+          ItemPopupFilter(
+            field,
+            itemdata,
+            setitemData,
+            inputvalue,
+            setInputValue
+          )
+        )}
+      </Grid>
+
+      <Button style={{ width: "100px" }} onClick={clearFilter}>
+        Clear Filter
+      </Button>
+    </FlexBox>
+  </DynamicPageHeader>
+
+  {/* Table */}
+  <div style={{ flex: 1, overflow: "hidden" }}>
+    <AnalyticalTable
+      data={itemdata}
+      columns={itemcolumns}
+      header={`Items (${itemdata.length})`}
+      selectionMode="MultiSelect"
+      selectedRowIds={rowSelection}
+      onRowSelect={onitemchildRowSelect}
+      visibleRows={10}
+      style={{ height: "100%" }}
+    />
+  </div>
+</FlexBox>
+      {/* <DynamicPage
         headerArea={
           <DynamicPageHeader>
             <FlexBox
@@ -307,7 +351,6 @@ const Additemdialog = (props) => {
                 hSpacing="1rem"
                 vSpacing="1rem"
               >
-                {/* Custom Filter Field */}
                 {ItemPopupFilterList.map((field) =>
                   ItemPopupFilter(
                     field,
@@ -318,20 +361,12 @@ const Additemdialog = (props) => {
                   )
                 )}
 
-                {/* <FlexBox justifyContent="end">
-                <Button
-                onClick={clearFilter}
-                >
-                  Clear Filter
-                </Button>
-              </FlexBox> */}
+               
               </Grid>
               <Button style={{ width: "100px" }} onClick={clearFilter}>
                 Clear Filter
               </Button>
             </FlexBox>
-
-            {/* Basic Company Code Search */}
           </DynamicPageHeader>
         }
         onPinButtonToggle={function Xs() {}}
@@ -344,22 +379,7 @@ const Additemdialog = (props) => {
           <FlexBox direction="Column">
             <div>
              
-              {/* <AnalyticalTable
-                columns={itemcolumns.length > 0 ? itemcolumns : []}
-                data={itemdata}
-                header={"Items(" + itemdata.length + ")"}
-                selectionMode="Multiple"
-                onRowSelect={onitemchildRowSelect}
- 
-              /> */}
-              {/* <AnalyticalTable
-                columns={itemcolumns}
-                data={itemdata}
-                header={`Items (${itemdata.length})`}
-                selectionMode="Multiple"
-                selectedRowIds={setRowSelection&&itemdata.find(i=>i.quantity!=="undefined")}
-                rowSelection={onitemchildRowSelect} // pass selected rows
-              /> */}
+           
 
               <AnalyticalTable
                 data={itemdata}
@@ -369,15 +389,12 @@ const Additemdialog = (props) => {
                 selectedRowIds={rowSelection}
                 onRowSelect={onitemchildRowSelect}
 
-                // onRowSelectionChange={(e) =>
-                //   setRowSelection(e.detail.selectedRowIds)
-
-                // }
+               
               />
             </div>
           </FlexBox>
         </div>
-      </DynamicPage>
+      </DynamicPage> */}
     </Dialog>
   );
 };
