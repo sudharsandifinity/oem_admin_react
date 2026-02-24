@@ -118,20 +118,22 @@ const UserForm = ({
     };
     fetchData();
   }, [dispatch]);
-  const handleSelectBranch = (selectedBranch) => {
-    console.log("selectedbranch", selectedBranch, branches);
-    setSelectedBranchIds((prev) => [...prev, selectedBranch]);
-    roleList.push(
-      ...roles.filter(
-        (r) =>
-          r.status &&
-          selectedBranch.some((id) => id === r.branchId) &&
-          !roleList.find((role) => role.id === r.id),
-      ),
-    );
-    console.log("rolelist", roleList);
-    setRoleList(roleList);
-  };
+  const handleSelectBranch = (selectedBranchIds) => {
+  console.log("selectedBranchIds:", selectedBranchIds);
+
+  setSelectedBranchIds(selectedBranchIds);
+
+  const filteredRoles = roles.filter((r) => {
+    if (!r.status) return false;
+
+   
+
+    // user roles → match branch
+    return selectedBranchIds.includes(r.branchId);
+  });
+
+  setRoleList(filteredRoles);
+};
   const handleselectedCompany = (companies) => {
     console.log(
       "handleselectedCompany",

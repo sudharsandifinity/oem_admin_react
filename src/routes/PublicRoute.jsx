@@ -18,12 +18,16 @@ export default function PublicRoute({ children }) {
       try {
           const res=await dispatch(fetchAuthUsercheck()).unwrap();
         
+          
        console.log("fetchAuthUsercheck",res)
         setApiError(null);
         // Clear any previous errors on success
       } catch (err) {
         console.error("Error in fetchInitial:", err);
-        setApiError(err.message || "Failed to fetch user data");
+        setTimeout(() => {
+          setApiError(err.message || "Failed to fetch user data");
+        }, 2000); // Delay to ensure state updates correctly
+        //setApiError(err.message || "Failed to fetch user data");
 
         
       } finally {
@@ -41,12 +45,13 @@ export default function PublicRoute({ children }) {
 
   // 👇 Now this runs AFTER useEffect
   console.log("apiError",apiError)
-  if (user && !apiError && token) {
+    if (user && !apiError && token) {
     console.log("fetchuser")
     const isSuperUser = Boolean(user?.is_super_user);
     const redirectPath = isSuperUser ? "/admin" : "/dashboard";
     return <Navigate to={redirectPath} replace />;
   }
+ 
 
   return children;
 }

@@ -1,21 +1,21 @@
 import { AnalyticalTable, Button, Dialog, DynamicPage, DynamicPageHeader, FlexBox, Grid, Tag } from "@ui5/webcomponents-react";
 import React, { useContext, useEffect, useMemo, useState } from "react";
+import { ProjectPopupFilter } from "./ProjectPopupFilter";
+import { FormConfigContext } from "../../../../Components/Context/FormConfigContext";
 
 
 const ProjectDialog = (props) => {
   const {
     isProjectDialogOpen,
-    setisProjectDialogOpen,
-    projectData,setProjectData,
-                                    setInputValue,projectSelectionRow
+    setisProjectDialogOpen,inputvalue,
+    projectData,setProjectData,originalProjectData,setOriginalProjectData,
+                                    setInputValue,projectSelectionRow,
+                                    clearProjectFilter
   } = props;
-
-      const [originalProjectData, setOriginalProjectData] = useState([]);
-      useEffect(() => {
-        if (isProjectDialogOpen) {
-          setOriginalProjectData(projectData); // backup (for reset/clear filter)
-        }
-      }, [isProjectDialogOpen]);
+    const {
+      projectPopupFilterList
+    } = useContext(FormConfigContext);
+    
   const column = useMemo(
     () => [
       {
@@ -51,12 +51,7 @@ const ProjectDialog = (props) => {
     []
   );
   
-  const clearFilter = () => {
-    // Implement clear filter logic here
-      console.log("originalItemData", originalProjectData);
-    setInputValue([]);
-    setProjectData(originalProjectData);
-  }
+ 
   return (
     <Dialog
       headerText="Item Details"
@@ -91,17 +86,17 @@ const ProjectDialog = (props) => {
                 hSpacing="1rem"
                 vSpacing="1rem"
               >
-                {/* {taxPopupFilterList.map((field) =>
-                                  TaxPopupFilter(
+                {projectPopupFilterList.map((field) =>
+                                  ProjectPopupFilter(
                                     field,
                                     projectData,
                                     setProjectData,
                                     inputvalue,
                                     setInputValue
                                   )
-                                )} */}
+                                )}
               </Grid>
-              <Button style={{ width: "100px" }} onClick={clearFilter}>
+              <Button style={{ width: "100px" }} onClick={clearProjectFilter}>
                 Clear Filter
               </Button>
             </FlexBox>
@@ -124,6 +119,7 @@ const ProjectDialog = (props) => {
                 header={`Items (${projectData.length})`}
                 selectionMode="Single"
                 onRowSelect={projectSelectionRow}
+                visibleRows={6}
               />
             </div>
           </FlexBox>

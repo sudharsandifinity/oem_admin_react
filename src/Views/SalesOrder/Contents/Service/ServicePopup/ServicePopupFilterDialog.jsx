@@ -25,6 +25,7 @@ const ServicePopupFilterDialog = (props) => {
       // style={{ width: "100px" }}
       onAfterClose={() => setFilterDialogOpen(false)}
       footer={<Button onClick={() => setFilterDialogOpen(false)}>Next</Button>}
+      style={{height:"50%"}}
     >
       <Input
         placeholder="Search..."

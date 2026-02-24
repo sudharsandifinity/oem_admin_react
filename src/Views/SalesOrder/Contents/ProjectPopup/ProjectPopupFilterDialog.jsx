@@ -7,7 +7,7 @@ import {
 } from "@ui5/webcomponents-react";
 import React, { useState } from "react";
 
-const ItemPopupFilterDialog = (props) => {
+const ProjectPopupFilterDialog = (props) => {
   const {
     setFilterDialogOpen,
     filterdialogOpen,
@@ -53,4 +53,4 @@ const ItemPopupFilterDialog = (props) => {
   );
 };
 
-export default ItemPopupFilterDialog;
+export default ProjectPopupFilterDialog;

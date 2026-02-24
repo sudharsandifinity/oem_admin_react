@@ -10,17 +10,15 @@ const TaxDialog = (props) => {
   const {
     isTaxDialogOpen,
     setisTaxDialogOpen,
-    taxData,setTaxData,inputvalue, setInputValue,taxSelectionRow
+    taxData,setTaxData,inputvalue, setInputValue,taxSelectionRow,
+    clearTaxFilter,
+    setOriginalTaxData,originalTaxData
   } = props;
     const {
       taxPopupFilterList
     } = useContext(FormConfigContext);
-      const [originalTaxData, setOriginalTaxData] = useState([]);
-      useEffect(() => {
-        if (isTaxDialogOpen) {
-          setOriginalTaxData(taxData); // backup (for reset/clear filter)
-        }
-      }, [isTaxDialogOpen]);
+      
+    
   const column = useMemo(
     () => [
       {
@@ -54,12 +52,7 @@ const TaxDialog = (props) => {
     []
   );
   
-  const clearFilter = () => {
-    // Implement clear filter logic here
-      console.log("originalItemData", originalTaxData);
-    setInputValue([]);
-    setTaxData(originalTaxData);
-  }
+ 
   return (
     <Dialog
       headerText="Item Details"
@@ -104,7 +97,7 @@ const TaxDialog = (props) => {
                                   )
                                 )}
               </Grid>
-              <Button style={{ width: "100px" }} onClick={clearFilter}>
+              <Button style={{ width: "100px" }} onClick={clearTaxFilter}>
                 Clear Filter
               </Button>
             </FlexBox>
@@ -127,6 +120,7 @@ const TaxDialog = (props) => {
                 header={`Items (${taxData.length})`}
                 selectionMode="Single"
                 onRowSelect={taxSelectionRow}
+                visibleRows={6}
               />
             </div>
           </FlexBox>

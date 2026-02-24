@@ -58,6 +58,10 @@ const Servicetable = (props) => {
     setserviceTableData,
     serviceTabledata,
     setRowSelection,
+      originalWarehouseData,
+    setoriginalWarehouseData,
+      originalProfitCenterData,
+    setOriginalProfitCenterData,
     mode,
     rowSelection,
     setServiceForm,
@@ -66,7 +70,11 @@ const Servicetable = (props) => {
     dimensionCols ,
     taxData,
     setTaxData,
+      setOriginalTaxData,
+      originalTaxData,
     projectData,
+    originalProjectData,
+    setOriginalProjectData,
     setProjectData,
     warehouseData,
     setWarehouseData,
@@ -512,6 +520,29 @@ const Servicetable = (props) => {
       return sum + amt;
     }, 0);
   }, [freightRowSelection]);
+ const clearProfitCenterFilter = () => {
+      // Implement clear filter logic here
+      console.log("originalItemData", originalProfitCenterData);
+      setInputValue([]);
+      setProfitCenterData(originalProfitCenterData);
+    };
+   const clearWarehouseFilter = () => { 
+    console.log("originalItemData", originalWarehouseData);
+    setInputValue([]);
+    setWarehouseData(originalWarehouseData);
+  };
+const clearProjectFilter = () => {
+    // Implement clear filter logic here
+      console.log("originalItemData", originalProjectData);
+    setInputValue([]);
+    setProjectData(originalProjectData);
+  }
+   const clearTaxFilter = () => {
+      // Implement clear filter logic here
+        console.log("originalItemData", originalTaxData);
+      setInputValue([]);
+      setTaxData(originalTaxData);
+    }
   const taxSelectionRow = (e) => {
     console.log("taxSelectionRow", serviceTabledata, e);
     const rate = e.detail.row.original.VatGroups_Lines.at(-1)?.Rate;
@@ -538,6 +569,7 @@ const Servicetable = (props) => {
       )
     );
     setTimeout(() => {
+      clearTaxFilter();
       setisTaxDialogOpen(false);
     }, 500);
   };
@@ -561,6 +593,7 @@ const Servicetable = (props) => {
       )
     );
     setTimeout(() => {
+      clearProjectFilter();
       setisProjectDialogOpen(false);
     }, 500);
   };
@@ -584,6 +617,8 @@ const Servicetable = (props) => {
       )
     );
     setTimeout(() => {
+      
+      clearWarehouseFilter();
       setisWarehouseDialogOpen(false);
     }, 500);
   };
@@ -619,6 +654,7 @@ const Servicetable = (props) => {
           : r
       )
     );
+    clearProfitCenterFilter();
     setisProfitCenterDialogOpen(false);
   };
   const columns = useMemo(() => {
@@ -1361,6 +1397,7 @@ useEffect(() => {
         setProfitCenterData={setProfitCenterData}
         inputvalue={inputvalue}
         setInputValue={setInputValue}
+        clearProfitCenterFilter={clearProfitCenterFilter}
         profitCenterSelectionRow={profitCenterSelectionRow}
       />
       <WarehouseDialog
@@ -1371,24 +1408,31 @@ useEffect(() => {
         inputvalue={inputvalue}
         setInputValue={setInputValue}
         warehouseSelectionRow={warehouseSelectionRow}
+        clearWarehouseFilter={clearWarehouseFilter}
       />
       <ProjectDialog
         isProjectDialogOpen={isProjectDialogOpen}
         setisProjectDialogOpen={setisProjectDialogOpen}
+        setOriginalProjectData={setOriginalProjectData}
+        originalProjectData={originalProjectData}
         projectData={projectData}
         setProjectData={setProjectData}
         inputvalue={inputvalue}
         setInputValue={setInputValue}
         projectSelectionRow={projectSelectionRow}
+        clearProjectFilter={clearProjectFilter}
       />
       <TaxDialog
         isTaxDialogOpen={isTaxDialogOpen}
         setisTaxDialogOpen={setisTaxDialogOpen}
         taxData={taxData}
         setTaxData={setTaxData}
+        setOriginalTaxData={setOriginalTaxData}
+        originalTaxData={originalTaxData}
         inputvalue={inputvalue}
         setInputValue={setInputValue}
         taxSelectionRow={taxSelectionRow}
+        clearTaxFilter={clearTaxFilter}
       />
       <Addservicedialog
         addServicedialogOpen={serviceDialogOpen}

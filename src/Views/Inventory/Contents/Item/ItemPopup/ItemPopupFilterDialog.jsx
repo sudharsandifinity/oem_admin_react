@@ -24,6 +24,7 @@ const ItemPopupFilterDialog = (props) => {
       // style={{ width: "100px" }}
       onAfterClose={() => setFilterDialogOpen(false)}
       footer={<Button onClick={() => setFilterDialogOpen(false)}>Next</Button>}
+     
     >
       <Input
         placeholder="Search..."

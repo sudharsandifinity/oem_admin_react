@@ -1,14 +1,19 @@
 import { AnalyticalTable, Button, Dialog, DynamicPage, DynamicPageHeader, FlexBox, Grid, Tag, Text } from "@ui5/webcomponents-react";
 import React, { useContext, useEffect, useMemo, useState } from "react";
+import { Form } from "react-router-dom";
+import { FormConfigContext } from "../../../../Components/Context/FormConfigContext";
+import { WareHousePopupFilter } from "./WareHouseFilterDialog";
 
 
 const WarehouseDialog = (props) => {
   const {
     isWarehouseDialogOpen,
     setisWarehouseDialogOpen,
-    warehouseData,setWarehouseData,
+    warehouseData,setWarehouseData,inputvalue,
+    clearWarehouseFilter,
                                     setInputValue,warehouseSelectionRow
   } = props;
+  const {warehousePopupFilterList}=useContext(FormConfigContext);
   
       const [originalWarehouseData, setOriginalWarehouseData] = useState([]);
       useEffect(() => {
@@ -67,12 +72,7 @@ const WarehouseDialog = (props) => {
       setisWarehouseDialogOpen(false);
     }, 500);
   };
-  const clearFilter = () => {
-    // Implement clear filter logic here
-      console.log("originalItemData", originalWarehouseData);
-    setInputValue([]);
-    setWarehouseData(originalWarehouseData);
-  }
+
   return (
     <Dialog
       headerText="Item Details"
@@ -107,17 +107,17 @@ const WarehouseDialog = (props) => {
                 hSpacing="1rem"
                 vSpacing="1rem"
               >
-                {/* {taxPopupFilterList.map((field) =>
-                                  TaxPopupFilter(
+                {warehousePopupFilterList.map((field) =>
+                                  WareHousePopupFilter(
                                     field,
                                     warehouseData,
                                     setWarehouseData,
                                     inputvalue,
                                     setInputValue
                                   )
-                                )} */}
+                                )}
               </Grid>
-              <Button style={{ width: "100px" }} onClick={clearFilter}>
+              <Button style={{ width: "100px" }} onClick={clearWarehouseFilter}>
                 Clear Filter
               </Button>
             </FlexBox>
@@ -140,6 +140,7 @@ const WarehouseDialog = (props) => {
                 header={`Items (${warehouseData.length})`}
                 selectionMode="Single"
                 onRowSelect={warehouseSelectionRow}
+                visibleRows={6}
               />
             </div>
           </FlexBox>

@@ -77,13 +77,13 @@ useEffect(()=>{
     setFilterDialogOpen(false);
   };
   console.log("field", field);
-   useEffect(() => {
-        console.log("itemdatauseefect1", originalCustomerData, tableData);
-        if (filterdialogOpen) {
-          console.log("itemdatauseefect", tableData);
-          setOriginalCustomerData(tableData); // backup (for reset/clear filter)
-        }
-      }, [filterdialogOpen]);
+  //  useEffect(() => {
+  //       console.log("itemdatauseefect1", originalCustomerData, tableData);
+  //       if (filterdialogOpen) {
+  //         console.log("itemdatauseefect", tableData);
+  //         setOriginalCustomerData(tableData); // backup (for reset/clear filter)
+  //       }
+  //     }, [filterdialogOpen]);
   switch (field.inputType) {
     case "text":
     case "number":

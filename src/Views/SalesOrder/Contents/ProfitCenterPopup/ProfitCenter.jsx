@@ -1,22 +1,36 @@
-import { AnalyticalTable, Button, Dialog, DynamicPage, DynamicPageHeader, FlexBox, Grid, Tag } from "@ui5/webcomponents-react";
+import {
+  AnalyticalTable,
+  Button,
+  Dialog,
+  DynamicPage,
+  DynamicPageHeader,
+  FlexBox,
+  Grid,
+  Tag,
+} from "@ui5/webcomponents-react";
 import React, { useContext, useEffect, useMemo, useState } from "react";
-
+import { profitCentrePopupFilter } from "./profitCentrePopupFilter";
+import { FormConfigContext } from "../../../../Components/Context/FormConfigContext";
 
 const ProfitCenterDialog = (props) => {
   const {
     isProfitCenterDialogOpen,
     setisProfitCenterDialogOpen,
-    profitCenterData,setProfitCenterData,
-   itemTabledata,setitemTableData, inputvalue,
-                                    setInputValue,profitCenterSelectionRow
+    profitCenterData,
+    setProfitCenterData,
+    itemTabledata,
+    setitemTableData,
+    inputvalue,
+    setInputValue,
+    profitCenterSelectionRow,clearProfitCenterFilter
   } = props;
-  
-      const [originalProfitCenterData, setOriginalProfitCenterData] = useState([]);
-      useEffect(() => {
-        if (isProfitCenterDialogOpen) {
-          setOriginalProfitCenterData(profitCenterData); // backup (for reset/clear filter)
-        }
-      }, [isProfitCenterDialogOpen]);
+  const { profitcentrePopupFilterList } = useContext(FormConfigContext);
+  const [originalProfitCenterData, setOriginalProfitCenterData] = useState([]);
+  useEffect(() => {
+    if (isProfitCenterDialogOpen) {
+      setOriginalProfitCenterData(profitCenterData); // backup (for reset/clear filter)
+    }
+  }, [isProfitCenterDialogOpen]);
   const column = useMemo(
     () => [
       {
@@ -46,26 +60,20 @@ const ProfitCenterDialog = (props) => {
         accessor: "GroupCode",
       },
       {
-        Header:"Active",
+        Header: "Active",
         accessor: "Active",
-         Cell: ({ row }) =>
+        Cell: ({ row }) =>
           row.original.Active === "tYES" ? (
             <Tag children="Yes" design="Positive" size="S" />
           ) : (
             <Tag children="No" design="Negative" size="S" />
           ),
       },
-       
     ],
-    []
+    [],
   );
 
-  const clearFilter = () => {
-    // Implement clear filter logic here
-      console.log("originalItemData", originalProfitCenterData);
-    setInputValue([]);
-    setProfitCenterData(originalProfitCenterData);
-  }
+ 
   return (
     <Dialog
       headerText="Item Details"
@@ -80,8 +88,6 @@ const ProfitCenterDialog = (props) => {
           >
             Close
           </Button>
-
-        
         </FlexBox>
       }
       style={{ width: "80%" }}
@@ -100,17 +106,17 @@ const ProfitCenterDialog = (props) => {
                 hSpacing="1rem"
                 vSpacing="1rem"
               >
-                {/* {taxPopupFilterList.map((field) =>
-                                  TaxPopupFilter(
-                                    field,
-                                    profitCenterData,
-                                    setProfitCenterData,
-                                    inputvalue,
-                                    setInputValue
-                                  )
-                                )} */}
+                {profitcentrePopupFilterList.map((field) =>
+                  profitCentrePopupFilter(
+                    field,
+                    profitCenterData,
+                    setProfitCenterData,
+                    inputvalue,
+                    setInputValue,
+                  ),
+                )}
               </Grid>
-              <Button style={{ width: "100px" }} onClick={clearFilter}>
+              <Button style={{ width: "100px" }} onClick={clearProfitCenterFilter}>
                 Clear Filter
               </Button>
             </FlexBox>
@@ -133,6 +139,7 @@ const ProfitCenterDialog = (props) => {
                 header={`Items (${profitCenterData.length})`}
                 selectionMode="Single"
                 onRowSelect={profitCenterSelectionRow}
+                visibleRows={6}
               />
             </div>
           </FlexBox>

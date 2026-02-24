@@ -69,8 +69,16 @@ const Itemtable = (props) => {
     dimensionCols,
     taxData,
     setTaxData,
+    setOriginalTaxData,
+    originalTaxData,
     projectData,
     setProjectData,
+    originalProjectData,
+    setOriginalProjectData,
+    originalWarehouseData,
+    setoriginalWarehouseData,
+    originalProfitCenterData,
+    setOriginalProfitCenterData,
     warehouseData,
     setWarehouseData,
     setisProfitCenterDialogOpen,
@@ -515,7 +523,29 @@ const Itemtable = (props) => {
       return sum + amt;
     }, 0);
   }, [itemTabledata]);
-
+   const clearProfitCenterFilter = () => {
+      // Implement clear filter logic here
+      console.log("originalItemData", originalProfitCenterData);
+      setInputValue([]);
+      setProfitCenterData(originalProfitCenterData);
+    };
+   const clearWarehouseFilter = () => { 
+    console.log("originalItemData", originalWarehouseData);
+    setInputValue([]);
+    setWarehouseData(originalWarehouseData);
+  };
+const clearProjectFilter = () => {
+    // Implement clear filter logic here
+      console.log("originalItemData", originalProjectData);
+    setInputValue([]);
+    setProjectData(originalProjectData);
+  }
+   const clearTaxFilter = () => {
+      // Implement clear filter logic here
+        console.log("originalItemData", originalTaxData);
+      setInputValue([]);
+      setTaxData(originalTaxData);
+    }
   const taxSelectionRow = (e) => {
     // setitemTableData((prev) =>
     //       prev.map((r, idx) =>
@@ -550,6 +580,7 @@ const Itemtable = (props) => {
       )
     );
     setTimeout(() => {
+      clearTaxFilter();
       setisTaxDialogOpen(false);
     }, 500);
   };
@@ -572,6 +603,7 @@ const Itemtable = (props) => {
       )
     );
     setTimeout(() => {
+      clearProjectFilter();
       setisProjectDialogOpen(false);
     }, 500);
   };
@@ -594,6 +626,7 @@ const Itemtable = (props) => {
       )
     );
     setTimeout(() => {
+      clearWarehouseFilter();
       setisWarehouseDialogOpen(false);
     }, 500);
   };
@@ -655,6 +688,7 @@ const Itemtable = (props) => {
           : r
       )
     );
+    clearProfitCenterFilter()
     setisProfitCenterDialogOpen(false);
   };
 
@@ -1398,6 +1432,7 @@ const Itemtable = (props) => {
         setitemTableData={setitemTableData}
         inputvalue={inputvalue}
         setInputValue={setInputValue}
+        clearProfitCenterFilter={clearProfitCenterFilter}
         profitCenterSelectionRow={profitCenterSelectionRow}
       />
       <WarehouseDialog
@@ -1411,11 +1446,14 @@ const Itemtable = (props) => {
         inputvalue={inputvalue}
         setInputValue={setInputValue}
         warehouseSelectionRow={warehouseSelectionRow}
+        clearWarehouseFilter={clearWarehouseFilter}
       />
       <ProjectDialog
         isProjectDialogOpen={isProjectDialogOpen}
         setisProjectDialogOpen={setisProjectDialogOpen}
         projectData={projectData}
+        setOriginalProjectData={setOriginalProjectData}
+        originalProjectData={originalProjectData}
         setProjectData={setProjectData}
         itemdata={itemdata}
         setitemData={setitemData}
@@ -1423,18 +1461,22 @@ const Itemtable = (props) => {
         inputvalue={inputvalue}
         setInputValue={setInputValue}
         projectSelectionRow={projectSelectionRow}
+        clearProjectFilter={clearProjectFilter}
       />
       <TaxDialog
         isTaxDialogOpen={isTaxDialogOpen}
         setisTaxDialogOpen={setisTaxDialogOpen}
         taxData={taxData}
         setTaxData={setTaxData}
+        setOriginalTaxData={setOriginalTaxData}
+        originalTaxData={originalTaxData}
         itemdata={itemdata}
         setitemData={setitemData}
         setitemTableData={setitemTableData}
         inputvalue={inputvalue}
         setInputValue={setInputValue}
         taxSelectionRow={taxSelectionRow}
+        clearTaxFilter={clearTaxFilter}
       />
       <Additemdialog
         addItemdialogOpen={itemDialogOpen}

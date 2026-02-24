@@ -117,6 +117,10 @@ const General = ({
             ContactPerson: item.ContactPerson,
             Series: item.Series,
           }));
+          if (dialogOpen) {
+      console.log("itemdatauseefect", generalData);
+      setOriginalgeneralData(generalData); // backup (for reset/clear filter)
+    }
           setgeneralData(dataconfig);
         }
 
@@ -131,7 +135,7 @@ const General = ({
     };
 
     fetchData();
-  }, [dispatch,formDetails]);
+  }, [dispatch,formDetails,dialogOpen]);
  useEffect(() => {
     setCurrencyType(
       generalData.find((r) => r.CardCode === selectedcardcode)?.Currency ||
@@ -140,13 +144,7 @@ const General = ({
     console.log("currencytype",generalData.find((r) => r.CardCode === selectedcardcode)?.Currency ||
         "GBP")
   }, [selectedcardcode]);
-  useEffect(() => {
-    console.log("itemdatauseefect1", originalGeneralData, customerorder);
-    if (dialogOpen) {
-      console.log("itemdatauseefect", generalData);
-      setOriginalgeneralData(generalData); // backup (for reset/clear filter)
-    }
-  }, [dialogOpen]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({

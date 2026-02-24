@@ -346,6 +346,74 @@ const FormConfigProvider = ({ children }) => {
     //   is_visible: "1",
     // },
   ];
+
+  const projectPopupFilterList = [
+    {
+      FieldName: "Code",
+      DisplayName: "Code",
+      DataType: "nvarchar(50)",
+      inputType: "select",
+      Position: "Header",
+      DisplayType: "Left",
+      field_order: "1",
+      is_visible: "1",
+    },
+    {
+      FieldName: "Name",
+      DisplayName: "Name",
+      DataType: "nvarchar(50)",
+      inputType: "select",
+      Position: "Header",
+      DisplayType: "Left",
+      field_order: "1",
+      is_visible: "1",
+    },
+    
+  ];
+  const profitcentrePopupFilterList=[
+{
+      FieldName: "CenterCode",
+      DisplayName: "Profit Center Code",
+      DataType: "nvarchar(50)",
+      inputType: "select",
+      Position: "Header",
+      DisplayType: "Left",
+      field_order: "1",
+      is_visible: "1",
+    },
+    {
+      FieldName: "CenterName",
+      DisplayName: "Profit Center Name",
+      DataType: "nvarchar(50)",
+      inputType: "select",
+      Position: "Header",
+      DisplayType: "Left",
+      field_order: "1",
+      is_visible: "1",
+    },
+  ];
+  const warehousePopupFilterList=[
+{
+      FieldName: "WarehouseCode",
+      DisplayName: "Warehouse Code",
+      DataType: "nvarchar(50)",
+      inputType: "select",
+      Position: "Header",
+      DisplayType: "Left",
+      field_order: "1",
+      is_visible: "1",
+    },
+    {
+      FieldName: "WarehouseName",
+      DisplayName: "Warehouse Name",
+      DataType: "nvarchar(50)",
+      inputType: "select",
+      Position: "Header",
+      DisplayType: "Left",
+      field_order: "1",
+      is_visible: "1",
+    },
+  ];
   const taxPopupFilterList = [
     {
       FieldName: "Name",
@@ -1056,6 +1124,9 @@ const FormConfigProvider = ({ children }) => {
         customerTableValues,
         customerpopupFilter,
         ItemPopupFilterList,
+        projectPopupFilterList,
+        warehousePopupFilterList,
+        profitcentrePopupFilterList,
         taxPopupFilterList,
         ServicePopupFilterList,
         itempopupData,
