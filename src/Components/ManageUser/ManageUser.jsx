@@ -128,8 +128,8 @@ const ManageUser = forwardRef((props, ref) => {
         />
         <UserMenuItem icon={paletteIcon} text="Theme">
           <UserMenuItem
-            text="Fiori 3"
-            onClick={() => setFioriTheme("sap_fiori_3")}
+            text="fiori 3"
+            onClick={() => setFioriTheme("")}
           />
           <UserMenuItem
             text="Fiori 3 Dark"

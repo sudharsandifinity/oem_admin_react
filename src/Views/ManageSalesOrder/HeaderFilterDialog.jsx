@@ -19,6 +19,7 @@ const HeaderFilterDialog = (props) => {
           </Button>
         </div>
       }
+      style={{height:"50%"}}
     >
       {/* ✅ Search Input */}
       <Input

@@ -98,7 +98,7 @@ const Additemdialog = (props) => {
 
   const onitemchildRowSelect = (e) => {
     console.log("e.detail.row.original",e.detail.row)
-    const rowId = e.detail.row.original.slno;
+    const rowId = e.detail.row.id//original.slno;
     const isSelected = e.detail.isSelected;
     setRowSelection((prev) => {
       const updated = { ...prev };
@@ -332,7 +332,7 @@ const Additemdialog = (props) => {
       selectionMode="MultiSelect"
       selectedRowIds={rowSelection}
       onRowSelect={onitemchildRowSelect}
-      visibleRows={10}
+      visibleRows={6}
       style={{ height: "100%" }}
     />
   </div>

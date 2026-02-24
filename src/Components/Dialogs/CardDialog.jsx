@@ -206,7 +206,7 @@ const CardDialog = ({
           columns={columns}
           selectionMode="Single"
           onRowSelect={handleSelectionChange}
-         
+         visibleRows={6}
         />
       </FlexBox>
     </Dialog>

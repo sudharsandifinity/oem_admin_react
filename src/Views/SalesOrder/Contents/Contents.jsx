@@ -127,12 +127,20 @@ const Contents = (props) => {
     useState([]);
   const [selectedProfitCenterRowIndex, setSelectedProfitCenterRowIndex] =
     useState("");
+ const [originalProfitCenterData, setOriginalProfitCenterData] = useState([]);
+
 const [currency, setCurrency] = useState("All Currency");
   const [itemForm, setItemForm] = useState([]);
   const [serviceForm, setserviceForm] = useState([]);
   const [viewItem, setViewItem] = useState([]);
   const [viewService, setViewService] = useState([]);
   const [inputvalue, setInputValue] = useState("");
+
+const [originalProjectData, setOriginalProjectData] = useState([]);
+const [originalTaxData, setOriginalTaxData] = useState([]);
+ const [originalWarehouseData, setOriginalWarehouseData] = useState([]);
+
+
   const productCollection = [
     { Name: "Laptop" },
     { Name: "Mouse" },
@@ -162,15 +170,17 @@ const [currency, setCurrency] = useState("All Currency");
         }
         const warehouseData = await dispatch(fetchWarehousesDetails()).unwrap();
         setWarehouseData(warehouseData.value);
+        setOriginalWarehouseData(warehouseData.value);
 
         const projectData = await dispatch(fetchProjectsDetails()).unwrap();
         setProjectData(projectData.value);
+        setOriginalProjectData(projectData.value);
 
         const profitCenterData = await dispatch(
           fetchProfitCenterDetails()
         ).unwrap();
         setProfitCenterData(profitCenterData.value);
-
+setOriginalProfitCenterData(profitCenterData.value);
         const dimensionData = await dispatch(fetchDimensionDetails()).unwrap();
         setDimensionData(dimensionData.value);
 
@@ -186,6 +196,7 @@ const [currency, setCurrency] = useState("All Currency");
         }
         if (taxCode.value?.length > 0) {
           setTaxData(taxCode.value);
+          setOriginalTaxData(taxCode.value);
         }
 
         const serviceorder = await dispatch(fetchOrderServices()).unwrap();
@@ -844,10 +855,19 @@ const saveItem = async (item) => {
                         selectedItems={selectedItems}
                         taxData={taxData}
                         setTaxData={setTaxData}
+                        setOriginalTaxData={setOriginalTaxData}
+                        setOriginalProfitCenterData={setOriginalProfitCenterData}
+                        originalProfitCenterData={originalProfitCenterData}
+                        originalTaxData={originalTaxData}
                         freightData={freightData}
                         setFreightData={setFreightData}
                         projectData={projectData}
                         setProjectData={setProjectData}
+                        originalProjectData={originalProjectData}
+                        setOriginalProjectData={setOriginalProjectData}
+                        originalWarehouseData={originalWarehouseData}
+                        setOriginalWarehouseData={setOriginalWarehouseData}
+                        
                         warehouseData={warehouseData}
                         setWarehouseData={setWarehouseData}
                         profitCenterData={profitCenterData}
@@ -908,12 +928,20 @@ const saveItem = async (item) => {
                         dimensionCols={dimensionCols}
                         taxData={taxData}
                         setTaxData={setTaxData}
+                        setOriginalTaxData={setOriginalTaxData}
+                         setOriginalProfitCenterData={setOriginalProfitCenterData}
+                        originalProfitCenterData={originalProfitCenterData}
+                        originalTaxData={originalTaxData}
                         freightData={freightData}
                         setFreightData={setFreightData}
                         projectData={projectData}
+                        originalProjectData={originalProjectData}
+                        setOriginalProjectData={setOriginalProjectData}
                         setProjectData={setProjectData}
                         warehouseData={warehouseData}
                         setWarehouseData={setWarehouseData}
+                        originalWarehouseData={originalWarehouseData}
+                        setOriginalWarehouseData={setOriginalWarehouseData}
                         profitCenterData={profitCenterData}
                         setProfitCenterData={setProfitCenterData}
                         selectedDimensionColumnCode={

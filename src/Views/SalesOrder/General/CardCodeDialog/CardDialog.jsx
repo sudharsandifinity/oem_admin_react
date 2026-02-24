@@ -31,11 +31,16 @@ const CardDialog = ({
     {
       Header: "Card Code",
       accessor: "CardCode",
+      width: 200,
     },
     { Header: "Card Name", accessor: "CardName" },
     { Header: "Contact Person", accessor: "ContactPerson" },
   ];
-
+ const clearFilter = () => {
+    // Implement clear filter logic here
+     setgeneralData(originalGeneralData);
+              setInputValue({});
+  }
   const handleSelectionChange = (event) => {
     const selectedRow = event.detail.row;
     console.log("selectedRow", selectedRow, event);
@@ -47,6 +52,7 @@ const CardDialog = ({
         CardCode: selectedRow.original.CardCode,
       }));
       setTimeout(() => {
+        clearFilter();
         handleCardDialogClose();
       }, 1000);
     }
@@ -100,7 +106,7 @@ const CardDialog = ({
         </>
       }
       onAfterClose={handleCardDialogClose}
-      style={{ width: "70vw", height: "70vh" }}
+      style={{ width: "40vw"}}
     >
       <FlexBox direction="Column">
         {/* <FlexBox direction="Row" style={{ padding: "0.5rem", gap: "2rem" }}> */}
@@ -191,10 +197,7 @@ const CardDialog = ({
           {console.log("originalGeneralData", originalGeneralData)}
           <Button
             style={{ width: "100px" }}
-            onClick={() => {
-              setgeneralData(originalGeneralData);
-              setInputValue({});
-            }}
+            onClick={clearFilter}
           >
             Clear Filter
           </Button>
@@ -205,7 +208,7 @@ const CardDialog = ({
           columns={columns}
           selectionMode="Single"
           onRowSelect={handleSelectionChange}
-         
+         visibleRows={6}
         />
       </FlexBox>
     </Dialog>

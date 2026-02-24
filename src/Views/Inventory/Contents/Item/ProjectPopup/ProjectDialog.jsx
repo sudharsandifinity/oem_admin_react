@@ -15,14 +15,8 @@ const TaxDialog = (props) => {
     const {
       taxPopupFilterList
     } = useContext(FormConfigContext);
-      const [originalProjectData, setOriginalProjectData] = useState([]);
-      useEffect(() => {
-        console.log("projectdatauseefect1", originalProjectData);
-        if (isProjectDialogOpen) {
-          console.log("itemdatauseefect", projectData);
-          setOriginalProjectData(projectData); // backup (for reset/clear filter)
-        }
-      }, [isProjectDialogOpen]);
+      
+      
   const column = useMemo(
     () => [
       {

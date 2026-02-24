@@ -141,6 +141,7 @@ const ManageSalesOrder = () => {
         }));
 
         settableData(initialData);
+        setOriginalCustomerData(initialData); // store original data for reset
         setPage(1);
         if (res.message === "Please Login!") {
         navigate("/login");
@@ -455,7 +456,16 @@ const ManageSalesOrder = () => {
           />
         }
         headerArea={
-          <DynamicPageHeader>
+           <DynamicPageHeader
+      className="custom-header"
+      // style={{
+      //   display: "flex",
+      //   alignItems: "center",
+      //   padding: "1rem",
+      //   backgroundColor: "#354a5f", // SAP Blue
+      //   color: "white"
+      // }}
+    >
             <FlexBox
               direction="Row"
               style={{
@@ -465,6 +475,7 @@ const ManageSalesOrder = () => {
                 gap: "15px",
               }}
             >
+             
               {console.log(
                 "ManageSalesOderHeaderField",
                 ManageSalesOderHeaderField,customerorder
@@ -515,6 +526,14 @@ const ManageSalesOrder = () => {
         onTitleToggle={function Xs() {}}
         titleArea={
           <DynamicPageTitle
+           className="custom-header"
+      style={{
+        //display: "flex",
+        // alignItems: "start",
+        // padding: "1rem",
+        // backgroundColor: "#354a5f", // SAP Blue
+        //color: "white"
+      }}
             breadcrumbs={
               <Breadcrumbs
                 design="Standard"

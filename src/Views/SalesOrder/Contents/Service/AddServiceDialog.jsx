@@ -64,18 +64,27 @@ const Addservicedialog = (props) => {
   const [rowSelection, setRowSelection] = useState([]);
   const [originalServiceData, setOriginalServiceData] = useState([]);
   const onservicechildRowSelect = (e) => {
-    console.log(
-      "onRowSelect",
-      servicedata,
-      e.detail.row,
-      e.detail.selected,
-      e.detail.row.original
-    );
+   console.log("e.detail.row.original",e.detail.row)
+    const rowId = e.detail.row.id//original.slno;
+    const isSelected = e.detail.isSelected;
+    setRowSelection((prev) => {
+      const updated = { ...prev };
+      console.log("onitemrowselect", rowId, isSelected, updated);
+      if (isSelected) {
+        // ✅ add selected row
+        updated[rowId] = e.detail.row.original;
+      } else {
+        // ❌ remove deselected row
+        delete updated[rowId];
+      }
+
+      return updated;
+    });
     //selectionChangeHandler(e.detail.row.original);
-    setRowSelection((prev) => ({
-      ...prev,
-      [e.detail.row.original.slno]: e.detail.row.original,
-    }));
+    // setRowSelection((prev) => ({
+    //   ...prev,
+    //   [e.detail.row.original.slno]: e.detail.row.original,
+    // }));
   };
   useEffect(() => {
     console.log("servicedatauseefect1", originalServiceData);
@@ -235,7 +244,7 @@ const Addservicedialog = (props) => {
       open={addServicedialogOpen}
       onAfterClose={() => setAddServiceDialogOpen(false)}
       footer={
-        <FlexBox direction="Row" gap={2}>
+        <FlexBox direction="Row" gap={2} style={{ marginTop: "10px" }}>
           <Button
             onClick={() => {
               setAddServiceDialogOpen(false);
@@ -243,7 +252,7 @@ const Addservicedialog = (props) => {
               setserviceData(originalServiceData);
             }}
           >
-            Next
+            Close
           </Button>
 
           <Button
@@ -258,10 +267,9 @@ const Addservicedialog = (props) => {
           </Button>
         </FlexBox>
       }
-      style={{ width: "80%" }}
+      style={{ width: "40%" }}
     >
-      <DynamicPage
-        headerArea={
+      <FlexBox direction="Column" style={{ height: "100%" }}>
           <DynamicPageHeader>
                        <FlexBox direction="Row" style={{display: 'inline-flex', alignServices: 'end', flexWrap: 'wrap', gap: '15px'}}>
                         
@@ -297,16 +305,9 @@ const Addservicedialog = (props) => {
 
             {/* Basic Company Code Search */}
           </DynamicPageHeader>
-        }
-        onPinButtonToggle={function Xs() {}}
-        onTitleToggle={function Xs() {}}
-        style={{
-          height: "600px",
-        }}
-      >
-        <div className="tab">
-          <FlexBox direction="Column">
-            <div>
+        
+      
+            <div style={{flex:1,overflow:"hidden"}}>
               {console.log(
                 "serviceTabledataaddservicedialog",
                 serviceTabledata,
@@ -336,7 +337,9 @@ const Addservicedialog = (props) => {
                 selectionMode="MultiSelect"
                 selectedRowIds={rowSelection}
                 onRowSelect={onservicechildRowSelect}
-                
+                visibleRows={6}
+                style={{height:"100%"}}
+
                 // onRowSelectionChange={(e) =>
                 //   setRowSelection(e.detail.selectedRowIds)
 
@@ -344,8 +347,6 @@ const Addservicedialog = (props) => {
               />
             </div>
           </FlexBox>
-        </div>
-      </DynamicPage>
     </Dialog>
   );
 };
