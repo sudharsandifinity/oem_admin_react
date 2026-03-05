@@ -80,7 +80,7 @@ const General = ({
     },
   ]);
   const { customerorder, businessPartner, loading, error } = useSelector(
-    (state) => state.customerorder
+    (state) => state.customerorder,
   );
 
   const dispatch = useDispatch();
@@ -93,7 +93,7 @@ const General = ({
   const handleCardDialogClose = () => setDialogOpen(false);
 
   useEffect(() => {
-    console.log("formdetailgeneral",formDetails)
+    console.log("formdetailgeneral", formDetails);
     const fetchData = async () => {
       try {
         let res = [];
@@ -101,13 +101,13 @@ const General = ({
           formDetails[0]?.name === "Sales Order" ||
           formDetails[0]?.name === "Sales Quotation"
         ) {
-          res=await dispatch(fetchSalesBusinessPartner()).unwrap();
+          res = await dispatch(fetchSalesBusinessPartner()).unwrap();
         } else if (
           formDetails[0]?.name === "Purchase Order" ||
-          formDetails[0]?.name === "Purchase Quotation"||
+          formDetails[0]?.name === "Purchase Quotation" ||
           formDetails[0]?.name === "Purchase Request"
         ) {
-          res=await dispatch(fetchPurBusinessPartner()).unwrap();
+          res = await dispatch(fetchPurBusinessPartner()).unwrap();
         }
 
         if (res?.length > 0) {
@@ -118,9 +118,9 @@ const General = ({
             Series: item.Series,
           }));
           if (dialogOpen) {
-      console.log("itemdatauseefect", generalData);
-      setOriginalgeneralData(generalData); // backup (for reset/clear filter)
-    }
+            console.log("itemdatauseefect", generalData);
+            setOriginalgeneralData(generalData); // backup (for reset/clear filter)
+          }
           setgeneralData(dataconfig);
         }
 
@@ -129,20 +129,23 @@ const General = ({
         }
       } catch (err) {
         console.log("Failed to fetch user", err.message);
-      err.message && navigate("/");
+        err.message && navigate("/");
       }
       setPageLoading(false);
     };
 
     fetchData();
-  }, [dispatch,formDetails,dialogOpen]);
- useEffect(() => {
+  }, [dispatch, formDetails, dialogOpen]);
+  useEffect(() => {
     setCurrencyType(
       generalData.find((r) => r.CardCode === selectedcardcode)?.Currency ||
-        "GBP"
+        "GBP",
     );
-    console.log("currencytype",generalData.find((r) => r.CardCode === selectedcardcode)?.Currency ||
-        "GBP")
+    console.log(
+      "currencytype",
+      generalData.find((r) => r.CardCode === selectedcardcode)?.Currency ||
+        "GBP",
+    );
   }, [selectedcardcode]);
 
   const handleChange = (e) => {
@@ -155,7 +158,7 @@ const General = ({
   const selectedData = selectedcardcode
     ? generalData.find((r) => r.CardCode === selectedcardcode)
     : null;
-console.log("selectedData",selectedData,generalData)
+  console.log("selectedData", selectedData, generalData);
   const autoCardNameRef = selectedData?.CardName || "";
   const autoContactPersonRef = selectedData?.ContactPerson || "";
   const autoCustomerRef = selectedData?.Series || "";
@@ -179,350 +182,374 @@ console.log("selectedData",selectedData,generalData)
       });
     }
   }, [autoCustomerRef, autoContactPersonRef, autoCardNameRef]);
- 
+
   return (
-    <div>{console.log("formData",formData)}
-     {pageLoading&&!formData?
-    <FlexBox
-      justifyContent="Center"
-      alignItems="Center"
-      style={{ height:"80vh", width:"100%" }}
-    >
-      <BusyIndicator active size="Medium" />
-    </FlexBox>
-    :
-      <form
-        ref={formRef}
-        id="form"
-        onSubmit={handleSubmit((formData) => {
-          const fullData = {
-            ...formData,
-          };
-          onSubmit(fullData); // you already pass it upward
-        })}
-      >
-        <Card>
-          <FlexBox
-            justifyContent="SpaceBetween"
-            style={{ padding: "40px 30px", gap: "150px" }}
-          >
-            {console.log("selectedcardcode", selectedcardcode)}
-            <FlexBox direction="Column" style={{ width: "100%", gap: "8px" }}>
-              <FlexBox alignItems="Center">
-                <Label style={{ minWidth: "200px" }}>Customer:</Label>
-                <Controller
-                  name="CardCode"
-                  control={control}
-                  render={({ field }) => (
-                    <Input
-                      placeholder="Select Card"
-                      name="CardCode"
-                      disabled={mode === "view"}
-                      style={{ width: "100%" }}
-                      value={
-                        selectedcardcode
-                          ? generalData.find(
-                              (r) => r.CardCode === selectedcardcode
-                            )?.CardCode
-                          : field.value
-                      }
-                      onInput={(e) => field.onChange(e.target.value)}
-                      onChange={handleChange}
-                      valueState={errors.CardCode ? "Error" : "None"}
-                      icon={
-                        <Icon
-                          name="person-placeholder"
-                          onClick={handleCardDialogOpen}
-                        />
-                      }
-                    >
-                      {errors.CardCode && (
-                        <span slot="valueStateMessage">
-                          {errors.CardCode.message}
-                        </span>
-                      )}
-                    </Input>
-                  )}
-                />
-              </FlexBox>
-              <FlexBox alignItems="Center">
-                <Label style={{ minWidth: "200px" }}> Name:</Label>
-                <Controller
-                  name="CardName"
-                  control={control}
-                  render={({ field }) => (
-                    <Input
-                      placeholder="Card Name"
-                      name="CardName"
-                      disabled={mode === "view"}
-                      style={{ width: "100%" }}
-                      value={autoCardNameRef || field.value}
-                      onInput={(e) => field.onChange(e.target.value)}
-                      onChange={handleChange}
-                      valueState={errors.CardName ? "Error" : "None"}
-                    >
-                      {errors.CardName && (
-                        <span slot="valueStateMessage">
-                          {errors.CardName.message}
-                        </span>
-                      )}
-                    </Input>
-                  )}
-                />
-              </FlexBox>
-              <FlexBox alignItems="Center">
-                <Label style={{ minWidth: "200px" }}>Contact Person</Label>
-                <Controller
-                  name="ContactPerson"
-                  control={control}
-                  render={({ field }) => (
-                    <Input
-                      placeholder="Contact Person"
-                      name="ContactPerson"
-                      disabled={mode === "view"}
-                      style={{ width: "100%" }}
-                      value={autoContactPersonRef || field.value}
-                      onInput={(e) => field.onChange(e.target.value)}
-                      onChange={handleChange}
-                      valueState={errors.ContactPerson ? "Error" : "None"}
-                    >
-                      {errors.ContactPerson && (
-                        <span slot="valueStateMessage">
-                          {errors.ContactPerson.message}
-                        </span>
-                      )}
-                    </Input>
-                  )}
-                />
-              </FlexBox>
-              {formDetails[0]?.name !== "Purchase Request" && (
-              <FlexBox alignItems="Center">
-                <Label style={{ minWidth: "200px" }}>Customer Ref.No</Label>
-                <Controller
-                  name="CustomerRefNo"
-                  control={control}
-                  render={({ field }) => (
-                    <Input
-                      placeholder="Customer Ref No"
+    <div>
+      {console.log("formData", formData)}
+      {pageLoading && !formData ? (
+        <FlexBox
+          justifyContent="Center"
+          alignItems="Center"
+          style={{ height: "80vh", width: "100%" }}
+        >
+          <BusyIndicator active size="Medium" />
+        </FlexBox>
+      ) : (
+        <form
+          ref={formRef}
+          id="form"
+          onSubmit={handleSubmit((formData) => {
+            const fullData = {
+              ...formData,
+            };
+            onSubmit(fullData); // you already pass it upward
+          })}
+        >
+          <div className="card-responsive-container">
+          <Card>
+            <FlexBox
+              wrap="Wrap"
+              justifyContent="SpaceBetween"
+              style={{ padding: "40px 30px", gap: "150px" }}
+            >
+              {console.log("selectedcardcode", selectedcardcode)}
+             <FlexBox
+  direction="Column"
+  style={{
+    flex: "1 1 300px", // grow, shrink, base width
+    minWidth: "250px",
+    gap: "8px"
+  }}
+>
+               <FlexBox alignItems="Center" >
+  <Label style={{ minWidth: "200px"}}>Customer:</Label>
+                  <Controller
+                    name="CardCode"
+                    control={control}
+                    render={({ field }) => (
+                      <Input
+                        placeholder="Select Card"
+                        name="CardCode"
+                        disabled={mode === "view"}
+                        style={{ width: "100%" }}
+                        value={
+                          selectedcardcode
+                            ? generalData.find(
+                                (r) => r.CardCode === selectedcardcode,
+                              )?.CardCode
+                            : field.value
+                        }
+                        onInput={(e) => field.onChange(e.target.value)}
+                        onChange={handleChange}
+                        valueState={errors.CardCode ? "Error" : "None"}
+                        icon={
+                          <Icon
+                          style={{paddingTop:"0.5rem"}}
+                            name="person-placeholder"
+                            onClick={handleCardDialogOpen}
+                          />
+                        }
+                      >
+                        {errors.CardCode && (
+                          <span slot="valueStateMessage">
+                            {errors.CardCode.message}
+                          </span>
+                        )}
+                      </Input>
+                    )}
+                  />
+                </FlexBox>
+                <FlexBox alignItems="Center">
+                  <Label style={{ minWidth: "200px" }}> Name:</Label>
+                  <Controller
+                    name="CardName"
+                    control={control}
+                    render={({ field }) => (
+                      <Input
+                        placeholder="Card Name"
+                        name="CardName"
+                        disabled={mode === "view"}
+                        style={{ width: "100%" }}
+                        value={autoCardNameRef || field.value}
+                        onInput={(e) => field.onChange(e.target.value)}
+                        onChange={handleChange}
+                        valueState={errors.CardName ? "Error" : "None"}
+                      >
+                        {errors.CardName && (
+                          <span slot="valueStateMessage">
+                            {errors.CardName.message}
+                          </span>
+                        )}
+                      </Input>
+                    )}
+                  />
+                </FlexBox>
+                <FlexBox alignItems="Center">
+                  <Label style={{ minWidth: "200px" }}>Contact Person</Label>
+                  <Controller
+                    name="ContactPerson"
+                    control={control}
+                    render={({ field }) => (
+                      <Input
+                        placeholder="Contact Person"
+                        name="ContactPerson"
+                        disabled={mode === "view"}
+                        style={{ width: "100%" }}
+                        value={autoContactPersonRef || field.value}
+                        onInput={(e) => field.onChange(e.target.value)}
+                        onChange={handleChange}
+                        valueState={errors.ContactPerson ? "Error" : "None"}
+                      >
+                        {errors.ContactPerson && (
+                          <span slot="valueStateMessage">
+                            {errors.ContactPerson.message}
+                          </span>
+                        )}
+                      </Input>
+                    )}
+                  />
+                </FlexBox>
+                {formDetails[0]?.name !== "Purchase Request" && (
+                  <FlexBox alignItems="Center">
+                    <Label style={{ minWidth: "200px" }}>Customer Ref.No</Label>
+                    <Controller
                       name="CustomerRefNo"
-                      disabled={mode === "view"}
-                      style={{ width: "100%" }}
-                      value={field.value}
-                      onInput={(e) => field.onChange(e.target.value)}
-                      onChange={handleChange}
-                      valueState={errors.CustomerRefNo ? "Error" : "None"}
-                    >
-                      {errors.CustomerRefNo && (
-                        <span slot="valueStateMessage">
-                          {errors.CustomerRefNo.message}
-                        </span>
+                      control={control}
+                      render={({ field }) => (
+                        <Input
+                          placeholder="Customer Ref No"
+                          name="CustomerRefNo"
+                          disabled={mode === "view"}
+                          style={{ width: "100%" }}
+                          value={field.value}
+                          onInput={(e) => field.onChange(e.target.value)}
+                          onChange={handleChange}
+                          valueState={errors.CustomerRefNo ? "Error" : "None"}
+                        >
+                          {errors.CustomerRefNo && (
+                            <span slot="valueStateMessage">
+                              {errors.CustomerRefNo.message}
+                            </span>
+                          )}
+                        </Input>
                       )}
-                    </Input>
-                  )}
-                />
-              </FlexBox>)}
-              <FlexBox alignItems="Center">
-                <Label style={{ minWidth: "200px" }}>Document Number:</Label>
-                <Controller
-                  name="docnum"
-                  control={control}
-                  render={({ field }) => (
-                    <Input
-                      placeholder="DocNum"
-                      name="docnum"
-                      disabled={"true"}
-                      style={{ width: "100%" }}
-                      value={docNo}
-                      onInput={(e) => field.onChange(e.target.value)}
-                      onChange={handleChange}
-                      valueState={errors.docnum ? "Error" : "None"}
-                    >
-                      {errors.docnum && (
-                        <span slot="valueStateMessage">
-                          {errors.docnum.message}
-                        </span>
-                      )}
-                    </Input>
-                  )}
-                />
+                    />
+                  </FlexBox>
+                )}
+                <FlexBox alignItems="Center">
+                  <Label style={{ minWidth: "200px" }}>Document Number:</Label>
+                  <Controller
+                    name="docnum"
+                    control={control}
+                    render={({ field }) => (
+                      <Input
+                        placeholder="DocNum"
+                        name="docnum"
+                        disabled={"true"}
+                        style={{ width: "100%" }}
+                        value={docNo}
+                        onInput={(e) => field.onChange(e.target.value)}
+                        onChange={handleChange}
+                        valueState={errors.docnum ? "Error" : "None"}
+                      >
+                        {errors.docnum && (
+                          <span slot="valueStateMessage">
+                            {errors.docnum.message}
+                          </span>
+                        )}
+                      </Input>
+                    )}
+                  />
+                </FlexBox>
               </FlexBox>
-             
-            </FlexBox>
-            <div
-              style={{
-                width: "1px",
-                background: "#ccc",
-                margin: "0 1rem",
-              }}
-            />
-            <FlexBox direction="Column" style={{ width: "100%", gap: "8px" }}>
-              
-             {formDetails[0]?.name === "Purchase Quotation" ||
-        formDetails[0]?.name === "Purchase Request" && (
-                   <FlexBox alignItems="Center">
-                <Label style={{ minWidth: "200px" }}>Required Date:</Label>
-                <Controller
-                  name="ReqDate"
-                  control={control}
-                  render={({ field }) => (
-                    <Input
-                      placeholder="Required Date"
-                      name="
+              <div
+                style={{
+                  width: "1px",
+                  background: "#ccc",
+                  margin: "0 1rem",
+                }}
+              />
+              <FlexBox
+  direction="Column"
+  style={{
+    flex: "1 1 300px", // grow, shrink, base width
+    minWidth: "250px",
+    gap: "8px"
+  }}
+>
+                {formDetails[0]?.name === "Purchase Quotation" ||
+                  (formDetails[0]?.name === "Purchase Request" && (
+                    <FlexBox alignItems="Center">
+                      <Label style={{ minWidth: "200px" }}>
+                        Required Date:
+                      </Label>
+                      <Controller
+                        name="ReqDate"
+                        control={control}
+                        render={({ field }) => (
+                          <Input
+                            placeholder="Required Date"
+                            name="
                       "
-                      type="date"
-                      disabled={mode === "view"}
-                      min="2025-01-01"
-                      style={{ width: "100%" }}
-                      value={
-                        formData.ReqDate
-                          ? new Date(formData.ReqDate)
-                              .toISOString()
-                              .split("T")[0]
-                          : new Date().toISOString().split("T")[0]
-                      }
-                      onInput={(e) => field.onChange(e.target.value)}
-                      onChange={handleChange}
-                      valueState={errors.ReqDate ? "Error" : "None"}
-                    >
-                      {errors.ReqDate && (
-                        <span slot="valueStateMessage">
-                          {errors.ReqDate.message}
-                        </span>
-                      )}
-                    </Input>
-                  )}
-                />
-              </FlexBox> )}
-              <FlexBox alignItems="Center">
-                <Label style={{ minWidth: "200px" }}>Posting Date:</Label>
-                <Controller
-                  name="PostingDate"
-                  control={control}
-                  render={({ field }) => (
-                    <Input
-                      placeholder="Posting Date"
-                      name="PostingDate"
-                      type="date"
-                      disabled={mode === "view"}
-                      min="2025-01-01"
-                      style={{ width: "100%" }}
-                      value={
-                        formData.PostingDate
-                          ? new Date(formData.PostingDate)
-                              .toISOString()
-                              .split("T")[0]
-                          : new Date().toISOString().split("T")[0]
-                      }
-                      onInput={(e) => field.onChange(e.target.value)}
-                      onChange={handleChange}
-                      valueState={errors.PostingDate ? "Error" : "None"}
-                    >
-                      {errors.PostingDate && (
-                        <span slot="valueStateMessage">
-                          {errors.PostingDate.message}
-                        </span>
-                      )}
-                    </Input>
-                  )}
-                />
+                            type="date"
+                            disabled={mode === "view"}
+                            min="2025-01-01"
+                            style={{ width: "100%", minWidth: "150px" }}
+                            value={
+                              formData.ReqDate
+                                ? new Date(formData.ReqDate)
+                                    .toISOString()
+                                    .split("T")[0]
+                                : new Date().toISOString().split("T")[0]
+                            }
+                            onInput={(e) => field.onChange(e.target.value)}
+                            onChange={handleChange}
+                            valueState={errors.ReqDate ? "Error" : "None"}
+                          >
+                            {errors.ReqDate && (
+                              <span slot="valueStateMessage">
+                                {errors.ReqDate.message}
+                              </span>
+                            )}
+                          </Input>
+                        )}
+                      />
+                    </FlexBox>
+                  ))}
+                <FlexBox alignItems="Center">
+                  <Label style={{ minWidth: "200px" }}>Posting Date:</Label>
+                  <Controller
+                    name="PostingDate"
+                    control={control}
+                    render={({ field }) => (
+                      <Input
+                        placeholder="Posting Date"
+                        name="PostingDate"
+                        type="date"
+                        disabled={mode === "view"}
+                        min="2025-01-01"
+                        style={{ width: "100%", minWidth: "150px" }}
+                        value={
+                          formData.PostingDate
+                            ? new Date(formData.PostingDate)
+                                .toISOString()
+                                .split("T")[0]
+                            : new Date().toISOString().split("T")[0]
+                        }
+                        onInput={(e) => field.onChange(e.target.value)}
+                        onChange={handleChange}
+                        valueState={errors.PostingDate ? "Error" : "None"}
+                      >
+                        {errors.PostingDate && (
+                          <span slot="valueStateMessage">
+                            {errors.PostingDate.message}
+                          </span>
+                        )}
+                      </Input>
+                    )}
+                  />
+                </FlexBox>
+                <FlexBox alignItems="Center">
+                  <Label style={{ minWidth: "200px" }}>
+                    {formDetails[0]?.name === "Sales Order" ||
+                    formDetails[0]?.name === "Purchase Order"
+                      ? "Delivery Date:"
+                      : "Valid Until:"}
+                  </Label>
+                  <Controller
+                    name="DocDueDate"
+                    control={control}
+                    render={({ field }) => (
+                      <Input
+                        placeholder="Delivery Date"
+                        name="DocDueDate"
+                        type="date"
+                        disabled={mode === "view"}
+                        min="2025-01-01"
+                        style={{ width: "100%", minWidth: "150px" }}
+                        value={
+                          formData.DocDueDate
+                            ? new Date(formData.DocDueDate)
+                                .toISOString()
+                                .split("T")[0]
+                            : new Date().toISOString().split("T")[0]
+                        }
+                        onInput={(e) => field.onChange(e.target.value)}
+                        onChange={handleChange}
+                        valueState={errors.DocDueDate ? "Error" : "None"}
+                      >
+                        {errors.DocDueDate && (
+                          <span slot="valueStateMessage">
+                            {errors.DocDueDate.message}
+                          </span>
+                        )}
+                      </Input>
+                    )}
+                  />
+                </FlexBox>
+                <FlexBox alignItems="Center">
+                  <Label style={{ minWidth: "200px" }}>Document Date:</Label>
+                  <Controller
+                    name="TaxDate"
+                    control={control}
+                    render={({ field }) => (
+                      <Input
+                        placeholder="Document Date"
+                        name="TaxDate"
+                        type="date"
+                        disabled={mode === "view"}
+                        min="2025-01-01"
+                       style={{ width: "100%", minWidth: "150px" }}
+                        value={
+                          formData.TaxDate
+                            ? new Date(formData.TaxDate)
+                                .toISOString()
+                                .split("T")[0]
+                            : new Date().toISOString().split("T")[0]
+                        }
+                        onInput={(e) => field.onChange(e.target.value)}
+                        onChange={handleChange}
+                        valueState={errors.TaxDate ? "Error" : "None"}
+                      >
+                        {errors.TaxDate && (
+                          <span slot="valueStateMessage">
+                            {errors.TaxDate.message}
+                          </span>
+                        )}
+                      </Input>
+                    )}
+                  />
+                </FlexBox>
+                <FlexBox alignItems="Center">
+                  <Label style={{ minWidth: "200px" }}>Status</Label>
+                  <Controller
+                    name="status"
+                    control={control}
+                    render={({ field }) => (
+                      <Input
+                        placeholder="status"
+                        name="status"
+                        disabled={true}
+                        style={{ width: "100%" }}
+                        value={"open"}
+                        onInput={(e) => field.onChange(e.target.value)}
+                        onChange={handleChange}
+                        valueState={errors.status ? "Error" : "None"}
+                      >
+                        {errors.status && (
+                          <span slot="valueStateMessage">
+                            {errors.status.message}
+                          </span>
+                        )}
+                      </Input>
+                    )}
+                  />
+                </FlexBox>
+                {console.log("customerorderlist", customerorder)}
               </FlexBox>
-              <FlexBox alignItems="Center">
-                <Label style={{ minWidth: "200px" }}>{formDetails[0]?.name === "Sales Order"||formDetails[0]?.name === "Purchase Order" ?"Delivery Date:": "Valid Until:" }</Label>
-                <Controller
-                  name="DocDueDate"
-                  control={control}
-                  render={({ field }) => (
-                    <Input
-                      placeholder="Delivery Date"
-                      name="DocDueDate"
-                      type="date"
-                      disabled={mode === "view"}
-                      min="2025-01-01"
-                      style={{ width: "100%" }}
-                      value={
-                        formData.DocDueDate
-                          ? new Date(formData.DocDueDate)
-                              .toISOString()
-                              .split("T")[0]
-                          : new Date().toISOString().split("T")[0]
-                      }
-                      onInput={(e) => field.onChange(e.target.value)}
-                      onChange={handleChange}
-                      valueState={errors.DocDueDate ? "Error" : "None"}
-                    >
-                      {errors.DocDueDate && (
-                        <span slot="valueStateMessage">
-                          {errors.DocDueDate.message}
-                        </span>
-                      )}
-                    </Input>
-                  )}
-                />
-              </FlexBox>
-              <FlexBox alignItems="Center">
-                <Label style={{ minWidth: "200px" }}>Document Date:</Label>
-                <Controller
-                  name="TaxDate"
-                  control={control}
-                  render={({ field }) => (
-                    <Input
-                      placeholder="Document Date"
-                      name="TaxDate"
-                      type="date"
-                      disabled={mode === "view"}
-                      min="2025-01-01"
-                      style={{ width: "100%" }}
-                      value={
-                        formData.TaxDate
-                          ? new Date(formData.TaxDate)
-                              .toISOString()
-                              .split("T")[0]
-                          : new Date().toISOString().split("T")[0]
-                      }
-                      onInput={(e) => field.onChange(e.target.value)}
-                      onChange={handleChange}
-                      valueState={errors.TaxDate ? "Error" : "None"}
-                    >
-                      {errors.TaxDate && (
-                        <span slot="valueStateMessage">
-                          {errors.TaxDate.message}
-                        </span>
-                      )}
-                    </Input>
-                  )}
-                />
-              </FlexBox>
-              <FlexBox alignItems="Center">
-                <Label style={{ minWidth: "200px" }}>Status</Label>
-                <Controller
-                  name="status"
-                  control={control}
-                  render={({ field }) => (
-                    <Input
-                      placeholder="status"
-                      name="status"
-                      disabled={true}
-                      style={{ width: "100%" }}
-                      value={"open"}
-                      onInput={(e) => field.onChange(e.target.value)}
-                      onChange={handleChange}
-                      valueState={errors.status ? "Error" : "None"}
-                    >
-                      {errors.status && (
-                        <span slot="valueStateMessage">
-                          {errors.status.message}
-                        </span>
-                      )}
-                    </Input>
-                  )}
-                />
-              </FlexBox>
-              {console.log("customerorderlist", customerorder)}
             </FlexBox>
-            
-          </FlexBox>
-        </Card>
-        {/* <FlexBox wrap="Wrap" direction="Row" style={{ gap: "1rem",paddingTop:"1rem" }}>
+          </Card></div>
+          {/* <FlexBox wrap="Wrap" direction="Row" style={{ gap: "1rem",paddingTop:"1rem" }}>
           <FlexBox direction="Column" style={{ flex: 1 }}>
             <Grid
               defaultSpan="XL5 L5 M8 S8"
@@ -697,8 +724,8 @@ console.log("selectedData",selectedData,generalData)
             </Grid>
           </FlexBox>
         </FlexBox> */}
-      </form>
-}
+        </form>
+      )}
       <CardDialog
         open={dialogOpen}
         handleCardDialogClose={handleCardDialogClose}

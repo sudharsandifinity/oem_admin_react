@@ -102,11 +102,12 @@ const Attachments = (props) => {
           hideInput
           value="Add Attachment"
           tooltip="Add Attachment"
-          design="Emphasized"
+          design="default"
           icon="add"
           onChange={handleAddAttachment}
+          style={{padding:"1rem"}}
         >
-          <Button design="Emphasized">Add New</Button>
+          <Button design="Default">Add New</Button>
         </FileUploader>
       </FlexBox>
 
@@ -142,6 +143,7 @@ const Attachments = (props) => {
     //   </UploadCollection>*/}
     <div
   style={{
+    padding: "1rem",
     display: "grid",
     gridTemplateColumns: "repeat(3, 1fr)", // 3 columns
     gap: "0.75rem",

@@ -31,7 +31,7 @@ const CardDialog = ({
     {
       Header: "Card Code",
       accessor: "CardCode",
-      width: 200,
+      width: 100,
     },
     { Header: "Card Name", accessor: "CardName" },
     { Header: "Contact Person", accessor: "ContactPerson" },
@@ -117,6 +117,7 @@ const CardDialog = ({
             alignItems: "end",
             flexWrap: "wrap",
             gap: "15px",
+            paddingBottom: "1rem",
           }}
         >
           <FlexBox direction="Column">
@@ -208,7 +209,11 @@ const CardDialog = ({
           columns={columns}
           selectionMode="Single"
           onRowSelect={handleSelectionChange}
+          selectionBehavior="RowOnly"
+          scaleWidthMode="Grow"
          visibleRows={6}
+         style={{border: "1px solid #ccc",   /* keeps a grey outline */
+  borderRadius: "4px",padding: "0.25rem"}}
         />
       </FlexBox>
     </Dialog>
