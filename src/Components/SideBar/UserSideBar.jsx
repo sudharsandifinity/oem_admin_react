@@ -103,7 +103,7 @@ const UserSideBar = (props) => {
   return (
     <FlexBox style={{ height: "100vh" }}>
         <FlexBox direction="Column" style={{ display:collapsed ? "none" : "flex" }}>
-          <Bar
+          {/* <Bar
             design="Header"
             style={{width: '256px', height: '180px' }}
           >
@@ -142,7 +142,7 @@ const UserSideBar = (props) => {
                 </Select>
                 </div>
             </div>
-          </Bar>
+          </Bar> */}
             
             {/* <Text style={{ paddingLeft: '16px', paddingBottom: '20px' }}>Menu List</Text> */}
             <SideNavigation>

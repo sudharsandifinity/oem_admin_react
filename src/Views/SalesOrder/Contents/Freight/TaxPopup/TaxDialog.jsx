@@ -121,15 +121,18 @@ const TaxDialog = (props) => {
           </Button>
         </FlexBox>
       }
-      style={{ width: "80%" }}
+     style={{ width: "40vw"}}
     >
-      <DynamicPage
-        headerArea={
-          <DynamicPageHeader>
+       <FlexBox direction="Column">
             <FlexBox
-              direction="Row"
-              alignItems="Center"
-              justifyContent="SpaceBetween"
+             direction="Row"
+          style={{
+            display: "inline-flex",
+            alignItems: "end",
+            flexWrap: "wrap",
+            gap: "15px",
+            paddingBottom: "1rem",
+          }}
             >
               <Grid
                 defaultIndent="XL0 L0 M0 S0"
@@ -153,28 +156,21 @@ const TaxDialog = (props) => {
             </FlexBox>
 
             {/* Basic Company Code Search */}
-          </DynamicPageHeader>
-        }
-        onPinButtonToggle={function Xs() {}}
-        onTitleToggle={function Xs() {}}
-        style={{
-          height: "600px",
-        }}
-      >
-        <div className="tab">
-          <FlexBox direction="Column">
-            <div>
+       
+       
               <AnalyticalTable
                 data={taxData}
                 columns={column}
                 header={`Items (${taxData.length})`}
                 selectionMode="Single"
                 onRowSelect={taxSelectionRow}
+                 scaleWidthMode="Grow"
+         visibleRows={6}
+         style={{border: "1px solid #ccc",   /* keeps a grey outline */
+  borderRadius: "4px",padding: "0.25rem"}}
               />
-            </div>
-          </FlexBox>
-        </div>
-      </DynamicPage>
+           
+      </FlexBox>
     </Dialog>
   );
 };

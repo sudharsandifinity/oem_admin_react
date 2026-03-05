@@ -37,6 +37,7 @@ import {
   BusyIndicator,
   Select,
   Option,
+  Text,
 } from "@ui5/webcomponents-react";
 import { FormConfigContext } from "../../Components/Context/FormConfigContext";
 
@@ -859,17 +860,17 @@ TaxDate: formData.TaxDate
                 style={{ padding: 0.5,marginBottom: "16px" }}
                 design={BarDesign.FloatingFooter}
                 endContent={
-                  <>
-                    <Button design="Positive" onClick={() => handleSubmit()}>
+                  <FlexBox style={{ gap: "0.5rem" }}>
+                    <Button design="default" onClick={() => handleSubmit()}>
                       Update
                     </Button>
                     <Button
-                      design="Positive"
+                      design="default"
                       onClick={() => navigate(`/Sales/${formId}`)}
                     >
                       Cancel
                     </Button>
-                  </>
+                  </FlexBox>
                 }
               />
             </>
@@ -878,21 +879,21 @@ TaxDate: formData.TaxDate
             <DynamicPageHeader>
               <FlexBox wrap="Wrap">
                 <FlexBox direction="Column">
-                  <Label>Customer</Label>
+                  <Text>Customer</Text>
                 </FlexBox>
                 <span style={{ width: "4rem" }} />
                 <FlexBox direction="Column">
-                  <Label>Total:</Label>
+                  <Text>Total:</Text>
                   <ObjectStatus state="None">GBP 0.00</ObjectStatus>
                 </FlexBox>
                 <span style={{ width: "4rem" }} />
                 <FlexBox direction="Column">
-                  <Label>Status</Label>
+                  <Text>Status</Text>
                   <ObjectStatus state="Positive">Open</ObjectStatus>
                 </FlexBox>
                 <span style={{ width: "4rem" }} />
                 <FlexBox direction="Column">
-                  <Label>Credit Limit Utilization</Label>
+                  <Text>Credit Limit Utilization</Text>
                   <Slider
                     min={0}
                     max={100}

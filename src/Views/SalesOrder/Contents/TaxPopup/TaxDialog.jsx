@@ -55,7 +55,7 @@ const TaxDialog = (props) => {
  
   return (
     <Dialog
-      headerText="Item Details"
+      headerText="Tax Details"
       open={isTaxDialogOpen}
       onAfterClose={() => setisTaxDialogOpen(false)}
       footer={
@@ -71,16 +71,21 @@ const TaxDialog = (props) => {
         
         </FlexBox>
       }
-      style={{ width: "80%" }}
+      style={{ width: "60vw"}}
     >
-      <DynamicPage
-        headerArea={
-          <DynamicPageHeader>
-            <FlexBox
-              direction="Row"
-              alignItems="Center"
-              justifyContent="SpaceBetween"
-            >
+      <FlexBox direction="Column">
+             {/* <FlexBox direction="Row" style={{ padding: "0.5rem", gap: "2rem" }}> */}
+             <FlexBox
+               direction="Row"
+               style={{
+                 display: "inline-flex",
+                 alignItems: "end",
+                 flexWrap: "wrap",
+                 gap: "15px",
+                 paddingBottom: "1rem",
+               }}
+             >
+               <FlexBox direction="Column">
               <Grid
                 defaultIndent="XL0 L0 M0 S0"
                 defaultSpan="XL4 L4 M6 S12"
@@ -97,35 +102,26 @@ const TaxDialog = (props) => {
                                   )
                                 )}
               </Grid>
+              </FlexBox>
               <Button style={{ width: "100px" }} onClick={clearTaxFilter}>
                 Clear Filter
               </Button>
             </FlexBox>
 
-            {/* Basic Company Code Search */}
-          </DynamicPageHeader>
-        }
-        onPinButtonToggle={function Xs() {}}
-        onTitleToggle={function Xs() {}}
-        style={{
-          height: "600px",
-        }}
-      >
-        <div className="tab">
-          <FlexBox direction="Column">
-            <div>
+         
               <AnalyticalTable
                 data={taxData}
                 columns={column}
-                header={`Items (${taxData.length})`}
+                //header={`Items (${taxData.length})`}
                 selectionMode="Single"
                 onRowSelect={taxSelectionRow}
-                visibleRows={6}
-              />
-            </div>
-          </FlexBox>
-        </div>
-      </DynamicPage>
+                selectionBehavior="RowOnly"
+                         scaleWidthMode="Grow"
+                        visibleRows={6}
+                        style={{border: "1px solid #ccc",   /* keeps a grey outline */
+                 borderRadius: "4px",padding: "0.25rem"}}
+                       />
+                     </FlexBox>
     </Dialog>
   );
 };

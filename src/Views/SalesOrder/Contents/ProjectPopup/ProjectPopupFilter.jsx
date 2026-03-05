@@ -144,6 +144,7 @@ console.log("filteredList",filteredList)
           <Input
             icon={
               <Icon
+              style={{paddingTop:"0.5rem"}}
                 name="value-help"
                 onClick={() => handleValueHelpRequest(field.FieldName)}
               />

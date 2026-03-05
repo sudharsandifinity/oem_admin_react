@@ -17,6 +17,9 @@ import { forwardRef, useEffect, useState } from "react";
 import avatarPng from "../../assets/Image/no-profile.png";
 import { useDispatch, useSelector } from "react-redux";
 import { Navigate, useNavigate } from "react-router-dom";
+import { applyCustomTheme, resetTheme } from "../Themes/ThemeManager";
+
+
 
 const ManageUser = forwardRef((props, ref) => {
   const { open, setOpen } = props;
@@ -24,7 +27,7 @@ const ManageUser = forwardRef((props, ref) => {
   const [accountsLoading, setAccountsLoading] = useState(false);
   const [selectedAccount, setSelectedAccount] = useState("0");
   const [messageBoxOpen, setMessageBoxOpen] = useState(false);
-  const [fioriTheme, setFioriTheme] = useState("");
+const [fioriTheme, setFioriTheme] = useState("custom")
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
@@ -62,15 +65,25 @@ const ManageUser = forwardRef((props, ref) => {
     setUserSettingsOpen(true);
   };
 
+  //  useEffect(() => {
+  //   if (fioriTheme === "custom") {
+  //   import("../Theme/theme.css");
+  //   document.body.style.setProperty("background-color", "#f4f5f7");
+  // } else  {
+  //     setTheme(fioriTheme);
+  //     document.body.style.setProperty(
+  //       "background-color",
+  //       ThemingParameters.sapBackgroundColor,
+  //     );
+  //   }
+  // }, [fioriTheme]);
   useEffect(() => {
-    if (fioriTheme) {
-      setTheme(fioriTheme);
-      document.body.style.setProperty(
-        "background-color",
-        ThemingParameters.sapBackgroundColor,
-      );
-    }
-  }, [fioriTheme]);
+  if (fioriTheme === "custom") {
+    applyCustomTheme();
+  } else {
+    resetTheme(fioriTheme);
+  }
+}, [fioriTheme]);
 
   return (
     <>
@@ -126,28 +139,14 @@ const ManageUser = forwardRef((props, ref) => {
           data-id="change-password"
           onClick={handleChangePasswordClick}
         />
-        <UserMenuItem icon={paletteIcon} text="Theme">
-          <UserMenuItem
-            text="fiori 3"
-            onClick={() => setFioriTheme("")}
-          />
-          <UserMenuItem
-            text="Fiori 3 Dark"
-            onClick={() => setFioriTheme("sap_fiori_3_dark")}
-          />
-          <UserMenuItem
-            text="Fiori 3 HCB"
-            onClick={() => setFioriTheme("sap_fiori_3_hcb")}
-          />
-          <UserMenuItem
-            text="Horizon"
-            onClick={() => setFioriTheme("sap_horizon")}
-          />
-          <UserMenuItem
-            text="Horizon Dark"
-            onClick={() => setFioriTheme("sap_horizon_dark")}
-          />
-        </UserMenuItem>
+       <UserMenuItem icon={paletteIcon} text="Theme">
+  <UserMenuItem text="Custom Theme" onClick={() => setFioriTheme("custom")} />
+  <UserMenuItem text="Fiori 3" onClick={() => setFioriTheme("")} />
+  <UserMenuItem text="Fiori 3 Dark" onClick={() => setFioriTheme("sap_fiori_3_dark")} />
+  <UserMenuItem text="Fiori 3 HCB" onClick={() => setFioriTheme("sap_fiori_3_hcb")} />
+  <UserMenuItem text="Horizon" onClick={() => setFioriTheme("sap_horizon")} />
+  <UserMenuItem text="Horizon Dark" onClick={() => setFioriTheme("sap_horizon_dark")} />
+</UserMenuItem>
       </UserMenu>
 
       <MessageBox

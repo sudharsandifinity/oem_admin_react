@@ -107,16 +107,19 @@ export default function TopNav({
   return (
     <>
       <ShellBar
-        {...rest}
+        // {...rest}
         id="shellbar"
-        style={{ padding: "0 1rem" }}
+        style={{ padding: "0 1rem", 
+          //background: 'var(--brand)' 
+        }}
         notificationsCount=""
         onProfileClick={handleProfileClick}
         startButton={
           <Button
+           design="Transparent"
+  style={{ background: "transparent",color: "#fff" }}
             id="menu-button"
             icon={menu2Icon}
-            style={{ color: collapsed ? "" : "#006d86" }}
             tooltip="Toggle side navigation"
             accessibleName="Toggle side navigation"
             onClick={handleMenuBtnClick}
@@ -135,7 +138,7 @@ export default function TopNav({
                 <img
                   src={SapLogoSvg}
                   alt="SAP Logo"
-                  style={{ width: "100%", height: "100%" }}
+                  style={{ width: "100%", height: "100%", filter: "brightness(1.2)" }}
                 />
               </div>
             }
