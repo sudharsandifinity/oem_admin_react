@@ -18,9 +18,6 @@ import { forwardRef, useEffect, useState } from "react";
 import avatarPng from "../../assets/Image/no-profile.png";
 import { useDispatch, useSelector } from "react-redux";
 import { Navigate, useNavigate } from "react-router-dom";
-import { applyCustomTheme, resetTheme } from "../Themes/ThemeManager";
-
-
 
 const ManageUser = forwardRef((props, ref) => {
   const { open, setOpen } = props;
@@ -28,7 +25,7 @@ const ManageUser = forwardRef((props, ref) => {
   const [accountsLoading, setAccountsLoading] = useState(false);
   const [selectedAccount, setSelectedAccount] = useState("0");
   const [messageBoxOpen, setMessageBoxOpen] = useState(false);
-const [fioriTheme, setFioriTheme] = useState("custom")
+  const [fioriTheme, setFioriTheme] = useState("");
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);

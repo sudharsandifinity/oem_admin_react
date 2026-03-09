@@ -144,8 +144,8 @@ const ManageSalesOrder = () => {
         setOriginalCustomerData(initialData); // store original data for reset
         setPage(1);
         if (res.message === "Please Login!") {
-          navigate("/login");
-        }
+        navigate("/login");
+      }
       } catch (err) {
         console.log("Err object:", err);
 
@@ -156,7 +156,7 @@ const ManageSalesOrder = () => {
         console.error("c    :", statusCode, "Message:", message);
         setApiError(message);
 
-        // If 401, redirect to login
+        // If 401, redirect to login 
         if (statusCode === 401) {
           navigate("/login");
         }
@@ -439,7 +439,7 @@ const ManageSalesOrder = () => {
       navigate("/");
     }
   }, [user, formId]);
-
+ 
   return (
     <div style={{ width: "100%" }}>
       <DynamicPage
@@ -456,16 +456,16 @@ const ManageSalesOrder = () => {
           />
         }
         headerArea={
-          <DynamicPageHeader
-            className="custom-header"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              padding: "1rem",
-              //backgroundColor: "#354a5f", // SAP Blue
-             // color: "white",
-            }}
-          >
+           <DynamicPageHeader
+      className="custom-header"
+      // style={{
+      //   display: "flex",
+      //   alignItems: "center",
+      //   padding: "1rem",
+      //   backgroundColor: "#354a5f", // SAP Blue
+      //   color: "white"
+      // }}
+    >
             <FlexBox
               direction="Row"
               style={{
@@ -475,10 +475,10 @@ const ManageSalesOrder = () => {
                 gap: "15px",
               }}
             >
+             
               {console.log(
                 "ManageSalesOderHeaderField",
-                ManageSalesOderHeaderField,
-                customerorder,
+                ManageSalesOderHeaderField,customerorder
               )}
               {ManageSalesOderHeaderField.map((field) => {
                 const filteredData = {
@@ -505,14 +505,9 @@ const ManageSalesOrder = () => {
                     setOriginalCustomerData={setOriginalCustomerData}
                   />
                 );
-              })}
-              {console.log("originalCustomerData", originalCustomerData)}
+              })}{console.log("originalCustomerData",originalCustomerData)}
               <Button
-                design="Default"
-                className="clear-filter-btn"
-                style={{ width: "100px", marginBottom: "2px",
-                  //backgroundColor: "#1e6091" 
-                }}
+                style={{ width: "100px", marginBottom: "2px" }}
                 onClick={() => {
                   setisClearFilter(true);
                   settableData(originalCustomerData);
@@ -522,7 +517,7 @@ const ManageSalesOrder = () => {
                   });
                 }}
               >
-                <div >Clear Filter</div>
+                Clear Filter
               </Button>
             </FlexBox>
           </DynamicPageHeader>
@@ -531,14 +526,14 @@ const ManageSalesOrder = () => {
         onTitleToggle={function Xs() {}}
         titleArea={
           <DynamicPageTitle
-            className="custom-header"
-            style={{
-              display: "flex",
-              alignItems: "start",
-              padding: "1rem",
-              //backgroundColor: "#354a5f", // SAP Blue
-              color: "white",
-            }}
+           className="custom-header"
+      style={{
+        //display: "flex",
+        // alignItems: "start",
+        // padding: "1rem",
+        // backgroundColor: "#354a5f", // SAP Blue
+        //color: "white"
+      }}
             breadcrumbs={
               <Breadcrumbs
                 design="Standard"
@@ -592,7 +587,7 @@ const ManageSalesOrder = () => {
                 <FlexBox direction="Column">
                   <div>
                     <FlexBox direction="Column">
-                      {console.log("loading", loading, tableData)}
+                      {console.log("loading", loading,tableData)}
                       <AnalyticalTable
                         columns={columns}
                         data={tableData}
@@ -604,14 +599,14 @@ const ManageSalesOrder = () => {
                             docLines.length > 0 &&
                             docLines.every((l) => Number(l?.Quantity) === 1);
                           return allQtyZero
-                            ? { backgroundColor: "#d1deeb" }
+                            ? { backgroundColor: "#fafafa" }
                             : {};
                         }}
                         header={
                           <FlexBox
                             justifyContent="SpaceBetween"
                             alignItems="Center"
-                            style={{ width: "100%", padding: "4px 10px" ,backgroundColor: "#d1d6df" }}
+                            style={{ width: "100%", padding: "4px 10px" }}
                           >
                             <Title style={{ minWidth: "200px" }}>
                               {`${
@@ -625,7 +620,7 @@ const ManageSalesOrder = () => {
                               style={{ border: "none" }}
                             >
                               <ToolbarButton
-                                design="default"
+                                design="emphasized"
                                 onClick={() => {
                                   navigate(
                                     "/Order/create/" +
@@ -638,7 +633,7 @@ const ManageSalesOrder = () => {
                                 text="Create"
                               />
                               <ToolbarButton
-                                design="default"
+                                design="Transparent"
                                 onClick={handleExportPDF}
                                 text="Export"
                               />

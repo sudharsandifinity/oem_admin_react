@@ -24,11 +24,9 @@ import logo from "../../assets/Image/hamtinfotech-logo.webp";
 
 import { setTheme } from "@ui5/webcomponents-base/dist/config/Theme.js";
 import { logout } from "../../store/slices/authSlice";
-import { applyCustomTheme, resetTheme } from "../Theme/ThemeManager";
-
 
 const Header = () => {
-  const [fioriTheme, setFioriTheme] = useState("custom");
+  const [fioriTheme, setFioriTheme] = useState("");
   const dispatch = useDispatch();
   const menuRef = useRef();
    const location = useLocation();
@@ -36,14 +34,13 @@ const Header = () => {
   const buttonRef = useRef(null);
   const [menuIsOpen, setMenuIsOpen] = useState(false);
 
-
-useEffect(() => {
-  if (fioriTheme === "custom") {
-    applyCustomTheme();
-  } else {
-    resetTheme(fioriTheme);
-  }
-}, [fioriTheme]);
+  useEffect(() => {
+    setTheme(fioriTheme); // Apply theme globally
+    document.body.style.setProperty(
+      "background-color",
+      ThemingParameters.sapBackgroundColor
+    );
+  }, [fioriTheme]);
   const navigate = useNavigate();
   const handleProductSwitchClick = () => {
     navigate("/admin");
@@ -122,7 +119,6 @@ useEffect(() => {
                   style={{ marginLeft: "1rem" }}
                 >
                   {" "}
-                  <Option value="custom">Custom Theme</Option>
                   <Option value="">Theme</Option>
                   <Option value="sap_fiori_3">Fiori 3</Option>
                   <Option value="sap_fiori_3_dark">Fiori 3 Dark</Option>

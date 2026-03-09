@@ -1217,17 +1217,17 @@ useEffect(() => {
             Total Summary
           </Title>
           <FlexBox>
-            <Text showColon style={{ minWidth: "200px" }}>
+            <Label showColon style={{ minWidth: "200px" }}>
               Total Before Discount
-            </Text>
+            </Label>
             <FlexBox style={{ width: "100%" }} justifyContent="End">
               {summaryCalculation.totalBeforeDiscount}
             </FlexBox>
           </FlexBox>
           <FlexBox alignItems="Center">
-            <Text showColon style={{ minWidth: "200px" }}>
+            <Label showColon style={{ minWidth: "200px" }}>
               Discount
-            </Text>
+            </Label>
             <FlexBox
               style={{ width: "100%" }}
               justifyContent="SpaceBetween"
@@ -1253,12 +1253,12 @@ useEffect(() => {
             </FlexBox>
           </FlexBox>
           <FlexBox>
-            <Text
+            <Label
               showColon
               style={{ minWidth: "200px", marginBottom: "10px" }}
             >
               Freight
-            </Text>
+            </Label>
             <Button
               design="Default"
               onClick={() => setfreightDialogOpen(true)}
@@ -1288,17 +1288,17 @@ useEffect(() => {
             </FlexBox>
           </FlexBox>
           <FlexBox>
-            <Text showColon style={{ minWidth: "200px" }}>
+            <Label showColon style={{ minWidth: "200px" }}>
               Tax
-            </Text>
+            </Label>
             <FlexBox style={{ width: "100%" }} justifyContent="End">
               <Text> {summaryCalculation.totalTaxAmount}</Text>
             </FlexBox>
           </FlexBox>
           <FlexBox alignItems="Center">
-            <Text showColon style={{ minWidth: "200px" }}>
+            <Label showColon style={{ minWidth: "200px" }}>
               Rounding
-            </Text>
+            </Label>
             <FlexBox
               style={{ width: "100%" }}
               justifyContent="SpaceBetween"
@@ -1337,9 +1337,9 @@ useEffect(() => {
             </FlexBox>
           </FlexBox>
           <FlexBox>
-            <Text showColon style={{ minWidth: "200px" }}>
+            <Label showColon style={{ minWidth: "200px" }}>
               Total
-            </Text>
+            </Label>
             <FlexBox
               style={{ width: "100%", fontWeight: "bold" }}
               justifyContent="End"
@@ -1367,7 +1367,7 @@ useEffect(() => {
                   <FormItem
                     key={field.accessor}
                     label={field.Header}
-                    labelContent={<Text>{field.Header}</Text>}
+                    labelContent={<Label>{field.Header}</Label>}
                   >
                     {renderIteminput(field, form, handleChange, "Service")}
                   </FormItem>

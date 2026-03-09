@@ -267,9 +267,9 @@ const Addservicedialog = (props) => {
           </Button>
         </FlexBox>
       }
-     style={{ width: "50vw"}}
+      style={{ width: "40%" }}
     >
-      <FlexBox direction="Column" >
+      <FlexBox direction="Column" style={{ height: "100%" }}>
           <DynamicPageHeader>
                        <FlexBox direction="Row" style={{display: 'inline-flex', alignServices: 'end', flexWrap: 'wrap', gap: '15px'}}>
                         
@@ -338,8 +338,7 @@ const Addservicedialog = (props) => {
                 selectedRowIds={rowSelection}
                 onRowSelect={onservicechildRowSelect}
                 visibleRows={6}
-      style={{border: "1px solid #ccc",   /* keeps a grey outline */
-  borderRadius: "4px",padding: "0.25rem"}}
+                style={{height:"100%"}}
 
                 // onRowSelectionChange={(e) =>
                 //   setRowSelection(e.detail.selectedRowIds)
