@@ -25,7 +25,7 @@ const ManageUser = forwardRef((props, ref) => {
   const [accountsLoading, setAccountsLoading] = useState(false);
   const [selectedAccount, setSelectedAccount] = useState("0");
   const [messageBoxOpen, setMessageBoxOpen] = useState(false);
-  const [fioriTheme, setFioriTheme] = useState("");
+  const [fioriTheme, setFioriTheme] = useState("marine_blue");
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
@@ -63,30 +63,30 @@ const ManageUser = forwardRef((props, ref) => {
     setUserSettingsOpen(true);
   };
 
-  useEffect(() => {
+//   useEffect(() => {
+//     if (fioriTheme === "marine_blue") {
+//       document.documentElement.setAttribute("data-theme", "marine_blue");
+//     }
+//     else if (fioriTheme === "custom") {
+//       applyCustomTheme();
+//     } else {
+//       resetTheme(fioriTheme);
+//     }
+// }, [fioriTheme]);
+
+    useEffect(() => {
     if (fioriTheme === "marine_blue") {
       document.documentElement.setAttribute("data-theme", "marine_blue");
-    }
-    else if (fioriTheme === "custom") {
-      applyCustomTheme();
     } else {
-      resetTheme(fioriTheme);
+      document.documentElement.removeAttribute("data-theme");
+      setTheme(fioriTheme);
     }
-}, [fioriTheme]);
 
-  //   useEffect(() => {
-  //   if (fioriTheme === "marine_blue") {
-  //     document.documentElement.setAttribute("data-theme", "marine_blue");
-  //   } else {
-  //     document.documentElement.removeAttribute("data-theme");
-  //     setTheme(fioriTheme);
-  //   }
-
-  //   document.body.style.setProperty(
-  //     "background-color",
-  //     ThemingParameters.sapBackgroundColor
-  //   );
-  // }, [fioriTheme]);
+    document.body.style.setProperty(
+      "background-color",
+      ThemingParameters.sapBackgroundColor
+    );
+  }, [fioriTheme]);
 
   return (
     <>

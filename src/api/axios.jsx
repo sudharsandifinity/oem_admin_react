@@ -2,7 +2,7 @@ import axios from "axios";
 
 // Your local backend API
 const api = axios.create({
-  baseURL: "http://localhost:8000/api/v1",
+  baseURL: "http://localhost:3002/api/v1",
   // baseURL: "https://sapoemapi.hlbmeonline.com:8005/api/v1",
   timeout: 50000,
 });
