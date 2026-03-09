@@ -54,7 +54,7 @@ const ProjectDialog = (props) => {
  
   return (
     <Dialog
-      headerText="Project Details"
+      headerText="Item Details"
       open={isProjectDialogOpen}
       onAfterClose={() => setisProjectDialogOpen(false)}
       footer={
@@ -70,21 +70,16 @@ const ProjectDialog = (props) => {
         
         </FlexBox>
       }
-     style={{ width: "50vw"}}
+      style={{ width: "80%" }}
     >
-       <FlexBox direction="Column">
-              {/* <FlexBox direction="Row" style={{ padding: "0.5rem", gap: "2rem" }}> */}
-              <FlexBox
-                direction="Row"
-                style={{
-                  display: "inline-flex",
-                  alignItems: "end",
-                  flexWrap: "wrap",
-                  gap: "15px",
-                  paddingBottom: "1rem",
-                }}
-              >
-                <FlexBox direction="Column">
+      <DynamicPage
+        headerArea={
+          <DynamicPageHeader>
+            <FlexBox
+              direction="Row"
+              alignItems="Center"
+              justifyContent="SpaceBetween"
+            >
               <Grid
                 defaultIndent="XL0 L0 M0 S0"
                 defaultSpan="XL4 L4 M6 S12"
@@ -101,28 +96,35 @@ const ProjectDialog = (props) => {
                                   )
                                 )}
               </Grid>
-              </FlexBox>
               <Button style={{ width: "100px" }} onClick={clearProjectFilter}>
                 Clear Filter
               </Button>
             </FlexBox>
 
             {/* Basic Company Code Search */}
-         
+          </DynamicPageHeader>
+        }
+        onPinButtonToggle={function Xs() {}}
+        onTitleToggle={function Xs() {}}
+        style={{
+          height: "600px",
+        }}
+      >
+        <div className="tab">
+          <FlexBox direction="Column">
+            <div>
               <AnalyticalTable
                 data={projectData}
                 columns={column}
-               // header={`Items (${projectData.length})`}
+                header={`Items (${projectData.length})`}
                 selectionMode="Single"
                 onRowSelect={projectSelectionRow}
-                selectionBehavior="RowOnly"
-                scaleWidthMode="Grow"
                 visibleRows={6}
-                style={{border: "1px solid #ccc",   /* keeps a grey outline */
-                 borderRadius: "4px",padding: "0.25rem"}}
               />
+            </div>
           </FlexBox>
-        
+        </div>
+      </DynamicPage>
     </Dialog>
   );
 };

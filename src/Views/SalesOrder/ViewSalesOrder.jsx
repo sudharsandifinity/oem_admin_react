@@ -1,5 +1,5 @@
 // DynamicForm.jsx
-import React, { Suspense, useContext, useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import {
   Form,
   FormItem,
@@ -37,7 +37,6 @@ import {
   BusyIndicator,
   Select,
   Option,
-  Text,
 } from "@ui5/webcomponents-react";
 import { FormConfigContext } from "../../Components/Context/FormConfigContext";
 
@@ -76,7 +75,6 @@ const ViewSalesOrder = () => {
   const user = useSelector((state) => state.auth.user);
   const [open, setOpen] = useState(false);
   const [type, setType] = useState("Item");
-    const [currencyType, setCurrencyType] = useState("GBP");
 
   const [attachmentsList, setAttachmentsList] = useState([]);
   
@@ -621,13 +619,6 @@ const ViewSalesOrder = () => {
   }, [formId]);
   return (
     <>
-    <style>
-        {`
-            ._footer_17oaz_164{
-              position: static
-            }
-          `}
-      </style>
       <BusyIndicator
         style={{
           width: "100%",
@@ -636,7 +627,6 @@ const ViewSalesOrder = () => {
         active={loading}
       >
         <ObjectPage
-         className="sales-order-page"
           footerArea={
             <>
               {" "}
@@ -646,7 +636,7 @@ const ViewSalesOrder = () => {
                 endContent={
                   <>
                     <Button
-                      design="default"
+                      design="Positive"
                       onClick={() => navigate(`/Sales/${formId}`)}
                     >
                       Close
@@ -660,21 +650,21 @@ const ViewSalesOrder = () => {
             <DynamicPageHeader>
               <FlexBox wrap="Wrap">
                 <FlexBox direction="Column">
-                  <Text>Customer</Text>
+                  <Label>Customer</Label>
                 </FlexBox>
                 <span style={{ width: "4rem" }} />
                 <FlexBox direction="Column">
-                  <Text>Total:</Text>
+                  <Label>Total:</Label>
                   <ObjectStatus state="None">GBP 0.00</ObjectStatus>
                 </FlexBox>
                 <span style={{ width: "4rem" }} />
                 <FlexBox direction="Column">
-                  <Text>Status</Text>
+                  <Label>Status</Label>
                   <ObjectStatus state="Positive">Open</ObjectStatus>
                 </FlexBox>
                 <span style={{ width: "4rem" }} />
                 <FlexBox direction="Column">
-                  <Text>Credit Limit Utilization</Text>
+                  <Label>Credit Limit Utilization</Label>
                   <Slider
                     min={0}
                     max={100}
@@ -836,8 +826,6 @@ const ViewSalesOrder = () => {
                 formData={formData}
                 defaultValues={formData} // ✅ now passes edit data properly
                 apiError={apiError}
-            setCurrencyType={setCurrencyType}
-
                 formDetails={formDetails}
                 selectedcardcode={selectedcardcode}
             setSelectedCardCode={setSelectedCardCode}
@@ -866,13 +854,7 @@ const ViewSalesOrder = () => {
               height: "100%",
             }}
             titleText="Contents"
-          ><Suspense fallback={ <FlexBox
-                style={{ height: "300px" }}
-                justifyContent="Center"
-                alignItems="Center"
-              >
-                <BusyIndicator size="Medium" active />
-              </FlexBox>}>
+          >
             {console.log("editpageconytentitemdata", itemdata)}
             <Contents
               rowSelection={rowSelection}
@@ -913,7 +895,7 @@ const ViewSalesOrder = () => {
               setRoundOff={setRoundOff}
               freightRowSelection={freightRowSelection}
               setFreightRowSelection={setFreightRowSelection}
-            /></Suspense>
+            />
           </ObjectPageSection>
           {/* );
                     } else if (tab.name === "logistics") {

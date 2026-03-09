@@ -49,7 +49,6 @@ import EditUserChildMenu from "../Views/Admin/Menu/MenuMaster/EditUserChildMenu"
 import EditSalesOrder from "../Views/SalesOrder/editSalesOrder";
 import SideNavWrapper from "../Components/SideBar/SideNavWrapper";
 import UserSideNavWrapper from "../Components/SideBar/UserSideNavWrapper";
-import UserDashboard from "../Components/Dashboard/UserDashboard";
 import ManagePurchaseOrder from "../Views/ManagePurchaseOrder/ManagePurchaseOrder";
 import PurchaseOrder from "../Views/PurchaseOrder/PurchaseOrder";
 import EditPurchaseOrder from "../Views/PurchaseOrder/EditPurchaseOrder";
@@ -90,10 +89,7 @@ const AppRoutes = () => {
           </PrivateRoute>
         }
       >
-        <Route path="/dashboard" element={<UserSideNavWrapper />}>
-          {/* nested child route so outlet inside UserSideNav will render dashboard component */}
-          <Route index element={<UserDashboard />} />
-        </Route>
+        <Route path="/dashboard" element={<UserSideNavWrapper />} />
         <Route path="/change-password" element={<ChangePassword />} />
         <Route path="/Admin" element={<SideNavWrapper />} />
         <Route path="/admin" element={<SideNavWrapper />}>

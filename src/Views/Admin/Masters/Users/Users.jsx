@@ -261,20 +261,19 @@ const Users = () => {
             </div>
           }
           endContent={
-            <FlexBox style={{ gap: "0.5rem" }}>
-              <Button
-                design="Emphasized"
-                onClick={() => navigate("/admin/users/create")}
-              >
-                Add User
-              </Button>
+            <><Button
+              design="Emphasized"
+              onClick={() => navigate("/admin/users/create")}
+            >
+              Add User
+            </Button>
             <Button
               design="Emphasized"
               onClick={() => navigate("/admin/users/EmployeeCreate")}
             >
               Add Employee
             </Button>
-            </FlexBox>
+            </>
           }
         ></AppBar>
         <Page

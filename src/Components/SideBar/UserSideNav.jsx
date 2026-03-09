@@ -15,7 +15,6 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Outlet, useNavigate } from "react-router-dom";
 import UserDashboard from "../../Components/Dashboard/UserDashboard";
-//import UserDashboard from "../../Views/Dashboard/UserDashboard";
 
 const UserSideNav = ({
   collapsed,
@@ -54,7 +53,6 @@ const UserSideNav = ({
     <FlexBox style={{ height: "95vh" }}>
       <FlexBox
         direction="Column"
-        className={"sidebar" + (collapsed ? "" : " open")}
         style={{ width: collapsed ? "0px" : "260px" }}
       >
         <SideNavigation
@@ -104,8 +102,8 @@ const UserSideNav = ({
         </SideNavigation>
       </FlexBox>
       <FlexBox style={{ flex: 1, height: "100%" }}>
-        {/* outlet will render whichever child route is active (dashboard, reports, etc.) */}
         <Outlet />
+        <UserDashboard />
       </FlexBox>
     </FlexBox>
   );

@@ -18,9 +18,6 @@ import { forwardRef, useEffect, useState } from "react";
 import avatarPng from "../../assets/Image/no-profile.png";
 import { useDispatch, useSelector } from "react-redux";
 import { Navigate, useNavigate } from "react-router-dom";
-import { applyCustomTheme, resetTheme } from "../Themes/ThemeManager";
-
-
 
 const ManageUser = forwardRef((props, ref) => {
   const { open, setOpen } = props;
@@ -28,7 +25,7 @@ const ManageUser = forwardRef((props, ref) => {
   const [accountsLoading, setAccountsLoading] = useState(false);
   const [selectedAccount, setSelectedAccount] = useState("0");
   const [messageBoxOpen, setMessageBoxOpen] = useState(false);
-const [fioriTheme, setFioriTheme] = useState("custom")
+  const [fioriTheme, setFioriTheme] = useState("marine_blue");
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
@@ -66,16 +63,30 @@ const [fioriTheme, setFioriTheme] = useState("custom")
     setUserSettingsOpen(true);
   };
 
-  useEffect(() => {
+//   useEffect(() => {
+//     if (fioriTheme === "marine_blue") {
+//       document.documentElement.setAttribute("data-theme", "marine_blue");
+//     }
+//     else if (fioriTheme === "custom") {
+//       applyCustomTheme();
+//     } else {
+//       resetTheme(fioriTheme);
+//     }
+// }, [fioriTheme]);
+
+    useEffect(() => {
     if (fioriTheme === "marine_blue") {
       document.documentElement.setAttribute("data-theme", "marine_blue");
-    }
-    else if (fioriTheme === "custom") {
-      applyCustomTheme();
     } else {
-      resetTheme(fioriTheme);
+      document.documentElement.removeAttribute("data-theme");
+      setTheme(fioriTheme);
     }
-}, [fioriTheme]);
+
+    document.body.style.setProperty(
+      "background-color",
+      ThemingParameters.sapBackgroundColor
+    );
+  }, [fioriTheme]);
 
   //   useEffect(() => {
   //   if (fioriTheme === "marine_blue") {
