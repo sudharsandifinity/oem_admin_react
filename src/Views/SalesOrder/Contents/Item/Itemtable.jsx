@@ -1111,7 +1111,7 @@ const clearProjectFilter = () => {
   }, [mode, dynamicItemColumnslist, dimensionCols]);
 
   return (
-    <div style={{  padding: "1rem" }}>
+    <div style={{ padding: "1rem" }}>
       <FlexBox style={{ justifyContent: "end" }}>
         <Button disabled={disable} design="Transparent" onClick={duplicateRow}>
           Duplicate

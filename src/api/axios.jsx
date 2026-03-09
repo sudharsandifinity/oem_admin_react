@@ -2,9 +2,9 @@ import axios from "axios";
 
 // Your local backend API
 const api = axios.create({
-  //baseURL: "http://192.168.100.82:3002/api/v1",
-  baseURL: "http://localhost:3002/api/v1",
-  timeout: 10000,
+  baseURL: "http://localhost:8000/api/v1",
+  // baseURL: "https://sapoemapi.hlbmeonline.com:8005/api/v1",
+  timeout: 50000,
 });
 
 // SAP B1 Service Layer API
