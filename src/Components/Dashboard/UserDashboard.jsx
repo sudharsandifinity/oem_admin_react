@@ -29,6 +29,7 @@ import { fetchSalesQuotations } from "../../store/slices/SalesQuotationSlice";
 import { fetchPurchaseQuotation } from "../../store/slices/PurchaseQuotation";
 import { fetchPurchaseRequest } from "../../store/slices/PurchaseRequestSlice";
 import RecentActivities from "./RecentActivities"
+import "./UserDashboard.css";
 const UserDashboard = () => {
   const dispatch = useDispatch();
   const [selectedType, setSelectedType] = useState("Sales Order");
@@ -373,7 +374,7 @@ const UserDashboard = () => {
                     <Line
                       type="monotone"
                       dataKey="value"
-                      stroke="var(--brand)"
+                      stroke="#5b2c58ff"
                       strokeWidth={2}
                       dot={{ fill: "var(--brand)" }}
                     />

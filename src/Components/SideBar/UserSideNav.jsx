@@ -14,8 +14,8 @@ import {
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Outlet, useNavigate } from "react-router-dom";
-import UserDashboard from "../../Components/Dashboard/UserDashboard";
-//import UserDashboard from "../../Views/Dashboard/UserDashboard";
+//import UserDashboard from "../../Components/Dashboard/UserDashboard";
+import UserDashboard from "../../Views/Dashboard/UserDashboard";
 
 const UserSideNav = ({
   collapsed,
@@ -61,17 +61,17 @@ const UserSideNav = ({
           fixedItems={
             <>
               <SideNavigationItem
-                text="Inventory"
+                text="GRP"
                 onClick={(e) => {
                   e.preventDefault();
-                  navigate(`/inventory`);
+                  navigate(`/GRP`);
                 }}
               ></SideNavigationItem>
               <SideNavigationItem
-                text="Report"
+                text="Approver"
                 onClick={(e) => {
                   e.preventDefault();
-                  navigate(`/report`);
+                  navigate(`/approver`);
                 }}
               ></SideNavigationItem>
             </>

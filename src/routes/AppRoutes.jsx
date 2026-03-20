@@ -50,6 +50,7 @@ import EditSalesOrder from "../Views/SalesOrder/editSalesOrder";
 import SideNavWrapper from "../Components/SideBar/SideNavWrapper";
 import UserSideNavWrapper from "../Components/SideBar/UserSideNavWrapper";
 import UserDashboard from "../Components/Dashboard/UserDashboard";
+//import UserDashboard from "../Views/Dashboard/UserDashboard";
 import ManagePurchaseOrder from "../Views/ManagePurchaseOrder/ManagePurchaseOrder";
 import PurchaseOrder from "../Views/PurchaseOrder/PurchaseOrder";
 import EditPurchaseOrder from "../Views/PurchaseOrder/EditPurchaseOrder";
@@ -57,13 +58,34 @@ import ViewSalesOrder from "../Views/SalesOrder/ViewSalesOrder";
 import ViewPurchaseOrder from "../Views/PurchaseOrder/ViewPurchaseOrder";
 import UserMainLayout from "../Views/Layouts/UserMainLayout";
 import CloneSalesOrder from "../Views/SalesOrder/CloneSalesOrder";
-import Report from "../Views/Report/Report";
 import Inventory from "../Views/Inventory/Inventory";
 import CreateInventory from "../Views/Inventory/CreateInventory";
 import EditInventory from "../Views/Inventory/EditInventory";
 import ViewInventory from "../Views/Inventory/ViewInventory";
 import CreateEmployee from "../Views/Admin/Masters/Employees/CreateEmployee";
 import ChangePassword from "../Views/pages/authentication/ChangePassword";
+import CustomerAdmin from "../Views/CustomerAdmin/CustomerAdmin";
+import CustomerAdminSideNav from "../Components/SideBar/CustomerAdminSideNav";
+import CustomerDashboard from "../Views/CustomerAdmin/Dashboard/CustomerDashboard";
+import CustomerUsers from "../Views/CustomerAdmin/User/UserManagement";
+import AssignEmployees from "../Views/CustomerAdmin/Employee/AssignEmployees";
+import RolePermissions from "../Views/CustomerAdmin/Role/RolePermissions";
+import UserManagement from "../Views/CustomerAdmin/User/UserManagement";
+import MenuManagement from "../Views/CustomerAdmin/Menu/MenuManagement";
+import CreateCustomerMenu from "../Views/CustomerAdmin/Menu/CreateCustomerMenu";
+import RoleManagement from "../Views/CustomerAdmin/Role/RoleManagement";
+import CreateCustomerRole from "../Views/CustomerAdmin/Role/CreateCustomerRole";
+import EditCustomerMenu from "../Views/CustomerAdmin/Menu/EditCustomerMenu";
+import EditCustomerRole from "../Views/CustomerAdmin/Role/EditCustomerRole";
+import Approver from "../Views/Approver/Approver";
+import StageManagement from "../Views/Approver/StageManagement/StageManagement";
+import WorkflowManagement from "../Views/Approver/WorkflowManagement/WorkflowManagement";
+import CreateStage from "../Views/Approver/StageManagement/CreateStage";
+import CreateWorkflow from "../Views/Approver/WorkflowManagement/CreateWorkflow";
+import GRP from "../Views/GoodsRecieptPO/GRP";
+import CreateGRP from "../Views/GoodsRecieptPO/CreateGRP";
+import EditGRP from "../Views/GoodsRecieptPO/EditGRP";
+import ViewGRP from "../Views/GoodsRecieptPO/ViewGRP";
 
 const AppRoutes = () => {
   return (
@@ -78,10 +100,30 @@ const AppRoutes = () => {
         <Route index element={<AuthLogin />} replace />
         <Route path="/login" element={<AuthLogin />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
-        
-        
+
         <Route path="/reset-password/:token" element={<ForgotPassword />} />
       </Route>
+
+{/* customer admin routes */}
+      <Route path="/CustomerAdmin" element={<CustomerAdminSideNav />} >
+
+        <Route path="CustomerDashboard" element={<CustomerDashboard />} />
+
+        <Route path="UserManagement" element={<UserManagement />} />
+
+        <Route path="MenuManagement" element={<MenuManagement/>}/>
+        <Route path="MenuManagement/create" element={<CreateCustomerMenu />} />
+        <Route path="MenuManagement/edit/:id" element={<EditCustomerMenu />} />
+
+
+        <Route path="AssignEmployees" element={<AssignEmployees />} />
+
+        <Route path="RoleManagement" element={<RoleManagement />} />
+        <Route path="RoleManagement/create" element={<CreateCustomerRole/>} />
+        <Route path="RoleManagement/edit/:id" element={<EditCustomerRole />} />
+
+      </Route>
+{/* customer admin routes */}
 
       <Route
         element={
@@ -101,9 +143,7 @@ const AppRoutes = () => {
           <Route path="users" element={<Users />} />
           <Route path="users/create" element={<CreateUser />} />
           <Route path="users/edit/:id" element={<EditUser />} />
-
           <Route path="users/EmployeeCreate" element={<CreateEmployee />} />
-
           <Route path="roles" element={<RolesList />} />
           <Route path="roles/create" element={<CreateRole />} />
           <Route path="roles/edit/:id" element={<EditRole />} />
@@ -144,9 +184,6 @@ const AppRoutes = () => {
           <Route path="FormFields" element={<FormFields />} />
           <Route path="FormFields/create" element={<CreateFormField />} />
           <Route path="FormFields/edit/:id" element={<EditFormField />} />
-          
-       
-
           <Route
             path="CompanyFormFields"
             element={<CompanyFormFieldMaster />}
@@ -170,7 +207,10 @@ const AppRoutes = () => {
           <Route path="/Order/create/:formId/:docNo" element={<SalesOrder />} />
           <Route path="/Order/edit/:formId/:id" element={<EditSalesOrder />} />
           <Route path="/Order/view/:formId/:id" element={<ViewSalesOrder />} />
-        <Route path="/cloneorder/create/:formId/:pageId" element={<CloneSalesOrder />} />
+          <Route
+            path="/cloneorder/create/:formId/:pageId"
+            element={<CloneSalesOrder />}
+          />
           <Route
             path="/SalesOrder/create/:formId/:docNo"
             element={<SalesOrder />}
@@ -200,23 +240,23 @@ const AppRoutes = () => {
           <Route path="/ManageSalesOrder" element={<ManageSalesOrder />} />
           <Route path="/Sales/:formId" element={<ManageSalesOrder />} />
           <Route path="/Purchase/:formId" element={<ManageSalesOrder />} />
-          <Route path="/report" element={<Report />} />
-          <Route path="/Inventory" element={<Inventory />} />
-          <Route
-            path="/Inventory/create"
-            element={<CreateInventory />}
-          />
-          <Route
-            path="/Inventory/edit"
-            element={<EditInventory />}
-          />
-          <Route
-            path="/Inventory/view"
-            element={<ViewInventory />}
-          />
+
+          {/* Approver screen */}
+          <Route path="/approver" element={<Approver />} />
+
+          <Route path="/stagemanagement" element={<StageManagement />} />
+          <Route path="/stagemanagement/create" element={<CreateStage />} />
+
+          <Route path="/workflowmanagement" element={<WorkflowManagement />} />
+          <Route path="/workflow-management/create" element={<CreateWorkflow />} />
+          {/* Approver screen */}
+
+          <Route path="/GRP" element={<GRP/>} />
+          <Route path="/GRP/create" element={<CreateGRP />} />
+          <Route path="/GRP/edit/:docNo" element={<EditGRP />} />
+          <Route path="/GRP/view/:docNo" element={<ViewGRP/>} />
           {/* <Route path="/Purchase/:formId" element={<ManagePurchaseOrder />} /> */}
         </Route>
-        
       </Route>
 
       {/* <Route path="*" element={<Navigate to="/login" replace />} /> */}
