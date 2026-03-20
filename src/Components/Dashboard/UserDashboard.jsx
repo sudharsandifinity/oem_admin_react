@@ -27,7 +27,8 @@ import { fetchPurchaseOrder } from "../../store/slices/purchaseorderSlice";
 import { fetchSalesQuotations } from "../../store/slices/SalesQuotationSlice";
 import { fetchPurchaseQuotation } from "../../store/slices/PurchaseQuotation";
 import { fetchPurchaseRequest } from "../../store/slices/PurchaseRequestSlice";
-
+import RecentActivities from "./RecentActivities"
+import "./UserDashboard.css";
 const UserDashboard = () => {
   const dispatch = useDispatch();
   const [selectedType, setSelectedType] = useState("Sales Order");
@@ -238,8 +239,130 @@ const monthlyData = React.useMemo(() => {
 </FlexBox>
 
         </div>
-      {/* </div> */}
-    </Page>
+        <div className="dashboard-main" style={{ padding: "1rem", width: "100%" }}>
+          <Title level="H2">overview</Title>
+          <Text style={{ color: "var(--muted)", marginBottom: "2rem" }}>
+            Below you can find small summary of all your actions
+          </Text>
+
+          {/* Key stats */}
+          <div className="dashboard-grid" style={{ marginTop: "1rem" }}>
+            {cardData.map(({ title, color, icon, value, delta }) => (
+              <div className="overview-card" key={title}>
+                <div className="icon-container" style={{ background: color }}>
+                  <Icon name={icon} style={{ fontSize: "1.5rem" }} />
+                </div>
+                <div className="count">{value}</div>
+                <div className="label">{title}</div>
+                <div
+                  className="delta"
+                  style={{
+                    color:
+                      delta && delta.includes("-")
+                        ? "var(--danger)"
+                        : "var(--success)",
+                  }}
+                >
+                  {delta}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Charts Section - 2 column layout */}
+          <div className="charts-grid">
+            <div className="chart-card">
+              <h3 className="title">open positions</h3>
+              <p className="subtitle">
+                Line totals for documents over the last three weeks
+              </p>
+              <div style={{ width: "100%", height: 300 }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart
+                    data={userDistributionData}
+                    margin={{ top: 5, right: 30, left: 0, bottom: 5 }}
+                  >
+                    <CartesianGrid stroke="#e5e7eb" />
+                    <XAxis dataKey="name" stroke="#6b7280" />
+                    <YAxis stroke="#6b7280" />
+                    <Tooltip
+                      contentStyle={{
+                        background: "#f3f4f6",
+                        border: "1px solid #e5e7eb",
+                        borderRadius: "8px",
+                      }}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="value"
+                      stroke="#5b2c58ff"
+                      strokeWidth={2}
+                      dot={{ fill: "var(--brand)" }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+              <div
+                style={{
+                  marginTop: "1rem",
+                  color: "var(--muted)",
+                  fontSize: "13px",
+                }}
+              >
+                <span>last 3 weeks</span>
+              </div>
+            </div>
+
+            <div className="chart-card">
+              <h3 className="title">views</h3>
+              <p className="subtitle">
+                Summary number of views of your positions
+              </p>
+              <div style={{ width: "100%", height: 300 }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={viewsData}
+                    margin={{ top: 5, right: 30, left: 0, bottom: 5 }}
+                  >
+                    <CartesianGrid stroke="#e5e7eb" />
+                    <XAxis
+                      dataKey="date"
+                      stroke="#6b7280"
+                      style={{ fontSize: "12px" }}
+                    />
+                    <YAxis stroke="#6b7280" />
+                    <Tooltip
+                      contentStyle={{
+                        background: "#f3f4f6",
+                        border: "1px solid #e5e7eb",
+                        borderRadius: "8px",
+                      }}
+                    />
+                    <Bar
+                      dataKey="views"
+                      fill="var(--brand)"
+                      radius={[8, 8, 0, 0]}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+              <div
+                style={{
+                  marginTop: "1rem",
+                  color: "var(--muted)",
+                  fontSize: "13px",
+                }}
+              >
+                <span>last week</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Last Messages Section */}
+        </div>
+
+        {/* </div> */}
+      </Page>
     </>
   );
 };

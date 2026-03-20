@@ -23,6 +23,7 @@ import salesadddetailsReducer from './slices/salesAdditionalDetailsSlice';
 import salesquotationReducer from './slices/SalesQuotationSlice';
 import purQuotationReducer from './slices/PurchaseQuotation';
 import purRequestReducer from './slices/PurchaseRequestSlice';
+import purDeliveryNoteReducer from './slices/purDeliveryNoteSlice';
 
 const store = configureStore({
   reducer: {
@@ -51,6 +52,7 @@ const store = configureStore({
     puradddetails:salesadddetailsReducer,
     purQuotation:purQuotationReducer,
     purRequest:purRequestReducer,
+    purDeliveryNote:purDeliveryNoteReducer,
   },
 });
 
