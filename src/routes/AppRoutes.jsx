@@ -132,10 +132,7 @@ const AppRoutes = () => {
           </PrivateRoute>
         }
       >
-        <Route path="/dashboard" element={<UserSideNavWrapper />}>
-          {/* nested child route so outlet inside UserSideNav will render dashboard component */}
-          <Route index element={<UserDashboard />} />
-        </Route>
+        <Route path="/dashboard" element={<UserSideNavWrapper />} />
         <Route path="/change-password" element={<ChangePassword />} />
         <Route path="/Admin" element={<SideNavWrapper />} />
         <Route path="/admin" element={<SideNavWrapper />}>

@@ -14,7 +14,6 @@ import {
   Option,
   Select,
   SuggestionItem,
-  Text,
   TextArea,
 } from "@ui5/webcomponents-react";
 import React, { useEffect, useState } from "react";
@@ -71,7 +70,7 @@ console.log("filteredList",filteredList)
     case "number":
       return (
         <FlexBox direction="Column">
-          <Text>{field.DisplayName}</Text>
+          <Label>{field.DisplayName}</Label>
           <Input
             type={field.inputType}
             value={value}
@@ -82,7 +81,7 @@ console.log("filteredList",filteredList)
     case "date":
       return (
         <FlexBox direction="Column">
-          <Text>{field.DisplayName}</Text>
+          <Label>{field.DisplayName}</Label>
           <DatePicker
             value={value}
             onChange={(e) => handleChange(e, field.FieldName)}
@@ -92,7 +91,7 @@ console.log("filteredList",filteredList)
       case "checkbox":
         return(
           <FlexBox direction="Column">
-          <Text>{field.DisplayName}</Text>
+          <Label>{field.DisplayName}</Label>
           <CheckBox
             onChange={(e) => handleChange(e, field.FieldName)}
             text="CheckBox"
@@ -102,7 +101,7 @@ console.log("filteredList",filteredList)
     case "search":
       return (
         <FlexBox direction="Column">
-          <Text>{field.DisplayName}</Text>
+          <Label>{field.DisplayName}</Label>
           <Input
             placeholder="Search..."
             type="Search"
@@ -114,7 +113,7 @@ console.log("filteredList",filteredList)
     case "textarea":
       return (
         <FlexBox direction="Column">
-          <Text>{field.DisplayName}</Text>
+          <Label>{field.DisplayName}</Label>
           <TextArea
             value={value}
             onInput={(e) => handleChange(e, field.FieldName)}
@@ -124,7 +123,7 @@ console.log("filteredList",filteredList)
     case "selectdropdown":
       return (
         <FlexBox direction="Column">
-          <Text>{field.DisplayName}</Text>
+          <Label>{field.DisplayName}</Label>
           <Select
             onChange={function Xs() {}}
             onClose={function Xs() {}}
@@ -143,14 +142,13 @@ console.log("filteredList",filteredList)
     case "select":
       return (
         <FlexBox direction="Column">
-          <Text>{field.DisplayName}</Text>
+          <Label>{field.DisplayName}</Label>
           {console.log("itemDataitempopup",itemData)}
           
        
           <Input
             icon={
               <Icon
-               style={{paddingTop:"0.5rem"}}
                 name="value-help"
                 onClick={() => handleValueHelpRequest(field.FieldName)}
               />

@@ -1111,7 +1111,7 @@ const clearProjectFilter = () => {
   }, [mode, dynamicItemColumnslist, dimensionCols]);
 
   return (
-    <div style={{  padding: "1rem" }}>
+    <div style={{ padding: "1rem" }}>
       <FlexBox style={{ justifyContent: "end" }}>
         <Button disabled={disable} design="Transparent" onClick={duplicateRow}>
           Duplicate
@@ -1248,17 +1248,17 @@ const clearProjectFilter = () => {
             Total Summary
           </Title>
           <FlexBox>
-            <Text showColon style={{ minWidth: "200px" }}>
+            <Label showColon style={{ minWidth: "200px" }}>
               Total Before Discount
-            </Text>
+            </Label>
             <FlexBox style={{ width: "100%" }} justifyContent="End">
               {summaryCalculation.totalBeforeDiscount}
             </FlexBox>
           </FlexBox>
           <FlexBox alignItems="Center">
-            <Text showColon style={{ minWidth: "200px" }}>
+            <Label showColon style={{ minWidth: "200px" }}>
               Discount
-            </Text>
+            </Label>
             <FlexBox
               style={{ width: "100%" }}
               justifyContent="SpaceBetween"
@@ -1284,12 +1284,12 @@ const clearProjectFilter = () => {
             </FlexBox>
           </FlexBox>
           <FlexBox>
-            <Text
+            <Label
               showColon
               style={{ minWidth: "200px", marginBottom: "10px" }}
             >
               Freight
-            </Text>
+            </Label>
             <Button
               design="Default"
               onClick={() => setfreightDialogOpen(true)}
@@ -1320,17 +1320,17 @@ const clearProjectFilter = () => {
             </FlexBox>
           </FlexBox>
           <FlexBox>
-            <Text showColon style={{ minWidth: "200px" }}>
+            <Label showColon style={{ minWidth: "200px" }}>
               Tax
-            </Text>
+            </Label>
             <FlexBox style={{ width: "100%" }} justifyContent="End">
               <Text> {summaryCalculation.totalTaxAmount}</Text>
             </FlexBox>
           </FlexBox>
           <FlexBox alignItems="Center">
-            <Text showColon style={{ minWidth: "200px" }}>
+            <Label showColon style={{ minWidth: "200px" }}>
               Rounding
-            </Text>
+            </Label>
             <FlexBox
               style={{ width: "100%" }}
               justifyContent="SpaceBetween"
@@ -1369,9 +1369,9 @@ const clearProjectFilter = () => {
             </FlexBox>
           </FlexBox>
           <FlexBox>
-            <Text showColon style={{ minWidth: "200px" }}>
+            <Label showColon style={{ minWidth: "200px" }}>
               Total
-            </Text>
+            </Label>
             <FlexBox
               style={{ width: "100%", fontWeight: "bold" }}
               justifyContent="End"

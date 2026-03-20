@@ -37,7 +37,6 @@ import {
   BusyIndicator,
   Option,
   Select,
-  Text,
 } from "@ui5/webcomponents-react";
 import { FormConfigContext } from "../../Components/Context/FormConfigContext";
 import api from "../../api/axios";
@@ -494,39 +493,39 @@ const handleRowChange = useCallback((row) => {
             design={BarDesign.FloatingFooter}
             style={{ padding: 0.5, marginBottom: "16px" }}
             endContent={
-              <FlexBox style={{ gap: "0.5rem" }}>
-                <Button design="default" onClick={() => handleSubmit()}>
+              <>
+                <Button design="Positive" onClick={() => handleSubmit()}>
                   Submit
                 </Button>
                 <Button
-                  design="default"
+                  design="Positive"
                   onClick={() => navigate(`/Sales/${formId}`)}
                 >
                   Cancel
                 </Button>
-              </FlexBox>
+              </>
             }
           />
         }
         headerArea={
-          <DynamicPageHeader >
+          <DynamicPageHeader>
             <FlexBox wrap="Wrap">
               <FlexBox direction="Column">
-                <Text>Customer</Text>
+                <Label>Customer</Label>
               </FlexBox>
               <span style={{ width: "4rem" }} />
               <FlexBox direction="Column">
-                <Text>Total:</Text>
+                <Label>Total:</Label>
                 <ObjectStatus state="None">GBP 0.00</ObjectStatus>
               </FlexBox>
               <span style={{ width: "4rem" }} />
               <FlexBox direction="Column">
-                <Text>Status</Text>
+                <Label>Status</Label>
                 <ObjectStatus state="Positive">Open</ObjectStatus>
               </FlexBox>
               <span style={{ width: "4rem" }} />
               <FlexBox direction="Column">
-                <Text>Credit Limit Utilization</Text>
+                <Label>Credit Limit Utilization</Label>
                 <Slider
                   min={0}
                   max={100}

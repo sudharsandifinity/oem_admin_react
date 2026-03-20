@@ -291,21 +291,14 @@ const Additemdialog = (props) => {
           </Button>
         </FlexBox>
       }
-     style={{ width: "50vw"}}
-    ><FlexBox direction="Column" >
+      style={{ width: "40%" }}
+    ><FlexBox direction="Column" style={{ height: "100%" }}>
   {/* Header Area */}
-  
+  <DynamicPageHeader>
     <FlexBox
       direction="Row"
       alignItems="Center"
       justifyContent="SpaceBetween"
-    style={{
-            display: "inline-flex",
-            alignItems: "end",
-            flexWrap: "wrap",
-            gap: "15px",
-            paddingBottom: "1rem",
-          }}
     >
       <Grid
         defaultIndent="XL0 L0 M0 S0"
@@ -328,8 +321,10 @@ const Additemdialog = (props) => {
         Clear Filter
       </Button>
     </FlexBox>
+  </DynamicPageHeader>
 
   {/* Table */}
+  <div style={{ flex: 1, overflow: "hidden" }}>
     <AnalyticalTable
       data={itemdata}
       columns={itemcolumns}
@@ -338,9 +333,9 @@ const Additemdialog = (props) => {
       selectedRowIds={rowSelection}
       onRowSelect={onitemchildRowSelect}
       visibleRows={6}
-      style={{border: "1px solid #ccc",   /* keeps a grey outline */
-  borderRadius: "4px",padding: "0.25rem"}}
+      style={{ height: "100%" }}
     />
+  </div>
 </FlexBox>
       {/* <DynamicPage
         headerArea={

@@ -1,0 +1,72 @@
+html[data-theme="marine_blue"] {
+  --sapBrandColor: #1565ff;
+  --sapHighlightColor: #2979ff;
+  --sapNeutralTextColor: #ffff;
+  --sapPositiveTextColor: #ffff;
+  --sapButton_Emphasized_Background: #1565ff;
+  --sapButton_Emphasized_TextColor: #ffffff;
+  --sapShellColor: #1E6091;
+  --sapObjectHeader_Background: #1E6091;
+  --sapShell_Hover_Background: #1E6091;
+  --sapObjectHeader_Hover_Background: #195684;
+  --sapContent_FocusColor: #FFFF;
+  --_ui5-v2-13-1_dynamic_page_header-actions-background: #FFFF;
+  --sapShell_Background: #EEF0EB;
+  --sapShell_TextColor: #FFFF;
+  --sapContent_LabelColor: #FFFF;
+  --sapObjectHeader_Title_TextColor: #FFFF;
+  --sapShell_InteractiveTextColor: #FFFF;
+  --sapTab_TextColor: #ffff;
+  --sapTab_Selected_TextColor: #ffff;
+  --sapTab_ForegroundColor: #484e53;
+  --sapBackgroundColor: #EBEBEB;
+  --sapList_Background: #EBEBEB;
+  --sapTile_Background: #eef0eb;
+  border-right: 1px solid black;
+  --sapLinkColor: #FFFF;
+
+  ui5-button {
+
+  }
+
+  ui5-button._anchorBarActionButton_1n61l_25._anchorBarActionButtonExpandable_1n61l_37._anchorBarActionPinnableAndExpandable_1n61l_43 {
+    background: white;
+  }
+
+  ui5-toggle-button._anchorBarActionButton_1n61l_25._anchorBarActionButtonPinnable_1n61l_38 {
+    background: white;
+  }
+
+  ui5-label {
+    color: black;
+  }
+
+  ._headerContainer_17oaz_61 ui5-label {
+    color: #FFFF;
+  }
+
+  .custom-header ui5-label {
+    color: #FFFF;
+  }
+
+  div[id^="titlebar-"] > div {
+    background-color: #bfcbdf;
+  }
+
+  .ui5-sn-root {
+    background: #EBEBEB;
+    border-right: 1px solid black;
+  }
+
+  .ui5-sn-item.ui5-sn-item-group .ui5-sn-item-text {
+    color: red;
+  }
+
+  ui5-side-navigation {
+    border-right: 1px solid #FFFF;
+  }
+
+  #menu-button {
+    color: #FFFF !important;
+  }
+}

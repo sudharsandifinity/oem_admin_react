@@ -54,7 +54,6 @@ const UserSideNav = ({
     <FlexBox style={{ height: "95vh" }}>
       <FlexBox
         direction="Column"
-        className={"sidebar" + (collapsed ? "" : " open")}
         style={{ width: collapsed ? "0px" : "260px" }}
       >
         <SideNavigation
@@ -104,8 +103,8 @@ const UserSideNav = ({
         </SideNavigation>
       </FlexBox>
       <FlexBox style={{ flex: 1, height: "100%" }}>
-        {/* outlet will render whichever child route is active (dashboard, reports, etc.) */}
         <Outlet />
+        <UserDashboard />
       </FlexBox>
     </FlexBox>
   );
