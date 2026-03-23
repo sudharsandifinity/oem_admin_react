@@ -64,24 +64,24 @@ import EditInventory from "../Views/Inventory/EditInventory";
 import ViewInventory from "../Views/Inventory/ViewInventory";
 import CreateEmployee from "../Views/Admin/Masters/Employees/CreateEmployee";
 import ChangePassword from "../Views/pages/authentication/ChangePassword";
-import CustomerAdmin from "../Views/CustomerAdmin/CustomerAdmin";
-import CustomerAdminSideNav from "../Components/SideBar/CustomerAdminSideNav";
-import CustomerDashboard from "../Views/CustomerAdmin/Dashboard/CustomerDashboard";
-import CustomerUsers from "../Views/CustomerAdmin/User/UserManagement";
-import AssignEmployees from "../Views/CustomerAdmin/Employee/AssignEmployees";
-import RolePermissions from "../Views/CustomerAdmin/Role/RolePermissions";
-import UserManagement from "../Views/CustomerAdmin/User/UserManagement";
-import MenuManagement from "../Views/CustomerAdmin/Menu/MenuManagement";
-import CreateCustomerMenu from "../Views/CustomerAdmin/Menu/CreateCustomerMenu";
-import RoleManagement from "../Views/CustomerAdmin/Role/RoleManagement";
-import CreateCustomerRole from "../Views/CustomerAdmin/Role/CreateCustomerRole";
-import EditCustomerMenu from "../Views/CustomerAdmin/Menu/EditCustomerMenu";
-import EditCustomerRole from "../Views/CustomerAdmin/Role/EditCustomerRole";
-import Approver from "../Views/Approver/Approver";
-import StageManagement from "../Views/Approver/StageManagement/StageManagement";
-import WorkflowManagement from "../Views/Approver/WorkflowManagement/WorkflowManagement";
-import CreateStage from "../Views/Approver/StageManagement/CreateStage";
-import CreateWorkflow from "../Views/Approver/WorkflowManagement/CreateWorkflow";
+// import CustomerAdmin from "../Views/CustomerAdmin/CustomerAdmin";
+// import CustomerAdminSideNav from "../Components/SideBar/CustomerAdminSideNav";
+// import CustomerDashboard from "../Views/CustomerAdmin/Dashboard/CustomerDashboard";
+// import CustomerUsers from "../Views/CustomerAdmin/User/UserManagement";
+// import AssignEmployees from "../Views/CustomerAdmin/Employee/AssignEmployees";
+// import RolePermissions from "../Views/CustomerAdmin/Role/RolePermissions";
+// import UserManagement from "../Views/CustomerAdmin/User/UserManagement";
+// import MenuManagement from "../Views/CustomerAdmin/Menu/MenuManagement";
+// import CreateCustomerMenu from "../Views/CustomerAdmin/Menu/CreateCustomerMenu";
+// import RoleManagement from "../Views/CustomerAdmin/Role/RoleManagement";
+// import CreateCustomerRole from "../Views/CustomerAdmin/Role/CreateCustomerRole";
+// import EditCustomerMenu from "../Views/CustomerAdmin/Menu/EditCustomerMenu";
+// import EditCustomerRole from "../Views/CustomerAdmin/Role/EditCustomerRole";
+// import Approver from "../Views/Approver/Approver";
+// import StageManagement from "../Views/Approver/StageManagement/StageManagement";
+// import WorkflowManagement from "../Views/Approver/WorkflowManagement/WorkflowManagement";
+// import CreateStage from "../Views/Approver/StageManagement/CreateStage";
+// import CreateWorkflow from "../Views/Approver/WorkflowManagement/CreateWorkflow";
 import GRP from "../Views/GoodsRecieptPO/GRP";
 import CreateGRP from "../Views/GoodsRecieptPO/CreateGRP";
 import EditGRP from "../Views/GoodsRecieptPO/EditGRP";
@@ -105,6 +105,7 @@ const AppRoutes = () => {
       </Route>
 
 {/* customer admin routes */}
+{/* 
       <Route path="/CustomerAdmin" element={<CustomerAdminSideNav />} >
 
         <Route path="CustomerDashboard" element={<CustomerDashboard />} />
@@ -123,6 +124,7 @@ const AppRoutes = () => {
         <Route path="RoleManagement/edit/:id" element={<EditCustomerRole />} />
 
       </Route>
+      */}
 {/* customer admin routes */}
 
       <Route
@@ -132,7 +134,9 @@ const AppRoutes = () => {
           </PrivateRoute>
         }
       >
-        <Route path="/dashboard" element={<UserSideNavWrapper />} />
+        <Route path="/dashboard" element={<UserSideNavWrapper />} >
+          <Route index element={<UserDashboard />} />
+        </Route>
         <Route path="/change-password" element={<ChangePassword />} />
         <Route path="/Admin" element={<SideNavWrapper />} />
         <Route path="/admin" element={<SideNavWrapper />}>
@@ -239,13 +243,14 @@ const AppRoutes = () => {
           <Route path="/Purchase/:formId" element={<ManageSalesOrder />} />
 
           {/* Approver screen */}
-          <Route path="/approver" element={<Approver />} />
+          {/* <Route path="/approver" element={<Approver />} /> 
 
           <Route path="/stagemanagement" element={<StageManagement />} />
           <Route path="/stagemanagement/create" element={<CreateStage />} />
 
           <Route path="/workflowmanagement" element={<WorkflowManagement />} />
           <Route path="/workflow-management/create" element={<CreateWorkflow />} />
+          */}
           {/* Approver screen */}
 
           <Route path="/GRP" element={<GRP/>} />

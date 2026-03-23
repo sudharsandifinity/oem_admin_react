@@ -529,7 +529,7 @@ const EditGRP = () => {
       const isPurchaseQuotation = formDetails[0]?.name === "Purchase Quotation";
       if (type === "Item") {
         payload = {
-          CardCode: formData.CardCode || selectedcardcode,
+          CardCode: formData.VendorCode || selectedcardcode,
            DocDate: formData.PostingDate
             ? new Date(formData.PostingDate)
                 .toISOString()
@@ -577,7 +577,7 @@ const EditGRP = () => {
             CostingCode5: line["5_ProfitCenterCode"] || null,
           })),
           data: userdefinedData || {},
-          DocTotal: summaryData.DocTotal || 0,
+         // DocTotal: summaryData.DocTotal || 0,
           Rounding: summaryData.Rounding || "tNO",
           RoundingDiffAmount: summaryData.RoundingDiffAmount || 0,
           DiscountPercent: summaryData.DiscountPercent || 0,
@@ -646,7 +646,7 @@ TaxDate: formData.TaxDate
             CostingCode5: line["5_ProfitCenterCode"] || null,
           })),
           data: userdefinedData || {},
-          DocTotal: summaryData.DocTotal || 0,
+         // DocTotal: summaryData.DocTotal || 0,
           Rounding: summaryData.Rounding || "tNO",
           RoundingDiffAmount: summaryData.RoundingDiffAmount || 0,
           DiscountPercent: summaryData.DiscountPercent || 0,

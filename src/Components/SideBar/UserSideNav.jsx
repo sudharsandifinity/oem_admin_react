@@ -104,7 +104,7 @@ const UserSideNav = ({
       </FlexBox>
       <FlexBox style={{ flex: 1, height: "100%" }}>
         <Outlet />
-        <UserDashboard />
+       
       </FlexBox>
     </FlexBox>
   );
