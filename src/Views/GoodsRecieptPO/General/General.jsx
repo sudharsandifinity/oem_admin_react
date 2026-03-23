@@ -97,7 +97,7 @@ const General = ({
         if (res?.length > 0) {
           const dataconfig = res.map((item) => ({
             CardCode: item.CardCode,
-            CardCodeName: item.CardName,
+            CardName: item.CardName,
             ContactPerson: item.ContactPerson,
             Series: item.Series,
           }));
@@ -135,7 +135,7 @@ const General = ({
     ? generalData.find((r) => r.CardCode === selectedVendor)
     : null;
   console.log("selectedData", selectedData, generalData);
-  const autoVendorNameRef = selectedData?.CardCodeName || "";
+  const autoVendorNameRef = selectedData?.CardName || "";
   const autoContactPersonRef = selectedData?.ContactPerson || "";
   const autoCustomerRef = selectedData?.Series || "";
 

@@ -46,10 +46,10 @@ const VendorDialog = ({
     console.log("selectedRow", selectedRow, event);
     if (selectedRow) {
       setSelected(selectedRow.original);
-      setselectedVendor(selectedRow.original.Vendor);
+      setselectedVendor(selectedRow.original.CardCode);
       setFormData((prev) => ({
         ...prev,
-        CardCode: selectedRow.original.Vendor,
+        CardCode: selectedRow.original.CardCode,
       }));
       setTimeout(() => {
         clearFilter();
