@@ -73,6 +73,7 @@ const EditGRP = () => {
   const [attachmentFiles, setAttachmentFiles] = useState([]);
   const [oldAttachmentFiles, setOldAttachmentFiles] = useState([]);
   const [freightRowSelection, setFreightRowSelection] = useState([]);
+  const [selectedVendor, setselectedVendor] = useState([]);
 
   const [tabList, setTabList] = useState([]);
   const [formDetails, setFormDetails] = useState([]);
@@ -529,7 +530,7 @@ const EditGRP = () => {
       const isPurchaseQuotation = formDetails[0]?.name === "Purchase Quotation";
       if (type === "Item") {
         payload = {
-          CardCode: formData.VendorCode || selectedcardcode,
+          CardCode: formData.CardCode || selectedcardcode,
            DocDate: formData.PostingDate
             ? new Date(formData.PostingDate)
                 .toISOString()
@@ -955,6 +956,7 @@ TaxDate: formData.TaxDate
                 formDetails={formDetails}
                 selectedcardcode={selectedcardcode}
                 setSelectedCardCode={setSelectedCardCode}
+                 setselectedVendor={setselectedVendor}
                 setCurrencyType={setCurrencyType}
                 currencyType={currencyType}
                 apiError={apiError}

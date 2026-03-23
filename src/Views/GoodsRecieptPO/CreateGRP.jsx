@@ -178,7 +178,7 @@ export default function CreateGRP() {
       const isPurchaseQuotation = formDetails[0]?.name === "Purchase Quotation"|| formDetails[0]?.name === "Purchase Request";
       if (type === "Item") {
         payload = {
-          CardCode: formData.VendorCode,
+          CardCode: formData.CardCode,
           DocDate: formData.PostingDate
             ? new Date(formData.PostingDate)
                 .toISOString()

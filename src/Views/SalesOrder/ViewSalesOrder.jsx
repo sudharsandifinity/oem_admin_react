@@ -75,6 +75,8 @@ const ViewSalesOrder = () => {
   const user = useSelector((state) => state.auth.user);
   const [open, setOpen] = useState(false);
   const [type, setType] = useState("Item");
+    const [currencyType, setCurrencyType] = useState("GBP");
+  
 
   const [attachmentsList, setAttachmentsList] = useState([]);
   
@@ -829,6 +831,7 @@ const ViewSalesOrder = () => {
                 formDetails={formDetails}
                 selectedcardcode={selectedcardcode}
             setSelectedCardCode={setSelectedCardCode}
+            setCurrencyType={setCurrencyType}
                 mode="view"
               />
             )}

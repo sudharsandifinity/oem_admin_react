@@ -70,7 +70,7 @@ const General = ({
   const [pageLoading, setPageLoading] = useState(true);
   const [inputValue, setInputValue] = useState([
     {
-      Vendor: "",
+      CardCode: "",
       CardName: "",
       ContactPerson: "",
     },
@@ -96,8 +96,8 @@ const General = ({
         console.log("fetchbusiness",res)
         if (res?.length > 0) {
           const dataconfig = res.map((item) => ({
-            Vendor: item.CardCode,
-            VendorName: item.CardName,
+            CardCode: item.CardCode,
+            CardCodeName: item.CardName,
             ContactPerson: item.ContactPerson,
             Series: item.Series,
           }));
@@ -132,10 +132,10 @@ const General = ({
     }));
   };
   const selectedData = selectedVendor
-    ? generalData.find((r) => r.Vendor === selectedVendor)
+    ? generalData.find((r) => r.CardCode === selectedVendor)
     : null;
   console.log("selectedData", selectedData, generalData);
-  const autoVendorNameRef = selectedData?.VendorName || "";
+  const autoVendorNameRef = selectedData?.CardCodeName || "";
   const autoContactPersonRef = selectedData?.ContactPerson || "";
   const autoCustomerRef = selectedData?.Series || "";
 
@@ -203,7 +203,7 @@ const General = ({
                           selectedVendor
                             ? generalData.find(
                                 (r) => r.CardCode === selectedVendor,
-                              )?.Vendor
+                              )?.CardCode
                             : field.value
                         }
                         onInput={(e) => field.onChange(e.target.value)}
@@ -654,7 +654,7 @@ const General = ({
         setInputValue={setInputValue}
         setSelectedCard={(card) => {
           setSelectedCard(card);
-          setValue("Vendor", card.Vendor); // update RHF field
+          setValue("Vendor", card.CardCode); // update RHF field
           setValue("CardName", card.CardName); // fill another field automatically
           setValue("ContactPerson", card.ContactPerson);
           setValue("Series", card.Series);
