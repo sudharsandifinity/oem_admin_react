@@ -65,7 +65,7 @@ import { fetchPurchaseRequestById, updatePurchaseRequest } from "../../store/sli
 import { fetchPurchaseDeliveryNotesById } from "../../store/slices/purDeliveryNoteSlice";
 
 const ViewGRP = () => {
-  const { DocNo } = useParams();
+  const { docNo } = useParams();
   const formId="";
   const { fieldConfig, CustomerDetails, DocumentDetails } =
     useContext(FormConfigContext);
@@ -168,7 +168,7 @@ const ViewGRP = () => {
         setLoading(true);
   
         try {
-          let orderListById = await dispatch(fetchPurchaseDeliveryNotesById(DocNo)).unwrap();
+          let orderListById = await dispatch(fetchPurchaseDeliveryNotesById(docNo)).unwrap();
   
   
           const orderList = await dispatch(fetchOrderItems()).unwrap();
@@ -449,7 +449,7 @@ const ViewGRP = () => {
       };
   
       fetchData();
-    }, [dispatch, id]);
+    }, [dispatch, docNo]);
 
   const handleChange = (e, name, formName) => {
     const newValue = e.target.value;

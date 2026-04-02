@@ -47,20 +47,14 @@ const UserDashboard = () => {
   const [selectedOrderDetails, setSelectedOrderDetails] = useState([]);
   const [userDistributionData, setUserDistributionData] = useState([]);
   const [viewsData, setViewsData] = useState([]);
-   
+  const cardData = [
+    { title: "Sales Order", color: "#5b2c58ff" },
+    { title: "Sales Quotation", color: "#1b4965ff" },
+    { title: "Purchase Order", color: "#e35305ff" },
 
-  const cardData = allMenus.map((menu, index) => ({
-  title: menu,
-  color: ["#5b2c58ff", "#1b4965ff", "#e35305ff", "#2a9d8fff"][index % 4],
-}));
-  // const cardData = [
-  //   { title: "Sales Order", color: "#5b2c58ff" },
-  //   { title: "Sales Quotation", color: "#1b4965ff" },
-  //   { title: "Purchase Order", color: "#e35305ff" },
-
-  //   { title: "Purchase Quotation", color: "#9b2226ff" },
-  //   { title: "Purchase Request", color: "#2a9d8fff" },
-  // ];
+    { title: "Purchase Quotation", color: "#9b2226ff" },
+    { title: "Purchase Request", color: "#2a9d8fff" },
+  ];
   const data = [
     { name: "Jan", value: 30 },
     { name: "Feb", value: 45 },
