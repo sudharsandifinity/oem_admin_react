@@ -103,7 +103,9 @@ const Itemtable = (props) => {
     summaryDiscountPercent,
     setSummaryDiscountPercent,
     roundOff,
-    setRoundOff,clearCellValue
+    setRoundOff,
+    clearCellValue,
+    copiedItemDocumentLines,formDetails
   } = props;
   const menuRef = useRef();
 
@@ -152,11 +154,11 @@ const Itemtable = (props) => {
 
     // Extract text or values from selected ListItemStandard components
     const selectedAccessors = selectedItems.map((item) =>
-      item.textContent.trim()
+      item.textContent.trim(),
     );
 
     setdynamicItemColumnslist((prev) =>
-      prev.filter((col) => !selectedAccessors.includes(col.accessor))
+      prev.filter((col) => !selectedAccessors.includes(col.accessor)),
     );
   };
   const onRowSelect = (e) => {
@@ -172,7 +174,7 @@ const Itemtable = (props) => {
 
       selectedIdsArray.forEach((id) => {
         const rowData = itemTabledata.find(
-          (item) => item.slno.toString() === id
+          (item) => item.slno.toString() === id,
         );
         if (rowData) {
           updated[id] = rowData;
@@ -211,7 +213,7 @@ const Itemtable = (props) => {
     (row) => {
       return selectedRow?.id === row.id;
     },
-    [selectedRow]
+    [selectedRow],
   );
   const itemOptions = [
     { itemCode: "101", itemName: "Item 101" },
@@ -242,7 +244,6 @@ const Itemtable = (props) => {
   };
   const duplicateRow = () => {
     if (!selectedRow?.original) return;
-
 
     setitemTableData((prev) => {
       const updated = [...prev];
@@ -302,7 +303,7 @@ const Itemtable = (props) => {
               item.ItemCode === itemCodeToRemove.ItemCode &&
               item.ItemName === itemCodeToRemove.ItemName &&
               item.slno === itemCodeToRemove.slno
-            )
+            ),
         );
       } else {
         // ✅ Delete multiple selected rows
@@ -314,8 +315,8 @@ const Itemtable = (props) => {
               (row) =>
                 row.ItemCode === item.ItemCode &&
                 row.ItemName === item.ItemName &&
-                row.slno === item.slno
-            )
+                row.slno === item.slno,
+            ),
         );
         setRowSelection({});
       }
@@ -419,7 +420,7 @@ const Itemtable = (props) => {
   };
   const handleItemSelect = (e) => {
     const selectedItem = itemOptions.find(
-      (item) => item.ItemCode === e.detail.item.dataset.code
+      (item) => item.ItemCode === e.detail.item.dataset.code,
     );
 
     const updatedRows = [...itemdata];
@@ -432,12 +433,11 @@ const Itemtable = (props) => {
     setDialogOpen(false);
   };
   const totalFreightFromPopup = useMemo(() => {
-   
-
     const rows = Object.values(freightRowSelection || {});
 
     return rows.reduce((sum, item) => {
       const amt = parseFloat(item.LineGross || 0); // <-- Correct field
+      console.log("sum + amt", sum, amt, item.LineGross);
       return sum + amt;
     }, 0);
   }, [freightRowSelection]);
@@ -453,7 +453,7 @@ const Itemtable = (props) => {
       {
         totalBeforeDiscount: 0,
         totalTaxAmount: 0,
-      }
+      },
     );
     return {
       totalBeforeDiscount: cal.totalBeforeDiscount.toFixed(2),
@@ -462,10 +462,10 @@ const Itemtable = (props) => {
   }, [itemTabledata]);
 
   useEffect(() => {
-  const total = parseFloat(summaryCalculation.totalBeforeDiscount) || 0;
-  const discountAmount = (total * summaryDiscountPercent) / 100;
-  setSummaryDiscountAmount(discountAmount.toFixed(2));
-}, [summaryDiscountPercent, summaryCalculation.totalBeforeDiscount]);
+    const total = parseFloat(summaryCalculation.totalBeforeDiscount) || 0;
+    const discountAmount = (total * summaryDiscountPercent) / 100;
+    setSummaryDiscountAmount(discountAmount.toFixed(2));
+  }, [summaryDiscountPercent, summaryCalculation.totalBeforeDiscount]);
   // useMemo(() => {
   //   const total = parseFloat(summaryCalculation.totalBeforeDiscount) || 0;
   //   const discountAmount = (total * summaryDiscountPercent) / 100;
@@ -473,22 +473,22 @@ const Itemtable = (props) => {
   // }, [summaryDiscountPercent, summaryCalculation.totalBeforeDiscount]);
 
   useEffect(() => {
-  const bdTotal = parseFloat(summaryCalculation.totalBeforeDiscount) || 0;
-  const discount = parseFloat(summaryDiscountAmount) || 0;
-  const totalTax = parseFloat(summaryCalculation.totalTaxAmount) || 0;
-  const r = roundingEnabled ? parseFloat(roundOff) || 0 : 0;
-  const freightamount = parseFloat(totalFreightAmount) || 0;
+    const bdTotal = parseFloat(summaryCalculation.totalBeforeDiscount) || 0;
+    const discount = parseFloat(summaryDiscountAmount) || 0;
+    const totalTax = parseFloat(summaryCalculation.totalTaxAmount) || 0;
+    const r = roundingEnabled ? parseFloat(roundOff) || 0 : 0;
+    const freightamount = parseFloat(totalFreightAmount) || 0;
 
-  const result = bdTotal - discount + totalTax + r + freightamount;
-  setFinalTotal(result.toFixed(2));
-}, [
-  summaryCalculation.totalBeforeDiscount,
-  summaryCalculation.totalTaxAmount,
-  summaryDiscountAmount,
-  roundOff,
-  roundingEnabled,
-  totalFreightAmount,
-]);
+    const result = bdTotal - discount + totalTax + r + freightamount;
+    setFinalTotal(result.toFixed(2));
+  }, [
+    summaryCalculation.totalBeforeDiscount,
+    summaryCalculation.totalTaxAmount,
+    summaryDiscountAmount,
+    roundOff,
+    roundingEnabled,
+    totalFreightAmount,
+  ]);
   // useMemo(() => {
   //   const bdTotal = parseFloat(summaryCalculation.totalBeforeDiscount) || 0;
   //   const discount = parseFloat(summaryDiscountAmount) || 0;
@@ -517,35 +517,34 @@ const Itemtable = (props) => {
   }, [summaryCalculation.totalTaxAmount, finalTotal]);
 
   const totaltax = useMemo(() => {
-   
     return itemTabledata.reduce((sum, item) => {
       const amt = parseFloat(item.TaxCode) || 0;
       return sum + amt;
     }, 0);
   }, [itemTabledata]);
-   const clearProfitCenterFilter = () => {
-      // Implement clear filter logic here
-      console.log("originalItemData", originalProfitCenterData);
-      setInputValue([]);
-      setProfitCenterData(originalProfitCenterData);
-    };
-   const clearWarehouseFilter = () => { 
+  const clearProfitCenterFilter = () => {
+    // Implement clear filter logic here
+    console.log("originalItemData", originalProfitCenterData);
+    setInputValue([]);
+    setProfitCenterData(originalProfitCenterData);
+  };
+  const clearWarehouseFilter = () => {
     console.log("originalItemData", originalWarehouseData);
     setInputValue([]);
     setWarehouseData(originalWarehouseData);
   };
-const clearProjectFilter = () => {
+  const clearProjectFilter = () => {
     // Implement clear filter logic here
-      console.log("originalItemData", originalProjectData);
+    console.log("originalItemData", originalProjectData);
     setInputValue([]);
     setProjectData(originalProjectData);
-  }
-   const clearTaxFilter = () => {
-      // Implement clear filter logic here
-        console.log("originalItemData", originalTaxData);
-      setInputValue([]);
-      setTaxData(originalTaxData);
-    }
+  };
+  const clearTaxFilter = () => {
+    // Implement clear filter logic here
+    console.log("originalItemData", originalTaxData);
+    setInputValue([]);
+    setTaxData(originalTaxData);
+  };
   const taxSelectionRow = (e) => {
     // setitemTableData((prev) =>
     //       prev.map((r, idx) =>
@@ -561,8 +560,8 @@ const clearProjectFilter = () => {
       prev.map((row, idx) =>
         idx === selectedTaxRowIndex
           ? calculateRowTotals({ ...row, TaxCode: code, TaxRate: rate })
-          : row
-      )
+          : row,
+      ),
     );
 
     setitemData((prev) =>
@@ -574,13 +573,14 @@ const clearProjectFilter = () => {
                 e.detail.row.original.VatGroups_Lines[
                   e.detail.row.original.VatGroups_Lines.length - 1
                 ]?.Rate,
-                TaxRate: rate,
+              TaxRate: rate,
             }
-          : r
-      )
+          : r,
+      ),
     );
     setTimeout(() => {
       clearTaxFilter();
+      setSelectedTaxRowIndex(null);
       setisTaxDialogOpen(false);
     }, 500);
   };
@@ -589,8 +589,8 @@ const clearProjectFilter = () => {
       prev.map((r, idx) =>
         idx === selectedProjectRowIndex
           ? { ...r, ProjectCode: e.detail.row.original.Code }
-          : r
-      )
+          : r,
+      ),
     );
     setitemData((prev) =>
       prev.map((r, idx) =>
@@ -599,8 +599,8 @@ const clearProjectFilter = () => {
               ...r,
               ProjectCode: e.detail.row.original.Code,
             }
-          : r
-      )
+          : r,
+      ),
     );
     setTimeout(() => {
       clearProjectFilter();
@@ -612,8 +612,8 @@ const clearProjectFilter = () => {
       prev.map((r, idx) =>
         idx === selectedWarehouseRowIndex
           ? { ...r, WarehouseCode: e.detail.row.original.WarehouseCode }
-          : r
-      )
+          : r,
+      ),
     );
     setitemData((prev) =>
       prev.map((r, idx) =>
@@ -622,8 +622,8 @@ const clearProjectFilter = () => {
               ...r,
               WarehouseCode: e.detail.row.original.WarehouseCode,
             }
-          : r
-      )
+          : r,
+      ),
     );
     setTimeout(() => {
       clearWarehouseFilter();
@@ -674,8 +674,8 @@ const clearProjectFilter = () => {
               [codeKey]: selectedRow.CenterCode,
               [nameKey]: selectedRow.CenterName,
             }
-          : row
-      )
+          : row,
+      ),
     );
     setitemData((prev) =>
       prev.map((r, idx) =>
@@ -685,13 +685,12 @@ const clearProjectFilter = () => {
               [codeKey]: selectedRow.CenterCode,
               [nameKey]: selectedRow.CenterName,
             }
-          : r
-      )
+          : r,
+      ),
     );
-    clearProfitCenterFilter()
+    clearProfitCenterFilter();
     setisProfitCenterDialogOpen(false);
   };
-
 
   const columns = useMemo(() => {
     // Define all possible columns
@@ -764,13 +763,14 @@ const clearProjectFilter = () => {
             style={{ textAlign: "right" }}
             type="Number"
             disabled={mode === "view"}
-            value={value ||""}
+            value={value || ""}
             onChange={(e) => {
               const newValue = e.target.value;
               const rowIndex = row.index;
+              console.log("selectedrow", row);
               setitemTableData((prev) => {
                 const updated = [...prev];
-                
+
                 updated[rowIndex] = {
                   ...updated[rowIndex],
                   quantity: newValue.toLocaleString(undefined, {
@@ -893,30 +893,32 @@ const clearProjectFilter = () => {
         Header: "Tax Code",
         accessor: "TaxCode",
         Cell: ({ row }) => (
-          <><Input
-            value={row.original.TaxCode?row.original.TaxCode:""}
-            
-            disabled={mode === "view"}
-            style={{
-              border: "none",
-              borderBottom: "1px solid #ccc",
-              backgroundColor: "transparent",
-              outline: "none",
-              padding: "4px 0",
-              fontSize: "14px",
-              transition: "border-color 0.2s",
-            }}
-            onFocus={(e) => (e.target.style.borderBottom = "1px solid #007aff")}
-            onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
-            onClick={() =>
-              // !row.original.TaxCode &&
-              {
-                setSelectedTaxRowIndex(row.index);
-                setisTaxDialogOpen(true);
+          <>
+            <Input
+              value={row.original.TaxCode ? row.original.TaxCode : ""}
+              disabled={mode === "view"}
+              style={{
+                border: "none",
+                borderBottom: "1px solid #ccc",
+                backgroundColor: "transparent",
+                outline: "none",
+                padding: "4px 0",
+                fontSize: "14px",
+                transition: "border-color 0.2s",
+              }}
+              onFocus={(e) =>
+                (e.target.style.borderBottom = "1px solid #007aff")
               }
-            }
-          />
-          <Button
+              onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
+              onClick={() =>
+                // !row.original.TaxCode &&
+                {
+                  setSelectedTaxRowIndex(row.index);
+                  setisTaxDialogOpen(true);
+                }
+              }
+            />
+            <Button
               icon="sap-icon://sys-minus"
               design="Transparent"
               onClick={() => clearCellValue(row.index, "TaxCode")}
@@ -928,31 +930,34 @@ const clearProjectFilter = () => {
         Header: "Tax Amount",
         accessor: "TaxRate",
         Cell: ({ row }) => (
-          <><Input
-            value={row.original.TaxRate?row.original.TaxRate:""}
-            readonly
-            disabled={mode === "view"}
-            style={{
-              border: "none",
-              borderBottom: "1px solid #ccc",
-              backgroundColor: "transparent",
-              outline: "none",
-              padding: "4px 0",
-              fontSize: "14px",
-              transition: "border-color 0.2s",
-            }}
-            onFocus={(e) => (e.target.style.borderBottom = "1px solid #007aff")}
-            onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
-            onClick={() =>
-              // !row.original.TaxCode &&
-              {
-                setSelectedTaxRowIndex(row.index);
-                setisTaxDialogOpen(true);
+          <>
+            <Input
+              value={row.original.TaxRate ? row.original.TaxRate : ""}
+              readonly
+              disabled={mode === "view"}
+              style={{
+                border: "none",
+                borderBottom: "1px solid #ccc",
+                backgroundColor: "transparent",
+                outline: "none",
+                padding: "4px 0",
+                fontSize: "14px",
+                transition: "border-color 0.2s",
+              }}
+              onFocus={(e) =>
+                (e.target.style.borderBottom = "1px solid #007aff")
               }
-            }
-          />
-          <Button
-               icon="sap-icon://sys-minus"
+              onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
+              onClick={() =>
+                // !row.original.TaxCode &&
+                {
+                  setSelectedTaxRowIndex(row.index);
+                  setisTaxDialogOpen(true);
+                }
+              }
+            />
+            <Button
+              icon="sap-icon://sys-minus"
               design="Transparent"
               onClick={() => clearCellValue(row.index, "TaxRate")}
             />
@@ -999,24 +1004,26 @@ const clearProjectFilter = () => {
         Header: "Project",
         accessor: "project",
         Cell: ({ row }) => (
-          <><Input
-            value={row.original.ProjectCode?row.original.ProjectCode:""}
-            readonly
-            disabled={mode === "view"}
-                        style={{ textAlign: "right" }}
-
-            onFocus={(e) => (e.target.style.borderBottom = "1px solid #007aff")}
-            onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
-            onClick={() =>
-              // !row.original.Project &&
-              {
-                setSelectedProjectRowIndex(row.index);
-                setisProjectDialogOpen(true);
+          <>
+            <Input
+              value={row.original.ProjectCode ? row.original.ProjectCode : ""}
+              readonly
+              disabled={mode === "view"}
+              style={{ textAlign: "right" }}
+              onFocus={(e) =>
+                (e.target.style.borderBottom = "1px solid #007aff")
               }
-            }
-          />
-          <Button
-               icon="sap-icon://sys-minus"
+              onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
+              onClick={() =>
+                // !row.original.Project &&
+                {
+                  setSelectedProjectRowIndex(row.index);
+                  setisProjectDialogOpen(true);
+                }
+              }
+            />
+            <Button
+              icon="sap-icon://sys-minus"
               design="Transparent"
               onClick={() => clearCellValue(row.index, "ProjectCode")}
             />
@@ -1057,7 +1064,7 @@ const clearProjectFilter = () => {
               }
             />
             <Button
-               icon="sap-icon://sys-minus"
+              icon="sap-icon://sys-minus"
               design="Transparent"
               onClick={() => clearCellValue(row.index, "WarehouseCode")}
             />
@@ -1104,12 +1111,22 @@ const clearProjectFilter = () => {
 
     // Filter columns based on dynamic list
     const visibleColumns = allColumns.filter(
-      (col) => visibleAccessors.includes(col.accessor) || col.id === "actions" // always include actions
+      (col) => visibleAccessors.includes(col.accessor) || col.id === "actions", // always include actions
     );
- 
+
     return visibleColumns;
   }, [mode, dynamicItemColumnslist, dimensionCols]);
+  const tableData = useMemo(() => {
+    const merged = [
+      ...(copiedItemDocumentLines || []),
+      ...(itemTabledata || []),
+    ];
 
+    return merged.map((item, index) => ({
+      ...item,
+      id: item.id ?? `row-${index}`, // ensure every row has unique ID
+    }));
+  }, [copiedItemDocumentLines, itemTabledata]);
   return (
     <div style={{ padding: "1rem" }}>
       <FlexBox style={{ justifyContent: "end" }}>
@@ -1146,13 +1163,13 @@ const clearProjectFilter = () => {
             />
           </Menu>
         </>  */}
-        <Button
-          disabled={mode === "view"}
-          design="Transparent"
-          onClick={addNewRow}
-          icon="sap-icon://add"
-          tooltip="Add Row"
-        ></Button>
+        {formDetails[0].name === "GRPO" &&mode=="edit" ?<></>:<Button
+            disabled={mode === "view"}
+            design="Transparent"
+            onClick={addNewRow}
+            icon="sap-icon://add"
+            tooltip="Add Row"
+          ></Button>}
         {/* <Button disabled={disable} design="Transparent" onClick={selectTopRow}>
           <Icon design="Information" name="arrow-top"></Icon>
         </Button>
@@ -1179,6 +1196,11 @@ const clearProjectFilter = () => {
           icon="sap-icon://settings"
         ></Button> */}
       </FlexBox>
+      {console.log(
+        "copiedItemDocumentLines",
+        copiedItemDocumentLines,
+        itemTabledata,
+      )}
       <AnalyticalTable
         style={{ borderTop: "1px solid #d6dbe0" }}
         data={itemTabledata}
@@ -1214,31 +1236,48 @@ const clearProjectFilter = () => {
         />
       </div>
 
-      <FlexBox
-        justifyContent="SpaceBetween"
-        style={{
-          marginTop: "3rem",
-        }}
-      >
-        <FlexBox direction="Column" style={{ width: "50%" }}>
-          <Text>Remark</Text>
-          <TextArea
-            growing
-            name="Remark"
-            value={
-              summaryData?.Remark !== "undefined" ? summaryData?.Remark : ""
-            }
-            onBlur={(e) => {
-              setSummaryData((prev) => ({
-                ...prev,
-                Remark: e.target.value,
-              }));
-            }}
-            onScroll={function Xne() {}}
-            onSelect={function Xne() {}}
-            valueState="None"
-          />
+      <FlexBox justifyContent="SpaceBetween" style={{ marginTop: "3rem" }}>
+        {/* LEFT SIDE */}
+        <FlexBox
+          direction="Column"
+          style={{ width: "100%", gap: "0.5rem", padding: "1rem" }}
+        >
+          <FlexBox direction="Row" style={{ width: "70%", gap: "4rem" }}>
+            <Text>Buyer</Text>
+            <Select>
+              <Option>Buyer1</Option>
+              <Option>Buyer2</Option>
+            </Select>
+          </FlexBox>
+
+          <FlexBox direction="Row" style={{ width: "80%", gap: "3.7rem" }}>
+            <Text>Owner</Text>
+            <Select>
+              <Option>Owner1</Option>
+              <Option>Owner2</Option>
+            </Select>
+          </FlexBox>
+
+          <FlexBox direction="Row" style={{ width: "80%", gap: "2.5rem" }}>
+            <Text style={{ width: "5%" }}>Remark</Text>
+            <TextArea
+              growing
+              name="Remark"
+              value={
+                summaryData?.Remark !== "undefined" ? summaryData?.Remark : ""
+              }
+              onBlur={(e) => {
+                setSummaryData((prev) => ({
+                  ...prev,
+                  Remark: e.target.value,
+                }));
+              }}
+              valueState="None"
+            />
+          </FlexBox>
         </FlexBox>
+
+        {/* RIGHT SIDE */}
         <FlexBox
           direction="Column"
           alignItems="FlexStart"
@@ -1247,18 +1286,20 @@ const clearProjectFilter = () => {
           <Title level="H3" style={{ marginBottom: "16px" }}>
             Total Summary
           </Title>
+
           <FlexBox>
-            <Label showColon style={{ minWidth: "200px" }}>
+            <Text showColon style={{ minWidth: "200px" }}>
               Total Before Discount
-            </Label>
+            </Text>
             <FlexBox style={{ width: "100%" }} justifyContent="End">
               {summaryCalculation.totalBeforeDiscount}
             </FlexBox>
           </FlexBox>
+
           <FlexBox alignItems="Center">
-            <Label showColon style={{ minWidth: "200px" }}>
+            <Text showColon style={{ minWidth: "200px" }}>
               Discount
-            </Label>
+            </Text>
             <FlexBox
               style={{ width: "100%" }}
               justifyContent="SpaceBetween"
@@ -1267,10 +1308,9 @@ const clearProjectFilter = () => {
               <FlexBox alignItems="Center">
                 <Input
                   type="Number"
-                  style={{ textAlign: "right" }}
                   value={summaryDiscountPercent}
                   onBlur={(e) => {
-                    const value = parseFloat(e.target.value);
+                    const value = parseFloat(e.target.value) || 0;
                     setSummaryDiscountPercent(value);
                     setSummaryData((prev) => ({
                       ...prev,
@@ -1283,21 +1323,18 @@ const clearProjectFilter = () => {
               <Text>{summaryDiscountAmount}</Text>
             </FlexBox>
           </FlexBox>
+
           <FlexBox>
-            <Label
-              showColon
-              style={{ minWidth: "200px", marginBottom: "10px" }}
-            >
+            <Text showColon style={{ minWidth: "200px", marginBottom: "10px" }}>
               Freight
-            </Label>
+            </Text>
+
             <Button
               design="Default"
               onClick={() => setfreightDialogOpen(true)}
               tooltip="Freight"
-              // make the button compact so only icon shows visually:
             >
               <Icon
-                tooltip="Add Freight"
                 name="arrow-right"
                 style={{
                   color: "#ff9e00",
@@ -1307,30 +1344,32 @@ const clearProjectFilter = () => {
                 }}
               />
             </Button>
+
             <FlexBox style={{ width: "100%" }} justifyContent="End">
               {useEffect(() => {
-  setTotalFreightAmount(totalFreightFromPopup);
-}, [totalFreightFromPopup])}{" "}
+                setTotalFreightAmount(totalFreightFromPopup);
+              }, [totalFreightFromPopup])}{" "}
               <Text>
-                {" "}
                 {totalFreightAmount.toLocaleString(undefined, {
                   minimumFractionDigits: 2,
                 })}
               </Text>
             </FlexBox>
           </FlexBox>
+
           <FlexBox>
-            <Label showColon style={{ minWidth: "200px" }}>
+            <Text showColon style={{ minWidth: "200px" }}>
               Tax
-            </Label>
+            </Text>
             <FlexBox style={{ width: "100%" }} justifyContent="End">
-              <Text> {summaryCalculation.totalTaxAmount}</Text>
+              <Text>{summaryCalculation.totalTaxAmount}</Text>
             </FlexBox>
           </FlexBox>
+{formDetails[0].name!=="Purchase Request"&&
           <FlexBox alignItems="Center">
-            <Label showColon style={{ minWidth: "200px" }}>
+            <Text showColon style={{ minWidth: "200px" }}>
               Rounding
-            </Label>
+            </Text>
             <FlexBox
               style={{ width: "100%" }}
               justifyContent="SpaceBetween"
@@ -1341,37 +1380,41 @@ const clearProjectFilter = () => {
                 onChange={(e) => {
                   const checked = e.target.checked;
                   setRoundingEnabled(checked);
+
                   if (!checked) {
                     setRoundOff(0);
                   }
+
                   setSummaryData((prev) => ({
                     ...prev,
                     Rounding: checked ? "tYES" : "tNO",
                   }));
                 }}
               />
+
               {roundingEnabled ? (
                 <Input
                   type="number"
                   value={roundOff}
-                  style={{ textAlign: "right" }}
                   onBlur={(e) => {
-                    setRoundOff(parseFloat(e.target.value) || 0);
+                    const value = parseFloat(e.target.value) || 0;
+                    setRoundOff(value);
                     setSummaryData((prev) => ({
                       ...prev,
-                      RoundingDiffAmount: e.target.value,
+                      RoundingDiffAmount: value,
                     }));
                   }}
                 />
               ) : (
-                <Text>{roundOff && roundOff.toFixed(2)}</Text>
+                <Text>{roundOff ? roundOff.toFixed(2) : "0.00"}</Text>
               )}
             </FlexBox>
-          </FlexBox>
+          </FlexBox>}
+
           <FlexBox>
-            <Label showColon style={{ minWidth: "200px" }}>
+            <Text showColon style={{ minWidth: "200px" }}>
               Total
-            </Label>
+            </Text>
             <FlexBox
               style={{ width: "100%", fontWeight: "bold" }}
               justifyContent="End"
@@ -1424,7 +1467,7 @@ const clearProjectFilter = () => {
         profitCenterData={profitCenterData.filter(
           (pc) =>
             pc.InWhichDimension ===
-            selectedDimensionColumnCode[selectedDimensionColumnCode.length - 1]
+            selectedDimensionColumnCode[selectedDimensionColumnCode.length - 1],
         )}
         setProfitCenterData={setProfitCenterData}
         itemdata={itemdata}
@@ -1477,6 +1520,7 @@ const clearProjectFilter = () => {
         setInputValue={setInputValue}
         taxSelectionRow={taxSelectionRow}
         clearTaxFilter={clearTaxFilter}
+        selectedTaxRowIndex={selectedTaxRowIndex}
       />
       <Additemdialog
         addItemdialogOpen={itemDialogOpen}

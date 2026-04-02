@@ -22,7 +22,7 @@ import {
 } from "recharts";
 import React, { useEffect, useState } from "react";
 import { BulletChart } from "@ui5/webcomponents-react-charts";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { fetchCustomerOrder } from "../../store/slices/CustomerOrderSlice";
 import { fetchPurchaseOrder } from "../../store/slices/purchaseorderSlice";
 import { fetchSalesQuotations } from "../../store/slices/SalesQuotationSlice";
@@ -30,9 +30,19 @@ import { fetchPurchaseQuotation } from "../../store/slices/PurchaseQuotation";
 import { fetchPurchaseRequest } from "../../store/slices/PurchaseRequestSlice";
 import RecentActivities from "./RecentActivities"
 import "./UserDashboard.css";
+import { fetchPurchaseDeliveryNotes } from "../../store/slices/purDeliveryNoteSlice";
 const UserDashboard = () => {
   const dispatch = useDispatch();
-  const [selectedType, setSelectedType] = useState("Sales Order");
+  const { user } = useSelector((state) => state.auth);
+   const allMenus =
+  user?.Roles?.flatMap((role) =>
+    role.UserMenus?.flatMap((menu) => [
+     
+      ...(menu.children?.map((child) => child.name) || []),
+    ]) || []
+  ) || [];
+  console.log("allMenus",allMenus)
+  const [selectedType, setSelectedType] = useState(allMenus[0] || "Sales Order");
   const [selectedOrderData, setSelectedOrderData] = useState([]);
   const [selectedOrderDetails, setSelectedOrderDetails] = useState([]);
   const [userDistributionData, setUserDistributionData] = useState([]);
@@ -136,6 +146,10 @@ const UserDashboard = () => {
           res = await dispatch(
             fetchPurchaseRequest({ top: 100, skip: 0 }),
           ).unwrap();
+        } else if (selectedType === "GRPO") {
+          res = await dispatch(
+            fetchPurchaseDeliveryNotes({ top: 100, skip: 0 }),
+          ).unwrap();
         }
 
         console.log("quotationdata", "sales", res, selectedType);
@@ -150,7 +164,7 @@ const UserDashboard = () => {
         setSelectedOrderData(
           list.map((order) => ({
             name: order.DocEntry,
-            value: order.DocTotal,
+            value: order.DocTotalSys,
           })),
         );
         // calculate distribution only for last 3 weeks
@@ -198,7 +212,7 @@ const UserDashboard = () => {
         };
       }
 
-      months[month].totalAmount += Number(order.DocTotal);
+      months[month].totalAmount += Number(order.DocTotalSys);
       months[month].orderCount += 1;
     });
 
@@ -281,7 +295,8 @@ const UserDashboard = () => {
                               ? "#e35305ff"
                               : selectedType === "Purchase Quotation"
                                 ? "#9b2226ff"
-                                : "#2a9d8fff"
+                                :selectedType === "GRPO"
+                                ? "rgb(59, 52, 52)" : "#2a9d8fff"
                       }
                       strokeWidth={2}
                     />

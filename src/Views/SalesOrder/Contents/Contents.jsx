@@ -40,7 +40,7 @@ import ServiceViewpage from "./Service/ServiceViewpage";
 import Itemtable from "./Item/Itemtable";
 import ServiceTable from "./Service/ServiceTable";
 import { useDispatch, useSelector } from "react-redux";
-import { Await, useNavigate } from "react-router-dom";
+import { Await, useNavigate, useParams } from "react-router-dom";
 import { fetchOrderItems } from "../../../store/slices/CustomerOrderItemsSlice";
 import { set } from "react-hook-form";
 import { fetchOrderServices } from "../../../store/slices/CustomerOrderServiceSlice";
@@ -91,6 +91,9 @@ const Contents = (props) => {
     setRoundOff,
     setDimensionData,
     dimensionData,
+     copiedItemDocumentLines,
+     copiedServiceDocumentLines,
+     saveItem,saveService,selectedServices, setSelectedServices
   } = props;
   const {
     fieldConfig,
@@ -102,6 +105,7 @@ const Contents = (props) => {
 
     //servicedata,
   } = useContext(FormConfigContext);
+  const { formId } = useParams();
   const tableRef = useRef();
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -164,7 +168,8 @@ const [originalTaxData, setOriginalTaxData] = useState([]);
         } else if (
           (formDetails && formDetails[0]?.name === "Purchase Order") ||
           formDetails[0]?.name === "Purchase Quotation" ||
-          formDetails[0]?.name === "Purchase Request"
+          formDetails[0]?.name === "Purchase Request"||
+          formDetails[0]?.name==="GRPO"
         ) {
           taxCode = await dispatch(fetchPurOrderAddDetails()).unwrap();
         }
@@ -192,7 +197,8 @@ setOriginalProfitCenterData(profitCenterData.value);
             ItemCode: item.ItemCode,
             ItemName: item.ItemName,
           }));
-          mode === "create" && setitemData(tableconfig);
+          //mode === "create" && 
+          setitemData(tableconfig);
         }
         if (taxCode.value?.length > 0) {
           setTaxData(taxCode.value);
@@ -200,13 +206,15 @@ setOriginalProfitCenterData(profitCenterData.value);
         }
 
         const serviceorder = await dispatch(fetchOrderServices()).unwrap();
+        console.log("fetchdataserviceorder",serviceorder)
         if (res.value?.length > 0) {
           const tableconfig = serviceorder.value.map((item, index) => ({
             slno: index,
             ServiceCode: item.Code,
             ServiceName: item.Name,
           }));
-          mode === "create" && setserviceData(tableconfig);
+         // mode === "create" && 
+          setserviceData(tableconfig);
         }
         if (res.message === "Please Login!") {
           //navigate("/");
@@ -569,32 +577,8 @@ setOriginalProfitCenterData(profitCenterData.value);
     ],
     [setitemData, layout]
   );
-  const [selectedServices, setSelectedServices] = useState({});
-  const saveService = (item) => {
-    setSelectedServices(rowSelection);
-    setserviceTableData((prev) => {
-      let updated = [...prev];
-      // Remove the last row if it's an empty placeholder
-      if (updated[updated.length - 1]?.ServiceCode === "") {
-        updated.pop();
-      }
-      let nextSlno =
-        updated.length > 0 ? updated[updated.length - 1].slno + 1 : 0;
-
-      // Convert to array if item is object form like {0: {...}, 1: {...}}
-      const newItems = Array.isArray(item) ? item : Object.values(item);
-
-      newItems.forEach((newItem) => {
-        updated.push({
-          ...newItem,
-          slno: nextSlno,
-        });
-        nextSlno++;
-      });
-
-      return updated;
-    });
-  };
+ 
+ 
   const [selectedRowIndex, setSelectedRowIndex] = useState(null);
 
   const [selectedItems, setSelectedItems] = useState({});
@@ -619,60 +603,9 @@ setOriginalProfitCenterData(profitCenterData.value);
   //   });
 
   // };
-const getItemPrice = async (cardCode, itemCode) => {
-  try {
-    const response = await dispatch(
-      fetchitemprices({ cardCode: cardCode, itemCode: itemCode })
-    ).unwrap();
 
 
-    // SAP returns array in response.value
-    if (response?.value?.length > 0) {
-      return response.value[0];  // ✅ Correct
-    }
 
-    return 0;
-  } catch (error) {
-    console.error("Price fetch failed", error);
-    return 0;
-  }
-};
-
-const saveItem = async (item) => {
-  const newItems = Array.isArray(item) ? item : Object.values(item);
-
-  for (const newItem of newItems) {
-    const itemresponse = await getItemPrice(selectedcardcode, newItem.ItemCode);
-    const price = itemresponse ? itemresponse.Price : 0;
-    const discount = itemresponse ? itemresponse.DiscountPercent : ""; // You can replace this with any logic to determine the default quantity
-
-    setitemTableData((prev) => {
-      let updated = [...prev];
-
-      if (
-        updated.length > 0 &&
-        updated[updated.length - 1]?.ItemCode === ""
-      ) {
-        updated.pop();
-      }
-
-      const nextSlno =
-        updated.length > 0
-          ? updated[updated.length - 1].slno + 1
-          : 0;
-
-      updated.push({
-        ...newItem,
-        slno: nextSlno,
-        amount: price,   // 🔥 Auto fill price
-        discount:discount,
-        //quantity:PriceListNum, // 🔥 Default quantity to 1 or any logic you want
-      });
-
-      return updated;
-    });
-  }
-};
 
   // const saveItem = (item, index) => {
   //   setSelectedItems(rowSelection);
@@ -834,6 +767,7 @@ const saveItem = async (item) => {
                         /> */}
                     {type === "Item" ? (
                       <Itemtable
+                      formDetails={formDetails}
                         addItemdialogOpen={addItemdialogOpen}
                         setAddItemDialogOpen={setAddItemDialogOpen}
                         itemTableColumn={itemTableColumn}
@@ -904,9 +838,11 @@ const saveItem = async (item) => {
                         setRoundingEnabled={setRoundingEnabled}
                         roundOff={roundOff}
                         setRoundOff={setRoundOff}
+                        copiedItemDocumentLines={copiedItemDocumentLines}
                       />
                     ) : (
                       <ServiceTable
+                      formDetails={formDetails}
                         addServiceDialogOpen={addServiceDialogOpen}
                         setAddServicedialogOpen={setAddServicedialogOpen}
                         serviceTableColumn={serviceTableColumn}
@@ -977,6 +913,7 @@ const saveItem = async (item) => {
                         setRoundingEnabled={setRoundingEnabled}
                         roundOff={roundOff}
                         setRoundOff={setRoundOff}
+                        copiedServiceDocumentLines={copiedServiceDocumentLines}
                       />
                     )}
                   </div>

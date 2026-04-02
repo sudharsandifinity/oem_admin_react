@@ -1,5 +1,12 @@
 // DynamicForm.jsx
-import React, { Suspense, useCallback, useContext, useEffect, useRef, useState } from "react";
+import React, {
+  Suspense,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import {
   Form,
   FormItem,
@@ -37,6 +44,9 @@ import {
   BusyIndicator,
   Option,
   Select,
+  Text,
+  MultiComboBox,
+  MultiComboBoxItem,
 } from "@ui5/webcomponents-react";
 import { FormConfigContext } from "../../Components/Context/FormConfigContext";
 import api from "../../api/axios";
@@ -58,7 +68,14 @@ import BarDesign from "@ui5/webcomponents/dist/types/BarDesign.js";
 
 import { createPurchaseOrder } from "../../store/slices/PurchaseOrderSlice";
 import { createPurchaseQuotation } from "../../store/slices/PurchaseQuotation";
-import { createPurchaseRequest } from "../../store/slices/PurchaseRequestSlice";
+import {
+  createPurchaseRequest,
+  fetchPurchaseRequest,
+  fetchPurchaseRequestById,
+} from "../../store/slices/PurchaseRequestSlice";
+import { createPurchaseDeliveryNotes } from "../../store/slices/purDeliveryNoteSlice";
+import CopyFromDialog from "./CopyFromDialog/CopyFromDialog";
+import { fetchitemprices } from "../../store/slices/salesAdditionalDetailsSlice";
 
 export default function SalesOrder() {
   const { fieldConfig, CustomerDetails, DocumentDetails } =
@@ -82,15 +99,24 @@ export default function SalesOrder() {
   const [type, setType] = useState("Item");
   const [totalFreightAmount, setTotalFreightAmount] = useState(0);
   const [attachmentFiles, setAttachmentFiles] = useState([]);
-  const [summaryDiscountPercent, setSummaryDiscountPercent] = useState(0);
-  const [summaryDiscountAmount, setSummaryDiscountAmount] = useState(0);
+  const [summaryDiscountPercent, setSummaryDiscountPercent] = useState("");
+  const [summaryDiscountAmount, setSummaryDiscountAmount] = useState("");
   const [roundingEnabled, setRoundingEnabled] = useState(false);
-  const [roundOff, setRoundOff] = useState(0);
+  const [roundOff, setRoundOff] = useState("");
   const [selectedcardcode, setSelectedCardCode] = useState([]);
 
   const [dimensionData, setDimensionData] = useState([]);
   const [currencyType, setCurrencyType] = useState("GBP");
-
+  console.log("formId", formId, formDetails);
+  const [selectedRequestId, setSelectedRequestId] = useState({});
+  const [requestList, setRequestList] = useState([]);
+  const [copiedItemDocumentLines, setCopiedItemDocumentLine] = useState([]);
+  const [copiedServiceDocumentLines, setCopiedServiceDocumentLine] = useState(
+    [],
+  );
+  const [opencopyFromDialog, setOpenCopyFromDialog] = useState(false);
+  const [isCopyFromPurchase, setIsCopyFromPurchase] = useState(false);
+  const [selectedServices, setSelectedServices] = useState({});
   const [itemTabledata, setitemTableData] = useState([
     {
       slno: 1,
@@ -136,6 +162,15 @@ export default function SalesOrder() {
     U_Test2: "",
   });
 
+  const copyFrom = async () => {
+    setIsCopyFromPurchase(true);
+    const res = await dispatch(fetchPurchaseRequest()).unwrap();
+    const currentType =
+      type === "Item" ? "dDocument_Items" : "dDocument_Service";
+    setRequestList(res?.data.filter((val) => val.DocType === currentType));
+    console.log("currentType", currentType, res?.data);
+    setOpenCopyFromDialog(true);
+  };
   const handleChange = (e, name, formName) => {
     const newValue = e.target.value;
     if (formName === "cusDetail" || formName === "docDetail") {
@@ -153,12 +188,12 @@ export default function SalesOrder() {
     // Top-level fields
   };
 
-const handleRowChange = useCallback((row) => {
+  const handleRowChange = useCallback((row) => {
     //const key = tab === "Items" ? "items" : "additional";
     const newRows = [...form[key]];
     newRows[i][name] = value;
     setForm({ ...form, [key]: newRows });
- }, []);
+  }, []);
 
   const addRow = (key) => {
     //const key = tab === "Items" ? "items" : "additional";
@@ -176,7 +211,8 @@ const handleRowChange = useCallback((row) => {
     try {
       console.log(
         "itemTabledatahandleSubmit",
-        dimensionData,"itemTabledata",
+        dimensionData,
+        "itemTabledata",
         itemTabledata,
         formData,
         freightRowSelection,
@@ -184,10 +220,10 @@ const handleRowChange = useCallback((row) => {
       console.log("formDatahandlesubmit", formData);
       setLoading(true);
       let payload = {};
-      const isPurchaseQuotation =
-        formDetails[0]?.name === "Purchase Order" ||
-        formDetails[0]?.name === "Purchase Quotation" ||
-        formDetails[0]?.name === "Purchase Request";
+      const isSalesMenu =
+        formDetails[0]?.name === "Sales Order" ||
+        formDetails[0]?.name === "Sales Quotation" ||
+        formDetails[0]?.name === "Sales Request";
       if (type === "Item") {
         payload = {
           CardCode: formData.CardCode || selectedcardcode,
@@ -210,7 +246,7 @@ const handleRowChange = useCallback((row) => {
                 .replace(/-/g, "")
             : new Date().toISOString().split("T")[0].replace(/-/g, ""),
 
-          ...(isPurchaseQuotation && {
+          ...(!isSalesMenu && {
             RequriedDate: formData.ReqDate
               ? new Date(formData.ReqDate)
                   .toISOString()
@@ -240,6 +276,12 @@ const handleRowChange = useCallback((row) => {
             CostingCode3: line["3_ProfitCenterCode"] || null,
             CostingCode4: line["4_ProfitCenterCode"] || null,
             CostingCode5: line["5_ProfitCenterCode"] || null,
+            RequiredDate: formData.ReqDate
+              ? new Date(formData.ReqDate)
+                  .toISOString()
+                  .split("T")[0]
+                  .replace(/-/g, "")
+              : new Date().toISOString().split("T")[0].replace(/-/g, ""),
           })),
 
           data: userdefinedData || {},
@@ -262,6 +304,13 @@ const handleRowChange = useCallback((row) => {
           ),
         };
       } else {
+        {
+          console.log(
+            "isSalesMenu",
+            isSalesMenu,
+            formData.ReqDate,
+          );
+        }
         payload = {
           CardCode: formData.CardCode || selectedcardcode,
           DocType: "dDocument_Service",
@@ -284,7 +333,7 @@ const handleRowChange = useCallback((row) => {
                 .replace(/-/g, "")
             : new Date().toISOString().split("T")[0].replace(/-/g, ""),
 
-          ...(isPurchaseQuotation && {
+          ...(!isSalesMenu && {
             RequriedDate: formData.ReqDate
               ? new Date(formData.ReqDate)
                   .toISOString()
@@ -311,6 +360,12 @@ const handleRowChange = useCallback((row) => {
             CostingCode3: line["3_ProfitCenterCode"] || null,
             CostingCode4: line["4_ProfitCenterCode"] || null,
             CostingCode5: line["5_ProfitCenterCode"] || null,
+            RequiredDate: formData.ReqDate
+              ? new Date(formData.ReqDate)
+                  .toISOString()
+                  .split("T")[0]
+                  .replace(/-/g, "")
+              : new Date().toISOString().split("T")[0].replace(/-/g, ""),
           })),
 
           data: userdefinedData || {},
@@ -372,7 +427,16 @@ const handleRowChange = useCallback((row) => {
       } else if (formDetails[0]?.name === "Purchase Quotation") {
         res = await dispatch(createPurchaseQuotation(formDataToSend)).unwrap();
       } else if (formDetails[0]?.name === "Purchase Request") {
-        res = await dispatch(createPurchaseRequest(formDataToSend)).unwrap();
+        console.log("summaryData.DocTota", summaryData.DocTotal);
+        if (summaryData.DocTotal < 1000) {
+          res = await dispatch(createPurchaseRequest(formDataToSend)).unwrap();
+        } else {
+          setApiError("Document total must be less than 1000");
+        }
+      } else if (formDetails[0]?.name === "GRPO") {
+        res = await dispatch(
+          createPurchaseDeliveryNotes(formDataToSend),
+        ).unwrap();
       }
       console.log("reshandlesubmit", res);
 
@@ -380,12 +444,12 @@ const handleRowChange = useCallback((row) => {
         navigate("/login");
         return;
       }
-      setApiError(null);
+      res && setApiError(null);
       setOpen(true);
     } catch (err) {
       console.error("Failed to create order:", err);
       const statusCode = err?.status || err?.response?.status || 0;
-      const message = err?.message || "Failed to load data";
+      const message = err || "Failed to load data";
 
       console.error("c:", statusCode, "Message:", message);
       setApiError(message);
@@ -443,6 +507,7 @@ const handleRowChange = useCallback((row) => {
     }
   };
   const getUserFriendlyMessage = (error) => {
+    console.log("errorgetUserFriendlyMessage", error);
     if (!error) return "An unexpected error occurred.";
 
     if (error.code === "-5002") {
@@ -452,13 +517,32 @@ const handleRowChange = useCallback((row) => {
     if (error.code === "-10") {
       return "Tax information is missing or incorrect.";
     }
+    console.log(
+      "formDetails[0]?.name ",
+      formDetails[0]?.name === "Purchase Request" &&
+        summaryData.DocTotal > 1000,
+      summaryData.DocTotal,
+    );
+    if (
+      formDetails[0]?.name === "Purchase Request" &&
+      summaryData.DocTotal > 1000
+    ) {
+      return "Document total must be less than 1000";
+    }
+    const message =
+      error?.message?.value ||
+      error?.message ||
+      error?.response?.data?.message ||
+      error ||
+      "";
 
-    if (error.message?.includes("Network")) {
+    if (message.includes("Network")) {
       return "Unable to connect to the server.";
     }
-
-    return "Please review the details and try again.";
+    console.log("message", message);
+    return message || "Please review the details and try again.";
   };
+
   useEffect(() => {
     //if (!user) return;
     if (user === "null" || user.length === 0) {
@@ -468,7 +552,9 @@ const handleRowChange = useCallback((row) => {
       // Fetch form data based on formId
       const formDetails = user?.Roles?.flatMap((role) =>
         role.UserMenus.flatMap((menu) =>
-          menu.children.filter((submenu) => submenu.Form.id === formId),
+          menu.children.filter(
+            (submenu) => submenu.Form && submenu.Form.id === formId,
+          ),
         ),
       );
       setTabList((formDetails && formDetails[0]?.Form.FormTabs) || []);
@@ -477,6 +563,212 @@ const handleRowChange = useCallback((row) => {
       navigate("/");
     }
   }, [formId, user]);
+  const getItemPrice = async (cardCode, itemCode) => {
+    try {
+      const response = await dispatch(
+        fetchitemprices({ cardCode: cardCode, itemCode: itemCode }),
+      ).unwrap();
+
+      // SAP returns array in response.value
+      if (response?.value?.length > 0) {
+        return response.value[0]; // ✅ Correct
+      }
+
+      return 0;
+    } catch (error) {
+      console.error("Price fetch failed", error);
+      return 0;
+    }
+  };
+  const saveItem = async (item) => {
+    console.log("saveitemitem", item);
+    const newItems = Array.isArray(item) ? item : Object.values(item);
+
+    for (const newItem of newItems) {
+      const itemresponse = await getItemPrice(
+        selectedcardcode,
+        newItem.ItemCode,
+      );
+      const price = itemresponse ? itemresponse.Price : 0;
+      const discount = itemresponse ? itemresponse.DiscountPercent : ""; // You can replace this with any logic to determine the default quantity
+      if (isCopyFromPurchase) {
+        console.log("isCopyFromPurchase", isCopyFromPurchase);
+        setitemTableData((prev) => {
+          const newRows = newItems.flatMap((item, index) => ({
+            id: index,
+            slno: index + 1,
+            ItemCode: item.ItemCode || "",
+            ItemName: item.ItemDescription || "",
+            amount: item.UnitPrice || 0,
+            quantity: item.Quantity || 0,
+            discount: item.DiscountPercent || 0,
+            BaseAmount: item.LineTotal || 0,
+            TaxCode: item.TaxCode || "",
+            TaxRate: item.TaxPercentagePerRow || 0,
+            grosstotal: item.GrossTotal || 0,
+            ProjectCode: item.ProjectCode || "",
+            WarehouseCode: item.WarehouseCode || "",
+          }));
+
+          const existingIds = new Set(prev.map((row) => row.id));
+
+          const filteredNew = newRows.filter((row) => !existingIds.has(row.id));
+
+          // return [...prev, ...filteredNew];
+          return [...newRows];
+        });
+        setIsCopyFromPurchase(false);
+      } else {
+        setitemTableData((prev) => {
+          let updated = [...prev];
+
+          if (
+            updated.length > 0 &&
+            updated[updated.length - 1]?.ItemCode === ""
+          ) {
+            updated.pop();
+          }
+
+          const nextSlno =
+            updated.length > 0 ? updated[updated.length - 1].slno + 1 : 0;
+
+          updated.push({
+            ...newItem,
+            slno: nextSlno,
+            amount: price, // 🔥 Auto fill price
+            discount: discount,
+            //quantity:PriceListNum, // 🔥 Default quantity to 1 or any logic you want
+          });
+
+          return updated;
+        });
+      }
+    }
+  };
+  const saveService = async (item) => {
+    console.log("saveitemservice", item);
+    //setSelectedServices(rowSelection);
+    const newItems = Array.isArray(item) ? item : Object.values(item);
+
+    for (const newItem of newItems) {
+      const itemresponse = await getItemPrice(
+        selectedcardcode,
+        newItem.ServiceCode,
+      );
+      const price = itemresponse ? itemresponse.Price : 0;
+      const discount = itemresponse ? itemresponse.DiscountPercent : ""; // You can replace this with any logic to determine the default quantity
+      if (isCopyFromPurchase) {
+        console.log("isCopyFromPurchase", isCopyFromPurchase, newItems);
+        setserviceTableData((prev) => {
+          const newRows = newItems.flatMap((item, index) => ({
+            id: index,
+            slno: index + 1,
+            ServiceCode: item.AccountCode || "",
+            ServiceName: item.ItemDescription || "",
+            amount: item.UnitPrice || 0,
+            quantity: item.Quantity || 0,
+            discount: item.DiscountPercent || 0,
+            BaseAmount: item.LineTotal || 0,
+            TaxCode: item.TaxCode || "",
+            TaxRate: item.TaxPercentagePerRow || 0,
+            grosstotal: item.GrossTotal || 0,
+            ProjectCode: item.ProjectCode || "",
+            WarehouseCode: item.WarehouseCode || "",
+          }));
+
+          const existingIds = new Set(prev.map((row) => row.id));
+
+          const filteredNew = newRows.filter((row) => !existingIds.has(row.id));
+
+          // return [...prev, ...filteredNew];
+          return [...newRows];
+        });
+        setIsCopyFromPurchase(false);
+      } else {
+        setserviceTableData((prev) => {
+          let updated = [...prev];
+          // Remove the last row if it's an empty placeholder
+          if (updated[updated.length - 1]?.ServiceCode === "") {
+            updated.pop();
+          }
+          let nextSlno =
+            updated.length > 0 ? updated[updated.length - 1].slno + 1 : 0;
+
+          console.log("servicenewitem", newItem);
+
+          updated.push({
+            ...newItem,
+            slno: nextSlno,
+            amount: price, // 🔥 Auto fill price
+            discount: discount,
+          });
+
+          return updated;
+        });
+      }
+    }
+  };
+  //   useEffect(() => {
+  //     const selectedRequests = requestList.filter((req) =>
+  //       selectedRequestId.includes(String(req.DocEntry)),
+  //     );
+  //     console.log("selectedRequestsuseeffect", selectedRequests);
+  //     setCopiedItemDocumentLine(
+  //       selectedRequests
+  //         .filter((r) => r.DocType === "dDocument_Items")
+  //         .flatMap((r) =>
+  //           (r.DocumentLines || []).map((item, index) => ({
+  //             id: `req-${r.DocEntry}-${index}`,
+  //             slno: index,
+  //             ItemCode: item.ItemCode || "",
+  //             ItemName: item.ItemDescription || "",
+  //             amount: item.UnitPrice || "",
+  //             quantity: item.Quantity || "",
+  //             discount: item.DiscountPercent || "",
+  //             BaseAmount: item.LineTotal || "",
+  //             TaxCode: item.TaxCode || "",
+  //             TaxRate: item.TaxPercentagePerRow || "",
+  //             grosstotal: item.GrossTotal || "",
+  //             ProjectCode: item.ProjectCode || "",
+  //             WarehouseCode: item.WarehouseCode || "",
+  //           })),
+  //         ),
+  //     );
+  //  setitemTableData((prev) => {
+  //   const newRows = selectedRequests
+  //     .filter((r) => r.DocType === "dDocument_Items")
+  //     .flatMap((r) =>
+  //       (r.DocumentLines || []).map((item, index) => ({
+  //         id: `req-${r.DocEntry}-${index}`,
+  //         slno: index + 1,
+  //         ItemCode: item.ItemCode || "",
+  //         ItemName: item.ItemDescription || "",
+  //         amount: item.UnitPrice || 0,
+  //         quantity: item.Quantity || 0,
+  //         discount: item.DiscountPercent || 0,
+  //         BaseAmount: item.LineTotal || 0,
+  //         TaxCode: item.TaxCode || "",
+  //         TaxRate: item.TaxPercentagePerRow || 0,
+  //         grosstotal: item.GrossTotal || 0,
+  //         ProjectCode: item.ProjectCode || "",
+  //         WarehouseCode: item.WarehouseCode || "",
+  //       }))
+  //     );
+
+  //   const existingIds = new Set(prev.map(row => row.id));
+
+  //   const filteredNew = newRows.filter(row => !existingIds.has(row.id));
+
+  //   // return [...prev, ...filteredNew];
+  //   return [...newRows]
+  // });
+  //     setCopiedServiceDocumentLine(
+  //       selectedRequests
+  //         .filter((r) => r.DocType !== "dDocument_Items")
+  //         .flatMap((r) => r.DocumentLines || []),
+  //     );
+  //   }, [selectedRequestId]);
+
   return (
     <>
       <style>
@@ -493,39 +785,61 @@ const handleRowChange = useCallback((row) => {
             design={BarDesign.FloatingFooter}
             style={{ padding: 0.5, marginBottom: "16px" }}
             endContent={
-              <>
-                <Button design="Positive" onClick={() => handleSubmit()}>
+              <FlexBox style={{ gap: "0.5rem" }}>
+                {formDetails[0]?.name === "GRPO" && (
+                  <Button design="Default" onClick={copyFrom}>
+                    Copy From
+                  </Button>
+                )}
+                <Button design="default" onClick={() => handleSubmit()}>
                   Submit
                 </Button>
                 <Button
-                  design="Positive"
+                  design="default"
                   onClick={() => navigate(`/Sales/${formId}`)}
                 >
                   Cancel
                 </Button>
-              </>
+              </FlexBox>
             }
           />
         }
         headerArea={
-          <DynamicPageHeader>
-            <FlexBox wrap="Wrap">
+          <DynamicPageHeader
+            className="custom-header"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              padding: "1rem",
+              //backgroundColor: "#354a5f", // SAP Blue
+              // color: "white",
+            }}
+          >
+            <FlexBox
+              direction="Row"
+              style={{
+                display: "inline-flex",
+                alignItems: "end",
+                flexWrap: "wrap",
+                gap: "15px",
+              }}
+            >
               <FlexBox direction="Column">
-                <Label>Customer</Label>
+                <Text>Customer</Text>
               </FlexBox>
               <span style={{ width: "4rem" }} />
               <FlexBox direction="Column">
-                <Label>Total:</Label>
+                <Text>Total:</Text>
                 <ObjectStatus state="None">GBP 0.00</ObjectStatus>
               </FlexBox>
               <span style={{ width: "4rem" }} />
               <FlexBox direction="Column">
-                <Label>Status</Label>
+                <Text>Status</Text>
                 <ObjectStatus state="Positive">Open</ObjectStatus>
               </FlexBox>
               <span style={{ width: "4rem" }} />
               <FlexBox direction="Column">
-                <Label>Credit Limit Utilization</Label>
+                <Text>Credit Limit Utilization</Text>
                 <Slider
                   min={0}
                   max={100}
@@ -552,8 +866,14 @@ const handleRowChange = useCallback((row) => {
         }}
         titleArea={
           <ObjectPageTitle
+            className="custom-header"
+            style={{
+              // display: "flex",
+              //alignItems: "start",
+              padding: "1rem",
+            }}
             breadcrumbs={
-              <>
+              <div style={{ width: "500px" }}>
                 <Breadcrumbs
                   design="Standard"
                   separators="Slash"
@@ -566,22 +886,68 @@ const handleRowChange = useCallback((row) => {
                     Home
                   </BreadcrumbsItem>
                   <BreadcrumbsItem data-route={`/Sales/${formId}`}>
-                    {formDetails
+                    {formDetails.length > 0
                       ? formDetails[0]?.name + " List "
-                      : "Sales Orders"}
+                      : formId
+                        ? formId
+                        : "Sales Orders"}
                   </BreadcrumbsItem>
                   <BreadcrumbsItem>
-                    {formDetails ? "Create " + formDetails[0]?.name : "Create"}
+                    {formDetails.length > 0
+                      ? "Create " + formDetails[0]?.name
+                      : "Create"}
                   </BreadcrumbsItem>
                 </Breadcrumbs>
-              </>
+              </div>
             }
             header={
               <Title level="H2">
-                {formDetails ? formDetails[0]?.name : "Sales Order"}
+                {formDetails.length > 0 ? formDetails[0]?.name : "Sales Order"}
               </Title>
             }
-            navigationBar={<Toolbar design="Transparent"></Toolbar>}
+            //navigationBar={
+            // <Toolbar design="Transparent">
+            //   {formDetails[0]?.name === "GRPO" ? (
+            //     <>
+            //       <ToolbarButton
+            //         design="default"
+            //         onClick={copyFrom}
+            //         icon="sap-icon://copy"
+            //         text="Copy From"
+            //       />
+            //       <MultiComboBox
+            //         onSelectionChange={(e) => {
+            //           const selectedIds = e.detail.items.map((item) =>
+            //             item.getAttribute("value"),
+            //           );
+            //           console.log(
+            //             "companyselectedIds",
+            //             selectedIds,
+            //             e.detail,
+            //           );
+            //           setSelectedRequestId(selectedIds);
+            //         }}
+            //         onClose={function fQ() {}}
+            //         onInput={function fQ() {}}
+            //         onOpen={function fQ() {}}
+            //         onValueStateChange={function fQ() {}}
+            //         valueState="None"
+            //       >
+            //         {console.log("requestList", requestList)}
+            //         {requestList.map((request) => (
+            //           <MultiComboBoxItem
+            //             key={request.DocEntry}
+            //             value={request.DocEntry}
+            //             text={request.DocEntry}
+            //           />
+            //         ))}
+            //       </MultiComboBox>
+            //     </>
+            //   ) : (
+            //     <></>
+            //   )}
+            // </Toolbar>
+            //}
           >
             <ObjectStatus>
               {/* <Button design="Transparent" icon="navigation-right-arrow"  onClick={openMenu} >
@@ -631,57 +997,67 @@ const handleRowChange = useCallback((row) => {
             height: "100%",
           }}
           titleText="Contents"
-        ><Suspense fallback={ <FlexBox
-      style={{ height: "300px" }}
-      justifyContent="Center"
-      alignItems="Center"
-    >
-      <BusyIndicator size="Medium" active />
-    </FlexBox>}>
-  <Contents
-            selectedcardcode={selectedcardcode}
-            rowSelection={rowSelection}
-            setRowSelection={setRowSelection}
-            itemdata={itemdata}
-            setitemData={setitemData}
-            setitemTableData={setitemTableData}
-            itemTabledata={itemTabledata}
-            summaryData={summaryData}
-            setSummaryData={setSummaryData}
-            servicedata={servicedata}
-            setserviceData={setserviceData}
-            setserviceTableData={setserviceTableData}
-            serviceTabledata={serviceTabledata}
-            orderItems={orderItems}
-            formDetails={formDetails}
-            loading={loading}
-            form={form}
-            handleRowChange={handleRowChange}
-            deleteRow={deleteRow}
-            addRow={addRow}
-            SalesOrderRenderInput={SalesOrderRenderInput}
-            handleChange={handleChange}
-            type={type}
-            setType={setType}
-            mode={"create"}
-            totalFreightAmount={totalFreightAmount}
-            setTotalFreightAmount={setTotalFreightAmount}
-            onSubmit={handleSubmit}
-            freightRowSelection={freightRowSelection}
-            setFreightRowSelection={setFreightRowSelection}
-            summaryDiscountAmount={summaryDiscountAmount}
-            setSummaryDiscountAmount={setSummaryDiscountAmount}
-            summaryDiscountPercent={summaryDiscountPercent}
-            setSummaryDiscountPercent={setSummaryDiscountPercent}
-            roundingEnabled={roundingEnabled}
-            setRoundingEnabled={setRoundingEnabled}
-            roundOff={roundOff}
-            setRoundOff={setRoundOff}
-            dimensionData={dimensionData}
-            setDimensionData={setDimensionData}
-          />
-          
-</Suspense>
+        >
+          <Suspense
+            fallback={
+              <FlexBox
+                style={{ height: "300px" }}
+                justifyContent="Center"
+                alignItems="Center"
+              >
+                <BusyIndicator size="Medium" active />
+              </FlexBox>
+            }
+          >
+            <Contents
+              selectedcardcode={selectedcardcode}
+              rowSelection={rowSelection}
+              setRowSelection={setRowSelection}
+              itemdata={itemdata}
+              setitemData={setitemData}
+              setitemTableData={setitemTableData}
+              itemTabledata={itemTabledata}
+              summaryData={summaryData}
+              setSummaryData={setSummaryData}
+              servicedata={servicedata}
+              setserviceData={setserviceData}
+              setserviceTableData={setserviceTableData}
+              serviceTabledata={serviceTabledata}
+              orderItems={orderItems}
+              formDetails={formDetails}
+              loading={loading}
+              form={form}
+              handleRowChange={handleRowChange}
+              deleteRow={deleteRow}
+              addRow={addRow}
+              SalesOrderRenderInput={SalesOrderRenderInput}
+              handleChange={handleChange}
+              type={type}
+              setType={setType}
+              mode={"create"}
+              totalFreightAmount={totalFreightAmount}
+              setTotalFreightAmount={setTotalFreightAmount}
+              onSubmit={handleSubmit}
+              freightRowSelection={freightRowSelection}
+              setFreightRowSelection={setFreightRowSelection}
+              summaryDiscountAmount={summaryDiscountAmount}
+              setSummaryDiscountAmount={setSummaryDiscountAmount}
+              summaryDiscountPercent={summaryDiscountPercent}
+              setSummaryDiscountPercent={setSummaryDiscountPercent}
+              roundingEnabled={roundingEnabled}
+              setRoundingEnabled={setRoundingEnabled}
+              roundOff={roundOff}
+              setRoundOff={setRoundOff}
+              dimensionData={dimensionData}
+              setDimensionData={setDimensionData}
+              copiedItemDocumentLines={copiedItemDocumentLines}
+              copiedServiceDocumentLines={copiedServiceDocumentLines}
+              saveItem={saveItem}
+              saveService={saveService}
+              selectedServices={selectedServices}
+              setSelectedServices={setSelectedServices}
+            />
+          </Suspense>
         </ObjectPageSection>
         {/* );
         } else if (tab.name === "Logistics") { 
@@ -762,7 +1138,15 @@ const handleRowChange = useCallback((row) => {
       }) } */}
       </ObjectPage>
       {/* </BusyIndicator> */}
-
+      <CopyFromDialog
+        open={opencopyFromDialog}
+        setOpen={setOpenCopyFromDialog}
+        requestList={requestList}
+        saveItem={saveItem}
+        saveService={saveService}
+        type={type}
+        setType={setType}
+      />
       <Dialog open={open} onAfterClose={() => setOpen(false)}>
         <div
           style={{

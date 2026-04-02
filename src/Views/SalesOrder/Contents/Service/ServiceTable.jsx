@@ -100,7 +100,7 @@ const Servicetable = (props) => {
     summaryDiscountPercent,
     setSummaryDiscountPercent,
     roundOff,
-    setRoundOff,clearCellValue
+    setRoundOff,clearCellValue,copiedServiceDocumentLines,formDetails
   } = props;
   console.log("servicetableservicedata", servicedata);
   const menuRef = useRef();
@@ -516,7 +516,8 @@ const Servicetable = (props) => {
     const rows = Object.values(freightRowSelection || {});
 
     return rows.reduce((sum, item) => {
-      const amt = parseFloat(item.grossTotal || 0); // <-- Correct field
+      const amt = parseFloat(item.LineGross || 0); // <-- Correct field
+       console.log("sum + amt",sum,amt,item.LineGross)
       return sum + amt;
     }, 0);
   }, [freightRowSelection]);
@@ -1072,9 +1073,7 @@ const clearProjectFilter = () => {
 
     return visibleColumns;
   }, [ mode, dynamicServiceColumnslist,dimensionCols]);
-useEffect(() => {
-  setTotalFreightAmount(totalFreightFromPopup);
-}, [totalFreightFromPopup]);
+
   return (
     <>
       <FlexBox style={{ justifyContent: "end" }}>
@@ -1111,13 +1110,13 @@ useEffect(() => {
             />
           </Menu>
         </>  */}
-        <Button
+        {formDetails[0].name === "GRPO"&&mode==="edit"?<></>:<Button
           disabled={mode === "view"}
           design="Transparent"
           onClick={addNewRow}
           icon="sap-icon://add"
           tooltip="Add Row"
-        ></Button>
+        ></Button>}
         {/* <Button disabled={disable} design="Transparent" onClick={selectTopRow}>
           <Icon design="Information" name="arrow-top"></Icon>
         </Button>
@@ -1145,7 +1144,7 @@ useEffect(() => {
         ></Button>
       </FlexBox>
       {console.log(
-        "serviceTabledata",
+        "serviceTabledataservicetabledata",
         serviceTabledata,
         dynamicServiceColumnslist
       )}
@@ -1217,17 +1216,17 @@ useEffect(() => {
             Total Summary
           </Title>
           <FlexBox>
-            <Label showColon style={{ minWidth: "200px" }}>
+            <Text showColon style={{ minWidth: "200px" }}>
               Total Before Discount
-            </Label>
+            </Text>
             <FlexBox style={{ width: "100%" }} justifyContent="End">
               {summaryCalculation.totalBeforeDiscount}
             </FlexBox>
           </FlexBox>
           <FlexBox alignItems="Center">
-            <Label showColon style={{ minWidth: "200px" }}>
+            <Text showColon style={{ minWidth: "200px" }}>
               Discount
-            </Label>
+            </Text>
             <FlexBox
               style={{ width: "100%" }}
               justifyContent="SpaceBetween"
@@ -1253,12 +1252,12 @@ useEffect(() => {
             </FlexBox>
           </FlexBox>
           <FlexBox>
-            <Label
+            <Text
               showColon
               style={{ minWidth: "200px", marginBottom: "10px" }}
             >
               Freight
-            </Label>
+            </Text>
             <Button
               design="Default"
               onClick={() => setfreightDialogOpen(true)}
@@ -1278,7 +1277,9 @@ useEffect(() => {
             </Button>
             <FlexBox style={{ width: "100%" }} justifyContent="End">
               {console.log("itemFreightAmount", totalFreightFromPopup)}
-              
+               {useEffect(() => {
+                setTotalFreightAmount(totalFreightFromPopup);
+              }, [totalFreightFromPopup])}{" "}
               <Text>
                 {" "}
                 {totalFreightAmount.toLocaleString(undefined, {
@@ -1288,17 +1289,17 @@ useEffect(() => {
             </FlexBox>
           </FlexBox>
           <FlexBox>
-            <Label showColon style={{ minWidth: "200px" }}>
+            <Text showColon style={{ minWidth: "200px" }}>
               Tax
-            </Label>
+            </Text>
             <FlexBox style={{ width: "100%" }} justifyContent="End">
               <Text> {summaryCalculation.totalTaxAmount}</Text>
             </FlexBox>
           </FlexBox>
           <FlexBox alignItems="Center">
-            <Label showColon style={{ minWidth: "200px" }}>
+            <Text showColon style={{ minWidth: "200px" }}>
               Rounding
-            </Label>
+            </Text>
             <FlexBox
               style={{ width: "100%" }}
               justifyContent="SpaceBetween"
@@ -1337,9 +1338,9 @@ useEffect(() => {
             </FlexBox>
           </FlexBox>
           <FlexBox>
-            <Label showColon style={{ minWidth: "200px" }}>
+            <Text showColon style={{ minWidth: "200px" }}>
               Total
-            </Label>
+            </Text>
             <FlexBox
               style={{ width: "100%", fontWeight: "bold" }}
               justifyContent="End"
@@ -1367,7 +1368,7 @@ useEffect(() => {
                   <FormItem
                     key={field.accessor}
                     label={field.Header}
-                    labelContent={<Label>{field.Header}</Label>}
+                    labelContent={<Text>{field.Header}</Text>}
                   >
                     {renderIteminput(field, form, handleChange, "Service")}
                   </FormItem>

@@ -75,7 +75,7 @@ const WarehouseDialog = (props) => {
 
   return (
     <Dialog
-      headerText="Item Details"
+      headerText="Warehouse Details"
       open={isWarehouseDialogOpen}
       onAfterClose={() => setisWarehouseDialogOpen(false)}
       footer={
@@ -91,16 +91,21 @@ const WarehouseDialog = (props) => {
         
         </FlexBox>
       }
-      style={{ width: "80%" }}
+      style={{ width: "50vw"}}
     >
-      <DynamicPage
-        headerArea={
-          <DynamicPageHeader>
-            <FlexBox
-              direction="Row"
-              alignItems="Center"
-              justifyContent="SpaceBetween"
-            >
+      <FlexBox direction="Column">
+              {/* <FlexBox direction="Row" style={{ padding: "0.5rem", gap: "2rem" }}> */}
+              <FlexBox
+                direction="Row"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "end",
+                  flexWrap: "wrap",
+                  gap: "15px",
+                  paddingBottom: "1rem",
+                }}
+              >
+                <FlexBox direction="Column">
               <Grid
                 defaultIndent="XL0 L0 M0 S0"
                 defaultSpan="XL4 L4 M6 S12"
@@ -117,35 +122,27 @@ const WarehouseDialog = (props) => {
                                   )
                                 )}
               </Grid>
-              <Button style={{ width: "100px" }} onClick={clearWarehouseFilter}>
+              </FlexBox>
+                            <Button style={{ width: "100px" }} onClick={clearWarehouseFilter}>
                 Clear Filter
               </Button>
             </FlexBox>
 
-            {/* Basic Company Code Search */}
-          </DynamicPageHeader>
-        }
-        onPinButtonToggle={function Xs() {}}
-        onTitleToggle={function Xs() {}}
-        style={{
-          height: "600px",
-        }}
-      >
-        <div className="tab">
-          <FlexBox direction="Column">
-            <div>
+         
               <AnalyticalTable
                 data={warehouseData}
                 columns={column}
-                header={`Items (${warehouseData.length})`}
+                //header={`Items (${warehouseData.length})`}
                 selectionMode="Single"
                 onRowSelect={warehouseSelectionRow}
                 visibleRows={6}
+                selectionBehavior="RowOnly"
+          scaleWidthMode="Grow"
+                style={{border: "1px solid #ccc",   /* keeps a grey outline */
+                 borderRadius: "4px",padding: "0.25rem"}}
               />
-            </div>
           </FlexBox>
-        </div>
-      </DynamicPage>
+       
     </Dialog>
   );
 };

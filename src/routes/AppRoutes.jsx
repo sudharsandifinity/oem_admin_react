@@ -134,7 +134,8 @@ const AppRoutes = () => {
           </PrivateRoute>
         }
       >
-        <Route path="/dashboard" element={<UserSideNavWrapper />} >
+        <Route path="/dashboard" element={<UserSideNavWrapper />}>
+          {/* nested child route so outlet inside UserSideNav will render dashboard component */}
           <Route index element={<UserDashboard />} />
         </Route>
         <Route path="/change-password" element={<ChangePassword />} />
@@ -205,7 +206,7 @@ const AppRoutes = () => {
         </Route>
 
         <Route element={<UserMainLayout />}>
-          <Route path="/Order/create/:formId/:docNo" element={<SalesOrder />} />
+          <Route path="/Order/create/:formId/:id" element={<SalesOrder />} />
           <Route path="/Order/edit/:formId/:id" element={<EditSalesOrder />} />
           <Route path="/Order/view/:formId/:id" element={<ViewSalesOrder />} />
           <Route
@@ -213,7 +214,7 @@ const AppRoutes = () => {
             element={<CloneSalesOrder />}
           />
           <Route
-            path="/SalesOrder/create/:formId/:docNo"
+            path="/SalesOrder/create/:formId/:id"
             element={<SalesOrder />}
           />
           <Route
