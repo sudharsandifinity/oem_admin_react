@@ -26,7 +26,7 @@ import {
 } from "@ui5/webcomponents-react";
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import { FormConfigContext } from "../../Components/Context/FormConfigContext";
-import { Navigate, useNavigate, useParams } from "react-router-dom";
+import { Navigate, useLocation, useNavigate, useParams } from "react-router-dom";
 import { HeaderFilterBar } from "./HeaderFilterBar";
 import ItemViewPage from "../SalesOrder/Contents/Item/ItemViewPage";
 import ViewSalesOrder from "./ViewSalesOrder";
@@ -40,6 +40,7 @@ import { fetchPurchaseRequest } from "../../store/slices/PurchaseRequestSlice";
 
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
+import { fetchPurchaseDeliveryNotes } from "../../store/slices/purDeliveryNoteSlice";
 
 const ManageSalesOrder = () => {
   const {
@@ -50,6 +51,7 @@ const ManageSalesOrder = () => {
   } = useContext(FormConfigContext);
   const dispatch = useDispatch();
   const { formId, childId } = useParams();
+
 
   const [filters, setFilters] = useState({
     FromDate: "",
@@ -95,6 +97,7 @@ const ManageSalesOrder = () => {
   };
 
   useEffect(() => {
+    console.log("formdetails",formDetails)
     const fetchInitial = async () => {
       try {
         let res = "";
@@ -119,9 +122,14 @@ const ManageSalesOrder = () => {
             fetchPurchaseRequest({ top: pageSize, skip: 0 }),
           ).unwrap();
         }
+        else if (formDetails[0]?.name === "GRPO") {
+          res = await dispatch(
+            fetchPurchaseDeliveryNotes({ top: pageSize, skip: 0 }),
+          ).unwrap();
+        }
 
         console.log("quotationdata", "sales", res, formDetails[0]?.name);
-        const raw = res?.data?.value ?? res?.data ?? res;
+        const raw = res?.data?.value ?? res?.data ?? res?.value ??res;
 
         // Ensure it's an array
         const list = Array.isArray(raw)
@@ -132,8 +140,8 @@ const ManageSalesOrder = () => {
 
         const initialData = list.map((item) => ({
           DocEntry: item.DocEntry,
-          CustomerCode: item.CardCode,
-          CustomerName: item.CardName,
+          CustomerCode: item.CardCode||item.Requester,
+          CustomerName: item.CardName||item.RequesterName,
           DocumentNo: item.DocNum,
           DocumentLines: item.DocumentLines,
           PostingDate: item.CreationDate,
@@ -144,8 +152,8 @@ const ManageSalesOrder = () => {
         setOriginalCustomerData(initialData); // store original data for reset
         setPage(1);
         if (res.message === "Please Login!") {
-        navigate("/login");
-      }
+          navigate("/login");
+        }
       } catch (err) {
         console.log("Err object:", err);
 
@@ -156,7 +164,7 @@ const ManageSalesOrder = () => {
         console.error("c    :", statusCode, "Message:", message);
         setApiError(message);
 
-        // If 401, redirect to login 
+        // If 401, redirect to login
         if (statusCode === 401) {
           navigate("/login");
         }
@@ -236,7 +244,7 @@ const ManageSalesOrder = () => {
   // ];
   const menuChildMap = user?.Roles?.flatMap((role) =>
     role.UserMenus?.map((menu) => {
-      const matched = menu.children?.filter((child) => child.formId === formId);
+      const matched = menu.children?.filter((child) => child.formId||"o3p6JX1K8q" === formId);
 
       if (matched?.length) {
         return {
@@ -248,9 +256,8 @@ const ManageSalesOrder = () => {
       return null;
     }).filter(Boolean),
   );
-  console.log("object", menuChildMap[0].menuName);
   const ManageSalesOrderTableCols =
-    menuChildMap[0].menuName === "Purchase"
+    menuChildMap[0]&&menuChildMap[0].menuName === "Purchase"
       ? ManagePurchaseOrderTableColumn?.map((col) => ({
           Header: col.Header,
           accessor: col.accessor,
@@ -430,7 +437,7 @@ const ManageSalesOrder = () => {
       // Fetch form data based on formId
       const formDetails = user?.Roles?.flatMap((role) =>
         role.UserMenus.flatMap((menu) =>
-          menu.children.filter((submenu) => submenu.Form.id === formId),
+          menu.children.filter((submenu) => submenu.Form&&submenu.Form.id === formId),
         ),
       );
       //setTabList((formDetails && formDetails[0]?.Form.FormTabs) || []);
@@ -439,7 +446,7 @@ const ManageSalesOrder = () => {
       navigate("/");
     }
   }, [user, formId]);
- 
+
   return (
     <div style={{ width: "100%" }}>
       <DynamicPage
@@ -456,16 +463,16 @@ const ManageSalesOrder = () => {
           />
         }
         headerArea={
-           <DynamicPageHeader
-      className="custom-header"
-      // style={{
-      //   display: "flex",
-      //   alignItems: "center",
-      //   padding: "1rem",
-      //   backgroundColor: "#354a5f", // SAP Blue
-      //   color: "white"
-      // }}
-    >
+          <DynamicPageHeader
+            className="custom-header"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              padding: "1rem",
+              //backgroundColor: "#354a5f", // SAP Blue
+             // color: "white",
+            }}
+          >
             <FlexBox
               direction="Row"
               style={{
@@ -475,10 +482,10 @@ const ManageSalesOrder = () => {
                 gap: "15px",
               }}
             >
-             
               {console.log(
                 "ManageSalesOderHeaderField",
-                ManageSalesOderHeaderField,customerorder
+                ManageSalesOderHeaderField,
+                customerorder,
               )}
               {ManageSalesOderHeaderField.map((field) => {
                 const filteredData = {
@@ -505,9 +512,14 @@ const ManageSalesOrder = () => {
                     setOriginalCustomerData={setOriginalCustomerData}
                   />
                 );
-              })}{console.log("originalCustomerData",originalCustomerData)}
+              })}
+              {console.log("originalCustomerData", originalCustomerData)}
               <Button
-                style={{ width: "100px", marginBottom: "2px" }}
+                design="Default"
+                className="clear-filter-btn"
+                style={{ width: "100px", marginBottom: "2px",
+                  //backgroundColor: "#1e6091" 
+                }}
                 onClick={() => {
                   setisClearFilter(true);
                   settableData(originalCustomerData);
@@ -517,7 +529,7 @@ const ManageSalesOrder = () => {
                   });
                 }}
               >
-                Clear Filter
+                <div >Clear Filter</div>
               </Button>
             </FlexBox>
           </DynamicPageHeader>
@@ -526,14 +538,13 @@ const ManageSalesOrder = () => {
         onTitleToggle={function Xs() {}}
         titleArea={
           <DynamicPageTitle
-           className="custom-header"
-      style={{
-        //display: "flex",
-        // alignItems: "start",
-        // padding: "1rem",
-        // backgroundColor: "#354a5f", // SAP Blue
-        //color: "white"
-      }}
+            className="custom-header"
+            style={{
+              display: "flex",
+              alignItems: "start",
+              padding: "1rem",
+              
+            }}
             breadcrumbs={
               <Breadcrumbs
                 design="Standard"
@@ -547,7 +558,7 @@ const ManageSalesOrder = () => {
                 <BreadcrumbsItem>
                   {formDetails && formDetails[0]?.name
                     ? formDetails[0]?.name
-                    : "Sales order List"}
+                    : formId?formId:"Sales order List"}
                 </BreadcrumbsItem>
               </Breadcrumbs>
             }
@@ -555,14 +566,14 @@ const ManageSalesOrder = () => {
               <Title>
                 {formDetails && formDetails[0]?.name
                   ? formDetails[0]?.name
-                  : "Sales order List"}
+                  : formId?formId:"Sales order List"}
               </Title>
             }
             snappedHeading={
               <Title>
                 {formDetails && formDetails[0]?.name
                   ? formDetails[0]?.name
-                  : "Sales order List"}
+                  : formId?formId:"Sales order List"}
               </Title>
             }
           ></DynamicPageTitle>
@@ -587,7 +598,7 @@ const ManageSalesOrder = () => {
                 <FlexBox direction="Column">
                   <div>
                     <FlexBox direction="Column">
-                      {console.log("loading", loading,tableData)}
+                      {console.log("loading", loading, tableData)}
                       <AnalyticalTable
                         columns={columns}
                         data={tableData}
@@ -598,21 +609,19 @@ const ManageSalesOrder = () => {
                             Array.isArray(docLines) &&
                             docLines.length > 0 &&
                             docLines.every((l) => Number(l?.Quantity) === 1);
-                          return allQtyZero
-                            ? { backgroundColor: "#fafafa" }
-                            : {};
+                          return allQtyZero ? disabledCellStyle : {};
                         }}
                         header={
                           <FlexBox
                             justifyContent="SpaceBetween"
                             alignItems="Center"
-                            style={{ width: "100%", padding: "4px 10px" }}
+                            style={{ width: "100%", padding: "4px 10px"  }}
                           >
                             <Title style={{ minWidth: "200px" }}>
                               {`${
                                 formDetails && formDetails[0]?.name
                                   ? formDetails[0]?.name
-                                  : "Sales Order List"
+                                  : formId?formId:"Sales order List"
                               } - ${tableData.length}`}
                             </Title>
                             <Toolbar
@@ -620,7 +629,7 @@ const ManageSalesOrder = () => {
                               style={{ border: "none" }}
                             >
                               <ToolbarButton
-                                design="emphasized"
+                                design="default"
                                 onClick={() => {
                                   navigate(
                                     "/Order/create/" +
@@ -633,7 +642,7 @@ const ManageSalesOrder = () => {
                                 text="Create"
                               />
                               <ToolbarButton
-                                design="Transparent"
+                                design="default"
                                 onClick={handleExportPDF}
                                 text="Export"
                               />

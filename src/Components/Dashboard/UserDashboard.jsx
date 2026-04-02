@@ -3,6 +3,7 @@ import {
   CardHeader,
   FlexBox,
   FlexBoxDirection,
+  Icon,
   Page,
   Text,
   Title,
@@ -21,7 +22,7 @@ import {
 } from "recharts";
 import React, { useEffect, useState } from "react";
 import { BulletChart } from "@ui5/webcomponents-react-charts";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { fetchCustomerOrder } from "../../store/slices/CustomerOrderSlice";
 import { fetchPurchaseOrder } from "../../store/slices/purchaseorderSlice";
 import { fetchSalesQuotations } from "../../store/slices/SalesQuotationSlice";
@@ -29,19 +30,37 @@ import { fetchPurchaseQuotation } from "../../store/slices/PurchaseQuotation";
 import { fetchPurchaseRequest } from "../../store/slices/PurchaseRequestSlice";
 import RecentActivities from "./RecentActivities"
 import "./UserDashboard.css";
+import { fetchPurchaseDeliveryNotes } from "../../store/slices/purDeliveryNoteSlice";
 const UserDashboard = () => {
   const dispatch = useDispatch();
-  const [selectedType, setSelectedType] = useState("Sales Order");
+  const { user } = useSelector((state) => state.auth);
+   const allMenus =
+  user?.Roles?.flatMap((role) =>
+    role.UserMenus?.flatMap((menu) => [
+     
+      ...(menu.children?.map((child) => child.name) || []),
+    ]) || []
+  ) || [];
+  console.log("allMenus",allMenus)
+  const [selectedType, setSelectedType] = useState(allMenus[0] || "Sales Order");
   const [selectedOrderData, setSelectedOrderData] = useState([]);
   const [selectedOrderDetails, setSelectedOrderDetails] = useState([]);
-  const cardData = [
-    { title: "Sales Order", color: "#5b2c58ff" },
-    { title: "Sales Quotation", color: "#1b4965ff" },
-    { title: "Purchase Order", color: "#e35305ff" },
-      
-      { title: "Purchase Quotation", color: "#9b2226ff" },
-      { title: "Purchase Request", color: "#2a9d8fff" },
-  ];
+  const [userDistributionData, setUserDistributionData] = useState([]);
+  const [viewsData, setViewsData] = useState([]);
+   
+
+  const cardData = allMenus.map((menu, index) => ({
+  title: menu,
+  color: ["#5b2c58ff", "#1b4965ff", "#e35305ff", "#2a9d8fff"][index % 4],
+}));
+  // const cardData = [
+  //   { title: "Sales Order", color: "#5b2c58ff" },
+  //   { title: "Sales Quotation", color: "#1b4965ff" },
+  //   { title: "Purchase Order", color: "#e35305ff" },
+
+  //   { title: "Purchase Quotation", color: "#9b2226ff" },
+  //   { title: "Purchase Request", color: "#2a9d8fff" },
+  // ];
   const data = [
     { name: "Jan", value: 30 },
     { name: "Feb", value: 45 },
@@ -49,195 +68,276 @@ const UserDashboard = () => {
     { name: "Apr", value: 50 },
     { name: "May", value: 75 },
   ];
-const salesData = [
-  { name: "Jan", value: 4000 },
-  { name: "Feb", value: 6000 },
-  { name: "Mar", value: 8000 },
-];
+  const salesData = [
+    { name: "Jan", value: 4000 },
+    { name: "Feb", value: 6000 },
+    { name: "Mar", value: 8000 },
+  ];
 
-const purchaseData = [
-  { name: "Jan", value: 3000 },
-  { name: "Feb", value: 3500 },
-  { name: "Mar", value: 5000 },
-]
+  const purchaseData = [
+    { name: "Jan", value: 3000 },
+    { name: "Feb", value: 3500 },
+    { name: "Mar", value: 5000 },
+  ];
 
-useEffect(() => {
-  // Simulate fetching data for sales and purchase orders
-const fetchInitialData = async() => {
-  try{
-     let res = "";
-            if (selectedType === "Sales Order") {
-              res = await dispatch(
-                fetchCustomerOrder({ top: 100, skip: 0 }),
-              ).unwrap();
-            } else if (selectedType === "Sales Quotation") {
-              res = await dispatch(
-                fetchSalesQuotations({ top: 100, skip: 0 }),
-              ).unwrap();
-            } else if (selectedType === "Purchase Order") {
-              res = await dispatch(
-                fetchPurchaseOrder({ top: 100, skip: 0 }),
-              ).unwrap();
-            } else if (selectedType === "Purchase Quotation") {
-              res = await dispatch(
-                fetchPurchaseQuotation({ top: 100, skip: 0 }),
-              ).unwrap();
-            } else if (selectedType === "Purchase Request") {
-              res = await dispatch(
-                fetchPurchaseRequest({ top: 100, skip: 0 }),
-              ).unwrap();
-            }
-    
-            console.log("quotationdata", "sales", res, selectedType);
-            const raw = res?.data?.value ?? res?.data ?? res;
-    
-            // Ensure it's an array
-            const list = Array.isArray(raw)
-              ? raw
-              : raw
-                ? [raw] // if it's single object
-                : []; // if null or undefined
-              setSelectedOrderData(list.map(order=>({ name: order.DocEntry, value: order.DocTotal })));
-              setSelectedOrderDetails(list)
-    console.log("selectedorderdata",selectedOrderData,list)
-            
-  }catch(err){
-    console.error("Error fetching data:", err);
-  }
-}
-  fetchInitialData();
-}, [selectedType]);
-const getMonthlyPerformance = (orders) => {
-  const months = {};
+  // Chart data - distribution over months
+  const userDistributionData1 = [
+    { name: "Jan", value: 340 },
+    { name: "Feb", value: 420 },
+    { name: "Mar", value: 510 },
+    { name: "Apr", value: 680 },
+    { name: "May", value: 750 },
+    { name: "Jun", value: 890 },
+  ];
 
-  orders.forEach(order => {
-    const month = new Date(order.DocDate).toLocaleString("default", {
-      month: "short"
+  // Views data for bar chart
+  const viewsData1 = [
+    { date: "20 Jun", views: 390 },
+    { date: "21 Jun", views: 560 },
+    { date: "22 Jun", views: 870 },
+    { date: "23 Jun", views: 920 },
+    { date: "24 Jun", views: 710 },
+  ];
+  const lastWeekMessages = [
+    {
+      name: "Dustin Perry",
+      label: "Fernando Gellner",
+      avatar: "https://via.placeholder.com/32?text=DP",
+    },
+    {
+      name: "Adelaide Klein",
+      label: "North Gladstone",
+      avatar: "https://via.placeholder.com/32?text=AK",
+    },
+    {
+      name: "Bess Keller",
+      label: "Fernando Gellner",
+      avatar: "https://via.placeholder.com/32?text=BK",
+    },
+    {
+      name: "Marvin Wolfe",
+      label: "East Suni",
+      avatar: "https://via.placeholder.com/32?text=MW",
+    },
+  ];
+
+  const COLORS = [
+    "var(--brand)",
+    "var(--success)",
+    "var(--warning)",
+    "var(--danger)",
+  ];
+  useEffect(() => {
+    // Simulate fetching data for sales and purchase orders
+    const fetchInitialData = async () => {
+      try {
+        let res = "";
+        if (selectedType === "Sales Order") {
+          res = await dispatch(
+            fetchCustomerOrder({ top: 100, skip: 0 }),
+          ).unwrap();
+        } else if (selectedType === "Sales Quotation") {
+          res = await dispatch(
+            fetchSalesQuotations({ top: 100, skip: 0 }),
+          ).unwrap();
+        } else if (selectedType === "Purchase Order") {
+          res = await dispatch(
+            fetchPurchaseOrder({ top: 100, skip: 0 }),
+          ).unwrap();
+        } else if (selectedType === "Purchase Quotation") {
+          res = await dispatch(
+            fetchPurchaseQuotation({ top: 100, skip: 0 }),
+          ).unwrap();
+        } else if (selectedType === "Purchase Request") {
+          res = await dispatch(
+            fetchPurchaseRequest({ top: 100, skip: 0 }),
+          ).unwrap();
+        } else if (selectedType === "GRPO") {
+          res = await dispatch(
+            fetchPurchaseDeliveryNotes({ top: 100, skip: 0 }),
+          ).unwrap();
+        }
+
+        console.log("quotationdata", "sales", res, selectedType);
+        const raw = res?.data?.value ?? res?.data ?? res;
+
+        // Ensure it's an array
+        const list = Array.isArray(raw)
+          ? raw
+          : raw
+            ? [raw] // if it's single object
+            : []; // if null or undefined
+        setSelectedOrderData(
+          list.map((order) => ({
+            name: order.DocEntry,
+            value: order.DocTotalSys,
+          })),
+        );
+        // calculate distribution only for last 3 weeks
+        const threeWeeksAgo = new Date();
+        threeWeeksAgo.setDate(threeWeeksAgo.getDate() - 21);
+        setUserDistributionData(
+          list
+            .filter(o => new Date(o.DocDate) >= threeWeeksAgo)
+            .map((order) => ({
+              name: new Date(order.DocDate).toLocaleString("default", {
+                month: "short",
+                day: "numeric",
+              }),
+              value: order.DocumentLines.map(line => Number(line.LineTotal)).reduce((a, b) => a + b, 0), // sum of line totals
+            }))
+        );
+        setViewsData(list.slice(0, 5).map((order) => ({
+          date: new Date(order.DocDate).toLocaleString("default", {
+            day: "numeric",
+            month: "short",
+          }),
+          views: Math.floor(Math.random() * 1000),
+        }))); 
+        setSelectedOrderDetails(list);
+        console.log("selectedorderdata", selectedOrderData, list);
+      } catch (err) {
+        console.error("Error fetching data:", err);
+      }
+    };
+    fetchInitialData();
+  }, [selectedType]);
+  const getMonthlyPerformance = (orders) => {
+    const months = {};
+
+    orders.forEach((order) => {
+      const month = new Date(order.DocDate).toLocaleString("default", {
+        month: "short",
+      });
+
+      if (!months[month]) {
+        months[month] = {
+          month,
+          totalAmount: 0,
+          orderCount: 0,
+        };
+      }
+
+      months[month].totalAmount += Number(order.DocTotalSys);
+      months[month].orderCount += 1;
     });
 
-    if (!months[month]) {
-      months[month] = {
-        month,
-        totalAmount: 0,
-        orderCount: 0
-      };
-    }
-
-    months[month].totalAmount += Number(order.DocTotal);
-    months[month].orderCount += 1;
-  });
-
-  return Object.values(months);
-};
-const monthlyData = React.useMemo(() => {
-  return getMonthlyPerformance(selectedOrderDetails); // your API data
-}, [selectedOrderDetails]);
+    return Object.values(months);
+  };
+  const monthlyData = React.useMemo(() => {
+    return getMonthlyPerformance(selectedOrderDetails); // your API data
+  }, [selectedOrderDetails]);
 
   return (
     <>
-    <style>
+      <style>
         {`
           ui5-page::part(content) {
             padding: 0px;
           }
         `}
       </style>
-    <Page style={{ padding: "1rem", overflowY: "auto" }} > 
-      <div style={{ flex: 1, flexDirection: "column" }}>
-        {/* ShellBar */}
+      <Page style={{ padding: "1rem", overflowY: "auto" }}>
+        <div className="dashboard-main" style={{ display: "flex", flexDirection: "column", width: "100%" }}>
+          {/* ShellBar */}
 
-        {/* Welcome Text */}
-        {/* <div> */}
+          {/* Welcome Text */}
+          {/* <div> */}
           {/* <Title level="H2" style={{marginBottom: '15px'}}>Welcome, Admin</Title> */}
 
           {/* Colored Cards - Single Row */}
-         <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
-  {cardData.map(({ title, color }) => {
-    const isActive = selectedType === title;
+          <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
+            {cardData.map(({ title, color }) => {
+              const isActive = selectedType === title;
 
-    return (
-      <div
-        key={title}
-        onClick={() => setSelectedType(title)}
-        style={{
-          backgroundColor: color,
-          color: "white",
-          borderRadius: "10px",
-          padding: "1rem",
-          width: "150px",
-          cursor: "pointer",
-          opacity: isActive ? 1 : 0.6,
-          border: isActive ? "3px solid #000" : "none",
-          transition: "0.3s",
-        }}
-      >
-        <h3>{title}</h3>
-        <p>{Math.floor(Math.random() * 100)}</p>
-      </div>
-    );
-  })}
-</div>
+              return (
+                <div
+                  key={title}
+                  onClick={() => setSelectedType(title)}
+                  style={{
+                    backgroundColor: color,
+                    color: "white",
+                    borderRadius: "10px",
+                    padding: "1rem",
+                    width: "150px",
+                    cursor: "pointer",
+                    opacity: isActive ? 1 : 0.6,
+                    border: isActive ? "3px solid #000" : "none",
+                    transition: "0.3s",
+                  }}
+                >
+                  <h3>{title}</h3>
+                  <p>{Math.floor(Math.random() * 100)}</p>
+                </div>
+              );
+            })}
+          </div>
 
-
-          {/* Charts Row */}
+            {/* Charts Row */}
           <FlexBox
-  direction={FlexBoxDirection.Row}
-  style={{ marginTop: "1rem", gap: "2rem" }}
->
-  {/* Line Chart */}
-  <Card
-    header={
-      <CardHeader
-        titleText={`${selectedType} Monthly Trend`}
-      />
-    }
-    style={{ width: "58%" }}
-  >
-    <div style={{ width: "100%", height: 300, marginTop: "2rem" }}>
-      <ResponsiveContainer>
-        <LineChart
-          data={selectedOrderData}
-        >
-          <Line
-            type="monotone"
-            dataKey="value"
-            stroke={selectedType === "Sales Order" ? "#5b2c58ff" : selectedType === "Sales Quotation" ? "#1b4965ff" : selectedType === "Purchase Order" ? "#e35305ff" : selectedType === "Purchase Quotation" ? "#9b2226ff" : "#2a9d8fff"}
-            strokeWidth={2}
-          />
-          <CartesianGrid stroke="#ccc" />
-          <XAxis dataKey="name" />
-          <YAxis />
-          <Tooltip />
-        </LineChart>
-      </ResponsiveContainer>
-    </div>
-  </Card>
+            direction={FlexBoxDirection.Row}
+            style={{ marginTop: "1rem", gap: "2rem", flexWrap: "wrap" }}
+            className="charts-flex-row"
+          >
+            {/* Line Chart */}
+            <Card
+              header={
+                <CardHeader titleText={`${selectedType} Monthly Trend`} />
+              }
+              style={{ flex: 1, minWidth: "300px" }}
+            >
+              <div style={{ width: "100%", height: 300, marginTop: "2rem" }}>
+                <ResponsiveContainer>
+                  <LineChart data={selectedOrderData}>
+                    <Line
+                      type="monotone"
+                      dataKey="value"
+                      stroke={
+                        selectedType === "Sales Order"
+                          ? "#5b2c58ff"
+                          : selectedType === "Sales Quotation"
+                            ? "#1b4965ff"
+                            : selectedType === "Purchase Order"
+                              ? "#e35305ff"
+                              : selectedType === "Purchase Quotation"
+                                ? "#9b2226ff"
+                                :selectedType === "GRPO"
+                                ? "rgb(59, 52, 52)" : "#2a9d8fff"
+                      }
+                      strokeWidth={2}
+                    />
+                    <CartesianGrid stroke="#ccc" />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </Card>
 
-  {/* Bullet Chart */}
-  <Card
-  header={<CardHeader titleText={`${selectedType} Performance`} />}
-  style={{ width: "100%" }}
->
-  <div style={{ width: "100%", height: 350, marginTop: "2rem" }}>
-    <ResponsiveContainer>
-      <LineChart data={monthlyData}>
-        <CartesianGrid stroke="#ccc" />
-        <XAxis dataKey="month" />
-        <YAxis />
-        <Tooltip />
-        <Line
-          type="monotone"
-          dataKey="totalAmount"
-          stroke="#5b2c58ff"
-          strokeWidth={3}
-        />
-      </LineChart>
-    </ResponsiveContainer>
-  </div>
-</Card>
-
-</FlexBox>
-
+            {/* Bullet Chart */}
+            <Card
+              header={<CardHeader titleText={`${selectedType} Performance`} />}
+              style={{ flex: 1, minWidth: "200px" }}
+            >
+              <div style={{ width: "100%", height: 350, marginTop: "2rem" }}>
+                <ResponsiveContainer>
+                  <LineChart data={monthlyData}>
+                    <CartesianGrid stroke="#ccc" />
+                    <XAxis dataKey="month" />
+                    <YAxis />
+                    <Tooltip />
+                    <Line
+                      type="monotone"
+                      dataKey="totalAmount"
+                      stroke="#5b2c58ff"
+                      strokeWidth={3}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </Card>
+          </FlexBox>
         </div>
         <div className="dashboard-main" style={{ padding: "1rem", width: "100%" }}>
           <Title level="H2">overview</Title>

@@ -37,6 +37,7 @@ import {
   BusyIndicator,
   Select,
   Option,
+  Text,
 } from "@ui5/webcomponents-react";
 import { FormConfigContext } from "../../Components/Context/FormConfigContext";
 
@@ -56,7 +57,7 @@ import {
 } from "../../store/slices/CustomerOrderSlice";
 import { fetchOrderItems } from "../../store/slices/CustomerOrderItemsSlice";
 import { fetchOrderServices } from "../../store/slices/CustomerOrderServiceSlice";
-import { fetchAttachmentDetailsById } from "../../store/slices/salesAdditionalDetailsSlice";
+import { fetchAttachmentDetailsById, fetchitemprices } from "../../store/slices/salesAdditionalDetailsSlice";
 import {
   fetchSalesQuotationById,
   updateSalesQuotation,
@@ -72,10 +73,16 @@ import {
 import CloneSalesOrder from "./CloneSalesOrder";
 import "@ui5/webcomponents-icons/dist/copy.js";
 import {
+  fetchPurchaseRequest,
   fetchPurchaseRequestById,
   updatePurchaseRequest,
 } from "../../store/slices/PurchaseRequestSlice";
 import BarDesign from "@ui5/webcomponents/dist/types/BarDesign.js";
+import {
+  fetchPurchaseDeliveryNotesById,
+  updatePurchaseDeliveryNotes,
+} from "../../store/slices/purDeliveryNoteSlice";
+import CopyFromDialog from "./CopyFromDialog/CopyFromDialog";
 
 const EditSalesOrder = () => {
   const { id, formId } = useParams();
@@ -91,6 +98,7 @@ const EditSalesOrder = () => {
   const [attachmentFiles, setAttachmentFiles] = useState([]);
   const [oldAttachmentFiles, setOldAttachmentFiles] = useState([]);
   const [freightRowSelection, setFreightRowSelection] = useState([]);
+   const [selectedServices, setSelectedServices] = useState({});
 
   const [tabList, setTabList] = useState([]);
   const [formDetails, setFormDetails] = useState([]);
@@ -123,6 +131,10 @@ const EditSalesOrder = () => {
     },
   ]);
   const [copiedFormData, setCopiedFormData] = useState({});
+    const [isCopyFromPurchase, setIsCopyFromPurchase] = useState(false);
+      const [opencopyFromDialog, setOpenCopyFromDialog] = useState(false);
+      const [requestList, setRequestList] = useState([]);
+    
   const [isCloneSelected, setIsCloneSelected] = useState(false);
   const [itemTabledata, setitemTableData] = useState([
     { slno: 1, ItemCode: "", ItemName: "", quantity: "", amount: "" },
@@ -186,6 +198,162 @@ const EditSalesOrder = () => {
       VatSum: summaryData.VatSum,
     });
   };
+  const copyFrom = async () => {
+      setIsCopyFromPurchase(true);
+      const res = await dispatch(fetchPurchaseRequest()).unwrap();
+      const currentType =
+        type === "Item" ? "dDocument_Items" : "dDocument_Service";
+      setRequestList(res?.data.filter((val) => val.DocType === currentType));
+      console.log("currentType", currentType, res?.data);
+      setOpenCopyFromDialog(true);
+    };
+   const getItemPrice = async (cardCode, itemCode) => {
+      try {
+        const response = await dispatch(
+          fetchitemprices({ cardCode: cardCode, itemCode: itemCode }),
+        ).unwrap();
+  
+        // SAP returns array in response.value
+        if (response?.value?.length > 0) {
+          return response.value[0]; // ✅ Correct
+        }
+  
+        return 0;
+      } catch (error) {
+        console.error("Price fetch failed", error);
+        return 0;
+      }
+    };
+  const saveItem = async (item) => {
+    console.log("saveitemitem", item);
+    const newItems = Array.isArray(item) ? item : Object.values(item);
+
+    for (const newItem of newItems) {
+      const itemresponse = await getItemPrice(
+        selectedcardcode,
+        newItem.ItemCode,
+      );
+      const price = itemresponse ? itemresponse.Price : 0;
+      const discount = itemresponse ? itemresponse.DiscountPercent : ""; // You can replace this with any logic to determine the default quantity
+      if (isCopyFromPurchase) {
+        console.log("isCopyFromPurchase", isCopyFromPurchase);
+        setitemTableData((prev) => {
+          
+          const newRows = newItems
+            .map((item,index) => ({
+                id: index,
+                slno: index + 1,
+                ItemCode: item.ItemCode || "",
+                ItemName: item.ItemDescription || "",
+                amount: item.UnitPrice || 0,
+                quantity: item.Quantity || 0,
+                discount: item.DiscountPercent || 0,
+                BaseAmount: item.LineTotal || 0,
+                TaxCode: item.TaxCode || "",
+                TaxRate: item.TaxPercentagePerRow || 0,
+                grosstotal: item.GrossTotal || 0,
+                ProjectCode: item.ProjectCode || "",
+                WarehouseCode: item.WarehouseCode || "",
+              }));
+
+          const existingIds = new Set(prev.map((row) => row.id));
+
+          const filteredNew = newRows.filter((row) => !existingIds.has(row.id));
+
+           return [...prev, ...filteredNew];
+         //return [...prev, ...newRows];
+        });
+        setIsCopyFromPurchase(false)
+      } else {
+        setitemTableData((prev) => {
+          let updated = [...prev];
+
+          if (
+            updated.length > 0 &&
+            updated[updated.length - 1]?.ItemCode === ""
+          ) {
+            updated.pop();
+          }
+
+          const nextSlno =
+            updated.length > 0 ? updated[updated.length - 1].slno + 1 : 0;
+
+          updated.push({
+            ...newItem,
+            slno: nextSlno,
+            amount: price, // 🔥 Auto fill price
+            discount: discount,
+            //quantity:PriceListNum, // 🔥 Default quantity to 1 or any logic you want
+          });
+
+          return updated;
+        });
+      }
+    }
+  };
+  const saveService = async (item) => {
+    console.log("saveitemservice", item);
+    //setSelectedServices(rowSelection);
+    const newItems = Array.isArray(item) ? item : Object.values(item);
+
+    for (const newItem of newItems) {
+      const itemresponse = await getItemPrice(
+        selectedcardcode,
+        newItem.ServiceCode,
+      );
+      const price = itemresponse ? itemresponse.Price : 0;
+      const discount = itemresponse ? itemresponse.DiscountPercent : ""; // You can replace this with any logic to determine the default quantity
+      if (isCopyFromPurchase) {
+        console.log("isCopyFromPurchase", isCopyFromPurchase, newItems);
+        setserviceTableData((prev) => {
+          const newRows = newItems.flatMap((item, index) => ({
+            id: index,
+            slno: index + 1,
+            ServiceCode: item.AccountCode || "",
+            ServiceName: item.ItemDescription || "",
+            amount: item.UnitPrice || 0,
+            quantity: item.Quantity || 0,
+            discount: item.DiscountPercent || 0,
+            BaseAmount: item.LineTotal || 0,
+            TaxCode: item.TaxCode || "",
+            TaxRate: item.TaxPercentagePerRow || 0,
+            grosstotal: item.GrossTotal || 0,
+            ProjectCode: item.ProjectCode || "",
+            WarehouseCode: item.WarehouseCode || "",
+          }));
+
+          const existingIds = new Set(prev.map((row) => row.id));
+
+          const filteredNew = newRows.filter((row) => !existingIds.has(row.id));
+
+           return [...prev, ...filteredNew];
+          //return [...prev,...newRows];
+        });
+        setIsCopyFromPurchase(false);
+      } else {
+        setserviceTableData((prev) => {
+          let updated = [...prev];
+          // Remove the last row if it's an empty placeholder
+          if (updated[updated.length - 1]?.ServiceCode === "") {
+            updated.pop();
+          }
+          let nextSlno =
+            updated.length > 0 ? updated[updated.length - 1].slno + 1 : 0;
+
+          console.log("servicenewitem", newItem);
+
+          updated.push({
+            ...newItem,
+            slno: nextSlno,
+            amount: price, // 🔥 Auto fill price
+            discount: discount,
+          });
+
+          return updated;
+        });
+      }
+    }
+  };
   useEffect(() => {
     if (!formDetails || formDetails.length === 0) return;
     if (!formDetails[0]?.name) return;
@@ -221,6 +389,11 @@ const EditSalesOrder = () => {
               fetchPurchaseRequestById(id),
             ).unwrap();
             break;
+          case "GRPO":
+            orderListById = await dispatch(
+              fetchPurchaseDeliveryNotesById(id),
+            ).unwrap();
+            break;
           default:
             console.warn("Unknown form:", formDetails[0].name);
             return;
@@ -246,7 +419,7 @@ const EditSalesOrder = () => {
           setFormData({
             docEntry: orderListById.DocEntry,
             CardCode: orderListById.CardCode,
-            CustomerRefNo: orderListById.NumAtCard ||  "",
+            CustomerRefNo: orderListById.NumAtCard || "",
 
             CardName: orderListById.CardName,
             DocDueDate: orderListById.DocDueDate
@@ -258,7 +431,7 @@ const EditSalesOrder = () => {
             TaxDate: orderListById.TaxDate
               ? new Date(orderListById.TaxDate).toISOString().split("T")[0]
               : new Date().toISOString().split("T")[0],
-              ReqDate: orderListById.RequriedDate  
+            ReqDate: orderListById.RequriedDate
               ? new Date(orderListById.RequriedDate).toISOString().split("T")[0]
               : new Date().toISOString().split("T")[0],
             DocumentLines: orderListById.DocumentLines || [],
@@ -272,7 +445,8 @@ const EditSalesOrder = () => {
                 () =>
                   orderList.value
                     .map((item, index) => {
-                      const matched = orderListById.DocumentLines.find(
+                      const matched = orderListById.DocumentLines
+                      .find(
                         (line) => line.ItemCode === item.ItemCode,
                       );
 
@@ -318,6 +492,7 @@ const EditSalesOrder = () => {
                     })
                     .filter(Boolean), // remove nulls
               );
+              
               setitemTableData(
                 () =>
                   orderList.value
@@ -349,6 +524,26 @@ const EditSalesOrder = () => {
                     })
                     .filter(Boolean), // remove nulls
               );
+              
+              setitemTableData(() =>
+                orderListById.DocumentLines.map((line, index) => ({
+                  slno: line.LineNum + 1,
+                  ItemCode: line.ItemCode,
+                  ItemName: line.ItemDescription,
+                  quantity: line.Quantity,
+                  TaxCode: line.TaxCode,
+                  WarehouseCode: line.WarehouseCode,
+                  ProjectCode: line.ProjectCode,
+                  amount: line.UnitPrice,
+                  discount: line.DiscountPercent,
+                  TaxRate: line.TaxPercentagePerRow,
+                  "1_ProfitCenterCode": line.CostingCode,
+                  "2_ProfitCenterCode": line.CostingCode2,
+                  "3_ProfitCenterCode": line.CostingCode3,
+                  "4_ProfitCenterCode": line.CostingCode4,
+                  "5_ProfitCenterCode": line.CostingCode5,
+                })),
+              );
               if (orderList.value?.length > 0) {
                 const preselected = {};
                 orderListById.DocumentLines.forEach((line) => {
@@ -364,6 +559,7 @@ const EditSalesOrder = () => {
             } else {
               console.log("serviceList", serviceList);
               setType("Service");
+              
               setserviceData(
                 () =>
                   serviceList.value
@@ -371,6 +567,7 @@ const EditSalesOrder = () => {
                       const matched = orderListById.DocumentLines.find(
                         (line) => line.AccountCode === item.Code,
                       );
+                      console.log("editsalesorderservicedata",matched,item)
                       return matched !== undefined
                         ? {
                             slno: index, // usually LineNum is 0-based
@@ -411,6 +608,7 @@ const EditSalesOrder = () => {
                     })
                     .filter(Boolean), // remove nulls
               );
+             
               setserviceTableData(
                 () =>
                   serviceList.value
@@ -441,6 +639,25 @@ const EditSalesOrder = () => {
                         : null; // no placeholder
                     })
                     .filter(Boolean), // remove nulls
+              );
+              setserviceTableData(() =>
+                orderListById.DocumentLines.map((line, index) => ({
+                  slno: line.LineNum + 1,
+                  ServiceCode: line.AccountCode,
+                  ServiceName: line.ItemDescription,
+                  quantity: line.Quantity,
+                  TaxCode: line.TaxCode,
+                  WarehouseCode: line.WarehouseCode,
+                  ProjectCode: line.ProjectCode,
+                  amount: line.UnitPrice,
+                  discount: line.DiscountPercent,
+                  TaxRate: line.TaxPercentagePerRow,
+                  "1_ProfitCenterCode": line.CostingCode,
+                  "2_ProfitCenterCode": line.CostingCode2,
+                  "3_ProfitCenterCode": line.CostingCode3,
+                  "4_ProfitCenterCode": line.CostingCode4,
+                  "5_ProfitCenterCode": line.CostingCode5,
+                })),
               );
               if (serviceList.value?.length > 0) {
                 const preselected = {};
@@ -488,7 +705,7 @@ const EditSalesOrder = () => {
           setgeneraleditdata({
             CardCode: orderListById.CardCode,
             CardName: orderListById.CardName,
-            CustomerRefNo: orderListById.NumAtCard ||  "",
+            CustomerRefNo: orderListById.NumAtCard || "",
             TaxDate: orderListById.TaxDate
               ? new Date(orderListById.TaxDate).toISOString().split("T")[0]
               : "",
@@ -573,11 +790,14 @@ const EditSalesOrder = () => {
     let payload = {};
     try {
       setLoading(true);
-      const isPurchaseQuotation = formDetails[0]?.name === "Purchase Quotation";
+       const isSalesMenu =
+        formDetails[0]?.name === "Sales Order" ||
+        formDetails[0]?.name === "Sales Quotation" ||
+        formDetails[0]?.name === "Sales Request";
       if (type === "Item") {
         payload = {
           CardCode: formData.CardCode || selectedcardcode,
-           DocDate: formData.PostingDate
+          DocDate: formData.PostingDate
             ? new Date(formData.PostingDate)
                 .toISOString()
                 .split("T")[0]
@@ -589,14 +809,14 @@ const EditSalesOrder = () => {
                 .split("T")[0]
                 .replace(/-/g, "")
             : new Date().toISOString().split("T")[0].replace(/-/g, ""),
-         
-             TaxDate: formData.TaxDate
+
+          TaxDate: formData.TaxDate
             ? new Date(formData.TaxDate)
                 .toISOString()
                 .split("T")[0]
                 .replace(/-/g, "")
             : new Date().toISOString().split("T")[0].replace(/-/g, ""),
-          ...(isPurchaseQuotation && {
+          ...(!isSalesMenu && {
             RequriedDate: formData.ReqDate
               ? new Date(formData.ReqDate)
                   .toISOString()
@@ -614,6 +834,7 @@ const EditSalesOrder = () => {
             TaxCode: line.TaxCode,
             WarehouseCode: line.WarehouseCode,
             ProjectCode: line.ProjectCode,
+            TaxCode: line.TaxCode,
             VatGroup: line.TaxCode,
             DiscountPercent: line.discount,
             LineTotal: line.total,
@@ -622,9 +843,15 @@ const EditSalesOrder = () => {
             CostingCode3: line["3_ProfitCenterCode"] || null,
             CostingCode4: line["4_ProfitCenterCode"] || null,
             CostingCode5: line["5_ProfitCenterCode"] || null,
+            RequiredDate: formData.ReqDate
+              ? new Date(formData.ReqDate)
+                  .toISOString()
+                  .split("T")[0]
+                  .replace(/-/g, "")
+              : new Date().toISOString().split("T")[0].replace(/-/g, ""),
           })),
           data: userdefinedData || {},
-          DocTotal: summaryData.DocTotal || 0,
+          //DocTotal: summaryData.DocTotal || 0,
           Rounding: summaryData.Rounding || "tNO",
           RoundingDiffAmount: summaryData.RoundingDiffAmount || 0,
           DiscountPercent: summaryData.DiscountPercent || 0,
@@ -648,7 +875,7 @@ const EditSalesOrder = () => {
         payload = {
           CardCode: formData.CardCode || selectedcardcode,
           DocType: "dDocument_Service",
-           DocDate: formData.PostingDate
+          DocDate: formData.PostingDate
             ? new Date(formData.PostingDate)
                 .toISOString()
                 .split("T")[0]
@@ -660,13 +887,13 @@ const EditSalesOrder = () => {
                 .split("T")[0]
                 .replace(/-/g, "")
             : new Date().toISOString().split("T")[0].replace(/-/g, ""),
-TaxDate: formData.TaxDate
+          TaxDate: formData.TaxDate
             ? new Date(formData.TaxDate)
                 .toISOString()
                 .split("T")[0]
                 .replace(/-/g, "")
             : new Date().toISOString().split("T")[0].replace(/-/g, ""),
-          ...(isPurchaseQuotation && {
+          ...(!isSalesMenu && {
             RequriedDate: formData.ReqDate
               ? new Date(formData.ReqDate)
                   .toISOString()
@@ -683,6 +910,7 @@ TaxDate: formData.TaxDate
             TaxCode: line.TaxCode,
             WarehouseCode: line.WarehouseCode,
             ProjectCode: line.ProjectCode,
+            TaxCode: line.TaxCode,
             VatGroup: line.TaxCode,
             DiscountPercent: line.discount,
             LineTotal: line.total,
@@ -691,9 +919,15 @@ TaxDate: formData.TaxDate
             CostingCode3: line["3_ProfitCenterCode"] || null,
             CostingCode4: line["4_ProfitCenterCode"] || null,
             CostingCode5: line["5_ProfitCenterCode"] || null,
+             RequiredDate: formData.ReqDate
+              ? new Date(formData.ReqDate)
+                  .toISOString()
+                  .split("T")[0]
+                  .replace(/-/g, "")
+              : new Date().toISOString().split("T")[0].replace(/-/g, ""),
           })),
           data: userdefinedData || {},
-          DocTotal: summaryData.DocTotal || 0,
+          //DocTotal: summaryData.DocTotal || 0,
           Rounding: summaryData.Rounding || "tNO",
           RoundingDiffAmount: summaryData.RoundingDiffAmount || 0,
           DiscountPercent: summaryData.DiscountPercent || 0,
@@ -763,6 +997,10 @@ TaxDate: formData.TaxDate
         res = await dispatch(
           updatePurchaseRequest({ id, data: formDataToSend }),
         ).unwrap();
+      } else if (formDetails[0]?.name === "GRPO") {
+        res = await dispatch(
+          updatePurchaseDeliveryNotes({ id, data: formDataToSend }),
+        ).unwrap();
       }
       if (res.message === "Please Login!") {
         navigate("/login");
@@ -771,18 +1009,18 @@ TaxDate: formData.TaxDate
     } catch (err) {
       console.log("Err object:", err);
 
-        // Safely read status
-        const statusCode = err?.status || err?.response?.status || 0;
-        const message = err?.message || "Failed to load data";
+      // Safely read status
+      const statusCode = err?.status || err?.response?.status || 0;
+      const message = err?.message || "Failed to load data";
 
-        console.error("c    :", statusCode, "Message:", message);
-        setApiError(message);
+      console.error("c    :", statusCode, "Message:", message);
+      setApiError(message);
 
-        // If 401, redirect to login 
-        if (statusCode === 401) {
-          navigate("/login");
-        }
-        setApiError(err.message || "Failed to load data");
+      // If 401, redirect to login
+      if (statusCode === 401) {
+        navigate("/login");
+      }
+      setApiError(err.message || "Failed to load data");
     } finally {
       setTimeout(() => {
         setLoading(false);
@@ -843,56 +1081,73 @@ TaxDate: formData.TaxDate
         }}
         active={loading}
       >
-         <style>
-        {`
+        <style>
+          {`
             ._footer_17oaz_164{
               position: static
             }
           `}
-      </style>
+        </style>
         <ObjectPage
           className="sales-order-page"
           footerArea={
             <>
               {" "}
               <Bar
-                style={{ padding: 0.5,marginBottom: "16px" }}
+                style={{ padding: 0.5, marginBottom: "16px" }}
                 design={BarDesign.FloatingFooter}
                 endContent={
-                  <>
-                    <Button design="Positive" onClick={() => handleSubmit()}>
+                  <FlexBox style={{ gap: "0.5rem" }}>
+                   
+                    <Button design="default" onClick={() => handleSubmit()}>
                       Update
                     </Button>
                     <Button
-                      design="Positive"
+                      design="default"
                       onClick={() => navigate(`/Sales/${formId}`)}
                     >
                       Cancel
                     </Button>
-                  </>
+                  </FlexBox>
                 }
               />
             </>
           }
           headerArea={
-            <DynamicPageHeader>
-              <FlexBox wrap="Wrap">
+            <DynamicPageHeader
+              style={{
+                display: "flex",
+                alignItems: "center",
+                padding: "1rem",
+                //backgroundColor: "#354a5f", // SAP Blue
+                // color: "white",
+              }}
+            >
+              <FlexBox
+                direction="Row"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "end",
+                  flexWrap: "wrap",
+                  gap: "15px",
+                }}
+              >
                 <FlexBox direction="Column">
-                  <Label>Customer</Label>
+                  <Text>Customer</Text>
                 </FlexBox>
                 <span style={{ width: "4rem" }} />
                 <FlexBox direction="Column">
-                  <Label>Total:</Label>
+                  <Text>Total:</Text>
                   <ObjectStatus state="None">GBP 0.00</ObjectStatus>
                 </FlexBox>
                 <span style={{ width: "4rem" }} />
                 <FlexBox direction="Column">
-                  <Label>Status</Label>
+                  <Text>Status</Text>
                   <ObjectStatus state="Positive">Open</ObjectStatus>
                 </FlexBox>
                 <span style={{ width: "4rem" }} />
                 <FlexBox direction="Column">
-                  <Label>Credit Limit Utilization</Label>
+                  <Text>Credit Limit Utilization</Text>
                   <Slider
                     min={0}
                     max={100}
@@ -947,15 +1202,21 @@ TaxDate: formData.TaxDate
               }
               header={
                 <Title level="H2">
-                  {formDetails ? formDetails[0]?.name : "Sales Order"}
+                  {formDetails
+                    ? formDetails[0]?.name
+                    : formId
+                      ? formId
+                      : "Sales Order"}
                 </Title>
               }
               navigationBar={
+                 formDetails[0]?.name!=="Purchase Request"&&formDetails[0]?.name!=="GRPO"?
                 <Toolbar design="Transparent">
-                  <ToolbarButton
+                 <ToolbarButton
                     design="default"
                     onClick={copyForm}
                     icon="sap-icon://copy"
+                    text="Copy From"
                   />
                   {console.log("copiesformdataeditsalesorder", copiedFormData)}
                   <Select
@@ -980,49 +1241,8 @@ TaxDate: formData.TaxDate
                       </Option>
                     ))}
                   </Select>
-                  {/* <Select
-                  onChange={(e) => {
-                    const selected = e.detail.selectedOption.dataset.id;
-
-                    if (selected === "CopyTo") {
-                      // store big data for new tab
-                      localStorage.setItem(
-                        "copyFormData",
-                        JSON.stringify(copiedFormData)
-                      );
-
-                      window.open(
-                        "/cloneorder/create/" + formId + "/" + selectPage,
-                        "_blank"
-                      );
-                    } else if (selected === "MoveTo") {
-                      navigate(
-                        "/cloneorder/create/" + formId + "/" + selectPage,
-                        {
-                          state: { copyFormData: copiedFormData },
-                        }
-                      );
-                    }
-                  }}
-                >
-                  <Option data-id="Select">Select</Option>
-                  <Option data-id="MoveTo">Move To</Option>
-                  <Option data-id="CopyTo">Copy To</Option>
-                </Select> */}
-
-                  {/* <ToolbarButton
-                  design={isCloneSelected ? "Emphasized" : "Transparent"}
-                  onClick={() => setIsCloneSelected(!isCloneSelected)}
-                  icon="sap-icon://add-document"
-                  text="Clone"
-                /> */}
-
-                  {/* <ToolbarButton
-                  onClick={() => navigate(`/Sales/${formId}`)}
-                  design="Transparent"
-                  icon="decline"
-                /> */}
-                </Toolbar>
+                 
+                </Toolbar> :<></>
               }
             >
               <ObjectStatus>
@@ -1103,6 +1323,10 @@ TaxDate: formData.TaxDate
               setRoundOff={setRoundOff}
               freightRowSelection={freightRowSelection}
               setFreightRowSelection={setFreightRowSelection}
+              saveItem={saveItem}
+              saveService={saveService}
+               selectedServices={selectedServices}
+              setSelectedServices={setSelectedServices}
             />
           </ObjectPageSection>
 
@@ -1173,6 +1397,15 @@ TaxDate: formData.TaxDate
       {isCloneSelected && (
         <CloneSalesOrder copiedFormData={copiedFormData} formId={formId} />
       )}
+       <CopyFromDialog
+        open={opencopyFromDialog}
+        setOpen={setOpenCopyFromDialog}
+        requestList={requestList}
+        saveItem={saveItem}
+        saveService={saveService}
+        type={type}
+        setType={setType}
+      />
       <Dialog open={open} onAfterClose={() => setOpen(false)}>
         <div
           style={{

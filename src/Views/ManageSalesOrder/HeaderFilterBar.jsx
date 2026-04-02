@@ -12,6 +12,7 @@ import {
   Option,
   Select,
   SuggestionItem,
+  Text,
   TextArea,
 } from "@ui5/webcomponents-react";
 import React, { useEffect, useState } from "react";
@@ -27,12 +28,17 @@ export const HeaderFilterBar = ({
   filters,
   menuChildMap,
   setFilters,
-  customerorder,isClearFilter,setisClearFilter,formDetails,originalCustomerData,setOriginalCustomerData
+  customerorder,
+  isClearFilter,
+  setisClearFilter,
+  formDetails,
+  originalCustomerData,
+  setOriginalCustomerData,
 }) => {
   const [value, setvalue] = useState("");
   const [fieldName, setfieldName] = useState("");
   const [filterdialogOpen, setFilterDialogOpen] = useState(false);
- const [inputvalue, setInputValue] = useState([]);
+  const [inputvalue, setInputValue] = useState([]);
   // Suggestion and dialog items
   const productCollection = [
     { Name: "Person1" },
@@ -46,12 +52,12 @@ export const HeaderFilterBar = ({
     const selectedItem = e.detail.item.textContent;
     setInputValue(selectedItem);
   };
-useEffect(()=>{
-  if(isClearFilter===true){
-    setisClearFilter(false)
-      setInputValue([])
-  }
-},[isClearFilter])
+  useEffect(() => {
+    if (isClearFilter === true) {
+      setisClearFilter(false);
+      setInputValue([]);
+    }
+  }, [isClearFilter]);
   // Handle value help button click
   const handleValueHelpRequest = (fieldname) => {
     console.log("handleValueHelpRequest", fieldname);
@@ -89,7 +95,7 @@ useEffect(()=>{
     case "number":
       return (
         <FlexBox direction="Column">
-          <Label>{field.DisplayName}</Label>
+          <Text>{field.DisplayName}</Text>
           <Input
             type={field.inputType}
             value={value}
@@ -99,35 +105,42 @@ useEffect(()=>{
       );
     case "date":
       return (
-              // <FlexBox direction="Column">
-              //   <Label>From Date</Label>
-              //   <DatePicker
-              //     name="FromDate"
-              //     value={filters.FromDate}
-              //     onChange={(e) => handleChange(e, "FromDate")}
-              //   />
-              //   <Label>To Date</Label>
-      
-              //   <DatePicker
-              //     name="ToDate"
-              //     value={filters.ToDate}
-              //     onChange={(e) => handleChange(e, "ToDate")}
-              //   />
-              // </FlexBox>
-               <FlexBox direction="Column">
-                <Label>{field.DisplayName}</Label>
-                {console.log("filters[field.field_name]",field.FieldName,filters[field.FieldName],filters)}
-                <DatePicker
-                  name={field.FieldName}
-                  value={filters[field.FieldName]}
-                  onChange={(e) => handleChange(e, field.FieldName)}
-                /></FlexBox>
-            );
-      
+        // <FlexBox direction="Column">
+        //   <Label>From Date</Label>
+        //   <DatePicker
+        //     name="FromDate"
+        //     value={filters.FromDate}
+        //     onChange={(e) => handleChange(e, "FromDate")}
+        //   />
+        //   <Label>To Date</Label>
+
+        //   <DatePicker
+        //     name="ToDate"
+        //     value={filters.ToDate}
+        //     onChange={(e) => handleChange(e, "ToDate")}
+        //   />
+        // </FlexBox>
+        <FlexBox direction="Column" >
+          <Text>{field.DisplayName}</Text>
+          {console.log(
+            "filters[field.field_name]",
+            field.FieldName,
+            filters[field.FieldName],
+            filters,
+          )}
+          <DatePicker
+          style={{ width: "250px" }}
+            name={field.FieldName}
+            value={filters[field.FieldName]}
+            onChange={(e) => handleChange(e, field.FieldName)}
+          />
+        </FlexBox>
+      );
+
     case "checkbox":
       return (
         <FlexBox direction="Column">
-          <Label>{field.DisplayName}</Label>
+          <Text>{field.DisplayName}</Text>
           <CheckBox
             onChange={(e) => handleChange(e, field.FieldName)}
             text="CheckBox"
@@ -138,7 +151,7 @@ useEffect(()=>{
     case "search":
       return (
         <FlexBox direction="Column">
-          <Label>{field.DisplayName}</Label>
+          <Text>{field.DisplayName}</Text>
           <Input
             placeholder="Search..."
             type="Search"
@@ -150,7 +163,7 @@ useEffect(()=>{
     case "textarea":
       return (
         <FlexBox direction="Column">
-          <Label>{field.DisplayName}</Label>
+          <Text>{field.DisplayName}</Text>
           <TextArea
             value={value}
             onInput={(e) => handleChange(e, field.FieldName)}
@@ -160,7 +173,7 @@ useEffect(()=>{
     case "selectdropdown":
       return (
         <FlexBox direction="Column">
-          <Label>{field.DisplayName}</Label>
+          <Text>{field.DisplayName}</Text>
           <Select
             onChange={function Xs() {}}
             onClose={function Xs() {}}
@@ -176,23 +189,25 @@ useEffect(()=>{
     case "select":
       return (
         <FlexBox direction="Column">
-           <Label>
-    {    menuChildMap[0]?.menuName === "Purchase" && field.FieldName === "CustomerCode"
-      ? "Vendor Code"
-      : menuChildMap[0]?.menuName === "Purchase" && field.FieldName === "CustomerName"
-      ? "Vendor Name"
-      : field.DisplayName}
-  </Label>
+          <Text>
+            {menuChildMap[0]?.menuName === "Purchase" &&
+            field.FieldName === "CustomerCode"
+              ? "Vendor Code"
+              : menuChildMap[0]?.menuName === "Purchase" &&
+                  field.FieldName === "CustomerName"
+                ? "Vendor Name"
+                : field.DisplayName}
+          </Text>
           <Input
             icon={
               <Icon
+              style={{paddingTop:"0.5rem"}}
                 name="value-help"
                 onClick={() => handleValueHelpRequest(field.FieldName)}
               />
             }
             name={field.FieldName}
             value={inputvalue}
-            style={{ width: "250px" }}
             onInput={(e) => {
               console.log("selectVal", e.target.value);
               handleChange(e, field.FieldName);
@@ -202,7 +217,7 @@ useEffect(()=>{
             {productCollection
               .filter(
                 (item, index, self) =>
-                  index === self.findIndex((t) => t.Name === item.Name)
+                  index === self.findIndex((t) => t.Name === item.Name),
               )
               .map((item, idx) => (
                 <SuggestionItem key={idx} text={item.Name} />
@@ -219,7 +234,6 @@ useEffect(()=>{
         </FlexBox>
       );
     default:
-      return  null;
+      return null;
   }
-  
 };
