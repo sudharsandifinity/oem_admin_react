@@ -1323,7 +1323,7 @@ const Itemtable = (props) => {
               <Text>{summaryDiscountAmount}</Text>
             </FlexBox>
           </FlexBox>
-
+          {formDetails[0].name!=="Purchase Request"&&        
           <FlexBox>
             <Text showColon style={{ minWidth: "200px", marginBottom: "10px" }}>
               Freight
@@ -1355,7 +1355,7 @@ const Itemtable = (props) => {
                 })}
               </Text>
             </FlexBox>
-          </FlexBox>
+          </FlexBox>}
 
           <FlexBox>
             <Text showColon style={{ minWidth: "200px" }}>

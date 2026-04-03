@@ -1251,12 +1251,13 @@ const clearProjectFilter = () => {
               <Text>{summaryDiscountAmount}</Text>
             </FlexBox>
           </FlexBox>
-          <FlexBox>
-            <Text
-              showColon
-              style={{ minWidth: "200px", marginBottom: "10px" }}
-            >
-              Freight
+          {formDetails[0].name !== "Purchase Request" && 
+            <FlexBox>
+              <Text
+                showColon
+                style={{ minWidth: "200px", marginBottom: "10px" }}
+              >
+                Freight
             </Text>
             <Button
               design="Default"
@@ -1287,7 +1288,7 @@ const clearProjectFilter = () => {
                 })}
               </Text>
             </FlexBox>
-          </FlexBox>
+          </FlexBox>}
           <FlexBox>
             <Text showColon style={{ minWidth: "200px" }}>
               Tax
