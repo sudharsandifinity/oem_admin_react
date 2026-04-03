@@ -73,6 +73,7 @@ const EditGRP = () => {
   const [attachmentFiles, setAttachmentFiles] = useState([]);
   const [oldAttachmentFiles, setOldAttachmentFiles] = useState([]);
   const [freightRowSelection, setFreightRowSelection] = useState([]);
+  const [selectedVendor, setselectedVendor] = useState([]);
 
   const [tabList, setTabList] = useState([]);
   const [formDetails, setFormDetails] = useState([]);
@@ -577,7 +578,7 @@ const EditGRP = () => {
             CostingCode5: line["5_ProfitCenterCode"] || null,
           })),
           data: userdefinedData || {},
-          DocTotal: summaryData.DocTotal || 0,
+         // DocTotal: summaryData.DocTotal || 0,
           Rounding: summaryData.Rounding || "tNO",
           RoundingDiffAmount: summaryData.RoundingDiffAmount || 0,
           DiscountPercent: summaryData.DiscountPercent || 0,
@@ -646,7 +647,7 @@ TaxDate: formData.TaxDate
             CostingCode5: line["5_ProfitCenterCode"] || null,
           })),
           data: userdefinedData || {},
-          DocTotal: summaryData.DocTotal || 0,
+         // DocTotal: summaryData.DocTotal || 0,
           Rounding: summaryData.Rounding || "tNO",
           RoundingDiffAmount: summaryData.RoundingDiffAmount || 0,
           DiscountPercent: summaryData.DiscountPercent || 0,
@@ -955,6 +956,7 @@ TaxDate: formData.TaxDate
                 formDetails={formDetails}
                 selectedcardcode={selectedcardcode}
                 setSelectedCardCode={setSelectedCardCode}
+                 setselectedVendor={setselectedVendor}
                 setCurrencyType={setCurrencyType}
                 currencyType={currencyType}
                 apiError={apiError}

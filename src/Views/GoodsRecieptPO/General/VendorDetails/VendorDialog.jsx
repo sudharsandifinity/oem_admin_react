@@ -30,10 +30,10 @@ const VendorDialog = ({
    
     {
       Header: "Vendor Code",
-      accessor: "Vendor",
+      accessor: "CardCode",
       width: 100,
     },
-    { Header: "Vendor Name", accessor: "VendorName" },
+    { Header: "Vendor Name", accessor: "CardName" },
     { Header: "Contact Person", accessor: "ContactPerson" },
   ];
  const clearFilter = () => {
@@ -46,10 +46,10 @@ const VendorDialog = ({
     console.log("selectedRow", selectedRow, event);
     if (selectedRow) {
       setSelected(selectedRow.original);
-      setselectedVendor(selectedRow.original.Vendor);
+      setselectedVendor(selectedRow.original.CardCode);
       setFormData((prev) => ({
         ...prev,
-        VendorCode: selectedRow.original.Vendor,
+        CardCode: selectedRow.original.CardCode,
       }));
       setTimeout(() => {
         clearFilter();
@@ -124,24 +124,24 @@ const VendorDialog = ({
             {" "}
             <Label>Vendor Code</Label>
             {/* <Select
-              onChange={(e) => handleFilterChange(e, "VendorCode")}
-              value={inputValue.VendorCode || ""}
+              onChange={(e) => handleFilterChange(e, "CardCode")}
+              value={inputValue.CardCode || ""}
             >
               <Option value=""></Option>
               {originalGeneralData.map((data, index) => (
-                <Option key={index} value={data.VendorCode}>
-                  {data.VendorCode}
+                <Option key={index} value={data.CardCode}>
+                  {data.CardCode}
                 </Option>
               ))}
             </Select> */}
             <ComboBox
               filter
-              value={inputValue.VendorCode || ""}
-              onChange={(e) => handleFilterChange(e, "VendorCode")}
+              value={inputValue.CardCode || ""}
+              onChange={(e) => handleFilterChange(e, "CardCode")}
               placeholder="Search Vendor Code..."
             >
               {originalGeneralData.map((data, idx) => (
-                <ComboBoxItem key={idx} text={data.VendorCode} />
+                <ComboBoxItem key={idx} text={data.CardCode} />
               ))}
             </ComboBox>
           </FlexBox>
@@ -161,12 +161,12 @@ const VendorDialog = ({
             </Select> */}
               <ComboBox
               filter
-              value={inputValue.VendorName || ""}
-              onChange={(e) => handleFilterChange(e, "VendorName")}
+              value={inputValue.CardName || ""}
+              onChange={(e) => handleFilterChange(e, "CardName")}
               placeholder="Search Vendor Name..."
             >
               {originalGeneralData.map((data, idx) => (
-                <ComboBoxItem key={idx} text={data.VendorName} />
+                <ComboBoxItem key={idx} text={data.CardName} />
               ))}
             </ComboBox>
           </FlexBox>

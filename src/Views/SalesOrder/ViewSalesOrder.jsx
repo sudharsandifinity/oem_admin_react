@@ -910,6 +910,7 @@ useEffect(() => {
                 formDetails={formDetails}
                 selectedcardcode={selectedcardcode}
             setSelectedCardCode={setSelectedCardCode}
+            setCurrencyType={setCurrencyType}
                 mode="view"
               />
             )}
