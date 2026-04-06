@@ -41,7 +41,7 @@ const UserDashboard = () => {
       ...(menu.children?.map((child) => child.name) || []),
     ]) || []
   ) || [];
-  console.log("allMenus",allMenus)
+  console.log("allMenus",allMenus);
   const [selectedType, setSelectedType] = useState(allMenus[0] || "Sales Order");
   const [selectedOrderData, setSelectedOrderData] = useState([]);
   const [selectedOrderDetails, setSelectedOrderDetails] = useState([]);

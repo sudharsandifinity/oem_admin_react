@@ -698,7 +698,7 @@ useEffect(() => {
             <>
               {" "}
               <Bar
-                style={{ padding: 0.5 }}
+                style={{ padding: 0.5,marginBottom: "16px" }}
                 design="FloatingFooter"
                 endContent={
                   <>
@@ -766,7 +766,6 @@ useEffect(() => {
           onToggleHeaderArea={function Xs() {}}
           selectedSectionId="section1"
           style={{
-            height: "700px",
             maxHeight: "90vh",
           }}
           titleArea={
