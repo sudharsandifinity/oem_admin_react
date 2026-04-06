@@ -157,7 +157,7 @@ const UserDashboard = () => {
         }
 
         console.log("quotationdata", "sales", res, selectedType);
-        const raw = res?.data?.value ?? res?.data ?? res;
+        const raw = res?.data?.value ?? res?.data??res?.value ?? res;
 
         // Ensure it's an array
         const list = Array.isArray(raw)
