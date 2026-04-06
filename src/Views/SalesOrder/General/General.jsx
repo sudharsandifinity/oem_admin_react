@@ -228,7 +228,7 @@ const General = ({
                       name="CardCode"
                       control={control}
                       render={({ field }) =>
-                        formDetails[0]?.name === "Purchase Request" ? (
+                        formDetails[0]?.name === "Purchase Request"? (
                           <Select
                             style={{ width: "100%" }}
                             placeholder="Reactor"
@@ -246,7 +246,7 @@ const General = ({
                           <Input
                             placeholder="Select Card"
                             name="CardCode"
-                            disabled={mode === "view"}
+                            disabled={mode === "view"||(formDetails[0]?.name === "GRPO" &&mode=== "edit")}
                             style={{ width: "100%" }}
                             value={
                               selectedcardcode
@@ -285,7 +285,7 @@ const General = ({
                         <Input
                           placeholder="Card Name"
                           name="CardName"
-                          disabled={mode === "view"||formDetails[0]?.name==="Purchase Request"}
+                          disabled={mode === "view"||formDetails[0]?.name==="Purchase Request"||(formDetails[0]?.name === "GRPO" &&mode=== "edit") }
                           style={{ width: "100%" }}
                           value={formDetails[0]?.name==="Purchase Request"?"manager":autoCardNameRef || field.value}
                           onInput={(e) => field.onChange(e.target.value)}
