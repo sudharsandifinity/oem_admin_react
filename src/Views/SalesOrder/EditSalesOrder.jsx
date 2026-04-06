@@ -1005,6 +1005,7 @@ const EditSalesOrder = () => {
       if (res.message === "Please Login!") {
         navigate("/login");
       }
+       res && setApiError(null);
       setOpen(true);
     } catch (err) {
       console.log("Err object:", err);
@@ -1049,12 +1050,24 @@ const EditSalesOrder = () => {
     if (error.code === "-10") {
       return "Tax information is missing or incorrect.";
     }
+    if (
+      formDetails[0]?.name === "Purchase Request" &&
+      summaryData.DocTotal > 1000
+    ) {
+      return "Document total must be less than 1000";
+    }
+   const message =
+      error?.message?.value ||
+      error?.message ||
+      error?.response?.data?.message ||
+      error ||
+      "";
 
-    if (error.message?.includes("Network")) {
+    if (message.includes("Network")) {
       return "Unable to connect to the server.";
     }
-
-    return "Please review the details and try again.";
+    console.log("message", message);
+    return message || "Please review the details and try again.";
   };
   useEffect(() => {
     if (!user) return;
