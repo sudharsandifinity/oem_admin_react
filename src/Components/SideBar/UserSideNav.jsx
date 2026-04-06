@@ -54,12 +54,13 @@ const UserSideNav = ({
     <FlexBox style={{ height: "95vh" }}>
       <FlexBox
         direction="Column"
+        className={"sidebar" + (collapsed ? "" : " open")}
         style={{ width: collapsed ? "0px" : "260px" }}
       >
         <SideNavigation
           fixedItems={
             <>
-              <SideNavigationItem
+              {/* <SideNavigationItem
                 text="GRP"
                 onClick={(e) => {
                   e.preventDefault();
@@ -72,7 +73,7 @@ const UserSideNav = ({
                   e.preventDefault();
                   navigate(`/approver`);
                 }}
-              ></SideNavigationItem>
+              ></SideNavigationItem> */}
             </>
           }
         >
@@ -93,18 +94,21 @@ const UserSideNav = ({
                           onClick={(e) => {
                             e.preventDefault();
                             navigate(`/${menu.display_name}/${child.formId}`);
+                           //const slug = child.display_name.replace(/\s+/g, "-");
+
+                            //navigate(`/${menu.display_name}/${slug}`)
                           }}
                         />
                       ))}
                   </SideNavigationItem>
-                )
+                ),
               )}
           </SideNavigationGroup>
         </SideNavigation>
       </FlexBox>
       <FlexBox style={{ flex: 1, height: "100%" }}>
+        {/* outlet will render whichever child route is active (dashboard, reports, etc.) */}
         <Outlet />
-       
       </FlexBox>
     </FlexBox>
   );
