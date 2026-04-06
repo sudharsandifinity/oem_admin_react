@@ -1187,6 +1187,12 @@ const EditSalesOrder = () => {
           }}
           titleArea={
             <ObjectPageTitle
+            className="custom-header"
+            style={{
+              // display: "flex",
+              //alignItems: "start",
+              padding: "1rem",
+            }}
               breadcrumbs={
                 <>
                   <Breadcrumbs

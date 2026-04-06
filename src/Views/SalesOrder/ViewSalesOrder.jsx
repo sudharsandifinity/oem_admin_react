@@ -770,6 +770,12 @@ useEffect(() => {
           }}
           titleArea={
             <ObjectPageTitle
+            className="custom-header"
+            style={{
+              // display: "flex",
+              //alignItems: "start",
+              padding: "1rem",
+            }}
               breadcrumbs={
                 <>
                   <Breadcrumbs
@@ -909,7 +915,6 @@ useEffect(() => {
                 formDetails={formDetails}
                 selectedcardcode={selectedcardcode}
             setSelectedCardCode={setSelectedCardCode}
-            setCurrencyType={setCurrencyType}
                 mode="view"
               />
             )}
