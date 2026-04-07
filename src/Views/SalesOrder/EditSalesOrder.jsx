@@ -1026,7 +1026,7 @@ const EditSalesOrder = () => {
       setTimeout(() => {
         setLoading(false);
         setOpen(true); // open success dialog
-      }, 2000); // ✅ stop loader
+      }, 500); // ✅ stop loader
     }
   };
   const menuBlocks =
