@@ -463,7 +463,7 @@ export default function SalesOrder() {
       setTimeout(() => {
         setLoading(false);
         setOpen(true);
-      }, 2000);
+      }, 500);
     }
   };
 
