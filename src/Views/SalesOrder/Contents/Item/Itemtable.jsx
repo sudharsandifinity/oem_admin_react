@@ -71,6 +71,8 @@ const Itemtable = (props) => {
     setTaxData,
     setOriginalTaxData,
     originalTaxData,
+    OwnerList,
+    setOwnerList,
     projectData,
     setProjectData,
     originalProjectData,
@@ -105,7 +107,10 @@ const Itemtable = (props) => {
     roundOff,
     setRoundOff,
     clearCellValue,
-    copiedItemDocumentLines,formDetails
+    copiedItemDocumentLines,
+    formDetails,
+    selectedItemOwner,
+    setSelectedItemOwner,
   } = props;
   const menuRef = useRef();
 
@@ -201,7 +206,14 @@ const Itemtable = (props) => {
       return updated;
     });
   };
-
+  const handlechangeOwner = (e) => {
+    const selectedOwnerId = e.target.value;
+    const selectedOwner = OwnerList.find(
+      (owner) => owner.EmployeeID === selectedOwnerId,
+    );
+    console.log("selectedOwner", selectedOwner, selectedOwnerId);
+    setSelectedItemOwner(selectedOwnerId);
+  };
   // const onselectFreightRow = (e) => {
   //   setFreightRowSelection((prev) => ({
   //     ...prev,
@@ -1127,6 +1139,7 @@ const Itemtable = (props) => {
       id: item.id ?? `row-${index}`, // ensure every row has unique ID
     }));
   }, [copiedItemDocumentLines, itemTabledata]);
+
   return (
     <div style={{ padding: "1rem" }}>
       <FlexBox style={{ justifyContent: "end" }}>
@@ -1163,13 +1176,17 @@ const Itemtable = (props) => {
             />
           </Menu>
         </>  */}
-        {formDetails[0].name === "GRPO" &&mode=="edit" ?<></>:<Button
+        {formDetails[0].name === "GRPO" && mode == "edit" ? (
+          <></>
+        ) : (
+          <Button
             disabled={mode === "view"}
             design="Transparent"
             onClick={addNewRow}
             icon="sap-icon://add"
             tooltip="Add Row"
-          ></Button>}
+          ></Button>
+        )}
         {/* <Button disabled={disable} design="Transparent" onClick={selectTopRow}>
           <Icon design="Information" name="arrow-top"></Icon>
         </Button>
@@ -1236,43 +1253,52 @@ const Itemtable = (props) => {
         />
       </div>
 
-      <FlexBox justifyContent="SpaceBetween" style={{ marginTop: "3rem" }}>
+      <FlexBox
+        wrap="Wrap"
+        justifyContent="SpaceBetween"
+        style={{ marginTop: "2rem", gap: "20rem" }}
+      >
         {/* LEFT SIDE */}
         <FlexBox
           direction="Column"
-          style={{ width: "100%", gap: "0.5rem", padding: "1rem" }}
-        >
-          <FlexBox direction="Row" style={{ width: "70%", gap: "4rem" }}>
-            <Text>Buyer</Text>
-            <Select>
-              <Option>Buyer1</Option>
-              <Option>Buyer2</Option>
+          style={{
+            flex: 1,
+            minWidth: "300px",
+            gap: "1rem",
+            padding: "1rem",
+          }}
+        >{console.log("selectedItemOwner",selectedItemOwner)}
+          <FlexBox alignItems="Center" justifyContent="SpaceBetween">
+            <Text style={{ minWidth: "120px" }}>Owner</Text>
+            <Select
+            disabled={mode === "view"}
+              style={{ width: "100%" }}
+              value={ String(selectedItemOwner)}
+              onChange={handlechangeOwner}
+            >
+              <Option value="">Select Owner</Option>
+              {OwnerList.map((owner) => (
+                <Option key={owner.EmployeeID} value={owner.EmployeeID}>
+                  {owner.FirstName} {owner.LastName}
+                </Option>
+              ))}
             </Select>
           </FlexBox>
 
-          <FlexBox direction="Row" style={{ width: "80%", gap: "3.7rem" }}>
-            <Text>Owner</Text>
-            <Select>
-              <Option>Owner1</Option>
-              <Option>Owner2</Option>
-            </Select>
-          </FlexBox>
-
-          <FlexBox direction="Row" style={{ width: "80%", gap: "2.5rem" }}>
-            <Text style={{ width: "5%" }}>Remark</Text>
+          {/* Remark */}
+          <FlexBox alignItems="Start" justifyContent="SpaceBetween">
+            <Text style={{ minWidth: "120px" }}>Remark</Text>
             <TextArea
               growing
-              name="Remark"
-              value={
-                summaryData?.Remark !== "undefined" ? summaryData?.Remark : ""
-              }
+              disabled={mode === "view"}
+              style={{ width: "100%" }}
+              value={summaryData?.Remark || ""}
               onBlur={(e) => {
                 setSummaryData((prev) => ({
                   ...prev,
                   Remark: e.target.value,
                 }));
               }}
-              valueState="None"
             />
           </FlexBox>
         </FlexBox>
@@ -1283,31 +1309,39 @@ const Itemtable = (props) => {
           alignItems="FlexStart"
           style={{ width: "40%", gap: "10px" }}
         >
+          {" "}
           <Title level="H3" style={{ marginBottom: "16px" }}>
-            Total Summary
-          </Title>
-
-          <FlexBox>
+            {" "}
+            Total Summary{" "}
+          </Title>{" "}
+          <FlexBox >
+            {" "}
             <Text showColon style={{ minWidth: "200px" }}>
-              Total Before Discount
-            </Text>
-            <FlexBox style={{ width: "100%" }} justifyContent="End">
-              {summaryCalculation.totalBeforeDiscount}
-            </FlexBox>
-          </FlexBox>
-
-          <FlexBox alignItems="Center">
+              {" "}
+              Total Before Discount{" "}
+            </Text>{" "}
+            <FlexBox  style={{ width: "100%" }} justifyContent="End">
+              {" "}
+              {summaryCalculation.totalBeforeDiscount}{" "}
+            </FlexBox>{" "}
+          </FlexBox>{" "}
+          <FlexBox disable={mode === "view"} alignItems="Center">
+            {" "}
             <Text showColon style={{ minWidth: "200px" }}>
-              Discount
-            </Text>
+              {" "}
+              Discount{" "}
+            </Text>{" "}
             <FlexBox
               style={{ width: "100%" }}
               justifyContent="SpaceBetween"
               alignItems="Center"
             >
+              {" "}
               <FlexBox alignItems="Center">
+                {" "}
                 <Input
                   type="Number"
+                  disabled={mode === "view"}
                   value={summaryDiscountPercent}
                   onBlur={(e) => {
                     const value = parseFloat(e.target.value) || 0;
@@ -1317,111 +1351,126 @@ const Itemtable = (props) => {
                       DiscountPercent: value,
                     }));
                   }}
-                />
-                %
-              </FlexBox>
-              <Text>{summaryDiscountAmount}</Text>
+                />{" "}
+                %{" "}
+              </FlexBox>{" "}
+              <Text>{summaryDiscountAmount}</Text>{" "}
+            </FlexBox>{" "}
+          </FlexBox>{" "}
+          {formDetails[0].name !== "Purchase Request" && (
+            <FlexBox>
+              {" "}
+              <Text
+                showColon
+                style={{ minWidth: "200px", marginBottom: "10px" }}
+              >
+                {" "}
+                Freight{" "}
+              </Text>{" "}
+              <Button
+              disabled={mode === "view"}
+                design="Default"
+                onClick={() => setfreightDialogOpen(true)}
+                tooltip="Freight"
+              >
+                {" "}
+                <Icon
+                  name="arrow-right"
+                  style={{
+                    color: "#ff9e00",
+                    width: "18px",
+                    height: "18px",
+                    fontSize: "18px",
+                  }}
+                />{" "}
+              </Button>{" "}
+              <FlexBox style={{ width: "100%" }} justifyContent="End">
+                {" "}
+                {useEffect(() => {
+                  setTotalFreightAmount(totalFreightFromPopup);
+                }, [totalFreightFromPopup])}{" "}
+                <Text>
+                  {" "}
+                  {totalFreightAmount.toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                  })}{" "}
+                </Text>{" "}
+              </FlexBox>{" "}
             </FlexBox>
-          </FlexBox>
-          {formDetails[0].name!=="Purchase Request"&&        
+          )}{" "}
           <FlexBox>
-            <Text showColon style={{ minWidth: "200px", marginBottom: "10px" }}>
-              Freight
-            </Text>
-
-            <Button
-              design="Default"
-              onClick={() => setfreightDialogOpen(true)}
-              tooltip="Freight"
-            >
-              <Icon
-                name="arrow-right"
-                style={{
-                  color: "#ff9e00",
-                  width: "18px",
-                  height: "18px",
-                  fontSize: "18px",
-                }}
-              />
-            </Button>
-
-            <FlexBox style={{ width: "100%" }} justifyContent="End">
-              {useEffect(() => {
-                setTotalFreightAmount(totalFreightFromPopup);
-              }, [totalFreightFromPopup])}{" "}
-              <Text>
-                {totalFreightAmount.toLocaleString(undefined, {
-                  minimumFractionDigits: 2,
-                })}
-              </Text>
-            </FlexBox>
-          </FlexBox>}
-
-          <FlexBox>
+            {" "}
             <Text showColon style={{ minWidth: "200px" }}>
-              Tax
-            </Text>
+              {" "}
+              Tax{" "}
+            </Text>{" "}
             <FlexBox style={{ width: "100%" }} justifyContent="End">
-              <Text>{summaryCalculation.totalTaxAmount}</Text>
-            </FlexBox>
-          </FlexBox>
-{formDetails[0].name!=="Purchase Request"&&
-          <FlexBox alignItems="Center">
-            <Text showColon style={{ minWidth: "200px" }}>
-              Rounding
-            </Text>
-            <FlexBox
-              style={{ width: "100%" }}
-              justifyContent="SpaceBetween"
-              alignItems="Center"
-            >
-              <CheckBox
-                checked={roundingEnabled}
-                onChange={(e) => {
-                  const checked = e.target.checked;
-                  setRoundingEnabled(checked);
-
-                  if (!checked) {
-                    setRoundOff(0);
-                  }
-
-                  setSummaryData((prev) => ({
-                    ...prev,
-                    Rounding: checked ? "tYES" : "tNO",
-                  }));
-                }}
-              />
-
-              {roundingEnabled ? (
-                <Input
-                  type="number"
-                  value={roundOff}
-                  onBlur={(e) => {
-                    const value = parseFloat(e.target.value) || 0;
-                    setRoundOff(value);
+              {" "}
+              <Text>{summaryCalculation.totalTaxAmount}</Text>{" "}
+            </FlexBox>{" "}
+          </FlexBox>{" "}
+          {formDetails[0].name !== "Purchase Request" && (
+            <FlexBox alignItems="Center">
+              {" "}
+              <Text showColon style={{ minWidth: "200px" }}>
+                {" "}
+                Rounding{" "}
+              </Text>{" "}
+              <FlexBox
+                style={{ width: "100%" }}
+                justifyContent="SpaceBetween"
+                alignItems="Center"
+              >
+                {" "}
+                <CheckBox
+                disabled={mode === "view"}
+                  checked={roundingEnabled}
+                  onChange={(e) => {
+                    const checked = e.target.checked;
+                    setRoundingEnabled(checked);
+                    if (!checked) {
+                      setRoundOff(0);
+                    }
                     setSummaryData((prev) => ({
                       ...prev,
-                      RoundingDiffAmount: value,
+                      Rounding: checked ? "tYES" : "tNO",
                     }));
                   }}
-                />
-              ) : (
-                <Text>{roundOff ? roundOff.toFixed(2) : "0.00"}</Text>
-              )}
+                />{" "}
+                {roundingEnabled ? (
+                  <Input
+                    type="number"
+                    disabled={mode === "view"}
+                    value={roundOff}
+                    onBlur={(e) => {
+                      const value = parseFloat(e.target.value) || 0;
+                      setRoundOff(value);
+                      setSummaryData((prev) => ({
+                        ...prev,
+                        RoundingDiffAmount: value,
+                      }));
+                    }}
+                  />
+                ) : (
+                  <Text>{roundOff ? roundOff.toFixed(2) : "0.00"}</Text>
+                )}{" "}
+              </FlexBox>{" "}
             </FlexBox>
-          </FlexBox>}
-
+          )}{" "}
           <FlexBox>
+            {" "}
             <Text showColon style={{ minWidth: "200px" }}>
-              Total
-            </Text>
+              {" "}
+              Total{" "}
+            </Text>{" "}
             <FlexBox
               style={{ width: "100%", fontWeight: "bold" }}
               justifyContent="End"
             >
-              <Text>{finalTotal}</Text>
-            </FlexBox>
-          </FlexBox>
+              {" "}
+              <Text>{finalTotal}</Text>{" "}
+            </FlexBox>{" "}
+          </FlexBox>{" "}
         </FlexBox>
       </FlexBox>
       <Dialog
