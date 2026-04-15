@@ -53,6 +53,7 @@ import {
   fetchWarehousesDetails,
   fetchDimensionDetails,
   fetchitemprices,
+  fetchEmployees,
 } from "../../../store/slices/salesAdditionalDetailsSlice";
 
 const Contents = (props) => {
@@ -75,6 +76,10 @@ const Contents = (props) => {
     setserviceData,
     setserviceTableData,
     serviceTabledata,
+    selectedItemOwner,
+    selectedServiceOwner,
+    setSelectedItemOwner,
+    setSelectedServiceOwner,
     type,
     setType,
     totalFreightAmount,
@@ -91,9 +96,12 @@ const Contents = (props) => {
     setRoundOff,
     setDimensionData,
     dimensionData,
-     copiedItemDocumentLines,
-     copiedServiceDocumentLines,
-     saveItem,saveService,selectedServices, setSelectedServices
+    copiedItemDocumentLines,
+    copiedServiceDocumentLines,
+    saveItem,
+    saveService,
+    selectedServices,
+    setSelectedServices,
   } = props;
   const {
     fieldConfig,
@@ -122,6 +130,7 @@ const Contents = (props) => {
   const [taxData, setTaxData] = useState([]);
   const [projectData, setProjectData] = useState([]);
   const [warehouseData, setWarehouseData] = useState([]);
+  const [OwnerList, setOwnerList] = useState([]);
   const [profitCenterData, setProfitCenterData] = useState([]);
   const [freightData, setFreightData] = useState([]);
   const [isFreightTableVisible, setIsFreightTableVisible] = useState(false);
@@ -131,19 +140,18 @@ const Contents = (props) => {
     useState([]);
   const [selectedProfitCenterRowIndex, setSelectedProfitCenterRowIndex] =
     useState("");
- const [originalProfitCenterData, setOriginalProfitCenterData] = useState([]);
+  const [originalProfitCenterData, setOriginalProfitCenterData] = useState([]);
 
-const [currency, setCurrency] = useState("All Currency");
+  const [currency, setCurrency] = useState("All Currency");
   const [itemForm, setItemForm] = useState([]);
   const [serviceForm, setserviceForm] = useState([]);
   const [viewItem, setViewItem] = useState([]);
   const [viewService, setViewService] = useState([]);
   const [inputvalue, setInputValue] = useState("");
 
-const [originalProjectData, setOriginalProjectData] = useState([]);
-const [originalTaxData, setOriginalTaxData] = useState([]);
- const [originalWarehouseData, setOriginalWarehouseData] = useState([]);
-
+  const [originalProjectData, setOriginalProjectData] = useState([]);
+  const [originalTaxData, setOriginalTaxData] = useState([]);
+  const [originalWarehouseData, setOriginalWarehouseData] = useState([]);
 
   const productCollection = [
     { Name: "Laptop" },
@@ -168,11 +176,14 @@ const [originalTaxData, setOriginalTaxData] = useState([]);
         } else if (
           (formDetails && formDetails[0]?.name === "Purchase Order") ||
           formDetails[0]?.name === "Purchase Quotation" ||
-          formDetails[0]?.name === "Purchase Request"||
-          formDetails[0]?.name==="GRPO"
+          formDetails[0]?.name === "Purchase Request" ||
+          formDetails[0]?.name === "GRPO"
         ) {
           taxCode = await dispatch(fetchPurOrderAddDetails()).unwrap();
         }
+
+        const employeeList = await dispatch(fetchEmployees()).unwrap();
+        setOwnerList(employeeList.value);
         const warehouseData = await dispatch(fetchWarehousesDetails()).unwrap();
         setWarehouseData(warehouseData.value);
         setOriginalWarehouseData(warehouseData.value);
@@ -182,10 +193,10 @@ const [originalTaxData, setOriginalTaxData] = useState([]);
         setOriginalProjectData(projectData.value);
 
         const profitCenterData = await dispatch(
-          fetchProfitCenterDetails()
+          fetchProfitCenterDetails(),
         ).unwrap();
         setProfitCenterData(profitCenterData.value);
-setOriginalProfitCenterData(profitCenterData.value);
+        setOriginalProfitCenterData(profitCenterData.value);
         const dimensionData = await dispatch(fetchDimensionDetails()).unwrap();
         setDimensionData(dimensionData.value);
 
@@ -197,7 +208,7 @@ setOriginalProfitCenterData(profitCenterData.value);
             ItemCode: item.ItemCode,
             ItemName: item.ItemName,
           }));
-          //mode === "create" && 
+          //mode === "create" &&
           setitemData(tableconfig);
         }
         if (taxCode.value?.length > 0) {
@@ -206,14 +217,14 @@ setOriginalProfitCenterData(profitCenterData.value);
         }
 
         const serviceorder = await dispatch(fetchOrderServices()).unwrap();
-        console.log("fetchdataserviceorder",serviceorder)
+        console.log("fetchdataserviceorder", serviceorder);
         if (res.value?.length > 0) {
           const tableconfig = serviceorder.value.map((item, index) => ({
             slno: index,
             ServiceCode: item.Code,
             ServiceName: item.Name,
           }));
-         // mode === "create" && 
+          // mode === "create" &&
           setserviceData(tableconfig);
         }
         if (res.message === "Please Login!") {
@@ -270,7 +281,7 @@ setOriginalProfitCenterData(profitCenterData.value);
             //value={dim.DimensionCode===selectedDimensionColumnCode.map((code) => code === dim.DimensionCode)?row.original[selectedDimensionColumnCode + "_ProfitCenterCode"] :row.original[dim.DimensionDescription] || ""}
             value={
               getSelectedDimensionCodes(row.original).includes(
-                dim.DimensionCode
+                dim.DimensionCode,
               )
                 ? row.original[dim.DimensionCode + "_ProfitCenterCode"]
                 : row.original[dim.DimensionDescription] || ""
@@ -290,9 +301,14 @@ setOriginalProfitCenterData(profitCenterData.value);
             }}
           />
           <Button
-               icon="sap-icon://sys-minus"
+            icon="sap-icon://sys-minus"
             design="Transparent"
-            onClick={() => clearItemCellValue(row.index, dim.DimensionCode + "_ProfitCenterCode")}
+            onClick={() =>
+              clearItemCellValue(
+                row.index,
+                dim.DimensionCode + "_ProfitCenterCode",
+              )
+            }
           />
         </>
       ),
@@ -304,14 +320,13 @@ setOriginalProfitCenterData(profitCenterData.value);
     return dimensionData.slice(0, 5).map((dim) => ({
       Header: dim.DimensionDescription,
       accessor: dim.DimensionDescription, // ✅ DATA KEY
-     
+
       Cell: ({ row }) => (
         <>
-          
           <Input
             value={
               getSelectedDimensionCodes(row.original).includes(
-                dim.DimensionCode
+                dim.DimensionCode,
               )
                 ? row.original[dim.DimensionCode + "_ProfitCenterCode"]
                 : row.original[dim.DimensionDescription] || ""
@@ -327,7 +342,6 @@ setOriginalProfitCenterData(profitCenterData.value);
               fontSize: "14px",
             }}
             onClick={() => {
-              
               setSelectedProfitCenterRowIndex(row.index);
               setSelectedDimensionColumnCode((prev) => [
                 ...prev,
@@ -337,10 +351,18 @@ setOriginalProfitCenterData(profitCenterData.value);
             }}
           />
           <Button
-               icon="sap-icon://sys-minus"
+            icon="sap-icon://sys-minus"
             design="Transparent"
-                        onClick={() => {clearItemCellValue(row.index, dim.DimensionCode + "_ProfitCenterCode");clearServiceCellValue(row.index, dim.DimensionCode + "_ProfitCenterCode");}}
-
+            onClick={() => {
+              clearItemCellValue(
+                row.index,
+                dim.DimensionCode + "_ProfitCenterCode",
+              );
+              clearServiceCellValue(
+                row.index,
+                dim.DimensionCode + "_ProfitCenterCode",
+              );
+            }}
           />
         </>
       ),
@@ -392,7 +414,7 @@ setOriginalProfitCenterData(profitCenterData.value);
           Header: col.Header,
           accessor: col.accessor,
         }))),
-        ...dimensionData?.map((dim) => ({
+    ...dimensionData?.map((dim) => ({
       Header: dim.DimensionDescription || "Dimension",
       accessor: dim.DimensionDescription || "Dimension", // ✅ DATA KEY
       Cell: ({ row }) => (
@@ -401,7 +423,7 @@ setOriginalProfitCenterData(profitCenterData.value);
             //value={dim.DimensionCode===selectedDimensionColumnCode.map((code) => code === dim.DimensionCode)?row.original[selectedDimensionColumnCode + "_ProfitCenterCode"] :row.original[dim.DimensionDescription] || ""}
             value={
               getSelectedDimensionCodes(row.original).includes(
-                dim.DimensionCode
+                dim.DimensionCode,
               )
                 ? row.original[dim.DimensionCode + "_ProfitCenterCode"]
                 : row.original[dim.DimensionDescription] || ""
@@ -421,33 +443,37 @@ setOriginalProfitCenterData(profitCenterData.value);
             }}
           />
           <Button
-               icon="sap-icon://sys-minus"
+            icon="sap-icon://sys-minus"
             design="Transparent"
-            onClick={() => clearServiceCellValue(row.index, dim.DimensionCode + "_ProfitCenterCode")}
+            onClick={() =>
+              clearServiceCellValue(
+                row.index,
+                dim.DimensionCode + "_ProfitCenterCode",
+              )
+            }
           />
         </>
       ),
     })),
-  
   ];
   const clearItemCellValue = (rowIndex, field) => {
     setitemTableData((prev) =>
       prev.map((row, idx) =>
-        idx === rowIndex ? { ...row, [field]: null } : row
-      )
+        idx === rowIndex ? { ...row, [field]: null } : row,
+      ),
     );
     setitemData((prev) =>
-      prev.map((r, idx) => (idx === rowIndex ? { ...r, [field]: null } : r))
+      prev.map((r, idx) => (idx === rowIndex ? { ...r, [field]: null } : r)),
     );
   };
-   const clearServiceCellValue = (rowIndex, field) => {
+  const clearServiceCellValue = (rowIndex, field) => {
     setserviceTableData((prev) =>
       prev.map((row, idx) =>
-        idx === rowIndex ? { ...row, [field]: null } : row
-      )
+        idx === rowIndex ? { ...row, [field]: null } : row,
+      ),
     );
     setserviceData((prev) =>
-      prev.map((r, idx) => (idx === rowIndex ? { ...r, [field]: null } : r))
+      prev.map((r, idx) => (idx === rowIndex ? { ...r, [field]: null } : r)),
     );
   };
   const itemcolumns = useMemo(
@@ -488,8 +514,8 @@ setOriginalProfitCenterData(profitCenterData.value);
               const newValue = e.target.value;
               setitemData((prev) =>
                 prev.map((r, idx) =>
-                  idx === Number(row.id) ? { ...r, Quantity: newValue } : r
-                )
+                  idx === Number(row.id) ? { ...r, Quantity: newValue } : r,
+                ),
               );
 
               // also update rowSelection
@@ -524,8 +550,8 @@ setOriginalProfitCenterData(profitCenterData.value);
               const newValue = e.target.value;
               setitemData((prev) =>
                 prev.map((r, idx) =>
-                  idx === Number(row.id) ? { ...r, UnitPrice: newValue } : r
-                )
+                  idx === Number(row.id) ? { ...r, UnitPrice: newValue } : r,
+                ),
               );
 
               // also update rowSelection
@@ -575,10 +601,9 @@ setOriginalProfitCenterData(profitCenterData.value);
         },
       },
     ],
-    [setitemData, layout]
+    [setitemData, layout],
   );
- 
- 
+
   const [selectedRowIndex, setSelectedRowIndex] = useState(null);
 
   const [selectedItems, setSelectedItems] = useState({});
@@ -604,9 +629,6 @@ setOriginalProfitCenterData(profitCenterData.value);
 
   // };
 
-
-
-
   // const saveItem = (item, index) => {
   //   setSelectedItems(rowSelection);
 
@@ -620,7 +642,7 @@ setOriginalProfitCenterData(profitCenterData.value);
   //     let nextSlno =
   //       updated.length > 0 ? updated[updated.length - 1].slno + 1 : 0;
 
-  //     const newItems = Array.isArray(item) ? item : Object.values(item); 
+  //     const newItems = Array.isArray(item) ? item : Object.values(item);
 
   //     newItems.forEach((newItem) => {
   //       updated.push({
@@ -727,23 +749,30 @@ setOriginalProfitCenterData(profitCenterData.value);
           direction="Column"
           style={{ padding: "40px 30px", gap: "20px" }}
         >
-          <FlexBox alignItems="Center" justifyContent="SpaceBetween" direction="Row">
-          <FlexBox alignItems="Center">
-            <Label style={{ minWidth: "200px" }}>Item/Service Type:</Label>
-            <Select value={type} style={{ width: "200px" }}>
-              <Option onClick={() => setType("Item")}>Item</Option>
-              <Option onClick={() => setType("Service")}>Service</Option>
-            </Select>
-          </FlexBox>
-           <FlexBox alignItems="Center">
-            <Label style={{ minWidth: "200px" }}>Currency</Label>
-            <Select value={currency} style={{ width: "200px" }}>
-              <Option onClick={() => setCurrency("All Currency")}>All Currency</Option>
-              <Option onClick={() => setCurrency("System Currency")}>System Currency</Option>
-              <Option onClick={() => setCurrency("GBP")}>GBP</Option>
-
-            </Select>
-          </FlexBox>
+          <FlexBox
+            alignItems="Center"
+            justifyContent="SpaceBetween"
+            direction="Row"
+          >
+            <FlexBox alignItems="Center">
+              <Label style={{ minWidth: "200px" }}>Item/Service Type:</Label>
+              <Select value={type} style={{ width: "200px" }}>
+                <Option onClick={() => setType("Item")}>Item</Option>
+                <Option onClick={() => setType("Service")}>Service</Option>
+              </Select>
+            </FlexBox>
+            <FlexBox alignItems="Center">
+              <Label style={{ minWidth: "200px" }}>Currency</Label>
+              <Select value={currency} style={{ width: "200px" }}>
+                <Option onClick={() => setCurrency("All Currency")}>
+                  All Currency
+                </Option>
+                <Option onClick={() => setCurrency("System Currency")}>
+                  System Currency
+                </Option>
+                <Option onClick={() => setCurrency("GBP")}>GBP</Option>
+              </Select>
+            </FlexBox>
           </FlexBox>
 
           <div>
@@ -767,7 +796,7 @@ setOriginalProfitCenterData(profitCenterData.value);
                         /> */}
                     {type === "Item" ? (
                       <Itemtable
-                      formDetails={formDetails}
+                        formDetails={formDetails}
                         addItemdialogOpen={addItemdialogOpen}
                         setAddItemDialogOpen={setAddItemDialogOpen}
                         itemTableColumn={itemTableColumn}
@@ -790,18 +819,23 @@ setOriginalProfitCenterData(profitCenterData.value);
                         taxData={taxData}
                         setTaxData={setTaxData}
                         setOriginalTaxData={setOriginalTaxData}
-                        setOriginalProfitCenterData={setOriginalProfitCenterData}
+                        setOriginalProfitCenterData={
+                          setOriginalProfitCenterData
+                        }
                         originalProfitCenterData={originalProfitCenterData}
                         originalTaxData={originalTaxData}
                         freightData={freightData}
                         setFreightData={setFreightData}
+                        OwnerList={OwnerList}
+                        setOwnerList={setOwnerList}
                         projectData={projectData}
                         setProjectData={setProjectData}
                         originalProjectData={originalProjectData}
                         setOriginalProjectData={setOriginalProjectData}
                         originalWarehouseData={originalWarehouseData}
                         setOriginalWarehouseData={setOriginalWarehouseData}
-                        
+                        selectedItemOwner={selectedItemOwner}
+                        setSelectedItemOwner={setSelectedItemOwner}
                         warehouseData={warehouseData}
                         setWarehouseData={setWarehouseData}
                         profitCenterData={profitCenterData}
@@ -842,7 +876,7 @@ setOriginalProfitCenterData(profitCenterData.value);
                       />
                     ) : (
                       <ServiceTable
-                      formDetails={formDetails}
+                        formDetails={formDetails}
                         addServiceDialogOpen={addServiceDialogOpen}
                         setAddServicedialogOpen={setAddServicedialogOpen}
                         serviceTableColumn={serviceTableColumn}
@@ -850,6 +884,7 @@ setOriginalProfitCenterData(profitCenterData.value);
                         form={form}
                         handleChange={handleChange}
                         setRowSelection={setRowSelection}
+                        setSelectedItemOwner={setSelectedItemOwner}
                         rowSelection={rowSelection}
                         saveService={saveService}
                         servicedata={servicedata}
@@ -865,15 +900,22 @@ setOriginalProfitCenterData(profitCenterData.value);
                         taxData={taxData}
                         setTaxData={setTaxData}
                         setOriginalTaxData={setOriginalTaxData}
-                         setOriginalProfitCenterData={setOriginalProfitCenterData}
+                        setOriginalProfitCenterData={
+                          setOriginalProfitCenterData
+                        }
                         originalProfitCenterData={originalProfitCenterData}
                         originalTaxData={originalTaxData}
                         freightData={freightData}
                         setFreightData={setFreightData}
+                        OwnerList={OwnerList}
+                        setOwnerList={setOwnerList}
+                        
                         projectData={projectData}
                         originalProjectData={originalProjectData}
                         setOriginalProjectData={setOriginalProjectData}
                         setProjectData={setProjectData}
+                        selectedServiceOwner={selectedServiceOwner}
+                        setSelectedServiceOwner={setSelectedServiceOwner}
                         warehouseData={warehouseData}
                         setWarehouseData={setWarehouseData}
                         originalWarehouseData={originalWarehouseData}
@@ -896,7 +938,6 @@ setOriginalProfitCenterData(profitCenterData.value);
                           setisProfitCenterDialogOpen
                         }
                         isProfitCenterDialogOpen={isProfitCenterDialogOpen}
-                        
                         setIsFreightTableVisible={setIsFreightTableVisible}
                         isFreightTableVisible={isFreightTableVisible}
                         totalFreightAmount={totalFreightAmount}
@@ -930,7 +971,7 @@ setOriginalProfitCenterData(profitCenterData.value);
                     <Bar
                       endContent={
                         <Button
-               icon="sap-icon://sys-minus"
+                          icon="sap-icon://sys-minus"
                           title="close"
                           onClick={() => setLayout("OneColumn")}
                         />

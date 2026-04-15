@@ -93,6 +93,9 @@ const ViewSalesOrder = () => {
   const [roundingEnabled, setRoundingEnabled] = useState(false);
   const [roundOff, setRoundOff] = useState(0);
  const [oldAttachmentFiles, setOldAttachmentFiles] = useState([]);
+   const [selectedItemOwner, setSelectedItemOwner] = useState("");
+    const [selectedServiceOwner, setSelectedServiceOwner] = useState("");
+ 
   
   const [tabList, setTabList] = useState([]);
   const [formDetails, setFormDetails] = useState([]);
@@ -507,6 +510,9 @@ useEffect(() => {
           setFreightRowSelection(
             orderListById.DocumentAdditionalExpenses || [],
           );
+          orderListById.DocType === "dDocument_Items"
+            ? setSelectedItemOwner(orderListById.DocumentsOwner || "")
+            : setSelectedServiceOwner(orderListById.DocumentsOwner || "");
           setSummaryDiscountPercent(orderListById.DiscountPercent);
           setRoundingEnabled(orderListById.Rounding === "tYES");
           setRoundOff(orderListById.RoundingDiffAmount);
@@ -956,6 +962,10 @@ useEffect(() => {
               setitemTableData={setitemTableData}
               itemTabledata={itemTabledata}
               servicedata={servicedata}
+               selectedItemOwner={selectedItemOwner}
+              selectedServiceOwner={selectedServiceOwner}
+              setSelectedItemOwner={setSelectedItemOwner}
+              setSelectedServiceOwner={setSelectedServiceOwner}
               setserviceData={setserviceData}
               setserviceTableData={setserviceTableData}
               serviceTabledata={serviceTabledata}

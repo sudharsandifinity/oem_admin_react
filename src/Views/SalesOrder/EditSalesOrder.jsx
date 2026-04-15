@@ -57,7 +57,10 @@ import {
 } from "../../store/slices/CustomerOrderSlice";
 import { fetchOrderItems } from "../../store/slices/CustomerOrderItemsSlice";
 import { fetchOrderServices } from "../../store/slices/CustomerOrderServiceSlice";
-import { fetchAttachmentDetailsById, fetchitemprices } from "../../store/slices/salesAdditionalDetailsSlice";
+import {
+  fetchAttachmentDetailsById,
+  fetchitemprices,
+} from "../../store/slices/salesAdditionalDetailsSlice";
 import {
   fetchSalesQuotationById,
   updateSalesQuotation,
@@ -98,7 +101,7 @@ const EditSalesOrder = () => {
   const [attachmentFiles, setAttachmentFiles] = useState([]);
   const [oldAttachmentFiles, setOldAttachmentFiles] = useState([]);
   const [freightRowSelection, setFreightRowSelection] = useState([]);
-   const [selectedServices, setSelectedServices] = useState({});
+  const [selectedServices, setSelectedServices] = useState({});
 
   const [tabList, setTabList] = useState([]);
   const [formDetails, setFormDetails] = useState([]);
@@ -115,6 +118,8 @@ const EditSalesOrder = () => {
   const [roundingEnabled, setRoundingEnabled] = useState(false);
   const [selectedcardcode, setSelectedCardCode] = useState([]);
   const [roundOff, setRoundOff] = useState(0);
+  const [selectedItemOwner, setSelectedItemOwner] = useState("");
+  const [selectedServiceOwner, setSelectedServiceOwner] = useState("");
 
   const [currencyType, setCurrencyType] = useState("GBP");
 
@@ -131,10 +136,10 @@ const EditSalesOrder = () => {
     },
   ]);
   const [copiedFormData, setCopiedFormData] = useState({});
-    const [isCopyFromPurchase, setIsCopyFromPurchase] = useState(false);
-      const [opencopyFromDialog, setOpenCopyFromDialog] = useState(false);
-      const [requestList, setRequestList] = useState([]);
-    
+  const [isCopyFromPurchase, setIsCopyFromPurchase] = useState(false);
+  const [opencopyFromDialog, setOpenCopyFromDialog] = useState(false);
+  const [requestList, setRequestList] = useState([]);
+
   const [isCloneSelected, setIsCloneSelected] = useState(false);
   const [itemTabledata, setitemTableData] = useState([
     { slno: 1, ItemCode: "", ItemName: "", quantity: "", amount: "" },
@@ -199,31 +204,31 @@ const EditSalesOrder = () => {
     });
   };
   const copyFrom = async () => {
-      setIsCopyFromPurchase(true);
-      const res = await dispatch(fetchPurchaseRequest()).unwrap();
-      const currentType =
-        type === "Item" ? "dDocument_Items" : "dDocument_Service";
-      setRequestList(res?.data.filter((val) => val.DocType === currentType));
-      console.log("currentType", currentType, res?.data);
-      setOpenCopyFromDialog(true);
-    };
-   const getItemPrice = async (cardCode, itemCode) => {
-      try {
-        const response = await dispatch(
-          fetchitemprices({ cardCode: cardCode, itemCode: itemCode }),
-        ).unwrap();
-  
-        // SAP returns array in response.value
-        if (response?.value?.length > 0) {
-          return response.value[0]; // ✅ Correct
-        }
-  
-        return 0;
-      } catch (error) {
-        console.error("Price fetch failed", error);
-        return 0;
+    setIsCopyFromPurchase(true);
+    const res = await dispatch(fetchPurchaseRequest()).unwrap();
+    const currentType =
+      type === "Item" ? "dDocument_Items" : "dDocument_Service";
+    setRequestList(res?.data.filter((val) => val.DocType === currentType));
+    console.log("currentType", currentType, res?.data);
+    setOpenCopyFromDialog(true);
+  };
+  const getItemPrice = async (cardCode, itemCode) => {
+    try {
+      const response = await dispatch(
+        fetchitemprices({ cardCode: cardCode, itemCode: itemCode }),
+      ).unwrap();
+
+      // SAP returns array in response.value
+      if (response?.value?.length > 0) {
+        return response.value[0]; // ✅ Correct
       }
-    };
+
+      return 0;
+    } catch (error) {
+      console.error("Price fetch failed", error);
+      return 0;
+    }
+  };
   const saveItem = async (item) => {
     console.log("saveitemitem", item);
     const newItems = Array.isArray(item) ? item : Object.values(item);
@@ -238,32 +243,30 @@ const EditSalesOrder = () => {
       if (isCopyFromPurchase) {
         console.log("isCopyFromPurchase", isCopyFromPurchase);
         setitemTableData((prev) => {
-          
-          const newRows = newItems
-            .map((item,index) => ({
-                id: index,
-                slno: index + 1,
-                ItemCode: item.ItemCode || "",
-                ItemName: item.ItemDescription || "",
-                amount: item.UnitPrice || 0,
-                quantity: item.Quantity || 0,
-                discount: item.DiscountPercent || 0,
-                BaseAmount: item.LineTotal || 0,
-                TaxCode: item.TaxCode || "",
-                TaxRate: item.TaxPercentagePerRow || 0,
-                grosstotal: item.GrossTotal || 0,
-                ProjectCode: item.ProjectCode || "",
-                WarehouseCode: item.WarehouseCode || "",
-              }));
+          const newRows = newItems.map((item, index) => ({
+            id: index,
+            slno: index + 1,
+            ItemCode: item.ItemCode || "",
+            ItemName: item.ItemDescription || "",
+            amount: item.UnitPrice || 0,
+            quantity: item.Quantity || 0,
+            discount: item.DiscountPercent || 0,
+            BaseAmount: item.LineTotal || 0,
+            TaxCode: item.TaxCode || "",
+            TaxRate: item.TaxPercentagePerRow || 0,
+            grosstotal: item.GrossTotal || 0,
+            ProjectCode: item.ProjectCode || "",
+            WarehouseCode: item.WarehouseCode || "",
+          }));
 
           const existingIds = new Set(prev.map((row) => row.id));
 
           const filteredNew = newRows.filter((row) => !existingIds.has(row.id));
 
-           return [...prev, ...filteredNew];
-         //return [...prev, ...newRows];
+          return [...prev, ...filteredNew];
+          //return [...prev, ...newRows];
         });
-        setIsCopyFromPurchase(false)
+        setIsCopyFromPurchase(false);
       } else {
         setitemTableData((prev) => {
           let updated = [...prev];
@@ -326,7 +329,7 @@ const EditSalesOrder = () => {
 
           const filteredNew = newRows.filter((row) => !existingIds.has(row.id));
 
-           return [...prev, ...filteredNew];
+          return [...prev, ...filteredNew];
           //return [...prev,...newRows];
         });
         setIsCopyFromPurchase(false);
@@ -445,8 +448,7 @@ const EditSalesOrder = () => {
                 () =>
                   orderList.value
                     .map((item, index) => {
-                      const matched = orderListById.DocumentLines
-                      .find(
+                      const matched = orderListById.DocumentLines.find(
                         (line) => line.ItemCode === item.ItemCode,
                       );
 
@@ -492,7 +494,7 @@ const EditSalesOrder = () => {
                     })
                     .filter(Boolean), // remove nulls
               );
-              
+
               setitemTableData(
                 () =>
                   orderList.value
@@ -524,7 +526,7 @@ const EditSalesOrder = () => {
                     })
                     .filter(Boolean), // remove nulls
               );
-              
+
               setitemTableData(() =>
                 orderListById.DocumentLines.map((line, index) => ({
                   slno: line.LineNum + 1,
@@ -559,7 +561,7 @@ const EditSalesOrder = () => {
             } else {
               console.log("serviceList", serviceList);
               setType("Service");
-              
+
               setserviceData(
                 () =>
                   serviceList.value
@@ -567,7 +569,7 @@ const EditSalesOrder = () => {
                       const matched = orderListById.DocumentLines.find(
                         (line) => line.AccountCode === item.Code,
                       );
-                      console.log("editsalesorderservicedata",matched,item)
+                      console.log("editsalesorderservicedata", matched, item);
                       return matched !== undefined
                         ? {
                             slno: index, // usually LineNum is 0-based
@@ -608,7 +610,7 @@ const EditSalesOrder = () => {
                     })
                     .filter(Boolean), // remove nulls
               );
-             
+
               setserviceTableData(
                 () =>
                   serviceList.value
@@ -700,6 +702,9 @@ const EditSalesOrder = () => {
             orderListById.DocumentAdditionalExpenses || [],
           );
           setSummaryDiscountPercent(orderListById.DiscountPercent);
+          orderListById.DocType === "dDocument_Items"
+            ? setSelectedItemOwner(orderListById.DocumentsOwner || "")
+            : setSelectedServiceOwner(orderListById.DocumentsOwner || "");
           setRoundingEnabled(orderListById.Rounding === "tYES");
           setRoundOff(orderListById.RoundingDiffAmount);
           setgeneraleditdata({
@@ -790,7 +795,7 @@ const EditSalesOrder = () => {
     let payload = {};
     try {
       setLoading(true);
-       const isSalesMenu =
+      const isSalesMenu =
         formDetails[0]?.name === "Sales Order" ||
         formDetails[0]?.name === "Sales Quotation" ||
         formDetails[0]?.name === "Sales Request";
@@ -826,6 +831,7 @@ const EditSalesOrder = () => {
           }),
           NumAtCard: formData.CustomerRefNo || "",
           DocType: "dDocument_Items",
+          DocumentsOwner: selectedItemOwner || "",
           DocumentLines: Object.values(itemTabledata).map((line) => ({
             ItemCode: line.ItemCode,
             ItemDescription: line.ItemName, // ✅ rename to ItemDescription
@@ -902,6 +908,7 @@ const EditSalesOrder = () => {
               : new Date().toISOString().split("T")[0].replace(/-/g, ""),
           }),
           NumAtCard: formData.CustomerRefNo || "",
+          DocumentsOwner: selectedServiceOwner || "",
           DocumentLines: Object.values(serviceTabledata).map((line) => ({
             AccountCode: line.ServiceCode,
             ItemDescription: line.ServiceName, // ✅ rename to ItemDescription
@@ -919,7 +926,7 @@ const EditSalesOrder = () => {
             CostingCode3: line["3_ProfitCenterCode"] || null,
             CostingCode4: line["4_ProfitCenterCode"] || null,
             CostingCode5: line["5_ProfitCenterCode"] || null,
-             RequiredDate: formData.ReqDate
+            RequiredDate: formData.ReqDate
               ? new Date(formData.ReqDate)
                   .toISOString()
                   .split("T")[0]
@@ -1005,7 +1012,7 @@ const EditSalesOrder = () => {
       if (res.message === "Please Login!") {
         navigate("/login");
       }
-       res && setApiError(null);
+      res && setApiError(null);
       setOpen(true);
     } catch (err) {
       console.log("Err object:", err);
@@ -1056,7 +1063,7 @@ const EditSalesOrder = () => {
     ) {
       return "Document total must be less than 1000";
     }
-   const message =
+    const message =
       error?.message?.value ||
       error?.message ||
       error?.response?.data?.message ||
@@ -1111,7 +1118,6 @@ const EditSalesOrder = () => {
                 design={BarDesign.FloatingFooter}
                 endContent={
                   <FlexBox style={{ gap: "0.5rem" }}>
-                   
                     <Button design="default" onClick={() => handleSubmit()}>
                       Update
                     </Button>
@@ -1187,12 +1193,12 @@ const EditSalesOrder = () => {
           }}
           titleArea={
             <ObjectPageTitle
-            className="custom-header"
-            style={{
-              // display: "flex",
-              //alignItems: "start",
-              padding: "1rem",
-            }}
+              className="custom-header"
+              style={{
+                // display: "flex",
+                //alignItems: "start",
+                padding: "1rem",
+              }}
               breadcrumbs={
                 <>
                   <Breadcrumbs
@@ -1229,39 +1235,45 @@ const EditSalesOrder = () => {
                 </Title>
               }
               navigationBar={
-                 formDetails[0]?.name!=="Purchase Request"&&formDetails[0]?.name!=="GRPO"?
-                <Toolbar design="Transparent">
-                 <ToolbarButton
-                    design="default"
-                    onClick={copyForm}
-                    icon="sap-icon://copy"
-                    text="Copy From"
-                  />
-                  {console.log("copiesformdataeditsalesorder", copiedFormData)}
-                  <Select
-                    onChange={(e) => {
-                      const selectPage = e.detail.selectedOption.dataset.id;
-                      navigate(
-                        "/cloneorder/create/" + formId + "/" + selectPage,
-                        {
-                          state: { copyFormData: copiedFormData },
-                        },
-                      );
-                    }}
+                formDetails[0]?.name !== "Purchase Request" &&
+                formDetails[0]?.name !== "GRPO" ? (
+                  <Toolbar design="Transparent">
+                    <ToolbarButton
+                      design="default"
+                      onClick={copyForm}
+                      icon="sap-icon://copy"
+                      text="Copy From"
+                    />
+                    {console.log(
+                      "copiesformdataeditsalesorder",
+                      copiedFormData,
+                    )}
+                    <Select
+                      onChange={(e) => {
+                        const selectPage = e.detail.selectedOption.dataset.id;
+                        navigate(
+                          "/cloneorder/create/" + formId + "/" + selectPage,
+                          {
+                            state: { copyFormData: copiedFormData },
+                          },
+                        );
+                      }}
 
-                    //setSelectedChild(e.detail.selectedOption.dataset.id)
-                  >
-                    <Option key={""} data-id={""}>
-                      Select Action
-                    </Option>
-                    {childOptions.map((child) => (
-                      <Option key={child.id} data-id={child.id}>
-                        {child.name}
+                      //setSelectedChild(e.detail.selectedOption.dataset.id)
+                    >
+                      <Option key={""} data-id={""}>
+                        Select Action
                       </Option>
-                    ))}
-                  </Select>
-                 
-                </Toolbar> :<></>
+                      {childOptions.map((child) => (
+                        <Option key={child.id} data-id={child.id}>
+                          {child.name}
+                        </Option>
+                      ))}
+                    </Select>
+                  </Toolbar>
+                ) : (
+                  <></>
+                )
               }
             >
               <ObjectStatus>
@@ -1318,6 +1330,10 @@ const EditSalesOrder = () => {
               setSummaryData={setSummaryData}
               dimensionData={dimensionData}
               setDimensionData={setDimensionData}
+              selectedItemOwner={selectedItemOwner}
+              selectedServiceOwner={selectedServiceOwner}
+              setSelectedItemOwner={setSelectedItemOwner}
+              setSelectedServiceOwner={setSelectedServiceOwner}
               orderItems={orderItems}
               formDetails={formDetails}
               loading={loading}
@@ -1344,7 +1360,7 @@ const EditSalesOrder = () => {
               setFreightRowSelection={setFreightRowSelection}
               saveItem={saveItem}
               saveService={saveService}
-               selectedServices={selectedServices}
+              selectedServices={selectedServices}
               setSelectedServices={setSelectedServices}
             />
           </ObjectPageSection>
@@ -1416,7 +1432,7 @@ const EditSalesOrder = () => {
       {isCloneSelected && (
         <CloneSalesOrder copiedFormData={copiedFormData} formId={formId} />
       )}
-       <CopyFromDialog
+      <CopyFromDialog
         open={opencopyFromDialog}
         setOpen={setOpenCopyFromDialog}
         requestList={requestList}

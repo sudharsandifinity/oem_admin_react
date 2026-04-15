@@ -116,6 +116,8 @@ export default function SalesOrder() {
   );
   const [opencopyFromDialog, setOpenCopyFromDialog] = useState(false);
   const [isCopyFromPurchase, setIsCopyFromPurchase] = useState(false);
+  const [selectedItemOwner, setSelectedItemOwner] = useState("");
+  const [selectedServiceOwner, setSelectedServiceOwner] = useState("");
   const [selectedServices, setSelectedServices] = useState({});
   const [itemTabledata, setitemTableData] = useState([
     {
@@ -129,6 +131,7 @@ export default function SalesOrder() {
       Warehouse: "",
     },
   ]);
+  console.log("selectedItemOwner",selectedItemOwner)
   const [summaryData, setSummaryData] = useState({});
   const [itemdata, setitemData] = useState([
     { slno: 1, ItemCode: "", ItemName: "", quantity: "", amount: "" },
@@ -260,6 +263,7 @@ export default function SalesOrder() {
           ContactPerson: formData.ContactPerson || "",
           NumAtCard: formData.CustomerRefNo || "",
           DocType: "dDocument_Items",
+          DocumentsOwner: selectedItemOwner || "",
           DocumentLines: itemTabledata.map((line) => ({
             ItemCode: line.ItemCode,
             ItemDescription: line.ItemName,
@@ -343,6 +347,7 @@ export default function SalesOrder() {
           }),
           //DocEntry: formData.DocEntry,
           DocumentStatus: "open",
+          DocumentsOwner: selectedServiceOwner || "",
           ContactPerson: formData.ContactPerson || "",
           NumAtCard: formData.CustomerRefNo || "",
           DocumentLines: serviceTabledata.map((line) => ({
@@ -415,7 +420,7 @@ export default function SalesOrder() {
           formDataToSend.append(key, payload[key]);
         }
       });
-      console.log("formdatatosend", payload, formDataToSend, formDetails);
+      console.log("formdatatosend", payload, formDataToSend, formDetails,"attachmentsList",attachmentsList);
       let res = "";
       if (formDetails[0]?.name === "Sales Order") {
         res = await dispatch(createCustomerOrder(formDataToSend)).unwrap();
@@ -804,55 +809,55 @@ export default function SalesOrder() {
             }
           />
         }
-        headerArea={
-          <DynamicPageHeader
-            className="custom-header"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              padding: "1rem",
-              //backgroundColor: "#354a5f", // SAP Blue
-              // color: "white",
-            }}
-          >
-            <FlexBox
-              direction="Row"
-              style={{
-                display: "inline-flex",
-                alignItems: "end",
-                flexWrap: "wrap",
-                gap: "15px",
-              }}
-            >
-              <FlexBox direction="Column">
-                <Text>Customer</Text>
-              </FlexBox>
-              <span style={{ width: "4rem" }} />
-              <FlexBox direction="Column">
-                <Text>Total:</Text>
-                <ObjectStatus state="None">GBP 0.00</ObjectStatus>
-              </FlexBox>
-              <span style={{ width: "4rem" }} />
-              <FlexBox direction="Column">
-                <Text>Status</Text>
-                <ObjectStatus state="Positive">Open</ObjectStatus>
-              </FlexBox>
-              <span style={{ width: "4rem" }} />
-              <FlexBox direction="Column">
-                <Text>Credit Limit Utilization</Text>
-                <Slider
-                  min={0}
-                  max={100}
-                  step={1}
-                  //value={value}
-                  showTickmarks
-                  showTooltip
-                  //onInput={handleSliderChange}
-                />
-              </FlexBox>
-            </FlexBox>
-          </DynamicPageHeader>
-        }
+        // headerArea={
+        //   <DynamicPageHeader
+        //     className="custom-header"
+        //     style={{
+        //       display: "flex",
+        //       alignItems: "center",
+        //       padding: "1rem",
+        //       //backgroundColor: "#354a5f", // SAP Blue
+        //       // color: "white",
+        //     }}
+        //   >
+        //     <FlexBox
+        //       direction="Row"
+        //       style={{
+        //         display: "inline-flex",
+        //         alignItems: "end",
+        //         flexWrap: "wrap",
+        //         gap: "15px",
+        //       }}
+        //     >
+        //       <FlexBox direction="Column">
+        //         <Text>Customer</Text>
+        //       </FlexBox>
+        //       <span style={{ width: "4rem" }} />
+        //       <FlexBox direction="Column">
+        //         <Text>Total:</Text>
+        //         <ObjectStatus state="None">GBP 0.00</ObjectStatus>
+        //       </FlexBox>
+        //       <span style={{ width: "4rem" }} />
+        //       <FlexBox direction="Column">
+        //         <Text>Status</Text>
+        //         <ObjectStatus state="Positive">Open</ObjectStatus>
+        //       </FlexBox>
+        //       <span style={{ width: "4rem" }} />
+        //       <FlexBox direction="Column">
+        //         <Text>Credit Limit Utilization</Text>
+        //         <Slider
+        //           min={0}
+        //           max={100}
+        //           step={1}
+        //           //value={value}
+        //           showTickmarks
+        //           showTooltip
+        //           //onInput={handleSliderChange}
+        //         />
+        //       </FlexBox>
+        //     </FlexBox>
+        //   </DynamicPageHeader>
+        // }
         // image="https://sap.github.io/ui5-webcomponents-react/v2/assets/Person-B7wHqdJw.png"
         imageShapeCircle
         mode="IconTabBar"
@@ -1023,6 +1028,10 @@ export default function SalesOrder() {
               setserviceData={setserviceData}
               setserviceTableData={setserviceTableData}
               serviceTabledata={serviceTabledata}
+              selectedItemOwner={selectedItemOwner}
+              selectedServiceOwner={selectedServiceOwner}
+              setSelectedItemOwner={setSelectedItemOwner}
+              setSelectedServiceOwner={setSelectedServiceOwner}
               orderItems={orderItems}
               formDetails={formDetails}
               loading={loading}

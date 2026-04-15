@@ -11,6 +11,8 @@ import {
 } from "@ui5/webcomponents-react";
 import "@ui5/webcomponents-icons/dist/download.js";
 import "@ui5/webcomponents-icons/dist/decline.js";
+import { fetchAttachmentShowDetails } from "../../../store/slices/salesAdditionalDetailsSlice";
+import { useDispatch } from "react-redux";
 
 const Attachments = (props) => {
   const {
@@ -19,6 +21,7 @@ const Attachments = (props) => {
     oldAttachmentFiles,
     setOldAttachmentFiles,
   } = props;
+   const dispatch = useDispatch();
   const [attachments, setAttachments] = React.useState("");
   const [openAttachmentDialog, setOpenAttachmentDialog] = React.useState(false);
   const modifiedAttay = (oldAttachmentFiles?.Attachments2_Lines ?? [])
@@ -64,14 +67,31 @@ const Attachments = (props) => {
       return updatedList;
     });
   };
-  const handleDownload = (file) => {
+
+  const handleDownload = async (file) => {
     console.log("handledownload", file);
-    const link = document.createElement("a");
-    link.href = file.url; // backend file URL
-    link.download = file.name; // optional
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    try {
+    const response = await dispatch(
+      fetchAttachmentShowDetails({
+        AbsoluteEntry: file.AbsoluteEntry,
+        FileName: file.FileName,
+        FileExtension: file.FileExtension,
+      })
+    ).unwrap();
+console.log("response",response)
+
+    const url = window.URL.createObjectURL(response);
+
+    window.open(url, "_blank");
+  } catch (err) {
+    console.error("Error:", err);
+  }
+    // const link = document.createElement("a");
+    // link.href = file.url; // backend file URL
+    // link.download = file.name; // optional
+    // document.body.appendChild(link);
+    // link.click();
+    // document.body.removeChild(link);
   };
   useEffect(() => {
     console.log("combinedAttachments", combinedAttachments);
@@ -190,7 +210,7 @@ const Attachments = (props) => {
       {/* Right: Actions */}
       <div style={{ display: "flex", gap: "0.25rem" }}>
         <Button
-          icon="download"
+          icon="show"
           design="Transparent"
           tooltip="Download"
           onClick={() => handleDownload(file)}

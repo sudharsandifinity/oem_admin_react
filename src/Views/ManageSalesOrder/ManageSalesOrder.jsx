@@ -26,7 +26,12 @@ import {
 } from "@ui5/webcomponents-react";
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import { FormConfigContext } from "../../Components/Context/FormConfigContext";
-import { Navigate, useLocation, useNavigate, useParams } from "react-router-dom";
+import {
+  Navigate,
+  useLocation,
+  useNavigate,
+  useParams,
+} from "react-router-dom";
 import { HeaderFilterBar } from "./HeaderFilterBar";
 import ItemViewPage from "../SalesOrder/Contents/Item/ItemViewPage";
 import ViewSalesOrder from "./ViewSalesOrder";
@@ -52,7 +57,6 @@ const ManageSalesOrder = () => {
   const dispatch = useDispatch();
   const { formId, childId } = useParams();
 
-
   const [filters, setFilters] = useState({
     FromDate: "",
     ToDate: "",
@@ -72,7 +76,7 @@ const ManageSalesOrder = () => {
   const [tableData, settableData] = useState([]);
   const [formDetails, setFormDetails] = useState([]);
   const [originalCustomerData, setOriginalCustomerData] = useState([]); // to store original data for reset/clear filter
-
+  const title = formDetails?.[0]?.name || formId || "Sales order List";
   const placeholderRows = Array(5).fill({
     CustomerCode: "Loading...",
     CustomerName: "Loading...",
@@ -97,7 +101,7 @@ const ManageSalesOrder = () => {
   };
 
   useEffect(() => {
-    console.log("formdetails",formDetails)
+    console.log("formdetails", formDetails);
     const fetchInitial = async () => {
       try {
         let res = "";
@@ -121,15 +125,14 @@ const ManageSalesOrder = () => {
           res = await dispatch(
             fetchPurchaseRequest({ top: pageSize, skip: 0 }),
           ).unwrap();
-        }
-        else if (formDetails[0]?.name === "GRPO") {
+        } else if (formDetails[0]?.name === "GRPO") {
           res = await dispatch(
             fetchPurchaseDeliveryNotes({ top: pageSize, skip: 0 }),
           ).unwrap();
         }
 
         console.log("quotationdata", "sales", res, formDetails[0]?.name);
-        const raw = res?.data?.value ?? res?.data ?? res?.value ??res;
+        const raw = res?.data?.value ?? res?.data ?? res?.value ?? res;
 
         // Ensure it's an array
         const list = Array.isArray(raw)
@@ -140,8 +143,8 @@ const ManageSalesOrder = () => {
 
         const initialData = list.map((item) => ({
           DocEntry: item.DocEntry,
-          CustomerCode: item.CardCode||item.Requester,
-          CustomerName: item.CardName||item.RequesterName,
+          CustomerCode: item.CardCode || item.Requester,
+          CustomerName: item.CardName || item.RequesterName,
           DocumentNo: item.DocNum,
           DocumentLines: item.DocumentLines,
           PostingDate: item.CreationDate,
@@ -244,7 +247,9 @@ const ManageSalesOrder = () => {
   // ];
   const menuChildMap = user?.Roles?.flatMap((role) =>
     role.UserMenus?.map((menu) => {
-      const matched = menu.children?.filter((child) => child.formId||"o3p6JX1K8q" === formId);
+      const matched = menu.children?.filter(
+        (child) => child.formId || "o3p6JX1K8q" === formId,
+      );
 
       if (matched?.length) {
         return {
@@ -257,7 +262,7 @@ const ManageSalesOrder = () => {
     }).filter(Boolean),
   );
   const ManageSalesOrderTableCols =
-    menuChildMap[0]&&menuChildMap[0].menuName === "Purchase"
+    menuChildMap[0] && menuChildMap[0].menuName === "Purchase"
       ? ManagePurchaseOrderTableColumn?.map((col) => ({
           Header: col.Header,
           accessor: col.accessor,
@@ -437,7 +442,9 @@ const ManageSalesOrder = () => {
       // Fetch form data based on formId
       const formDetails = user?.Roles?.flatMap((role) =>
         role.UserMenus.flatMap((menu) =>
-          menu.children.filter((submenu) => submenu.Form&&submenu.Form.id === formId),
+          menu.children.filter(
+            (submenu) => submenu.Form && submenu.Form.id === formId,
+          ),
         ),
       );
       //setTabList((formDetails && formDetails[0]?.Form.FormTabs) || []);
@@ -470,7 +477,7 @@ const ManageSalesOrder = () => {
               alignItems: "center",
               padding: "1rem",
               //backgroundColor: "#354a5f", // SAP Blue
-             // color: "white",
+              // color: "white",
             }}
           >
             <FlexBox
@@ -517,8 +524,10 @@ const ManageSalesOrder = () => {
               <Button
                 design="Default"
                 className="clear-filter-btn"
-                style={{ width: "100px", marginBottom: "2px",
-                  //backgroundColor: "#1e6091" 
+                style={{
+                  width: "100px",
+                  marginBottom: "2px",
+                  //backgroundColor: "#1e6091"
                 }}
                 onClick={() => {
                   setisClearFilter(true);
@@ -529,7 +538,7 @@ const ManageSalesOrder = () => {
                   });
                 }}
               >
-                <div >Clear Filter</div>
+                <div>Clear Filter</div>
               </Button>
             </FlexBox>
           </DynamicPageHeader>
@@ -543,7 +552,7 @@ const ManageSalesOrder = () => {
               display: "flex",
               alignItems: "start",
               padding: "1rem",
-              
+              width: "100%",
             }}
             breadcrumbs={
               <Breadcrumbs
@@ -558,24 +567,26 @@ const ManageSalesOrder = () => {
                 <BreadcrumbsItem>
                   {formDetails && formDetails[0]?.name
                     ? formDetails[0]?.name
-                    : formId?formId:"Sales order List"}
+                    : formId
+                      ? formId
+                      : "Sales order List"}
                 </BreadcrumbsItem>
               </Breadcrumbs>
             }
-            heading={
-              <Title>
-                {formDetails && formDetails[0]?.name
-                  ? formDetails[0]?.name
-                  : formId?formId:"Sales order List"}
-              </Title>
-            }
-            snappedHeading={
-              <Title>
-                {formDetails && formDetails[0]?.name
-                  ? formDetails[0]?.name
-                  : formId?formId:"Sales order List"}
-              </Title>
-            }
+            // heading={
+            //   <Title>
+            //     {formDetails && formDetails[0]?.name
+            //       ? formDetails[0]?.name
+            //       : formId?formId:"Sales order List"}
+            //   </Title>
+            // }
+            // snappedHeading={
+            //   <Title>
+            //     {formDetails && formDetails[0]?.name
+            //       ? formDetails[0]?.name
+            //       : formId?formId:"Sales order List"}
+            //   </Title>
+            // }
           ></DynamicPageTitle>
         }
       >
@@ -615,14 +626,10 @@ const ManageSalesOrder = () => {
                           <FlexBox
                             justifyContent="SpaceBetween"
                             alignItems="Center"
-                            style={{ width: "100%", padding: "4px 10px"  }}
+                            style={{ width: "100%", padding: "4px 10px" }}
                           >
                             <Title style={{ minWidth: "200px" }}>
-                              {`${
-                                formDetails && formDetails[0]?.name
-                                  ? formDetails[0]?.name
-                                  : formId?formId:"Sales order List"
-                              } - ${tableData.length}`}
+                              {`${title} List `}
                             </Title>
                             <Toolbar
                               design="Transparent"
@@ -727,6 +734,15 @@ const ManageSalesOrder = () => {
                         // alternateRowColor
                         withNavigationHighlight
                       />
+                      <div style={{ marginTop: "10px" }}>
+                        <span>
+                          {`Showing ${
+                            tableData.length > 0
+                              ? `1 to ${tableData.length} of ${originalCustomerData.length}`
+                              : "0"
+                          }`}
+                        </span>
+                      </div>
                     </FlexBox>
                   </div>
                 </FlexBox>
