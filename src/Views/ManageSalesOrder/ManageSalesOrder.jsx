@@ -65,6 +65,7 @@ const ManageSalesOrder = () => {
   const [isClearFilter, setisClearFilter] = useState(false);
   const user = useSelector((state) => state.auth.user);
   const [apiError, setApiError] = useState(null);
+  const [totalRecords, setTotalRecords] = useState(0);
 
   const { companyformfield } = useSelector((state) => state.companyformfield);
   const { companyformfielddata } = useSelector(
@@ -133,7 +134,7 @@ const ManageSalesOrder = () => {
 
         console.log("quotationdata", "sales", res, formDetails[0]?.name);
         const raw = res?.data?.value ?? res?.data ?? res?.value ?? res;
-
+        setTotalRecords(formDetails[0]?.name === "GRPO" ? res?.["@odata.count"] :res?.totalCount);
         // Ensure it's an array
         const list = Array.isArray(raw)
           ? raw
@@ -609,7 +610,7 @@ const ManageSalesOrder = () => {
                 <FlexBox direction="Column">
                   <div>
                     <FlexBox direction="Column">
-                      {console.log("loading", loading, tableData)}
+                      {console.log("loading", loading, tableData,"totalRecords", totalRecords)}
                       <AnalyticalTable
                         columns={columns}
                         data={tableData}
@@ -738,7 +739,7 @@ const ManageSalesOrder = () => {
                         <span>
                           {`Showing ${
                             tableData.length > 0
-                              ? `1 to ${tableData.length} of ${originalCustomerData.length}`
+                              ? `1 to ${tableData.length} of ${totalRecords??tableData.length} entries`
                               : "0"
                           }`}
                         </span>
