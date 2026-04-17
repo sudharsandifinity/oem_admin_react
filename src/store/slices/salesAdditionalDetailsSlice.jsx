@@ -11,7 +11,43 @@ const API_ATTACHMENTS_URL = "/sap/attachments";
 const API_PROFITCENTER_URL = "/sap/profit-centers";
 const API_DIMENSION_URL = "/sap/dimensions";
 const API_ITEMPRICE_URL = "/sap/SpecialPrices";
+const API_EMPLOYEES_URL = "/ess/employees";
+const API_ATTACHMENT_SHOW_URL = "/ess/general/attachments"; // ✅ new endpoint for showing attachments
 
+export const fetchAttachmentShowDetails = createAsyncThunk(
+  "attachmentshowdetails/fetchAttachmentShowDetails",
+  async ({ AbsoluteEntry, FileName, FileExtension }, thunkApi) => {
+    try {
+      const response = await api.get(
+        `/ess/general/attachments/${AbsoluteEntry}/${FileName}/${FileExtension}`,
+        {
+          responseType: "blob", // ✅ important
+          withCredentials: true
+        }
+      );
+
+      return response.data;
+    } catch (error) {
+      return thunkApi.rejectWithValue(
+        error.response?.data || "Error fetching attachment"
+      );
+    }
+  }
+);
+
+export const fetchEmployees = createAsyncThunk(
+  "employees/fetchEmployees",
+  async (_, thunkApi) => {
+    try {
+      const response = await api.get(API_EMPLOYEES_URL, { withCredentials: true });
+      return response.data;
+    } catch (error) {
+      return thunkApi.rejectWithValue(
+        error.response?.data || "Error fetching employees details"
+      );
+    }
+  }
+);
 
 export const fetchitemprices = createAsyncThunk(
   "itemprices/fetchitemprices", 
@@ -136,6 +172,8 @@ export const fetchAttachmentDetailsById= createAsyncThunk(
 const salesAdditionalDetailsSlice = createSlice({
   name: "salesadddetails",
   initialState: {
+    attachmentshowdetails:[],
+    fetchEmployees: [],
     profitcenterdetail:[],
     dimensiondetails:[],
     projectsdetails:[],
