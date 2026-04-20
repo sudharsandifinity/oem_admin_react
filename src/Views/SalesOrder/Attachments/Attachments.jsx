@@ -19,7 +19,7 @@ const Attachments = (props) => {
     attachmentsList,
     setAttachmentsList,
     oldAttachmentFiles,
-    setOldAttachmentFiles,
+    setOldAttachmentFiles,mode
   } = props;
    const dispatch = useDispatch();
   const [attachments, setAttachments] = React.useState("");
@@ -69,7 +69,8 @@ const Attachments = (props) => {
   };
 
   const handleDownload = async (file) => {
-    console.log("handledownload", file);
+    console.log("handledownload", file,"mode",mode);
+
     try {
     const response = await dispatch(
       fetchAttachmentShowDetails({
@@ -209,12 +210,14 @@ console.log("response",response)
 
       {/* Right: Actions */}
       <div style={{ display: "flex", gap: "0.25rem" }}>
-        <Button
-          icon="show"
-          design="Transparent"
-          tooltip="Download"
-          onClick={() => handleDownload(file)}
-        />
+        {mode==="edit" && (
+          <Button
+            icon="show"
+            design="Transparent"
+            tooltip="Download"
+            onClick={() => handleDownload(file)}
+          />
+        )}
         {file.isNew && (
           <Button
             icon="decline"
