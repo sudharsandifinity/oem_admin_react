@@ -1112,6 +1112,7 @@ export default function SalesOrder() {
             onFilesChange={setAttachmentFiles}
             attachmentsList={attachmentsList}
             setAttachmentsList={setAttachmentsList}
+            mode={"create"}
           />
         </ObjectPageSection>
         {/* );

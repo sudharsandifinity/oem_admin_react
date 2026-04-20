@@ -1405,6 +1405,7 @@ const EditSalesOrder = () => {
               setAttachmentsList={setAttachmentsList}
               oldAttachmentFiles={oldAttachmentFiles}
               setOldAttachmentFiles={setOldAttachmentFiles}
+              mode={"edit"}
             />
           </ObjectPageSection>
 
