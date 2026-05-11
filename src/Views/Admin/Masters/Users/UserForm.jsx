@@ -227,7 +227,7 @@ const UserForm = ({
               endContent={
                 <>
                   <Button
-                    design="Emphasized"
+                    design="default"
                     form="userForm" /* ← link button to that form id */
                     type="Submit"
                   >

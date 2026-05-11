@@ -51,35 +51,36 @@ const UserSideNav = ({
   }, [dispatch, navigate]);
 
   return (
-    <FlexBox style={{ height: "95vh" }}>
+    <FlexBox style={{ height: screen.height+10, width: "100%" }}>
       <FlexBox
         direction="Column"
         className={"sidebar" + (collapsed ? "" : " open")}
         style={{ width: collapsed ? "0px" : "260px" }}
       >
         <SideNavigation
-          fixedItems={
-            <>
-              {/* <SideNavigationItem
-                text="GRP"
-                onClick={(e) => {
-                  e.preventDefault();
-                  navigate(`/GRP`);
-                }}
-              ></SideNavigationItem>
-              <SideNavigationItem
-                text="Approver"
-                onClick={(e) => {
-                  e.preventDefault();
-                  navigate(`/approver`);
-                }}
-              ></SideNavigationItem> */}
-            </>
-          }
+          style={{ height: "95%" }}
+          // fixedItems={
+           
+          //     <SideNavigationGroup text="Approver Module" >
+          //   <SideNavigationItem  onClick={() => navigate("/approver")} text="Approver Status" unselectable>
+              
+          //     </SideNavigationItem>
+          //   <SideNavigationItem  onClick={() => navigate("/approver/ApproverTemplate")} text="Approval Template" unselectable>
+              
+          //     </SideNavigationItem>
+                  
+          //   <SideNavigationItem  onClick={() => navigate("/workflowmanagement")} text="Workflow Management" unselectable>
+             
+          //   </SideNavigationItem>
+          //    <SideNavigationItem onClick={() => navigate("/stagemanagement")} text="Stage Management" unselectable>
+              
+          //   </SideNavigationItem>
+          // </SideNavigationGroup>
+          // }
         >
           <SideNavigationGroup text="User Modules" expanded>
             {menulist.length > 0 &&
-              menulist.map((menu) =>
+              menulist.filter((r) => r.status===1).map((menu) =>
                 !menu.RoleMenu.can_list_view ? null : (
                   <SideNavigationItem
                     key={menu.id}
@@ -87,14 +88,14 @@ const UserSideNav = ({
                     unselectable
                   >
                     {menu.children?.length > 0 &&
-                      menu.children.map((child) => (
+                       menu.children.filter((r) => r.status===1).map((child) => ( 
                         <SideNavigationSubItem
                           key={child.id}
                           text={child.display_name}
                           onClick={(e) => {
                             e.preventDefault();
                             navigate(`/${menu.display_name}/${child.formId}`);
-                           //const slug = child.display_name.replace(/\s+/g, "-");
+                            //const slug = child.display_name.replace(/\s+/g, "-");
 
                             //navigate(`/${menu.display_name}/${slug}`)
                           }}
@@ -104,9 +105,24 @@ const UserSideNav = ({
                 ),
               )}
           </SideNavigationGroup>
+          {/* <SideNavigationGroup text="Approver Module" expanded>
+            <SideNavigationItem  onClick={() => navigate("/approver")} text="Approver Status" unselectable>
+              
+              </SideNavigationItem>
+            <SideNavigationItem  onClick={() => navigate("/approver/ApproverTemplate")} text="Approval Template" unselectable>
+              
+              </SideNavigationItem>
+                  
+            <SideNavigationItem  onClick={() => navigate("/workflowmanagement")} text="Workflow Management" unselectable>
+             
+            </SideNavigationItem>
+             <SideNavigationItem onClick={() => navigate("/stagemanagement")} text="Stage Management" unselectable>
+              
+            </SideNavigationItem>
+          </SideNavigationGroup> */}
         </SideNavigation>
       </FlexBox>
-      <FlexBox style={{ flex: 1, height: "100%" }}>
+      <FlexBox style={{ flex: 1 }}>
         {/* outlet will render whichever child route is active (dashboard, reports, etc.) */}
         <Outlet />
       </FlexBox>

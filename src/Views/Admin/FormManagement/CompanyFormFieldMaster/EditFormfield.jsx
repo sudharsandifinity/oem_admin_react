@@ -96,7 +96,7 @@ const EditFormfield = ({
       footer={
         <FlexBox direction="Row" gap={2}>
           <Button
-            design="Emphasized"
+            design="default"
             form="editform" /* ← link button to that form id */
             type="Submit"
           >

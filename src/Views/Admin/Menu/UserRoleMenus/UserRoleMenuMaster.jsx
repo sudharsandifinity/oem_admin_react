@@ -192,7 +192,7 @@ const UserRoleMenuMaster = () => {
           }
           endContent={
             <Button
-              design="Emphasized"
+              design="default"
               onClick={() => navigate("/admin/UserRoleMenus/create")}
             >
               Add UserRoleMenu

@@ -117,7 +117,7 @@ const BranchForm = ({
             endContent={
               <>
                 <Button
-                  design="Emphasized"
+                  design="default"
                   form="form" /* ← link button to that form id */
                   type="Submit"
                 >

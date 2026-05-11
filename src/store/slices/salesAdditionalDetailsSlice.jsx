@@ -11,7 +11,7 @@ const API_ATTACHMENTS_URL = "/sap/attachments";
 const API_PROFITCENTER_URL = "/sap/profit-centers";
 const API_DIMENSION_URL = "/sap/dimensions";
 const API_ITEMPRICE_URL = "/sap/SpecialPrices";
-const API_EMPLOYEES_URL = "/ess/employees";
+const API_EMPLOYEES_URL = "/sap/employees";
 const API_ATTACHMENT_SHOW_URL = "/ess/general/attachments"; // ✅ new endpoint for showing attachments
 
 export const fetchAttachmentShowDetails = createAsyncThunk(

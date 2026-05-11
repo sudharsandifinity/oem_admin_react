@@ -64,6 +64,7 @@ const EditCompany = () => {
         secret_key: company?.secret_key,
         is_branch: JSON.stringify(company?.is_branch),
         status: JSON.stringify(company?.status),
+        branches: company?.branches || [],
       }}
     />
   );

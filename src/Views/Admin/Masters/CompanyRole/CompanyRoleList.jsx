@@ -192,7 +192,7 @@ const CompanyRoleList = () => {
           }
           endContent={
             <Button
-              design="Emphasized"
+              design="default"
               onClick={() => navigate("/admin/CompanyRole/create")}
             >
               Add Company Role

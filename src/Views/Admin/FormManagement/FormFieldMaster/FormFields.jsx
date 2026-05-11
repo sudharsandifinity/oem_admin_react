@@ -215,7 +215,7 @@ const FormFields = () => {
           }
           endContent={
             <Button
-              design="Emphasized"
+              design="default"
               onClick={() => navigate("/admin/FormFields/create")}
             >
               Add Form Field

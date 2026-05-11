@@ -274,7 +274,7 @@ const CompanyFormFieldMaster = () => {
           }
           endContent={
             <Button
-              design="Emphasized"
+              design="default"
               onClick={() => navigate("/admin/CompanyFormFields/create")}
             >
               Add Company Form Field

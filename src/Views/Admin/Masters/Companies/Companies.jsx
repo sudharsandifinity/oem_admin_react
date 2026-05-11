@@ -20,8 +20,10 @@ import { useNavigate } from "react-router-dom";
 import {
   deleteCompany,
   fetchCompanies,
+  syncBranches,
 } from "../../../../store/slices/companiesSlice";
 import AppBar from "../../../../Components/Module/Appbar";
+import SyncBranchDialog from "./SyncBranchDialog";
 
 const ViewCompany = Loadable(lazy(() => import("./ViewCompany")));
 
@@ -34,7 +36,29 @@ const Companies = () => {
   const [search, setSearch] = useState("");
   const [layout, setLayout] = useState("OneColumn");
   const [ViewId, setViewId] = useState("");
+const[ openSyncBranchDialog,setOpenSyncBranchDialog]=useState(false);
+const openSyncBranch=()=>{
+  setOpenSyncBranchDialog(true);
 
+}
+const handleSyncBranch=async(e)=>{
+  try {
+    console.log("resusers", e.detail.item);
+    const companyId=e.detail.item.getAttribute("value");
+    console.log("companyId", companyId);
+    const payload={company_id:companyId};
+    const res=await dispatch(syncBranches(payload)).unwrap();
+    console.log("syncBranches res", res);
+    if (res.message === "Please Login!") {
+      navigate("/login");
+    } else {
+      setOpenSyncBranchDialog(false);
+      dispatch(fetchCompanies());
+    }
+  } catch (error) {
+    console.error("Error syncing branches:", error);
+  }
+};
 
   useEffect(() => {
     //dispatch(fetchCompanies());
@@ -88,6 +112,9 @@ const filteredRows = companies?.filter((company) =>
       {
         Header: "Company Name",
         accessor: "name",
+        Cell: ({ row }) => (
+          <span style={{ padding: "0.5rem"}}>{row.original.name}</span>
+        ),
       },
       {
         Header: "Company DB Name",
@@ -210,19 +237,21 @@ const filteredRows = companies?.filter((company) =>
                 </Breadcrumbs>
               </div>
             }
-            endContent={
-              user &&
+            endContent={<FlexBox alignItems="Center" gap="8px">
+              <Button onClick={openSyncBranch}>Sync Branch</Button>
+              {user &&
               user.Roles.some(role =>
                 role.Permissions.some(f => f.name === "company_create")
               ) && (
                 <Button
-                  design="Emphasized"
+                  design="default"
                   size="Small"
                   onClick={() => navigate("/admin/companies/create")}
                 >
                   Add Company
                 </Button>
-              )
+              )}
+              </FlexBox>
             }
           >
           </AppBar>
@@ -257,8 +286,8 @@ const filteredRows = companies?.filter((company) =>
               layout={layout}
               startColumn={
                 <FlexBox direction="Column">
-                  <div>
-                    <FlexBox direction="Column">
+                   <div >
+                    <FlexBox direction="Column" >
                       {user && user.Roles.some(
                         (role) =>
                           role.Permissions.some(
@@ -268,6 +297,7 @@ const filteredRows = companies?.filter((company) =>
                             columns={columns}
                             style={{padding: '10px'}}
                             data={filteredRows || []}
+                          
                             // header={<Title level="H5" style={{ paddingLeft: 5 }}>  {"Company list(" + filteredRows.length + ")"}</Title>}
                             //visibleRows={8}
                             filterable
@@ -320,7 +350,7 @@ const filteredRows = companies?.filter((company) =>
           </FlexBox>
         </Card>
       </Page>
-
+        <SyncBranchDialog open={openSyncBranchDialog} setOpenSyncBranchDialog={setOpenSyncBranchDialog} companyList={filteredRows} handleSyncBranch={handleSyncBranch}/>
     </FlexBox>
     </>
   );

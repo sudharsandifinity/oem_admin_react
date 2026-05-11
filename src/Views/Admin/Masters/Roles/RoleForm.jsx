@@ -262,23 +262,22 @@ const RoleForm = ({
     }
   };
 
-  const menulist = selectedBranch
-    ? usermenus
-        .map((menu) =>
-          menu.children.filter((child) => child.branchId === selectedBranch),
-        )
-        .flat()
-    : usermenus.map((menu) => menu.children).flat();
+  // const menulist = selectedBranch
+  //   ? usermenus
+  //       .map((menu) =>
+  //         menu.children.filter((child) => child.branchId === selectedBranch),
+  //       )
+  //       .flat()
+  //   : usermenus.map((menu) => menu.children).flat();
+  const menulist = selectedCompany !== ""
+    ? usermenus.map(menu => ({
+        ...menu,
+        children: menu.children?.filter(child =>
+          child.companyId === selectedCompany || child.companyId === ""
+        ) || []
+      }))
+    : usermenus;
   console.log("menuList", usermenus, menulist, selectedBranch);
-  // const filteredMenus = selectedCompany !
-  //  selectedCompany !== ""
-  //   ? usermenus.map(menu => ({
-  //       ...menu,
-  //       children: menu.children?.filter(child =>
-  //         child.companyId === selectedCompany || child.companyId === ""
-  //       ) || []
-  //     }))
-  //   : usermenus;
 
   useEffect(() => {
     console.log("userMenuPermission", userMenus);
@@ -302,8 +301,8 @@ const RoleForm = ({
   const buildMenuListData = () => {
     const list = [];
 
-    (selectedBranch
-      ? usermenus.filter((m) => m.branchId === selectedBranch)
+    (selectedCompany !== ""
+      ? usermenus.filter((m) => m.companyId === selectedCompany)
       : usermenus
     ).forEach((menu) => {
       // Add parent row
@@ -319,7 +318,7 @@ const RoleForm = ({
       });
       // Add children rows
       menu.children
-        .filter((child) => !selectedBranch || child.branchId === selectedBranch)
+        .filter((child) => !selectedCompany || child.companyId === selectedCompany)
         .forEach((child) => {
           list.push({
             Module: child.name,
@@ -506,7 +505,7 @@ const RoleForm = ({
               endContent={
                 <>
                   <Button
-                    design="Emphasized"
+                    design="default"
                     form="form" /* ← link button to that form id */
                     type="Submit"
                   >
@@ -670,7 +669,7 @@ const RoleForm = ({
                   )}
                 </FlexBox>
               </FlexBox>
-              <FlexBox direction="Column" style={{ flex: " 28%" }}>
+              {/* <FlexBox direction="Column" style={{ flex: " 28%" }}>
                 <Label>Branch</Label>{" "}
                 <FlexBox label={<Label required>Branch</Label>}>
                   <Controller
@@ -693,7 +692,7 @@ const RoleForm = ({
                         </Option>
 
                         {branchList
-                          .filter((r) => r.status) /* active roles only    */
+                          .filter((r) => r.status) 
                           .map((r) => (
                             <Option key={r.id} value={r.id}>
                               {r.name}
@@ -712,7 +711,7 @@ const RoleForm = ({
                     </span>
                   )}
                 </FlexBox>
-              </FlexBox>
+              </FlexBox> */}
               <FlexBox direction="Column" style={{ flex: " 28%" }}>
                 <Label>Role Name</Label>
                 <Controller

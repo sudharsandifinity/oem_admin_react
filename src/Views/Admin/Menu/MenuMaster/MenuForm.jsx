@@ -87,13 +87,19 @@ const MenuForm = ({
   const branchList = selectedCompany
     ? branches.filter((branch) => branch.Company.id === selectedCompany)
     : branches;
-  const usermenuList = selectedBranch
-    ? usermenus.filter((menu) => menu.branchId === selectedBranch)
-    : selectedBranchIds
-    ? usermenus.filter((menu) => menu.branchId === selectedBranchIds)
+  // const usermenuList = selectedBranch
+  //   ? usermenus.filter((menu) => menu.branchId === selectedBranch)
+  //   : selectedBranchIds
+  //   ? usermenus.filter((menu) => menu.branchId === selectedBranchIds)
+  //   : [];
+  // const formList = selectedBranch
+  //   ? forms.filter((form) => form.branchId === selectedBranch)
+  //   : [];
+    const usermenuList = selectedCompany
+    ? usermenus.filter((menu) => menu.companyId === selectedCompany)
     : [];
-  const formList = selectedBranch
-    ? forms.filter((form) => form.branchId === selectedBranch)
+  const formList = selectedCompany
+    ? forms.filter((form) => form.companyId === selectedCompany)
     : [];
   useEffect(() => {
     //dispatch(fetchRoles());
@@ -180,7 +186,7 @@ const MenuForm = ({
               endContent={
                 <>
                   <Button
-                    design="Emphasized"
+                    design="default"
                     form="form" /* ← link button to that form id */
                     type="Submit"
                   >
@@ -399,7 +405,7 @@ const MenuForm = ({
                   )}
                 </FlexBox>
               </FlexBox>
-              <FlexBox direction="Column" style={{ flex: "28%" }}>
+              {/* <FlexBox direction="Column" style={{ flex: "28%" }}>
                 <Label>Branch</Label>
                 <FlexBox label={<Label required>branchId</Label>}>
                   <Controller
@@ -421,7 +427,7 @@ const MenuForm = ({
                           Select
                         </Option>
                         {branchList
-                          .filter((r) => r.status) /* active roles only    */
+                          .filter((r) => r.status) 
                           .map((r) => (
                             <Option key={r.id} value={r.id}>
                               {r.name}
@@ -440,7 +446,7 @@ const MenuForm = ({
                     </span>
                   )}
                 </FlexBox>
-              </FlexBox>
+              </FlexBox> */}
 
               <FlexBox direction="Column" style={{ flex: " 28%" }}>
                 <Label>Parent</Label>
