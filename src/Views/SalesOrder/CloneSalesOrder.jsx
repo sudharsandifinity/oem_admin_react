@@ -763,7 +763,7 @@ const CloneSalesOrder = () => {
     if (formId !== undefined) {
       // Fetch form data based on formId
       const formDetails = user?.Roles?.flatMap((role) =>
-        role.UserMenus.flatMap((menu) =>
+        role.UserMenus.flatMap((menu) => 
           menu.children.filter((submenu) => submenu.id === pageId),
         ),
       );

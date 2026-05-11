@@ -1277,7 +1277,7 @@ const Itemtable = (props) => {
               onChange={handlechangeOwner}
             >
               <Option value="">Select Owner</Option>
-              {OwnerList.map((owner) => (
+              {OwnerList && OwnerList.length>0&&OwnerList.map((owner) => (
                 <Option key={owner.EmployeeID} value={owner.EmployeeID}>
                   {owner.FirstName} {owner.LastName}
                 </Option>

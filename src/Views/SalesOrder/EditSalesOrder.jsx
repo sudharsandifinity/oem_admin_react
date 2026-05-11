@@ -458,7 +458,7 @@ const EditSalesOrder = () => {
                         ? {
                             slno: index, // usually LineNum is 0-based
                             ItemCode: matched.ItemCode,
-                            ItemName: matched.ItemDescription,
+                            ItemName: matched.ItemDescription||matched.ItemName,
                             quantity: matched.Quantity,
                             TaxCode: matched.TaxCode,
                             amount: matched.UnitPrice,
@@ -507,7 +507,7 @@ const EditSalesOrder = () => {
                         ? {
                             slno: matched.LineNum + 1, // usually LineNum is 0-based
                             ItemCode: matched.ItemCode,
-                            ItemName: matched.ItemDescription,
+                            ItemName: matched.ItemDescription||matched.ItemName,
                             quantity: matched.Quantity,
                             TaxCode: matched.TaxCode,
                             WarehouseCode: matched.WarehouseCode,
@@ -531,7 +531,7 @@ const EditSalesOrder = () => {
                 orderListById.DocumentLines.map((line, index) => ({
                   slno: line.LineNum + 1,
                   ItemCode: line.ItemCode,
-                  ItemName: line.ItemDescription,
+                  ItemName: line.ItemDescription||line.ItemName,
                   quantity: line.Quantity,
                   TaxCode: line.TaxCode,
                   WarehouseCode: line.WarehouseCode,
@@ -574,7 +574,7 @@ const EditSalesOrder = () => {
                         ? {
                             slno: index, // usually LineNum is 0-based
                             ServiceCode: matched.AccountCode,
-                            ServiceName: matched.ItemDescription,
+                            ServiceName: matched.ItemDescription||matched.ItemName,
                             quantity: matched.Quantity,
                             TaxCode: matched.TaxCode,
                             amount: matched.UnitPrice,
@@ -592,7 +592,7 @@ const EditSalesOrder = () => {
                         : {
                             slno: index, // usually LineNum is 0-based
                             ServiceCode: item.AccountCode,
-                            ServiceName: item.ItemDescription,
+                            ServiceName: item.ItemDescription||item.ItemName,
                             quantity: item.Quantity,
                             TaxCode: item.TaxCode,
                             amount: item.UnitPrice,
@@ -623,7 +623,7 @@ const EditSalesOrder = () => {
                         ? {
                             slno: matched.LineNum + 1, // usually LineNum is 0-based
                             ServiceCode: matched.AccountCode,
-                            ServiceName: matched.ItemDescription,
+                            ServiceName: matched.ItemDescription||matched.ItemName,
                             quantity: matched.Quantity,
                             TaxCode: matched.TaxCode,
                             amount: matched.UnitPrice,
@@ -646,7 +646,7 @@ const EditSalesOrder = () => {
                 orderListById.DocumentLines.map((line, index) => ({
                   slno: line.LineNum + 1,
                   ServiceCode: line.AccountCode,
-                  ServiceName: line.ItemDescription,
+                  ServiceName: line.ItemDescription||line.ItemName,
                   quantity: line.Quantity,
                   TaxCode: line.TaxCode,
                   WarehouseCode: line.WarehouseCode,
@@ -1083,7 +1083,7 @@ const EditSalesOrder = () => {
       // Fetch form data based on formId
       const formDetails = user?.Roles?.flatMap((role) =>
         role.UserMenus.flatMap((menu) =>
-          menu.children.filter((submenu) => submenu.Form.id === formId),
+          menu.children.filter((submenu) => submenu.Form?.id === formId),
         ),
       );
       setTabList((formDetails && formDetails[0]?.Form.FormTabs) || []);
@@ -1142,7 +1142,7 @@ const EditSalesOrder = () => {
                 // color: "white",
               }}
             >
-              <FlexBox
+              {/* <FlexBox
                 direction="Row"
                 style={{
                   display: "inline-flex",
@@ -1177,7 +1177,7 @@ const EditSalesOrder = () => {
                     //onInput={handleSliderChange}
                   />
                 </FlexBox>
-              </FlexBox>
+              </FlexBox> */}
             </DynamicPageHeader>
           }
           // image="https://sap.github.io/ui5-webcomponents-react/v2/assets/Person-B7wHqdJw.png"
@@ -1365,7 +1365,7 @@ const EditSalesOrder = () => {
             />
           </ObjectPageSection>
 
-          <ObjectPageSection
+          {/* <ObjectPageSection
             id="section3"
             style={{
               height: "100%",
@@ -1378,9 +1378,9 @@ const EditSalesOrder = () => {
               form={form}
               handleChange={handleChange}
             />
-          </ObjectPageSection>
+          </ObjectPageSection> */}
 
-          <ObjectPageSection
+          {/* <ObjectPageSection
             id="section4"
             style={{
               height: "100%",
@@ -1388,7 +1388,7 @@ const EditSalesOrder = () => {
             titleText="Accounting"
           >
             <Accounting />
-          </ObjectPageSection>
+          </ObjectPageSection> */}
           {/* );
                     } else if (tab.name === "attachments") {
                         return ( */}
@@ -1408,7 +1408,7 @@ const EditSalesOrder = () => {
               mode={"edit"}
             />
           </ObjectPageSection>
-
+{/* 
           <ObjectPageSection
             id="section6"
             style={{
@@ -1427,7 +1427,7 @@ const EditSalesOrder = () => {
               setFormData={setFormData}
               formData={formData}
             />
-          </ObjectPageSection>
+          </ObjectPageSection> */}
         </ObjectPage>
       </BusyIndicator>
       {isCloneSelected && (

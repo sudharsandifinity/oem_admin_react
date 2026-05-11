@@ -235,7 +235,7 @@ const MenuMaster = () => {
           }
           endContent={
             <Button
-              design="Emphasized"
+              design="default"
               onClick={() => navigate("/admin/MenuMaster/create")}
             >
               Add Menu

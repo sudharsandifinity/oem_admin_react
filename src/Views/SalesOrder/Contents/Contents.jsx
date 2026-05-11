@@ -55,6 +55,7 @@ import {
   fetchitemprices,
   fetchEmployees,
 } from "../../../store/slices/salesAdditionalDetailsSlice";
+import BOQItemTable from "./Item/BOQItemTable";
 
 const Contents = (props) => {
   const {
@@ -183,7 +184,7 @@ const Contents = (props) => {
         }
 
         const employeeList = await dispatch(fetchEmployees()).unwrap();
-        setOwnerList(employeeList.value);
+        setOwnerList(employeeList&&employeeList);
         const warehouseData = await dispatch(fetchWarehousesDetails()).unwrap();
         setWarehouseData(warehouseData.value);
         setOriginalWarehouseData(warehouseData.value);
@@ -202,13 +203,17 @@ const Contents = (props) => {
 
         const freightData = await dispatch(fetchfreightDetails()).unwrap();
         setFreightData(freightData.value);
+        console.log("res.value",res,res.value,res.value?.length > 0)
+
         if (res.value?.length > 0) {
+          console.log("fetchdataitemorder", res.value);
           const tableconfig = res.value.map((item, index) => ({
             slno: index,
             ItemCode: item.ItemCode,
             ItemName: item.ItemName,
           }));
           //mode === "create" &&
+          console.log("tableconfigcontentscreen",tableconfig)
           setitemData(tableconfig);
         }
         if (taxCode.value?.length > 0) {
@@ -754,13 +759,15 @@ const Contents = (props) => {
             justifyContent="SpaceBetween"
             direction="Row"
           >
-            <FlexBox alignItems="Center">
+            {formDetails && formDetails[0]?.name !== "BOQ" ? (<FlexBox alignItems="Center">
               <Label style={{ minWidth: "200px" }}>Item/Service Type:</Label>
-              <Select value={type} style={{ width: "200px" }}>
-                <Option onClick={() => setType("Item")}>Item</Option>
-                <Option onClick={() => setType("Service")}>Service</Option>
-              </Select>
-            </FlexBox>
+              
+                <Select value={type} style={{ width: "200px" }}>
+                  <Option onClick={() => setType("Item")}>Item</Option>
+                  <Option onClick={() => setType("Service")}>Service</Option>
+                </Select>
+             
+            </FlexBox> ) : null}
             <FlexBox alignItems="Center">
               <Label style={{ minWidth: "200px" }}>Currency</Label>
               <Select value={currency} style={{ width: "200px" }}>
@@ -794,8 +801,89 @@ const Contents = (props) => {
                           rowHeight={44}
                           headerRowHeight={48}
                         /> */}
+                       { console.log("  rendering itemtable with data", formDetails[0]?.name)}
                     {type === "Item" ? (
-                      <Itemtable
+                      formDetails && formDetails[0]?.name === "BOQ" ?
+                      <BOQItemTable
+                        formDetails={formDetails}
+                        addItemdialogOpen={addItemdialogOpen}
+                        setAddItemDialogOpen={setAddItemDialogOpen}
+                        itemTableColumn={itemTableColumn}
+                        renderIteminput={renderIteminput}
+                        form={form}
+                        handleChange={handleChange}
+                        setRowSelection={setRowSelection}
+                        rowSelection={rowSelection}
+                        saveItem={saveItem}
+                        itemdata={itemdata}
+                        setitemData={setitemData}
+                        setitemTableData={setitemTableData}
+                        itemTabledata={itemTabledata}
+                        dynamcicItemCols={dynamcicItemCols}
+                        dimensionCols={dimensionCols}
+                        selectedRowIndex={selectedRowIndex}
+                        setSelectedRowIndex={setSelectedRowIndex}
+                        mode={mode}
+                        selectedItems={selectedItems}
+                        taxData={taxData}
+                        setTaxData={setTaxData}
+                        setOriginalTaxData={setOriginalTaxData}
+                        setOriginalProfitCenterData={
+                          setOriginalProfitCenterData
+                        }
+                        originalProfitCenterData={originalProfitCenterData}
+                        originalTaxData={originalTaxData}
+                        freightData={freightData}
+                        setFreightData={setFreightData}
+                        OwnerList={OwnerList}
+                        setOwnerList={setOwnerList}
+                        projectData={projectData}
+                        setProjectData={setProjectData}
+                        originalProjectData={originalProjectData}
+                        setOriginalProjectData={setOriginalProjectData}
+                        originalWarehouseData={originalWarehouseData}
+                        setOriginalWarehouseData={setOriginalWarehouseData}
+                        selectedItemOwner={selectedItemOwner}
+                        setSelectedItemOwner={setSelectedItemOwner}
+                        warehouseData={warehouseData}
+                        setWarehouseData={setWarehouseData}
+                        profitCenterData={profitCenterData}
+                        setProfitCenterData={setProfitCenterData}
+                        selectedDimensionColumnCode={
+                          selectedDimensionColumnCode
+                        }
+                        clearCellValue={clearItemCellValue}
+                        dimensionData={dimensionData}
+                        setDimensionData={setDimensionData}
+                        setSelectedProfitCenterRowIndex={
+                          setSelectedProfitCenterRowIndex
+                        }
+                        selectedProfitCenterRowIndex={
+                          selectedProfitCenterRowIndex
+                        }
+                        setisProfitCenterDialogOpen={
+                          setisProfitCenterDialogOpen
+                        }
+                        isProfitCenterDialogOpen={isProfitCenterDialogOpen}
+                        setIsFreightTableVisible={setIsFreightTableVisible}
+                        isFreightTableVisible={isFreightTableVisible}
+                        totalFreightAmount={totalFreightAmount}
+                        setTotalFreightAmount={setTotalFreightAmount}
+                        summaryData={summaryData}
+                        setSummaryData={setSummaryData}
+                        freightRowSelection={freightRowSelection}
+                        setFreightRowSelection={setFreightRowSelection}
+                        summaryDiscountAmount={summaryDiscountAmount}
+                        setSummaryDiscountAmount={setSummaryDiscountAmount}
+                        summaryDiscountPercent={summaryDiscountPercent}
+                        setSummaryDiscountPercent={setSummaryDiscountPercent}
+                        roundingEnabled={roundingEnabled}
+                        setRoundingEnabled={setRoundingEnabled}
+                        roundOff={roundOff}
+                        setRoundOff={setRoundOff}
+                        copiedItemDocumentLines={copiedItemDocumentLines}
+                      />
+                      :<Itemtable
                         formDetails={formDetails}
                         addItemdialogOpen={addItemdialogOpen}
                         setAddItemDialogOpen={setAddItemDialogOpen}

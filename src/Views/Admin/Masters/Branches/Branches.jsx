@@ -224,7 +224,7 @@ const Branches = () => {
                   role.Permissions.some((f) => f.name === "branch_create")
                 ) && (
                   <Button
-                    design="Emphasized"
+                    design="default"
                     onClick={() => navigate("/admin/branches/create")}
                   >
                     Add Branch

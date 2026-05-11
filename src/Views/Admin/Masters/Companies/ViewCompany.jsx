@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { fetchUserById } from "../../../../store/slices/usersSlice";
 import {
+  AnalyticalTable,
   BusyIndicator,
   Card,
   FlexBox,
@@ -69,7 +70,105 @@ const ViewCompany = (props) => {
       </FlexBox>
     );
   }
+const columns = [
+    {
+      Header: () => (
+        <div
+          style={{
+            fontWeight: "bold",
+            color: "#0a6ed1",
+            padding: "4rem",
+            fontSize: "13px",
+          }}
+        >
+          Branch Name
+        </div>
+      ),
+      accessor: "BPLName",
 
+      Cell: ({ value }) => (
+        <div
+          style={{
+            padding: "4rem",
+            textAlign: "center",
+            fontSize: "13px",
+          }}
+        >
+          {value}
+        </div>
+      ),
+    },
+    {
+      Header: () => (
+        <div
+          style={{
+            fontWeight: "bold",
+            color: "#0a6ed1",
+            padding: "4rem",
+            fontSize: "13px",
+          }}
+        >
+          Branch Code
+        </div>
+      ),
+      accessor: "BPLID",
+      Cell: ({ value }) => (
+        <div style={{
+            padding: "4rem",
+            textAlign: "center",
+            fontSize: "13px",
+          }}>{value}</div>
+      ),
+    },
+    {
+      Header: () => (
+        <div
+          style={{
+            fontWeight: "bold",
+            color: "#0a6ed1",
+            padding: "4rem",
+            fontSize: "13px",
+          }}
+        >
+         Is Main xBranch
+        </div>
+      ),
+      accessor: "MainBPL",
+      Cell: ({ value }) => (
+        <div style={{
+            padding: "4rem",
+            textAlign: "center",
+            fontSize: "13px",
+          }}>
+          {value === 1 ? "Yes" : "No"}
+        </div>
+      ),
+    },
+    {
+      Header: () => (
+        <div
+          style={{
+            fontWeight: "bold",
+            color: "#0a6ed1",
+            padding: "4rem",
+            fontSize: "13px",
+          }}
+        >
+        Status
+        </div>
+      ),
+      accessor: "status",
+      Cell: ({ value }) => (
+        <div style={{
+            padding: "4rem",
+            textAlign: "center",
+            fontSize: "13px",
+          }}>
+          {value === 1 ? "Active" : "Inactive"}
+        </div>
+      ),
+    },
+  ];
   return (
     <Card style={{ margin: "1rem", padding: "1rem" }}>
       <List>
@@ -98,6 +197,13 @@ const ViewCompany = (props) => {
           </Text>
         </ListItemStandard>
       </List>
+      <AnalyticalTable
+                columns={columns}
+                data={company.branches}
+                header="Branches List"
+                visibleRows={5}
+                style={{ padding: "2rem" }}
+              />
     </Card>
   );
 };

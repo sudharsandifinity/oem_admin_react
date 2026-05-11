@@ -408,7 +408,7 @@ const Form = ({
                   )}
                 </FlexBox>
               </FlexBox>
-              <FlexBox direction="Column" style={{ flex: " 28%" }}>
+              {/* <FlexBox direction="Column" style={{ flex: " 28%" }}>
                 <Label>Branches</Label>{" "}
                 <FlexBox label={<Label required>Branches</Label>}>
                   <Controller
@@ -446,7 +446,7 @@ const Form = ({
                     </span>
                   )}
                 </FlexBox>
-              </FlexBox>
+              </FlexBox> */}
 
               <FlexBox direction="Column" style={{ flex: " 28%" }}>
                 <Label>Form Name</Label>
@@ -545,7 +545,7 @@ const Form = ({
                     control={control}
                     render={({ field }) => (
                       <Select
-                        style={{ width: "26%" }}
+                        style={{ width: "80%" }}
                         name="status"
                         value={field.value ?? ""}
                         onChange={(e) => field.onChange(e.target.value)}
@@ -611,11 +611,11 @@ const Form = ({
                 </Select>
 
                 {editIndex === null ? (
-                  <Button design="Emphasized" onClick={handleAddRow}>
+                  <Button design="default" onClick={handleAddRow}>
                     Add Row
                   </Button>
                 ) : (
-                  <Button design="Positive" onClick={handleUpdateRow}>
+                  <Button design="default" onClick={handleUpdateRow}>
                     Update Row
                   </Button>
                 )}

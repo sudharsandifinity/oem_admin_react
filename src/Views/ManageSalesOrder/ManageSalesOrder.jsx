@@ -46,6 +46,7 @@ import { fetchPurchaseRequest } from "../../store/slices/PurchaseRequestSlice";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import { fetchPurchaseDeliveryNotes } from "../../store/slices/purDeliveryNoteSlice";
+import { fetchMaterialRequest } from "../../store/slices/materialRequestSlice";
 
 const ManageSalesOrder = () => {
   const {
@@ -100,6 +101,78 @@ const ManageSalesOrder = () => {
       settableData(tableconfig);
     }
   };
+  const fetchLoadMoreData = async () => {
+    try {
+    
+ let res = "";
+        if (formDetails[0]?.name === "Sales Order") {
+          res = await dispatch(
+            fetchCustomerOrder({ top: pageSize,
+          skip: page * pageSize, }),
+          ).unwrap();
+        } else if (formDetails[0]?.name === "Sales Quotation") {
+          res = await dispatch(
+            fetchSalesQuotations({ top: pageSize, skip: page * pageSize }),
+          ).unwrap();
+        } else if (
+          formDetails[0]?.name === "Purchase Order" ||
+          formDetails[0]?.name === "Purchase Orders"
+        ) {
+          res = await dispatch(
+            fetchPurchaseOrder({ top: pageSize, skip: page * pageSize }),
+          ).unwrap();
+        } else if (formDetails[0]?.name === "Purchase Quotation") {
+          res = await dispatch(
+            fetchPurchaseQuotation({ top: pageSize, skip: page * pageSize }),
+          ).unwrap();
+        } else if (formDetails[0]?.name === "Purchase Request") {
+          res = await dispatch(
+            fetchPurchaseRequest({ top: pageSize, skip: page * pageSize }),
+          ).unwrap();
+        } else if (formDetails[0]?.name === "GRPO") {
+          res = await dispatch(
+            fetchPurchaseDeliveryNotes({ top: pageSize, skip: page * pageSize }),
+          ).unwrap();
+        } else if (formDetails[0]?.name === "BOQ") {
+          // res = await dispatch(
+          //   fetchPurchaseDeliveryNotes({ top: pageSize, skip: 0 }),
+          // ).unwrap();
+          res = "";
+        } else if (formDetails[0]?.name === "Material Request") {
+          res = await dispatch(
+            fetchMaterialRequest({ top: pageSize, skip: page * pageSize }),
+          ).unwrap();
+        }
+console.log("materialrequestres",res,formDetails[0]?.name)
+      if (res.length < pageSize) {
+        setAllLoaded(true);
+      }
+const raw = res?.data?.value ?? res?.data ?? res?.value ?? res;
+    
+        // Ensure it's an array
+        const list = Array.isArray(raw)
+          ? raw
+          : raw
+            ? [raw] // if it's single object
+            : []; // if null or undefined
+      const newRecords = list.map((item) => ({
+        DocEntry: item.DocEntry,
+          CustomerCode: item.CardCode || item.Requester || item.Creator,
+          CustomerName: item.CardName || item.RequesterName || item.Creator,
+          DocumentNo: item.DocNum,
+          DocumentLines: item.DocumentLines,
+          PostingDate: item.CreationDate || item.CreateDate? new Date(item.CreationDate || item.CreateDate).toLocaleDateString() : "-",
+          Status: item.DocumentStatus==="so_Open"?"Open":"Closed" || item.Status==="O"?"Open":"Closed",
+      }));
+
+      settableData((prev) => [...prev, ...newRecords]);
+      setPage((prev) => prev + 1);
+    } catch (error) {
+      console.error("Load more failed", error);
+    } finally {
+      setIsLoadingMore(false);
+    }
+  };
 
   useEffect(() => {
     console.log("formdetails", formDetails);
@@ -114,7 +187,10 @@ const ManageSalesOrder = () => {
           res = await dispatch(
             fetchSalesQuotations({ top: pageSize, skip: 0 }),
           ).unwrap();
-        } else if (formDetails[0]?.name === "Purchase Order") {
+        } else if (
+          formDetails[0]?.name === "Purchase Order" ||
+          formDetails[0]?.name === "Purchase Orders"
+        ) {
           res = await dispatch(
             fetchPurchaseOrder({ top: pageSize, skip: 0 }),
           ).unwrap();
@@ -130,11 +206,24 @@ const ManageSalesOrder = () => {
           res = await dispatch(
             fetchPurchaseDeliveryNotes({ top: pageSize, skip: 0 }),
           ).unwrap();
+        } else if (formDetails[0]?.name === "BOQ") {
+          // res = await dispatch(
+          //   fetchPurchaseDeliveryNotes({ top: pageSize, skip: 0 }),
+          // ).unwrap();
+          res = "";
+        } else if (formDetails[0]?.name === "Material Request") {
+          res = await dispatch(
+            fetchMaterialRequest({ top: pageSize, skip: 0 }),
+          ).unwrap();
         }
 
         console.log("quotationdata", "sales", res, formDetails[0]?.name);
         const raw = res?.data?.value ?? res?.data ?? res?.value ?? res;
-        setTotalRecords(formDetails[0]?.name === "GRPO" ? res?.["@odata.count"] :res?.totalCount);
+        setTotalRecords(
+          formDetails[0]?.name === "GRPO"
+            ? res?.["@odata.count"]
+            : res?.totalCount,
+        );
         // Ensure it's an array
         const list = Array.isArray(raw)
           ? raw
@@ -144,12 +233,12 @@ const ManageSalesOrder = () => {
 
         const initialData = list.map((item) => ({
           DocEntry: item.DocEntry,
-          CustomerCode: item.CardCode || item.Requester,
-          CustomerName: item.CardName || item.RequesterName,
+          CustomerCode: item.CardCode || item.Requester || item.Creator,
+          CustomerName: item.CardName || item.RequesterName || item.Creator,
           DocumentNo: item.DocNum,
           DocumentLines: item.DocumentLines,
-          PostingDate: item.CreationDate,
-          Status: item.DocumentStatus,
+          PostingDate: item.CreationDate || item.CreateDate ? new Date(item.CreationDate || item.CreateDate).toLocaleDateString() : "-",
+          Status: item.DocumentStatus==="so_Open"?"Open":"Closed" || item.Status==="O"?"Open":"Closed",
         }));
 
         settableData(initialData);
@@ -275,11 +364,16 @@ const ManageSalesOrder = () => {
 
   const editRow = async (rowData) => {
     console.log("rowData", rowData);
-    navigate("/Order/edit/" + formId + "/" + rowData.DocEntry);
+    title === "Material Request"
+      ? navigate("/MaterialRequest/edit/" + formId + "/" + rowData.DocEntry)
+      : navigate("/Order/edit/" + formId + "/" + rowData.DocEntry);
   };
   const viewRow = async (rowData) => {
     console.log("rowData", rowData);
-    navigate("/Order/view/" + formId + "/" + rowData.DocEntry);
+ title === "Material Request"
+      ? navigate("/MaterialRequest/view/" + formId + "/" + rowData.DocEntry)
+      : navigate("/Order/view/" + formId + "/" + rowData.DocEntry);
+    
   };
 
   const columns = useMemo(
@@ -449,6 +543,7 @@ const ManageSalesOrder = () => {
         ),
       );
       //setTabList((formDetails && formDetails[0]?.Form.FormTabs) || []);
+
       setFormDetails(formDetails);
     } else {
       navigate("/");
@@ -610,7 +705,15 @@ const ManageSalesOrder = () => {
                 <FlexBox direction="Column">
                   <div>
                     <FlexBox direction="Column">
-                      {console.log("loading", loading, tableData,"totalRecords", totalRecords)}
+                      {console.log(
+                        "loading",
+                        loading,
+                        tableData,
+                        "totalRecords",
+                        totalRecords,
+                        "title",
+                        title,
+                      )}
                       <AnalyticalTable
                         columns={columns}
                         data={tableData}
@@ -636,16 +739,25 @@ const ManageSalesOrder = () => {
                               design="Transparent"
                               style={{ border: "none" }}
                             >
+                              {console.log("title", title)}
                               <ToolbarButton
                                 design="default"
                                 onClick={() => {
-                                  navigate(
-                                    "/Order/create/" +
-                                      formId +
-                                      "/" +
-                                      (tableData.length > 0 &&
-                                        tableData[0]?.DocEntry + 1),
-                                  );
+                                  title === "Material Request"
+                                    ? navigate(
+                                        "/MaterialRequest/create/" +
+                                          formId +
+                                          "/" +
+                                          (tableData.length > 0 &&
+                                            tableData[0]?.DocEntry + 1),
+                                      )
+                                    : navigate(
+                                        "/Order/create/" +
+                                          formId +
+                                          "/" +
+                                          (tableData.length > 0 &&
+                                            tableData[0]?.DocEntry + 1),
+                                      );
                                 }}
                                 text="Create"
                               />
@@ -692,34 +804,9 @@ const ManageSalesOrder = () => {
 
                           setIsLoadingMore(true);
 
-                          try {
-                            const res = await dispatch(
-                              fetchCustomerOrder({
-                                top: pageSize,
-                                skip: page * pageSize,
-                              }),
-                            ).unwrap();
-
-                            if (res.length < pageSize) {
-                              setAllLoaded(true);
-                            }
-
-                            const newRecords = res.data.map((item) => ({
-                              DocEntry: item.DocEntry,
-                              CustomerCode: item.CardCode,
-                              CustomerName: item.CardName,
-                              DocumentNo: item.DocNum,
-                              PostingDate: item.CreationDate,
-                              Status: item.DocumentStatus,
-                            }));
-
-                            settableData((prev) => [...prev, ...newRecords]);
-                            setPage((prev) => prev + 1);
-                          } catch (error) {
-                            console.error("Load more failed", error);
-                          } finally {
-                            setIsLoadingMore(false);
-                          }
+                          fetchLoadMoreData().finally(() =>
+                            setIsLoadingMore(false),
+                          );
                         }}
                         onRowExpandChange={() => {}}
                         onSort={() => {}}
@@ -739,7 +826,7 @@ const ManageSalesOrder = () => {
                         <span>
                           {`Showing ${
                             tableData.length > 0
-                              ? `1 to ${tableData.length} of ${totalRecords??tableData.length} entries`
+                              ? `1 to ${tableData.length} of ${totalRecords ?? tableData.length} entries`
                               : "0"
                           }`}
                         </span>

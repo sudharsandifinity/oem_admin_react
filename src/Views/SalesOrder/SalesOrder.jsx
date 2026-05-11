@@ -66,7 +66,7 @@ import { createCustomerOrder } from "../../store/slices/CustomerOrderSlice";
 import { createSalesQuotation } from "../../store/slices/SalesQuotationSlice";
 import BarDesign from "@ui5/webcomponents/dist/types/BarDesign.js";
 
-import { createPurchaseOrder } from "../../store/slices/PurchaseOrderSlice";
+import { createPurchaseOrder, fetchPurchaseOrder } from "../../store/slices/PurchaseOrderSlice";
 import { createPurchaseQuotation } from "../../store/slices/PurchaseQuotation";
 import {
   createPurchaseRequest,
@@ -167,10 +167,13 @@ export default function SalesOrder() {
 
   const copyFrom = async () => {
     setIsCopyFromPurchase(true);
-    const res = await dispatch(fetchPurchaseRequest()).unwrap();
+    //const res = await dispatch(fetchPurchaseRequest()).unwrap();
+    const res = await dispatch(fetchPurchaseOrder()).unwrap();
     const currentType =
       type === "Item" ? "dDocument_Items" : "dDocument_Service";
-    setRequestList(res?.data.filter((val) => val.DocType === currentType));
+        const raw = res?.data?.value ?? res?.data ?? res?.value ?? res;
+
+    setRequestList(raw.filter((val) => val.DocType === currentType));
     console.log("currentType", currentType, res?.data);
     setOpenCopyFromDialog(true);
   };
@@ -1071,7 +1074,7 @@ export default function SalesOrder() {
         {/* );
         } else if (tab.name === "Logistics") { 
           return (  */}
-        <ObjectPageSection
+        {/* <ObjectPageSection
           id="section3"
           style={{
             height: "100%",
@@ -1084,12 +1087,12 @@ export default function SalesOrder() {
             form={form}
             handleChange={handleChange}
           />
-        </ObjectPageSection>
+        </ObjectPageSection> */}
         {/* );
         }
         else if (tab.name === "Accounting") {
           return (  */}
-        <ObjectPageSection
+        {/* <ObjectPageSection
           id="section4"
           style={{
             height: "100%",
@@ -1097,7 +1100,7 @@ export default function SalesOrder() {
           titleText="Accounting"
         >
           <Accounting />
-        </ObjectPageSection>
+        </ObjectPageSection> */}
         {/* );
         } else if (tab.name === "Attachments") {
           return (  */}
@@ -1118,7 +1121,7 @@ export default function SalesOrder() {
         {/* );
         } else if (tab.name === "User-defined-field") {
           return (  */}
-        <ObjectPageSection
+        {/* <ObjectPageSection
           id="section6"
           style={{
             height: "100%",
@@ -1142,7 +1145,7 @@ export default function SalesOrder() {
             userdefinedData={userdefinedData}
             setUserDefinedData={setUserDefinedData}
           />
-        </ObjectPageSection>
+        </ObjectPageSection> */}
         {/* );
         }
       }) } */}

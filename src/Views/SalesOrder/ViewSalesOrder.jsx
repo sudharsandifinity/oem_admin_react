@@ -673,7 +673,7 @@ useEffect(() => {
       // Fetch form data based on formId
       const formDetails = user?.Roles?.flatMap((role) =>
         role.UserMenus.flatMap((menu) =>
-          menu.children.filter((submenu) => submenu.Form.id === formId)
+          menu.children?.filter((submenu) => submenu?.Form?.id === formId)
         )
       );
       setTabList((formDetails && formDetails[0]?.Form.FormTabs) || []);
@@ -727,7 +727,7 @@ useEffect(() => {
               //backgroundColor: "#354a5f", // SAP Blue
              // color: "white",
             }}>
-              <FlexBox direction="Row"
+              {/* <FlexBox direction="Row"
               style={{
                 display: "inline-flex",
                 alignItems: "end",
@@ -760,7 +760,7 @@ useEffect(() => {
                     //onInput={handleSliderChange}
                   />
                 </FlexBox>
-              </FlexBox>
+              </FlexBox> */}
             </DynamicPageHeader>
           }
           // image="https://sap.github.io/ui5-webcomponents-react/v2/assets/Person-B7wHqdJw.png"
@@ -1003,7 +1003,7 @@ useEffect(() => {
           {/* );
                     } else if (tab.name === "logistics") {
                         return ( */}
-          <ObjectPageSection
+          {/* <ObjectPageSection
             id="section3"
             style={{
               height: "100%",
@@ -1016,12 +1016,12 @@ useEffect(() => {
               form={form}
               handleChange={handleChange}
             />
-          </ObjectPageSection>
+          </ObjectPageSection> */}
           {/* );
                     }
                     else if (tab.name === "accounting") {
                         return ( */}
-          <ObjectPageSection
+          {/* <ObjectPageSection
             id="section4"
             style={{
               height: "100%",
@@ -1029,7 +1029,7 @@ useEffect(() => {
             titleText="Accounting"
           >
             <Accounting />
-          </ObjectPageSection>
+          </ObjectPageSection> */}
           {/* );
                     } else if (tab.name === "attachments") {
                         return ( */}
@@ -1046,7 +1046,7 @@ useEffect(() => {
           {/* );
                     } else if (tab.name === "user-defined-field") {
                         return ( */}
-          <ObjectPageSection
+          {/* <ObjectPageSection
             id="section6"
             style={{
               height: "100%",
@@ -1063,7 +1063,7 @@ useEffect(() => {
               setFormData={setFormData}
               formData={formData}
             />
-          </ObjectPageSection>
+          </ObjectPageSection> */}
           {/* );
                     }
                 })

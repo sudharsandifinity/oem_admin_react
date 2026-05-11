@@ -257,7 +257,7 @@ const CompanyFormFieldForms = ({
               endContent={
                 <>
                   <Button
-                    design="Emphasized"
+                    design="default"
                     form="form" /* ← link button to that form id */
                     type="Submit"
                   >
@@ -431,7 +431,7 @@ const CompanyFormFieldForms = ({
                   <FlexBox style={{ justifyContent: "start" }}>
                     {mode === "create" ? (
                       <Button
-                        design="Emphasized"
+                        design="default"
                         onClick={() => {
                           AddNewField();
                         }}

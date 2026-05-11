@@ -181,7 +181,7 @@ const CompanyMaster = () => {
           }
           endContent={
             <Button
-              design="Emphasized"
+              design="default"
               onClick={() => navigate("/admin/company-forms/create")}
             >
               Add

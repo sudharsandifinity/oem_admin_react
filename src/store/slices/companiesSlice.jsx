@@ -2,6 +2,17 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import api from '../../api/axios';
 
 const API_URL = '/admin/companies';
+const BRANCHES_API_URL = '/sap/branches/sync';
+
+export const syncBranches = createAsyncThunk('companies/syncBranches', async (data, { rejectWithValue }) => {
+  try {
+    const response = await api.post(`${BRANCHES_API_URL}`, data, { withCredentials: true });
+    return response.data;
+  } catch (err) {
+    return rejectWithValue(err.response?.data || 'Error syncing branches');
+  }
+});
+
 
 export const fetchCompanies = createAsyncThunk('companies/fetchCompanies', async () => {
   const response = await api.get(API_URL, { withCredentials: true });
@@ -99,6 +110,14 @@ const companiesSlice = createSlice({
       })
       .addCase(fetchCompanyById.rejected, (state, action) => {
         state.loading = false;
+        state.error = action.payload || action.error.message;
+      })
+      .addCase(syncBranches.fulfilled, (state, action) => {
+        const updatedCompany = action.payload;
+        const index = state.companies.findIndex((c) => c.id === updatedCompany.id); 
+        // Handle successful branch synchronization
+      })
+      .addCase(syncBranches.rejected, (state, action) => {
         state.error = action.payload || action.error.message;
       });
   },

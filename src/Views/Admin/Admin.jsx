@@ -108,7 +108,7 @@ useEffect(() => {
                 data-key="companies"
               />
             )}
-            {user!==null&&user.Roles&&user.Roles.some(
+            {/* {user!==null&&user.Roles&&user.Roles.some(
                 (role) =>
                   role.Permissions.some((f) => f.module === "branches") )&& (
               <SideNavigationSubItem
@@ -116,7 +116,7 @@ useEffect(() => {
                 text="Branches"
                 icon="background"
                 data-key="branches"
-              />)}
+              />)} */}
                {user!==null&&user.Roles&&user.Roles.some(
                 (role) =>
                   role.Permissions.some((f) => f.module === "forms") )&& (

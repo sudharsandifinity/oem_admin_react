@@ -110,14 +110,14 @@ const RolesList = () => {
           return company ? company.name : "";
         },
       },
-      {
-        Header:"Branche",
-         accessor: "Branch.name",
-           Cell: ({ row }) => {
-          const branch = branches.find((item) => item.id === row.original.branchId);
-          return branch ? branch.name : "";
-        },
-      },
+      // {
+      //   Header:"Branche",
+      //    accessor: "Branch.name",
+      //      Cell: ({ row }) => {
+      //     const branch = branches.find((item) => item.id === row.original.branchId);
+      //     return branch ? branch.name : "";
+      //   },
+      // },
       {
         Header: "Status",
         accessor: "status",
@@ -226,7 +226,7 @@ const RolesList = () => {
                   role.Permissions.some((f) => f.name === "role_create")
                     
               ) && (<Button
-              design="Emphasized"
+              design="default"
               onClick={() => navigate("/admin/roles/create")}
             >
               Add Role

@@ -136,7 +136,7 @@ const AddDetailsDialog = ({
       footer={
         <FlexBox direction="Row" gap={2}>
           <Button
-            design="Emphasized"
+            design="default"
             form="form" /* ← link button to that form id */
             type="Submit"
             accessibleName="Save"

@@ -206,7 +206,7 @@ const FormMaster = () => {
               role.Permissions.some((f) => f.name === "form_create"),
             ) && (
               <Button
-                //design="Default"
+                design="Default"
                 size="Small"
                 onClick={() => navigate("/admin/FormMaster/create")}
               >

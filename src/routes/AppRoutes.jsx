@@ -51,11 +51,8 @@ import SideNavWrapper from "../Components/SideBar/SideNavWrapper";
 import UserSideNavWrapper from "../Components/SideBar/UserSideNavWrapper";
 import UserDashboard from "../Components/Dashboard/UserDashboard";
 //import UserDashboard from "../Views/Dashboard/UserDashboard";
-import ManagePurchaseOrder from "../Views/ManagePurchaseOrder/ManagePurchaseOrder";
-import PurchaseOrder from "../Views/PurchaseOrder/PurchaseOrder";
-import EditPurchaseOrder from "../Views/PurchaseOrder/EditPurchaseOrder";
+
 import ViewSalesOrder from "../Views/SalesOrder/ViewSalesOrder";
-import ViewPurchaseOrder from "../Views/PurchaseOrder/ViewPurchaseOrder";
 import UserMainLayout from "../Views/Layouts/UserMainLayout";
 import CloneSalesOrder from "../Views/SalesOrder/CloneSalesOrder";
 import Inventory from "../Views/Inventory/Inventory";
@@ -64,28 +61,35 @@ import EditInventory from "../Views/Inventory/EditInventory";
 import ViewInventory from "../Views/Inventory/ViewInventory";
 import CreateEmployee from "../Views/Admin/Masters/Employees/CreateEmployee";
 import ChangePassword from "../Views/pages/authentication/ChangePassword";
-// import CustomerAdmin from "../Views/CustomerAdmin/CustomerAdmin";
-// import CustomerAdminSideNav from "../Components/SideBar/CustomerAdminSideNav";
-// import CustomerDashboard from "../Views/CustomerAdmin/Dashboard/CustomerDashboard";
-// import CustomerUsers from "../Views/CustomerAdmin/User/UserManagement";
-// import AssignEmployees from "../Views/CustomerAdmin/Employee/AssignEmployees";
-// import RolePermissions from "../Views/CustomerAdmin/Role/RolePermissions";
-// import UserManagement from "../Views/CustomerAdmin/User/UserManagement";
-// import MenuManagement from "../Views/CustomerAdmin/Menu/MenuManagement";
-// import CreateCustomerMenu from "../Views/CustomerAdmin/Menu/CreateCustomerMenu";
-// import RoleManagement from "../Views/CustomerAdmin/Role/RoleManagement";
-// import CreateCustomerRole from "../Views/CustomerAdmin/Role/CreateCustomerRole";
-// import EditCustomerMenu from "../Views/CustomerAdmin/Menu/EditCustomerMenu";
-// import EditCustomerRole from "../Views/CustomerAdmin/Role/EditCustomerRole";
-// import Approver from "../Views/Approver/Approver";
-// import StageManagement from "../Views/Approver/StageManagement/StageManagement";
-// import WorkflowManagement from "../Views/Approver/WorkflowManagement/WorkflowManagement";
-// import CreateStage from "../Views/Approver/StageManagement/CreateStage";
-// import CreateWorkflow from "../Views/Approver/WorkflowManagement/CreateWorkflow";
+import CustomerAdmin from "../Views/CustomerAdmin/CustomerAdmin";
+import CustomerAdminSideNav from "../Components/SideBar/CustomerAdminSideNav";
+import CustomerDashboard from "../Views/CustomerAdmin/Dashboard/CustomerDashboard";
+import CustomerUsers from "../Views/CustomerAdmin/User/UserManagement";
+import AssignEmployees from "../Views/CustomerAdmin/Employee/AssignEmployees";
+import RolePermissions from "../Views/CustomerAdmin/Role/RolePermissions";
+import UserManagement from "../Views/CustomerAdmin/User/UserManagement";
+import MenuManagement from "../Views/CustomerAdmin/Menu/MenuManagement";
+import CreateCustomerMenu from "../Views/CustomerAdmin/Menu/CreateCustomerMenu";
+import RoleManagement from "../Views/CustomerAdmin/Role/RoleManagement";
+import CreateCustomerRole from "../Views/CustomerAdmin/Role/CreateCustomerRole";
+import EditCustomerMenu from "../Views/CustomerAdmin/Menu/EditCustomerMenu";
+import EditCustomerRole from "../Views/CustomerAdmin/Role/EditCustomerRole";
+import Approver from "../Views/Approver/Approver";
+import StageManagement from "../Views/Approver/StageManagement/StageManagement";
+import WorkflowManagement from "../Views/Approver/WorkflowManagement/WorkflowManagement";
+import CreateStage from "../Views/Approver/StageManagement/CreateStage";
 import GRP from "../Views/GoodsRecieptPO/GRP";
 import CreateGRP from "../Views/GoodsRecieptPO/CreateGRP";
 import EditGRP from "../Views/GoodsRecieptPO/EditGRP";
 import ViewGRP from "../Views/GoodsRecieptPO/ViewGRP";
+
+import WorkflowBuilder from "../Views/FlowBuilder/WorlflowBuilder";
+import ApproverTemplate from "../Views/Approver/ApproverTemplate/ApproverTemplate";
+import ViewUserManagement from "../Views/CustomerAdmin/User/ViewUserManagement";
+import MaterialRequest from "../Views/MaterialRequest/MaterialRequest";
+import EditMaterialRequest from "../Views/MaterialRequest/EditMaterialRequest";
+import ViewMaterialRequest from "../Views/MaterialRequest/ViewMaterialRequest";
+import CloneMaterialRequest from "../Views/MaterialRequest/CloneMaterialRequest";
 
 const AppRoutes = () => {
   return (
@@ -105,12 +109,14 @@ const AppRoutes = () => {
       </Route>
 
 {/* customer admin routes */}
-{/* 
+
       <Route path="/CustomerAdmin" element={<CustomerAdminSideNav />} >
 
         <Route path="CustomerDashboard" element={<CustomerDashboard />} />
 
         <Route path="UserManagement" element={<UserManagement />} />
+        <Route path="UserManagement/create" element={<CreateEmployee />} />
+        <Route path="UserManagement/view/:id" element={<ViewUserManagement />} />
 
         <Route path="MenuManagement" element={<MenuManagement/>}/>
         <Route path="MenuManagement/create" element={<CreateCustomerMenu />} />
@@ -124,7 +130,7 @@ const AppRoutes = () => {
         <Route path="RoleManagement/edit/:id" element={<EditCustomerRole />} />
 
       </Route>
-      */}
+     
 {/* customer admin routes */}
 
       <Route
@@ -206,6 +212,14 @@ const AppRoutes = () => {
         </Route>
 
         <Route element={<UserMainLayout />}>
+
+        <Route path="/MaterialRequest/create/:formId/:id" element={<MaterialRequest />} />
+          <Route path="/MaterialRequest/edit/:formId/:id" element={<EditMaterialRequest />} />
+          <Route path="/MaterialRequest/view/:formId/:id" element={<ViewMaterialRequest />} />
+          <Route path="/cloneMaterialRequest/create/:formId/:pageId"
+            element={<CloneMaterialRequest />}
+          />
+
           <Route path="/Order/create/:formId/:id" element={<SalesOrder />} />
           <Route path="/Order/edit/:formId/:id" element={<EditSalesOrder />} />
           <Route path="/Order/view/:formId/:id" element={<ViewSalesOrder />} />
@@ -226,39 +240,29 @@ const AppRoutes = () => {
             element={<ViewSalesOrder />}
           />
 
-          <Route
-            path="/PurchaseOrder/create/:formId"
-            element={<PurchaseOrder />}
-          />
-          <Route
-            path="/PurchaseOrder/edit/:formId/:id"
-            element={<EditPurchaseOrder />}
-          />
-          <Route
-            path="/PurchaseOrder/view/:formId/:id"
-            element={<ViewPurchaseOrder />}
-          />
+         
 
           <Route path="/ManageSalesOrder" element={<ManageSalesOrder />} />
           <Route path="/Sales/:formId" element={<ManageSalesOrder />} />
           <Route path="/Purchase/:formId" element={<ManageSalesOrder />} />
+          <Route path="/Projects/:formId" element={<ManageSalesOrder />} />
+
 
           {/* Approver screen */}
-          {/* <Route path="/approver" element={<Approver />} /> 
+          <Route path="/approver" element={<Approver />} /> 
+          <Route path="/approver/ApproverTemplate" element={<ApproverTemplate />} />
 
           <Route path="/stagemanagement" element={<StageManagement />} />
           <Route path="/stagemanagement/create" element={<CreateStage />} />
 
           <Route path="/workflowmanagement" element={<WorkflowManagement />} />
-          <Route path="/workflow-management/create" element={<CreateWorkflow />} />
-          */}
+          <Route path="/workflow-management/create" element={ <WorkflowBuilder />} />
           {/* Approver screen */}
 
           <Route path="/GRP" element={<GRP/>} />
           <Route path="/GRP/create" element={<CreateGRP />} />
           <Route path="/GRP/edit/:docNo" element={<EditGRP />} />
           <Route path="/GRP/view/:docNo" element={<ViewGRP/>} />
-          {/* <Route path="/Purchase/:formId" element={<ManagePurchaseOrder />} /> */}
         </Route>
       </Route>
 
