@@ -36,9 +36,9 @@ const UserDashboard = () => {
   const { user } = useSelector((state) => state.auth);
    const allMenus =
   user?.Roles?.flatMap((role) =>
-    role.UserMenus?.flatMap((menu) => [
+    role.UserMenus?.filter((r) => r.status===1).flatMap((menu) => [
      
-      ...(menu.children?.map((child) => child.name) || []),
+      ...(menu.children?.filter((r) => r.status===1).map((child) => child.name) || []),
     ]) || []
   ) || [];
   console.log("allMenus",allMenus);
@@ -235,7 +235,7 @@ const UserDashboard = () => {
           }
         `}
       </style>
-      <Page style={{ padding: "1rem", overflowY: "auto" }}>
+      <Page style={{  overflowY: "auto" }}>
         <div className="dashboard-main" style={{ display: "flex", flexDirection: "column", width: "100%" }}>
           {/* ShellBar */}
 

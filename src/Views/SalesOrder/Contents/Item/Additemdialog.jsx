@@ -78,41 +78,58 @@ const Additemdialog = (props) => {
   //     [e.detail.row.original.slno]: e.detail.row.original,
   //   }));
   // };
-//   const onitemchildRowSelect = (e) => {
-//   const row = e.detail.row.original;
-//   const rowId = row.ItemCode; // stable unique id
-//   const isSelected = e.detail.isSelected;
+  //   const onitemchildRowSelect = (e) => {
+  //   const row = e.detail.row.original;
+  //   const rowId = row.ItemCode; // stable unique id
+  //   const isSelected = e.detail.isSelected;
 
-//   setRowSelection((prev) => {
-//     const updated = { ...prev };
+  //   setRowSelection((prev) => {
+  //     const updated = { ...prev };
 
-//     if (isSelected) {
-//       updated[rowId] = row;
-//     } else {
-//       delete updated[rowId];
-//     }
+  //     if (isSelected) {
+  //       updated[rowId] = row;
+  //     } else {
+  //       delete updated[rowId];
+  //     }
 
-//     return updated;
-//   });
-// };
+  //     return updated;
+  //   });
+  // };
 
   const onitemchildRowSelect = (e) => {
-    console.log("e.detail.row.original",e.detail.row)
-    const rowId = e.detail.row.id//original.slno;
-    const isSelected = e.detail.isSelected;
-    setRowSelection((prev) => {
-      const updated = { ...prev };
-      console.log("onitemrowselect", rowId, isSelected, updated);
-      if (isSelected) {
-        // ✅ add selected row
-        updated[rowId] = e.detail.row.original;
-      } else {
-        // ❌ remove deselected row
-        delete updated[rowId];
-      }
+    console.log("e.detail.row.original", e.detail.row);
+    if (e.detail.allRowsSelected) {
+      Object.values(e.detail.rowsById).map((rowid) => {
+        const rowId = rowid.id; //original.slno;
+        const isSelected = rowid.isSelected;
+        setRowSelection((prev) => {
+          const updated = { ...prev };
+          console.log("onitemrowselect", rowId, isSelected, updated);
 
-      return updated;
-    });
+          updated[rowId] = rowid.original;
+
+          return updated;
+        });
+      });
+    } else  if (e.detail.allRowsSelected===false&&!e.detail.row){
+      setRowSelection([])
+    }else {
+      const rowId = e.detail.row.id; //original.slno;
+      const isSelected = e.detail.isSelected;
+      setRowSelection((prev) => {
+        const updated = { ...prev };
+        console.log("onitemrowselect", rowId, isSelected, updated);
+        if (isSelected) {
+          // ✅ add selected row
+          updated[rowId] = e.detail.row.original;
+        } else {
+          // ❌ remove deselected row
+          delete updated[rowId];
+        }
+
+        return updated;
+      });
+    }
   };
 
   useEffect(() => {
@@ -219,7 +236,7 @@ const Additemdialog = (props) => {
       //   )
       // },
     ],
-    []
+    [],
   );
   const data = [
     { ItemCode: "A001", ItemName: "Pen", Qty: 10 },
@@ -240,7 +257,7 @@ const Additemdialog = (props) => {
 
       itemdata.forEach((row) => {
         const found = itemTabledata.find(
-          (it) => it.ItemCode === row.ItemCode && it.ItemName === row.ItemName
+          (it) => it.ItemCode === row.ItemCode && it.ItemName === row.ItemName,
         );
         if (found) {
           preselected[row.slno] = row;
@@ -291,57 +308,62 @@ const Additemdialog = (props) => {
           </Button>
         </FlexBox>
       }
-     style={{ width: "50vw"}}
-    ><FlexBox direction="Column" >
-  {/* Header Area */}
-  
-    <FlexBox
-      direction="Row"
-      alignItems="Center"
-      justifyContent="SpaceBetween"
-    style={{
+      style={{ width: "50vw" }}
+    >
+      <FlexBox direction="Column">
+        {/* Header Area */}
+
+        <FlexBox
+          direction="Row"
+          alignItems="Center"
+          justifyContent="SpaceBetween"
+          style={{
             display: "inline-flex",
             alignItems: "end",
             flexWrap: "wrap",
             gap: "15px",
             paddingBottom: "1rem",
           }}
-    >
-      <Grid
-        defaultIndent="XL0 L0 M0 S0"
-        defaultSpan="XL4 L4 M6 S12"
-        hSpacing="1rem"
-        vSpacing="1rem"
-      >
-        {ItemPopupFilterList.map((field) =>
-          ItemPopupFilter(
-            field,
-            itemdata,
-            setitemData,
-            inputvalue,
-            setInputValue
-          )
-        )}
-      </Grid>
+        >
+          <Grid
+            defaultIndent="XL0 L0 M0 S0"
+            defaultSpan="XL4 L4 M6 S12"
+            hSpacing="1rem"
+            vSpacing="1rem"
+          >
+            {ItemPopupFilterList.map((field) =>
+              ItemPopupFilter(
+                field,
+                itemdata,
+                setitemData,
+                inputvalue,
+                setInputValue,
+              ),
+            )}
+          </Grid>
 
-      <Button style={{ width: "100px" }} onClick={clearFilter}>
-        Clear Filter
-      </Button>
-    </FlexBox>
+          <Button style={{ width: "100px" }} onClick={clearFilter}>
+            Clear Filter
+          </Button>
+        </FlexBox>
 
-  {/* Table */}{console.log("additemdialiog",itemdata)}
-    <AnalyticalTable
-      data={itemdata}
-      columns={itemcolumns}
-      header={`Items (${itemdata.length})`}
-      selectionMode="MultiSelect"
-      selectedRowIds={rowSelection}
-      onRowSelect={onitemchildRowSelect}
-      visibleRows={6}
-      style={{border: "1px solid #ccc",   /* keeps a grey outline */
-  borderRadius: "4px",padding: "0.25rem"}}
-    />
-</FlexBox>
+        {/* Table */}
+        {console.log("additemdialiog", itemdata)}
+        <AnalyticalTable
+          data={itemdata}
+          columns={itemcolumns}
+          header={`Items (${itemdata.length})`}
+          selectionMode="Multiple"
+          selectedRowIds={rowSelection}
+          onRowSelect={onitemchildRowSelect}
+          visibleRows={6}
+          style={{
+            border: "1px solid #ccc" /* keeps a grey outline */,
+            borderRadius: "4px",
+            padding: "0.25rem",
+          }}
+        />
+      </FlexBox>
       {/* <DynamicPage
         headerArea={
           <DynamicPageHeader>

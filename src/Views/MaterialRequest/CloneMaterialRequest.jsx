@@ -75,6 +75,7 @@ import { fetchitemprices } from "../../store/slices/salesAdditionalDetailsSlice"
 import BOQListDialog from "./BOQCopyFrom/BOQListDialog";
 import { set } from "react-hook-form";
 import {
+  createGoodsIssue,
   createMaterialRequest,
   fetchBOQList,
 } from "../../store/slices/materialRequestSlice";
@@ -83,12 +84,13 @@ export default function CloneMaterialRequest() {
   const { fieldConfig, CustomerDetails, DocumentDetails } =
     useContext(FormConfigContext);
   const location = useLocation();
+  const formName = location.state.formName;
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { orderItems } = useSelector((state) => state.orderItems);
   const [apiError, setApiError] = useState(null);
-  const { formId } = useParams();
+  const { formId,pageId } = useParams();
   const user = useSelector((state) => state.auth.user);
   const [loading, setLoading] = useState(false);
   const [tabList, setTabList] = useState([]);
@@ -205,9 +207,7 @@ export default function CloneMaterialRequest() {
         if (orderListById?.DocumentLines?.length > 0) {
           setType("Item");
 
-          const mappedItems = orderListById.DocumentLines.filter(
-            (item) =>item.ItemCode && Number(item.quantity || 0) <= Number(item.inStock || 0),
-          ).map(
+          const mappedItems = orderListById.DocumentLines.map(
             (item, index) => ({
               id: index + 1,
               slno: index + 1,
@@ -372,9 +372,9 @@ const handleSubmit = async (form) => {
         DocumentsOwner: summaryData.RequestorName || "",
 
         DocumentLines: itemTabledata
-          .filter(
-            (item) =>item.ItemCode && Number(item.quantity || 0) <= Number(item.inStock || 0),
-          )
+          // .filter(
+          //   (item) =>item.ItemCode && Number(item.quantity || 0) <= Number(item.inStock || 0),
+          // )
           .map((line) => {
             console.log("setitemeditpage", line);
             return {
@@ -427,11 +427,41 @@ const handleSubmit = async (form) => {
       console.log(
         "formdatatosendhandlesubmit",
         payload,
-        formDataToSend,
+        formDataToSend,location.state.formname,
        
       );
+      const GoodsissuePayload = {
+         DocDate: formatDate(formData.RequisitionDate),
+         Comments: summaryData.Remark || "",
+         DocumentLines: itemTabledata
+          .map((line) => {
+            console.log("setitemeditpage", line);
+            return {
+              LineNum:"1",
+              ItemCode: line.ItemCode || "",
+              ItemDescription: line.ItemName || "",
+              Quantity: Number(line.quantity || 0),
+              UnitPrice: Number(line.amount || 0),
+              WarehouseCode: line.warehouse || "",
+              //ProjectCode: line.project || "",
+              TaxCode: line.TaxCode || "",
+              VatGroup: line.TaxCode || "",
+              DiscountPercent: Number(line.discount || 0),
+              LineTotal: Number(line.linetotal || 0),
+              U_MRDocEntry: formData.DocEntry,
+              U_MRDocNo: formData.docNum || "",
+              U_MRLine:line.BoqLineNum,
+              //RequiredDate: formatDate(formData.RequiredDate),
+            };
+          })
+      };
       let res = "";
-      res = await dispatch(createPurchaseRequest(formDataToSend)).unwrap();
+      if(location.state.formname==="Goods Issue"){
+       res= await dispatch(createGoodsIssue(GoodsissuePayload)).unwrap();
+      }else{
+         res = await dispatch(createPurchaseRequest(formDataToSend)).unwrap();
+        
+      }
 
       console.log("reshandlesubmit", res);
 
@@ -448,7 +478,7 @@ const handleSubmit = async (form) => {
 
       console.error("c:", statusCode, "Message:", message);
       setApiError(
-        "Material Request converted into purchase request." + message,
+        "A Material Request converted into "+location.state.formname +"/n"+ message,
       );
 
       // If 401, redirect to login
@@ -456,7 +486,7 @@ const handleSubmit = async (form) => {
         navigate("/login");
       }
       setApiError(
-        "Material Request converted into purchase request." +
+       
           (err.message || "Error creating order"),
       );
     } finally {
@@ -833,9 +863,9 @@ const handleSubmit = async (form) => {
               Refresh Stock
             </Button> */}
 
-                <Button design="Default" onClick={openBoqList}>
+                {!location.state.formName==="Goods Issue"&&<Button design="Default" onClick={openBoqList}>
                   BOQ Copy From
-                </Button>
+                </Button>}
 
                 {/* <Button design="Default" onClick={() => handleSubmit()}>
                   Purchase Request
@@ -945,7 +975,7 @@ const handleSubmit = async (form) => {
                   </BreadcrumbsItem>
                   <BreadcrumbsItem data-route={`/Sales/${formId}`}>
                     {formDetails.length > 0
-                      ? location.state.formname + " List "
+                      ?"Material Request List "
                       : formId
                         ? formId
                         : "Sales Orders"}
@@ -981,11 +1011,13 @@ const handleSubmit = async (form) => {
             setFormData={setFormData}
             formData={formData}
             mode={"create"}
+            pageId={pageId}
             selectedcardcode={selectedcardcode}
             setSelectedCardCode={setSelectedCardCode}
             formDetails={formDetails}
             currencyType={currencyType}
             setCurrencyType={setCurrencyType}
+            formName={location.state.formname}
             defaultValues={{
               CusCode: "",
               RequisitionNo: "",
@@ -1031,6 +1063,7 @@ const handleSubmit = async (form) => {
               summaryData={summaryData}
               setSummaryData={setSummaryData}
               servicedata={servicedata}
+              formName={location.state.formname}
               setserviceData={setserviceData}
               setserviceTableData={setserviceTableData}
               serviceTabledata={serviceTabledata}
@@ -1111,7 +1144,7 @@ const handleSubmit = async (form) => {
                 style={{ fontSize: "1rem", color: "red" }}
               ></Icon>
               <h3 style={{ marginTop: "1rem" }}>
-                {formDetails[0]?.name + " Not Created"}
+                {location.state.formname + " Not Created"}
               </h3>
               <p>{getUserFriendlyMessage(apiError)}</p>
             </>

@@ -52,6 +52,7 @@ const Itemtable = (props) => {
     itemTableColumn,
     renderIteminput,
     form,
+    formName,
     handleChange,
     saveItem,
     itemdata,
@@ -1381,7 +1382,7 @@ const Itemtable = (props) => {
         >
           {console.log("summaryData", summaryData,userList)}
           {/* Requestor Code */}
-          <FlexBox alignItems="Center" style={{ gap: "1rem" }}>
+           {formName!=="Goods Issue"&&<FlexBox alignItems="Center" style={{ gap: "1rem" }}>
             <Text style={{ width: "140px" }}>Requestor Code</Text>
 
             <Select
@@ -1400,9 +1401,9 @@ const Itemtable = (props) => {
               placeholder="Requestor Code"
               style={{ flex: 1 }}
             /> */}
-          </FlexBox>
+          </FlexBox>}
           {/* Requestor Name */}
-          <FlexBox alignItems="Center" style={{ gap: "1rem" }}>
+           {formName!=="Goods Issue"&&<FlexBox alignItems="Center" style={{ gap: "1rem" }}>
             <Text style={{ width: "140px" }}>Requestor Name</Text>
             <Select
               disabled={mode === "view"}
@@ -1423,9 +1424,9 @@ const Itemtable = (props) => {
                 </Option>
               ))}
             </Select>
-          </FlexBox>
+          </FlexBox>}
           {/* Department */}
-          <FlexBox alignItems="Center" style={{ gap: "1rem" }}>
+           {formName!=="Goods Issue"&&<FlexBox alignItems="Center" style={{ gap: "1rem" }}>
             <Text style={{ width: "140px" }}>Department</Text>
 
             <Input
@@ -1433,7 +1434,7 @@ const Itemtable = (props) => {
               placeholder="Department"
               style={{ width: "200px" }}
             />
-          </FlexBox>
+          </FlexBox>}
         </FlexBox>
 
         {/* RIGHT SIDE */}
@@ -1446,7 +1447,7 @@ const Itemtable = (props) => {
           }}
         >
           {/* Doc Total */}
-          <FlexBox alignItems="Center" style={{ gap: "0.5rem" }}>
+           {formName!=="Goods Issue"&&<FlexBox alignItems="Center" style={{ gap: "0.5rem" }}>
             <Text style={{ width: "180px" }}>Doc Total</Text>
 
             <Input
@@ -1455,7 +1456,7 @@ const Itemtable = (props) => {
               value={String(summaryData?.DocTotal) || ""}
               style={{ flex: 1 }}
             />
-          </FlexBox>
+          </FlexBox>}
 
           {/* Approval Status */}
           {/* <FlexBox alignItems="Center" style={{ gap: "1rem" }}>

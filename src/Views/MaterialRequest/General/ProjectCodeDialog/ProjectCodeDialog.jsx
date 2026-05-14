@@ -19,7 +19,6 @@ const ProjectCodeDialog = ({
   setProjectList,
   selectedProject,
   setSelectedProject,
-  setgeneralData,
   originalProjectdata,
   setOriginalgeneralData,
   inputValue,
@@ -78,14 +77,14 @@ const ProjectCodeDialog = ({
     }));
 
     // ✅ Optional filtering logic
-    const filteredList = generalData.filter((item) =>
+    const filteredList = projectList.filter((item) =>
       item[fieldname]
         ?.toString()
         .toLowerCase()
         .includes(selectedValue.toLowerCase())
     );
 
-    setgeneralData(filteredList);
+    setProjectList(filteredList);
   };
 
   const handleOk = () => {
@@ -128,17 +127,7 @@ const ProjectCodeDialog = ({
           <FlexBox direction="Column">
             {" "}
             <Label>Project Code</Label>
-            {/* <Select
-              onChange={(e) => handleFilterChange(e, "ProjectCode")}
-              value={inputValue.ProjectCode || ""}
-            >
-              <Option value=""></Option>
-              {originalProjectdata.map((data, index) => (
-                <Option key={index} value={data.ProjectCode}>
-                  {data.ProjectCode}
-                </Option>
-              ))}
-            </Select> */}
+           
             <ComboBox
               filter
               value={inputValue.Code || ""}
@@ -153,17 +142,7 @@ const ProjectCodeDialog = ({
           <FlexBox direction="Column">
             {" "}
             <Label>Project Name</Label>
-            {/* <Select
-              onChange={(e) => handleFilterChange(e, "ProjectName")}
-              value={inputValue.ProjectName || ""}
-            >
-              <Option value=""></Option>
-              {originalProjectdata.map((data, index) => (
-                <Option key={index} value={data.ProjectName}>
-                  {data.ProjectName}
-                </Option>
-              ))}
-            </Select> */}
+           
               <ComboBox
               filter
               value={inputValue.Name || ""}

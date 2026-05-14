@@ -266,7 +266,7 @@ const RoleForm = ({
   const menulist = selectedBranch
     ? usermenus
         .map((menu) =>
-          menu.children.filter((child) => child.branchId === selectedBranch),
+          menu.children.filter((child) => child.companyId === selectedCompany),
         )
         .flat()
     : usermenus.map((menu) => menu.children).flat();
@@ -303,8 +303,8 @@ const RoleForm = ({
   const buildMenuListData = () => {
     const list = [];
 
-    (selectedBranch
-      ? usermenus.filter((m) => m.branchId === selectedBranch)
+    (selectedCompany
+      ? usermenus.filter((m) => m.companyId === selectedCompany&&m.status)
       : usermenus
     ).forEach((menu) => {
       // Add parent row
@@ -320,7 +320,7 @@ const RoleForm = ({
       });
       // Add children rows
       menu.children
-        .filter((child) => !selectedBranch || child.branchId === selectedBranch)
+        .filter((child) => !selectedCompany || child.companyId === selectedCompany&&child.status)
         .forEach((child) => {
           list.push({
             Module: child.name,

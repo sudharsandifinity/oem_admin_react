@@ -704,6 +704,7 @@ const ViewMaterialRequest = () => {
                 onSubmit={handleSubmit}
                 setFormData={setFormData}
                 formData={formData}
+                formName={"Material Request"}
                 defaultValues={formData} // ✅ now passes edit data properly
                 apiError={apiError}
                 pageId={id}
@@ -754,6 +755,7 @@ const ViewMaterialRequest = () => {
                 setRowSelection={setRowSelection}
                 itemdata={itemdata}
                 setitemData={setitemData}
+                formName={"Material Request"}
                 setitemTableData={setitemTableData}
                 itemTabledata={itemTabledata}
                 servicedata={servicedata}

@@ -188,35 +188,91 @@ const EditMaterialRequest = () => {
   const [loading, setLoading] = useState(true);
   const [isBoqListopem, setisBoqListopem] = useState(false);
   const [boqrequestList, setBoqRequestList] = useState([]);
-  const [refreshdata,setRefreshData]=useState([])
+  const [refreshdata, setRefreshData] = useState([]);
 
-  const refreshStock=async()=>{
-    try{
-      const res = await dispatch(fetchBOQList()).unwrap();
-    
-          const currentItemValues = itemTabledata.map((item) => ({
-            ItemCode: item.ItemCode,
-            warehouse: item.warehouse,
-            
-          }));
-         setitemTableData(
-              () =>
-                res.value
-                  .map((item, index) => {
-                    const matched = currentItemValues.find(
-                      (line) => line.ItemCode === item.ItemCode,
-                    );
-                    return matched !== undefined
-                      && {
-                       quantity:line.quantity
-                        }
-                      }))
-      
-    }
-    catch{
+  const goodsIssue = async()=>{
+      const tabledata = itemTabledata;
+    const data = {
+      ...formData,
+      ...tabledata,
+      ...summaryData,
+    };
 
-    }
+    //delete data.DocEntry;
+    console.log(
+      "copiedformdata",
+      data,
+      "tabledata",
+      itemTabledata,
+      summaryData,
+      formData,
+      "attachment",
+      oldAttachmentFiles,
+    );
+    let cloneFOrmData = { 
+      ...data,
+      formData: formData,
+      copyFrom: formDetails[0]?.name,
+      DocumentLines: tabledata.filter(
+            (item) =>item.ItemCode && Number(item.quantity || 0) <= Number(item.availableQty || 0),
+          ),
+      summaryData: summaryData,
+      DocType: "dDocument_Items",
+      Remark: summaryData.Remark,
+      DocTotal: summaryData.DocTotal,
+      Rounding: summaryData.Rounding,
+      RoundingDiffAmount: summaryData.RoundingDiffAmount,
+      DiscountPercent: summaryData.DiscountPercent,
+      TotalDiscount: summaryData.TotalDiscount,
+      VatSum: summaryData.VatSum,
+    };
+    setCopiedFormData(cloneFOrmData);
+    //HandleSubmitCLoneData(cloneFOrmData);
+    navigate(
+      "/cloneMaterialRequest/create/" + formId + "/" + formData.docEntry,
+      {
+        state: { copyFormData: cloneFOrmData, formname: "Goods Issue" },
+      },
+    );
+
   }
+const refreshStock = async () => {
+  try {
+    setLoading(true);
+
+    const res = await dispatch(fetchBOQList()).unwrap();
+
+    const currentItemValues = itemTabledata.map((item) => ({
+      ItemCode: item.ItemCode,
+      quantity: item.quantity, // ✅ FIX: include quantity
+      warehouse: item.warehouse,
+    }));
+
+    console.log("refreshstock", res, currentItemValues);
+
+    const boqItems = res.flatMap(
+      (boqlist) => boqlist.HLB_BOQT1Collection || [],
+    );
+
+    setitemTableData((prev) => {
+      return prev.map((row) => {
+        const matchedCurrent = currentItemValues.find(
+          (line) => line.ItemCode === row.ItemCode,
+        );
+
+        return {
+          ...row,
+          quantity: matchedCurrent?.quantity ?? row.quantity ?? 0,
+        };
+      });
+    });
+  } catch (error) {
+    console.error("refreshStock error:", error);
+  } finally {
+    setLoading(false);
+  }
+};
+    
 
   const openBoqList = async () => {
     console.log("openBoqList");
@@ -249,11 +305,13 @@ const EditMaterialRequest = () => {
       "attachment",
       oldAttachmentFiles,
     );
-    let cloneFOrmData = {
+    let cloneFOrmData = { 
       ...data,
       formData: formData,
       copyFrom: formDetails[0]?.name,
-      DocumentLines: tabledata,
+      DocumentLines: tabledata.filter(
+            (item) =>item.ItemCode && Number(item.quantity || 0) >= Number(item.availableQty || 0),
+          ),
       summaryData: summaryData,
       DocType: "dDocument_Items",
       Remark: summaryData.Remark,
@@ -266,9 +324,12 @@ const EditMaterialRequest = () => {
     };
     setCopiedFormData(cloneFOrmData);
     //HandleSubmitCLoneData(cloneFOrmData);
-    navigate("/cloneMaterialRequest/create/" + formId + "/" + formData.docEntry, {
-      state: { copyFormData: cloneFOrmData, formname: "Purchase Request" },
-    });
+    navigate(
+      "/cloneMaterialRequest/create/" + formId + "/" + formData.docEntry,
+      {
+        state: { copyFormData: cloneFOrmData, formname: "Purchase Request" },
+      },
+    );
   };
   const copyFrom = async () => {
     setIsCopyFromBOQ(true);
@@ -461,7 +522,7 @@ const EditMaterialRequest = () => {
           setSelectedCardCode(orderListById.U_CardCode);
           setFormData({
             docEntry: orderListById.DocEntry,
-            docNum:orderListById.DocNum,
+            docNum: orderListById.DocNum,
             RequisitionNo: orderListById.U_ReqCode,
             RequisitionDate: orderListById.U_DocDate || "",
             RequisitionTime: orderListById.U_ReqTime || "",
@@ -752,7 +813,9 @@ const EditMaterialRequest = () => {
 
         DocumentLines: itemTabledata
           .filter(
-            (item) =>item.ItemCode && Number(item.quantity || 0) <= Number(item.inStock || 0),
+            (item) =>
+              item.ItemCode &&
+              Number(item.quantity || 0) <= Number(item.inStock || 0),
           )
           .map((line) => {
             console.log("setitemeditpage", line);
@@ -769,11 +832,11 @@ const EditMaterialRequest = () => {
               LineTotal: Number(line.linetotal || 0),
               U_MRDocEntry: formData.DocEntry,
               U_MRDocNo: formData.docNum || "",
-              U_MRLine:line.BoqLineNum,
+              U_MRLine: line.BoqLineNum,
               RequiredDate: formatDate(formData.RequiredDate),
             };
           }),
-          U_MRNo:formData.docEntry,
+        U_MRNo: formData.docEntry,
         Rounding: summaryData.Rounding || "tNO",
 
         RoundingDiffAmount: Number(summaryData.RoundingDiffAmount || 0),
@@ -1037,8 +1100,8 @@ const EditMaterialRequest = () => {
               startContent={
                 <FlexBox style={{ gap: "0.5rem" }}>
                   <Button design="Default" onClick={() => refreshStock()}>
-                        Refresh Stock
-                      </Button>
+                    Refresh Stock
+                  </Button>
 
                   <Button design="Default" onClick={openBoqList}>
                     BOQ Copy From
@@ -1050,10 +1113,10 @@ const EditMaterialRequest = () => {
                   >
                     Purchase Request
                   </Button>
-
-                  {/* <Button design="Default" onClick={() => handleSubmit()}>
-                            Goods Issue
-                          </Button> */}
+                    <Button design="Default" onClick={() => goodsIssue()}>
+                    Goods Issue
+                  </Button>
+                 
                 </FlexBox>
               }
               endContent={
@@ -1197,6 +1260,7 @@ const EditMaterialRequest = () => {
                 defaultValues={formData} // ✅ now passes edit data properly
                 formDetails={formDetails}
                 pageId={id}
+                formName={"Material Request"}
                 selectedcardcode={selectedcardcode}
                 setSelectedCardCode={setSelectedCardCode}
                 setCurrencyType={setCurrencyType}
@@ -1219,6 +1283,7 @@ const EditMaterialRequest = () => {
               setRowSelection={setRowSelection}
               itemdata={itemdata}
               setitemData={setitemData}
+              formName={"Material Request"}
               setitemTableData={setitemTableData}
               itemTabledata={itemTabledata}
               servicedata={servicedata}

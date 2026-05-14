@@ -19,7 +19,6 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
-
 import { set } from "react-hook-form";
 import { fetchRoles } from "../../../store/slices/roleSlice";
 import { fetchCompanies } from "../../../store/slices/companiesSlice";
@@ -30,11 +29,10 @@ const RoleManagement = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { roles } = useSelector((state) => state.roles);
-    const { user } = useSelector((state) => state.auth);
-        const { branches } = useSelector((state) => state.branches);
+  const { user } = useSelector((state) => state.auth);
+  const { branches } = useSelector((state) => state.branches);
   const { companies } = useSelector((state) => state.companies);
-    
-  
+
   const [search, setSearch] = useState("");
   const [layout, setLayout] = useState("OneColumn");
   const [ViewId, setViewId] = useState("");
@@ -60,11 +58,7 @@ const RoleManagement = () => {
     fetchData();
   }, [dispatch]);
   const handleDelete = async (role) => {
-    if (
-      window.confirm(
-        `Are you sure to delete role: ${role.name}?`
-      )
-    ) {
+    if (window.confirm(`Are you sure to delete role: ${role.name}?`)) {
       try {
         const res = await dispatch(deleteRole(role.id)).unwrap();
         if (res.message === "Please Login!") {
@@ -87,7 +81,7 @@ const RoleManagement = () => {
   };
 
   const filteredRows = roles?.filter((role) =>
-    role.name.toLowerCase().includes(search.toLowerCase())
+    role.name.toLowerCase().includes(search.toLowerCase()),
   );
 
   const columns = useMemo(
@@ -96,27 +90,25 @@ const RoleManagement = () => {
         Header: "Role Name",
         accessor: "name",
       },
-      
- {
-        Header: "Scope",
-        accessor: "scope",
-      },
+
       {
-        Header:"Company",
-         accessor: "company",
-           Cell: ({ row }) => {
+        Header: "Company",
+        accessor: "company",
+        Cell: ({ row }) => {
           const company = companies.find((company) =>
-  company.Branches?.some((branch) => branch.id === row.original.branchId)
-);
+            company.Branches?.some(
+              (branch) => branch.id === row.original.branchId,
+            ),
+          );
           return company ? company.name : "";
         },
       },
       {
-        Header:"Branche",
-         accessor: "Branch.name",
-           Cell: ({ row }) => {
-          const branch = branches.find((item) => item.id === row.original.branchId);
-          return branch ? branch.name : "";
+        Header: "Created Date",
+        accessor: "createdAt",
+        Cell: ({ row }) => {
+          const CreateDate = row.original.createdAt || row.original.createdAt? new Date(row.original.createdAt ||row.original.createdAt).toLocaleDateString() : "-";
+          return CreateDate 
         },
       },
       {
@@ -144,66 +136,64 @@ const RoleManagement = () => {
           const isOverlay = webComponentsReactProperties.showOverlay;
           return (
             <FlexBox alignItems="Center">
-               {user!==null&&user.Roles.some(
-                (role) =>
-                  role.Permissions.some((f) => f.name === "role_get")
-                    
-              ) && (
-              <Button
-                icon="sap-icon://edit"
-                disabled={isOverlay}
-                design="Transparent"
-                //onClick={() => { setLayout("TwoColumnsMidExpanded");setViewItem(row.original)}}
-                onClick={() => handleEdit(row.original)}
-              />)}
-               {user!==null&&user.Roles.some(
-                (role) =>
-                  role.Permissions.some((f) => f.name === "role_delete")
-                    
-              ) && (
-              <Button
-                icon="sap-icon://delete"
-                disabled={isOverlay}
-                design="Transparent"
-                //onClick={() => { setLayout("TwoColumnsMidExpanded");setViewItem(row.original)}}
-                onClick={() => handleDelete(row.original)}
-              />)}
-               {user!==null&&user.Roles.some(
-                (role) =>
-                  role.Permissions.some((f) => f.name === "role_get")
-                    
-              ) && (
-              <Button
-                icon="sap-icon://navigation-right-arrow"
-                disabled={isOverlay}
-                design="Transparent"
-                onClick={() => {
-                  setLayout("TwoColumnsMidExpanded");
-                  handleView(row.original);
-                }}
-              />
-              )}
+              {user !== null &&
+                user.Roles.some((role) =>
+                  role.Permissions.some((f) => f.name === "role_get"),
+                ) && (
+                  <Button
+                    icon="sap-icon://edit"
+                    disabled={isOverlay}
+                    design="Transparent"
+                    //onClick={() => { setLayout("TwoColumnsMidExpanded");setViewItem(row.original)}}
+                    onClick={() => handleEdit(row.original)}
+                  />
+                )}
+              {user !== null &&
+                user.Roles.some((role) =>
+                  role.Permissions.some((f) => f.name === "role_delete"),
+                ) && (
+                  <Button
+                    icon="sap-icon://delete"
+                    disabled={isOverlay}
+                    design="Transparent"
+                    //onClick={() => { setLayout("TwoColumnsMidExpanded");setViewItem(row.original)}}
+                    onClick={() => handleDelete(row.original)}
+                  />
+                )}
+              {user !== null &&
+                user.Roles.some((role) =>
+                  role.Permissions.some((f) => f.name === "role_get"),
+                ) && (
+                  <Button
+                    icon="sap-icon://navigation-right-arrow"
+                    disabled={isOverlay}
+                    design="Transparent"
+                    onClick={() => {
+                      setLayout("TwoColumnsMidExpanded");
+                      handleView(row.original);
+                    }}
+                  />
+                )}
             </FlexBox>
           );
         },
       },
     ],
-    []
+    [],
   );
   return (
-     <>
-                <style>
-                    {`
+    <>
+      <style>
+        {`
                       ui5-page::part(content) {
                         padding: 15px;
                       }
                     `}
-                  </style>
-                <FlexBox direction="Column" style={{width: '100%'}}>
-                 <AppBar
+      </style>
+      <FlexBox direction="Column" style={{ width: "100%" }}>
+        <AppBar
           design="Header"
-              title={"Roles list(" + filteredRows.length + ")"}
-
+          title={"Roles list(" + filteredRows.length + ")"}
           startContent={
             <div style={{ width: "150px" }}>
               <Breadcrumbs
@@ -214,7 +204,9 @@ const RoleManagement = () => {
                   if (route) navigate(route);
                 }}
               >
-                <BreadcrumbsItem data-route="/CustomerAdmin">Admin</BreadcrumbsItem>
+                <BreadcrumbsItem data-route="/CustomerAdmin">
+                  Admin
+                </BreadcrumbsItem>
                 <BreadcrumbsItem data-route="/CustomerAdmin/RoleManagement">
                   Roles
                 </BreadcrumbsItem>
@@ -222,165 +214,165 @@ const RoleManagement = () => {
             </div>
           }
           endContent={
-             user!==null&&user.Roles.some(
-                (role) =>
-                  role.Permissions.some((f) => f.name === "role_create")
-                    
-              ) && (<Button
-              design="default"
-              onClick={() => navigate("/CustomerAdmin/RoleManagement/create")}
-            >
-              Add Role
-            </Button>)
-          }
-        >
-          
-        </AppBar>
-    <Page
-      backgroundDesign="Solid"
-      footer={<div></div>}
-      // header={
-      //   <AppBar
-      //     design="Header"
-      //     startContent={
-      //       <div style={{ width: "100px" }}>
-      //         <Breadcrumbs
-      //           design="Standard"
-      //           separators="Slash"
-      //           onItemClick={(e) => {
-      //             const route = e.detail.item.dataset.route;
-      //             if (route) navigate(route);
-      //           }}
-      //         >
-      //           <BreadcrumbsItem data-route="/admin">Admin</BreadcrumbsItem>
-      //           <BreadcrumbsItem data-route="/admin/roles">
-      //             Roles
-      //           </BreadcrumbsItem>
-      //         </Breadcrumbs>
-      //       </div>
-      //     }
-      //     endContent={
-      //        user!==null&&user.Roles.some(
-      //           (role) =>
-      //             role.Permissions.some((f) => f.name === "role_create")
-                    
-      //         ) && (<Button
-      //         design="Emphasized"
-      //         onClick={() => navigate("/admin/roles/create")}
-      //       >
-      //         Add Role
-      //       </Button>)
-      //     }
-      //   >
-      //     <Title level="H4">Role List</Title>
-      //   </AppBar>
-      // }
-    >
-      <Card
-         style={{
-          height: "auto",
-          width: "100%",
-          //padding: "0.5rem",
-          maxHeight: '560px'
-        }}
-      >
-        <FlexBox direction="Column" style={{padding: 0}}>
-          <FlexBox
-            justifyContent="End"
-            alignItems="Center"
-            style={{ margin: "10px" }}
-          >
-            <Search
-              onClose={function Xs() {}}
-              onInput={(e) => setSearch(e.target.value)}
-              onOpen={function Xs() {}}
-              onScopeChange={function Xs() {}}
-              onSearch={(e) => setSearch(e.target.value)}
-            />
-          </FlexBox>
-          {console.log("filteredRows", filteredRows)}
-          {apiError && (
-                  <MessageStrip
-                    design="Negative"
-                    hideCloseButton={false}
-                    hideIcon={false}
-                    style={{ marginBottom: "1rem" }}
-                  >
-                    {apiError}
-                  </MessageStrip>
-                )}
-          <FlexibleColumnLayout
-            // style={{ height: "600px" }}
-            layout={layout}
-            startColumn={
-              <FlexBox direction="Column">
-                <div>
-                  <FlexBox direction="Column">
-                     {user!==null&&user.Roles.some(
-                (role) =>
-                  role.Permissions.some((f) => f.name === "role_list")
-                    
-              ) && (
-                    <AnalyticalTable
-                      columns={columns}
-                      data={filteredRows || []}
-                      // header={<Title level="H5" style={{ paddingLeft: 5 }}>  {
-                      //   "Roles list(" + filteredRows.length + ")"}</Title>}
-                      filterable
-                      style={{padding: '10px'}}
-                         // visibleRows={8}
-                      rowHeight={50}
-                      onAutoResize={() => {}}
-                      onColumnsReorder={() => {}}
-                      onGroup={() => {}}
-                      onLoadMore={() => {}}
-                      onRowClick={() => {}}
-                      onRowExpandChange={() => {}}
-                      onRowSelect={() => {}}
-                      onSort={() => {}}
-                      onTableScroll={() => {}}
-                    />)}
-                  </FlexBox>
-                </div>
-              </FlexBox>
-            }
-            midColumn={
-              <Page
-                header={
-                  <Bar
-                    endContent={
-                      <Button
-                        icon="sap-icon://decline"
-                        title="close"
-                        onClick={() => setLayout("OneColumn")}
-                      />
-                    }
-                    startContent={<Title level="H5">Preview Roles</Title>}
-                  ></Bar>
-                }
+            user !== null &&
+            user.Roles.some((role) =>
+              role.Permissions.some((f) => f.name === "role_create"),
+            ) && (
+              <Button
+                design="default"
+                onClick={() => navigate("/CustomerAdmin/RoleManagement/create")}
               >
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "row",
-                    justifyContent: "center",
-                    alignItems: "start",
-                    //height: "90%",
-                    verticalAlign: "middle",
-                  }}
+                Add Role
+              </Button>
+            )
+          }
+        ></AppBar>
+        <Page
+          backgroundDesign="Solid"
+          footer={<div></div>}
+          // header={
+          //   <AppBar
+          //     design="Header"
+          //     startContent={
+          //       <div style={{ width: "100px" }}>
+          //         <Breadcrumbs
+          //           design="Standard"
+          //           separators="Slash"
+          //           onItemClick={(e) => {
+          //             const route = e.detail.item.dataset.route;
+          //             if (route) navigate(route);
+          //           }}
+          //         >
+          //           <BreadcrumbsItem data-route="/admin">Admin</BreadcrumbsItem>
+          //           <BreadcrumbsItem data-route="/admin/roles">
+          //             Roles
+          //           </BreadcrumbsItem>
+          //         </Breadcrumbs>
+          //       </div>
+          //     }
+          //     endContent={
+          //        user!==null&&user.Roles.some(
+          //           (role) =>
+          //             role.Permissions.some((f) => f.name === "role_create")
+
+          //         ) && (<Button
+          //         design="Emphasized"
+          //         onClick={() => navigate("/admin/roles/create")}
+          //       >
+          //         Add Role
+          //       </Button>)
+          //     }
+          //   >
+          //     <Title level="H4">Role List</Title>
+          //   </AppBar>
+          // }
+        >
+          <Card
+            style={{
+              height: "auto",
+              width: "100%",
+              //padding: "0.5rem",
+              maxHeight: "560px",
+            }}
+          >
+            <FlexBox direction="Column" style={{ padding: 0 }}>
+              <FlexBox
+                justifyContent="End"
+                alignItems="Center"
+                style={{ margin: "10px" }}
+              >
+                <Search
+                  onClose={function Xs() {}}
+                  onInput={(e) => setSearch(e.target.value)}
+                  onOpen={function Xs() {}}
+                  onScopeChange={function Xs() {}}
+                  onSearch={(e) => setSearch(e.target.value)}
+                />
+              </FlexBox>
+              {console.log("filteredRows", filteredRows)}
+              {apiError && (
+                <MessageStrip
+                  design="Negative"
+                  hideCloseButton={false}
+                  hideIcon={false}
+                  style={{ marginBottom: "1rem" }}
                 >
-                  {/* <ViewRole id={ViewId} /> */}
-                </div>
-              </Page>
-            }
-          />
-        </FlexBox>
-      </Card>
-    </Page></FlexBox>
+                  {apiError}
+                </MessageStrip>
+              )}
+              <FlexibleColumnLayout
+                // style={{ height: "600px" }}
+                layout={layout}
+                startColumn={
+                  <FlexBox direction="Column">
+                    <div>
+                      <FlexBox direction="Column">
+                        {user !== null &&
+                          user.Roles.some((role) =>
+                            role.Permissions.some(
+                              (f) => f.name === "role_list",
+                            ),
+                          ) && (
+                            <AnalyticalTable
+                              columns={columns}
+                              data={filteredRows || []}
+                              // header={<Title level="H5" style={{ paddingLeft: 5 }}>  {
+                              //   "Roles list(" + filteredRows.length + ")"}</Title>}
+                              filterable
+                              style={{ padding: "10px" }}
+                              // visibleRows={8}
+                              rowHeight={50}
+                              onAutoResize={() => {}}
+                              onColumnsReorder={() => {}}
+                              onGroup={() => {}}
+                              onLoadMore={() => {}}
+                              onRowClick={() => {}}
+                              onRowExpandChange={() => {}}
+                              onRowSelect={() => {}}
+                              onSort={() => {}}
+                              onTableScroll={() => {}}
+                            />
+                          )}
+                      </FlexBox>
+                    </div>
+                  </FlexBox>
+                }
+                midColumn={
+                  <Page
+                    header={
+                      <Bar
+                        endContent={
+                          <Button
+                            icon="sap-icon://decline"
+                            title="close"
+                            onClick={() => setLayout("OneColumn")}
+                          />
+                        }
+                        startContent={<Title level="H5">Preview Roles</Title>}
+                      ></Bar>
+                    }
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "row",
+                        justifyContent: "center",
+                        alignItems: "start",
+                        //height: "90%",
+                        verticalAlign: "middle",
+                      }}
+                    >
+                      {/* <ViewRole id={ViewId} /> */}
+                    </div>
+                  </Page>
+                }
+              />
+            </FlexBox>
+          </Card>
+        </Page>
+      </FlexBox>
     </>
   );
 };
 
-
-
-export default RoleManagement
+export default RoleManagement;

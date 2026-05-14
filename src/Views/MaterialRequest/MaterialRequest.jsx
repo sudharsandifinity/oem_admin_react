@@ -804,6 +804,7 @@ export default function MaterialRequest() {
             onSubmit={handleSubmit}
             setFormData={setFormData}
             formData={formData}
+            formName={"Material Request"}
             mode={"create"}
             pageId={id}
             selectedcardcode={selectedcardcode}
@@ -851,6 +852,7 @@ export default function MaterialRequest() {
               setRowSelection={setRowSelection}
               itemdata={itemdata}
               setitemData={setitemData}
+              formName={"Material Request"}
               setitemTableData={setitemTableData}
               itemTabledata={itemTabledata}
               summaryData={summaryData}

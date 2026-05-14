@@ -334,7 +334,7 @@ const Addservicedialog = (props) => {
                 data={servicedata}
                 columns={servicecolumns}
                 header={`Services (${servicedata.length})`}
-                selectionMode="MultiSelect"
+                selectionMode="Multiple"
                 selectedRowIds={rowSelection}
                 onRowSelect={onservicechildRowSelect}
                 visibleRows={6}

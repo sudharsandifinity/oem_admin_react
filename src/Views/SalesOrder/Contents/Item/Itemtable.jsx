@@ -708,8 +708,13 @@ const Itemtable = (props) => {
     // Define all possible columns
     const allColumns = [
       {
-        Header: "SL No",
+        Header:(
+    <div style={{ width: "100%", textAlign: "center" }}>
+      SL No
+    </div>
+        ),
         accessor: "slno",
+        
         width: 50,
         Cell: ({ row }) => (
           <div disabled={mode === "view"}>{row.index + 1}</div>
@@ -718,6 +723,7 @@ const Itemtable = (props) => {
       {
         Header: "Item No",
         accessor: "ItemCode",
+        
         Cell: ({ row }) => (
           <Input
             value={row.original.ItemCode}
@@ -1267,21 +1273,24 @@ const Itemtable = (props) => {
             gap: "1rem",
             padding: "1rem",
           }}
-        >{console.log("selectedItemOwner",selectedItemOwner)}
+        >
+          {console.log("selectedItemOwner", selectedItemOwner)}
           <FlexBox alignItems="Center" justifyContent="SpaceBetween">
             <Text style={{ minWidth: "120px" }}>Owner</Text>
             <Select
-            disabled={mode === "view"}
+              disabled={mode === "view"}
               style={{ width: "100%" }}
-              value={ String(selectedItemOwner)}
+              value={String(selectedItemOwner)}
               onChange={handlechangeOwner}
             >
               <Option value="">Select Owner</Option>
-              {OwnerList && OwnerList.length>0&&OwnerList.map((owner) => (
-                <Option key={owner.EmployeeID} value={owner.EmployeeID}>
-                  {owner.FirstName} {owner.LastName}
-                </Option>
-              ))}
+              {OwnerList &&
+                OwnerList.length > 0 &&
+                OwnerList.map((owner) => (
+                  <Option key={owner.EmployeeID} value={owner.EmployeeID}>
+                    {owner.FirstName} {owner.LastName}
+                  </Option>
+                ))}
             </Select>
           </FlexBox>
 
@@ -1314,13 +1323,13 @@ const Itemtable = (props) => {
             {" "}
             Total Summary{" "}
           </Title>{" "}
-          <FlexBox >
+          <FlexBox>
             {" "}
             <Text showColon style={{ minWidth: "200px" }}>
               {" "}
               Total Before Discount{" "}
             </Text>{" "}
-            <FlexBox  style={{ width: "100%" }} justifyContent="End">
+            <FlexBox style={{ width: "100%" }} justifyContent="End">
               {" "}
               {summaryCalculation.totalBeforeDiscount}{" "}
             </FlexBox>{" "}
@@ -1368,7 +1377,7 @@ const Itemtable = (props) => {
                 Freight{" "}
               </Text>{" "}
               <Button
-              disabled={mode === "view"}
+                disabled={mode === "view"}
                 design="Default"
                 onClick={() => setfreightDialogOpen(true)}
                 tooltip="Freight"
@@ -1423,7 +1432,7 @@ const Itemtable = (props) => {
               >
                 {" "}
                 <CheckBox
-                disabled={mode === "view"}
+                  disabled={mode === "view"}
                   checked={roundingEnabled}
                   onChange={(e) => {
                     const checked = e.target.checked;
