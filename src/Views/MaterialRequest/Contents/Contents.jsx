@@ -61,6 +61,7 @@ const Contents = (props) => {
   const {
     selectedcardcode,
     form,
+    formName,
     orderItems,
     loading,
     rowSelection,
@@ -832,6 +833,7 @@ const Contents = (props) => {
                         itemTableColumn={itemTableColumn}
                         renderIteminput={renderIteminput}
                         form={form}
+                        formName={formName}
                         handleChange={handleChange}
                         setRowSelection={setRowSelection}
                         rowSelection={rowSelection}

@@ -60,7 +60,7 @@ const CopyFromDialog = (props) => {
   return (
     <>
       <Dialog
-        headerText="Request Details"
+        headerText="BOQ List"
         open={open}
         onAfterClose={() => setopen(false)}
         footer={
@@ -94,14 +94,14 @@ const CopyFromDialog = (props) => {
             </Button>
           </FlexBox>
         }
-        style={{ width: "70vw",minHeight: "70vh", }}
+        style={{ width: "70vw" }}
       >
         {console.log("requestList", requestList)}
         <AnalyticalTable
           data={requestList}
           columns={itemcolumns}
-          header={`Items (${requestList.length})`}
-          selectionMode="MultiSelect"
+          //header={`Items (${requestList.length})`}
+          selectionMode="Multiple"
           selectedRowIds={rowSelection}
           onRowSelect={onitemchildRowSelect}
           visibleRows={6}

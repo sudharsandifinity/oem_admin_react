@@ -12,7 +12,24 @@ const ListPurItemDialog = (props) => {
   console.log("purtype",type)
   const onitemchildRowSelect = (e) => {
 
-    console.log("e.detail.row.original", e.detail.row);
+    console.log("e.detail.row.original", e.detail.allRowsSelected,"e.detail.row",e.detail.row);
+     if (e.detail.allRowsSelected) {
+      Object.values(e.detail.rowsById).map((rowid) => {
+        const rowId = rowid.id; //original.slno;
+        const isSelected = rowid.isSelected;
+        setRowSelection((prev) => {
+          const updated = { ...prev };
+          console.log("onitemrowselect", rowId, isSelected, updated);
+
+          updated[rowId] = rowid.original;
+
+          return updated;
+        });
+      });
+    } else  if (e.detail.allRowsSelected===false&&!e.detail.row){
+      setRowSelection([])
+    }
+    else{
     const rowId = e.detail.row.id; //original.slno;
     const isSelected = e.detail.isSelected;
     setRowSelection((prev) => {
@@ -28,6 +45,7 @@ const ListPurItemDialog = (props) => {
 
       return updated;
     });
+  }
   };
   const itemcolumns = useMemo(
     () => [
@@ -113,8 +131,8 @@ const ListPurItemDialog = (props) => {
       <AnalyticalTable
         data={selectedPurList}
         columns={type === "Item" ? itemcolumns : servicecolumns}
-        header={`Items (${selectedPurList.length})`}
-        selectionMode="MultiSelect"
+        //header={`Items (${selectedPurList.length})`}
+        selectionMode="Multiple"
         selectedRowIds={rowSelection}
         onRowSelect={onitemchildRowSelect}
         visibleRows={6}

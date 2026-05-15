@@ -14,6 +14,23 @@ const CopyFromDialog = (props) => {
   const [selectedPurList, setSelectedPurlist] = useState([]);
   const onitemchildRowSelect = (e) => {
     console.log("e.detail.row.original", e.detail.row);
+     if (e.detail.allRowsSelected) {
+      Object.values(e.detail.rowsById).map((rowid) => {
+        const rowId = rowid.id; //original.slno;
+        const isSelected = rowid.isSelected;
+        setRowSelection((prev) => {
+          const updated = { ...prev };
+          console.log("onitemrowselect", rowId, isSelected, updated);
+
+          updated[rowId] = rowid.original;
+
+          return updated;
+        });
+      });
+    } else  if (e.detail.allRowsSelected===false&&!e.detail.row){
+      setRowSelection([])
+    }
+    else {
     const rowId = e.detail.row.id; //original.slno;
     const isSelected = e.detail.isSelected;
     setRowSelection((prev) => {
@@ -29,6 +46,7 @@ const CopyFromDialog = (props) => {
 
       return updated;
     });
+  }
   };
   const itemcolumns = useMemo(
     () => [
@@ -60,7 +78,7 @@ const CopyFromDialog = (props) => {
   return (
     <>
       <Dialog
-        headerText="Request Details"
+        headerText="Purchase Order List"
         open={open}
         onAfterClose={() => setopen(false)}
         footer={
@@ -80,7 +98,7 @@ const CopyFromDialog = (props) => {
                 setOpenPurchaseItem(true);
                 setSelectedPurlist(
                   Object.values(rowSelection).flatMap(
-                    (req) => req.DocumentLines || [],
+                    (req) => req.DocumentLines || [], 
                   ),
                 );
                 // saveItem(
@@ -94,14 +112,14 @@ const CopyFromDialog = (props) => {
             </Button>
           </FlexBox>
         }
-        style={{ width: "70vw",minHeight: "70vh", }}
+        style={{ width: "70vw" }}
       >
         {console.log("requestList", requestList)}
         <AnalyticalTable
           data={requestList}
           columns={itemcolumns}
-          header={`Items (${requestList.length})`}
-          selectionMode="MultiSelect"
+          //header={`Items (${requestList.length})`}
+          selectionMode="Multiple"
           selectedRowIds={rowSelection}
           onRowSelect={onitemchildRowSelect}
           visibleRows={6}

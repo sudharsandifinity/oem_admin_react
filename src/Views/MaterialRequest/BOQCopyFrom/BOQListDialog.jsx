@@ -10,28 +10,44 @@ import ListBOQItemDialog from "./ListBOQItemDialog";
 //import ListPurItemDialog from "./ListPurItemDialog";
 
 const BOQListDialog = (props) => {
-   
-  const { open, setOpen, boqrequestList, saveItem,type,saveService } = props;
+  const { open, setOpen, boqrequestList, saveItem, type, saveService } = props;
   const [rowSelection, setRowSelection] = useState([]);
   const [openListBOQItem, setOpenListBOQItem] = useState(false);
   const [selectedBOQList, setSelectedBOQList] = useState([]);
   const onitemchildRowSelect = (e) => {
     console.log("e.detail.row.original", e.detail.row);
-    const rowId = e.detail.row.id; //original.slno;
-    const isSelected = e.detail.isSelected;
-    setRowSelection((prev) => {
-      const updated = { ...prev };
-      console.log("onitemrowselect", rowId, isSelected, updated);
-      if (isSelected) {
-        // ✅ add selected row
-        updated[rowId] = e.detail.row.original;
-      } else {
-        // ❌ remove deselected row
-        delete updated[rowId];
-      }
+    if (e.detail.allRowsSelected) {
+      Object.values(e.detail.rowsById).map((rowid) => {
+        const rowId = rowid.id; //original.slno;
+        const isSelected = rowid.isSelected;
+        setRowSelection((prev) => {
+          const updated = { ...prev };
+          console.log("onitemrowselect", rowId, isSelected, updated);
 
-      return updated;
-    });
+          updated[rowId] = rowid.original;
+
+          return updated;
+        });
+      });
+    }else  if (e.detail.allRowsSelected===false&&!e.detail.row){
+      setRowSelection([])
+    } else {
+      const rowId = e.detail.row.id; //original.slno;
+      const isSelected = e.detail.isSelected;
+      setRowSelection((prev) => {
+        const updated = { ...prev };
+        console.log("onitemrowselect", rowId, isSelected, updated);
+        if (isSelected) {
+          // ✅ add selected row
+          updated[rowId] = e.detail.row.original;
+        } else {
+          // ❌ remove deselected row
+          delete updated[rowId];
+        }
+
+        return updated;
+      });
+    }
   };
   const itemcolumns = useMemo(
     () => [
@@ -63,18 +79,12 @@ const BOQListDialog = (props) => {
   return (
     <>
       <Dialog
-        headerText="Request Details"
+        headerText="BOQ List"
         open={open}
         onAfterClose={() => setopen(false)}
         footer={
           <FlexBox direction="Row" gap={20} style={{ marginTop: "10px" }}>
-            <Button
-              onClick={
-                () => setOpen(false)
-              }
-            >
-              Close
-            </Button>
+            <Button onClick={() => setOpen(false)}>Close</Button>
 
             <Button
               onClick={() => {
@@ -97,14 +107,14 @@ const BOQListDialog = (props) => {
             </Button>
           </FlexBox>
         }
-        style={{ width: "70vw",minHeight: "70vh", }}
+        style={{ width: "70vw" }}
       >
         {console.log("boqrequestList", boqrequestList)}
         <AnalyticalTable
           data={boqrequestList}
           columns={itemcolumns}
-          header={`Items (${boqrequestList.length})`}
-          selectionMode="MultiSelect"
+          //header={`Items (${boqrequestList.length})`}
+          selectionMode="Multiple"
           selectedRowIds={rowSelection}
           onRowSelect={onitemchildRowSelect}
           visibleRows={6}
@@ -120,7 +130,7 @@ const BOQListDialog = (props) => {
         setOpenListBOQItem={setOpenListBOQItem}
         setOpen={setOpen}
         selectedBOQList={selectedBOQList}
-        saveItem={saveItem} 
+        saveItem={saveItem}
         saveService={saveService}
         type={type}
       />

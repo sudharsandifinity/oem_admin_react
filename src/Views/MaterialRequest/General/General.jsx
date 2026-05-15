@@ -46,6 +46,7 @@ const General = ({
   onSubmit,
   setFormData,
   formData,
+  formName,
   defaultValues,
   pageId,
   mode = "create",
@@ -76,7 +77,7 @@ const General = ({
 
   const [generalData, setgeneralData] = useState([]);
   const [originalGeneralData, setOriginalgeneralData] = useState([]);
-  const [originalProjectdata,setOriginalProjectData]=useState([])
+  const [originalProjectdata, setOriginalProjectData] = useState([]);
   const [pageLoading, setPageLoading] = useState(true);
   const [inputValue, setInputValue] = useState([
     {
@@ -121,10 +122,10 @@ const General = ({
         res = await dispatch(fetchCustomerDetails()).unwrap();
         const projectDetails = await dispatch(fetchProjectsDetails()).unwrap();
         const projectdataConfig = projectDetails.value.map((item) => ({
-            ProjectCode: item.Code,
-            ProjectName: item.Name,
-            status: item.Active === "tYES" ? "Active" : "Inactive",
-          }))
+          ProjectCode: item.Code,
+          ProjectName: item.Name,
+          status: item.Active === "tYES" ? "Active" : "Inactive",
+        }));
         setProjectList(projectdataConfig);
         console.log("fetchCustomerDetailsres", res, projectDetails);
 
@@ -141,8 +142,8 @@ const General = ({
             setOriginalgeneralData(generalData); // backup (for reset/clear filter)
           }
           //if(projectdialogOpen){
-            setOriginalProjectData(projectdataConfig)
-         // }
+          setOriginalProjectData(projectdataConfig);
+          // }
           setgeneralData(dataconfig);
         }
 
@@ -268,42 +269,46 @@ const General = ({
                         </Input>
                       )}
                     />
-                  </FlexBox>
-                  <FlexBox alignItems="Center">
-                    <Label style={{ minWidth: "200px" }}>
-                      {" "}
-                      Requisition Date :
-                    </Label>
-                    <Controller
-                      name="RequisitionDate"
-                      control={control}
-                      render={({ field }) => (
-                        <Input
-                          placeholder="Requisition Date"
-                          name="RequisitionDate"
-                          type="date"
-                          style={{ width: "100%" }}
-                          value={
-                            formData.RequisitionDate
-                              ? new Date(formData.RequisitionDate)
-                                  .toISOString()
-                                  .split("T")[0]
-                              : new Date().toISOString().split("T")[0]
-                          }
-                          onInput={(e) => field.onChange(e.target.value)}
-                          onChange={handleChange}
-                          valueState={errors.RequisitionDate ? "Error" : "None"}
-                        >
-                          {errors.RequisitionDate && (
-                            <span slot="valueStateMessage">
-                              {errors.RequisitionDate.message}
-                            </span>
-                          )}
-                        </Input>
-                      )}
-                    />
-                  </FlexBox>
-                  <FlexBox alignItems="Center">
+                  </FlexBox>{console.log("formName",formName)}
+                  {formName !== "Goods Issue" && (
+                    <FlexBox alignItems="Center">
+                      <Label style={{ minWidth: "200px" }}>
+                        {" "}
+                        Requisition Date :
+                      </Label>
+                      <Controller
+                        name="RequisitionDate"
+                        control={control}
+                        render={({ field }) => (
+                          <Input
+                            placeholder="Requisition Date"
+                            name="RequisitionDate"
+                            type="date"
+                            style={{ width: "100%" }}
+                            value={
+                              formData.RequisitionDate
+                                ? new Date(formData.RequisitionDate)
+                                    .toISOString()
+                                    .split("T")[0]
+                                : new Date().toISOString().split("T")[0]
+                            }
+                            onInput={(e) => field.onChange(e.target.value)}
+                            onChange={handleChange}
+                            valueState={
+                              errors.RequisitionDate ? "Error" : "None"
+                            }
+                          >
+                            {errors.RequisitionDate && (
+                              <span slot="valueStateMessage">
+                                {errors.RequisitionDate.message}
+                              </span>
+                            )}
+                          </Input>
+                        )}
+                      />
+                    </FlexBox>
+                  )}
+                   {formName!=="Goods Issue"&&<FlexBox alignItems="Center">
                     <Label style={{ minWidth: "200px" }}>
                       Requisition Time:
                     </Label>
@@ -334,8 +339,9 @@ const General = ({
                         </Input>
                       )}
                     />
-                  </FlexBox>
-                  <FlexBox alignItems="Center">
+                  </FlexBox>}
+
+                   <FlexBox alignItems="Center">
                     <Label style={{ minWidth: "200px" }}>Required Date</Label>
                     <Controller
                       name="RequiredDate"
@@ -382,38 +388,39 @@ const General = ({
                     minWidth: "250px",
                     gap: "8px",
                   }}
-                >
+                >   {formName!=="Goods Issue"&&
                   <FlexBox alignItems="Center">
-                    <Label style={{ minWidth: "200px" }}>Customer code:</Label>
-                    <Controller
-                      name="CusCode"
-                      control={control}
-                      render={({ field }) => (
-                        <Input
-                          placeholder="Select Card"
-                          name="RequisitionNo"
-                          style={{ width: "100%" }}
-                          value={formData.CusCode}
-                          onInput={(e) => field.onChange(e.target.value)}
-                          onChange={handleChange}
-                          valueState={errors.RequisitionNo ? "Error" : "None"}
-                          icon={
-                            <Icon
-                              style={{ paddingTop: "0.5rem" }}
-                              name="person-placeholder"
-                              onClick={handleCusCodeDialogOpen}
-                            />
-                          }
-                        >
-                          {errors.RequisitionNo && (
-                            <span slot="valueStateMessage">
-                              {errors.RequisitionNo.message}
-                            </span>
-                          )}
-                        </Input>
-                      )}
-                    />
-                  </FlexBox>
+                                      <Label style={{ minWidth: "200px" }}>Customer code:</Label>
+                                      <Controller
+                                        name="CusCode"
+                                        control={control}
+                                        render={({ field }) => (
+                                          <Input
+                                            placeholder="Select Card"
+                                            name="RequisitionNo"
+                                            style={{ width: "100%" }}
+                                            value={formData.CusCode}
+                                            onInput={(e) => field.onChange(e.target.value)}
+                                            onChange={handleChange}
+                                            valueState={errors.RequisitionNo ? "Error" : "None"}
+                                            icon={
+                                              <Icon
+                                                style={{ paddingTop: "0.5rem" }}
+                                                name="person-placeholder"
+                                                onClick={handleCusCodeDialogOpen}
+                                              />
+                                            }
+                                          >
+                                            {errors.RequisitionNo && (
+                                              <span slot="valueStateMessage">
+                                                {errors.RequisitionNo.message}
+                                              </span>
+                                            )}
+                                          </Input>
+                                        )}
+                                      />
+                                    </FlexBox>}
+                   {formName!=="Goods Issue"&&
                   <FlexBox alignItems="Center">
                     <Label style={{ minWidth: "200px" }}>Project Code:</Label>
                     <Controller
@@ -444,8 +451,8 @@ const General = ({
                         </Input>
                       )}
                     />
-                  </FlexBox>
-                  <FlexBox alignItems="Center">
+                  </FlexBox>}
+                   {formName!=="Goods Issue"&&<FlexBox alignItems="Center">
                     <Label style={{ minWidth: "200px" }}>Project Name:</Label>
                     <Controller
                       name="ProjectName"
@@ -470,7 +477,7 @@ const General = ({
                         </Input>
                       )}
                     />
-                  </FlexBox>
+                  </FlexBox>}
                   <FlexBox alignItems="Center">
                     <Label style={{ minWidth: "200px" }}>Remarks:</Label>
                     <Controller
@@ -539,7 +546,7 @@ const General = ({
         setSelectedProject={(project) => {
           setSelectedProject(project);
           setValue("ProjectCode", project.ProjectCode); // update RHF field
-          setValue("ProjectName", project.ProjectName); 
+          setValue("ProjectName", project.ProjectName);
         }}
       />
     </div>

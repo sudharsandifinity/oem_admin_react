@@ -769,7 +769,7 @@ const raw = res?.data?.value ?? res?.data ?? res?.value ?? res;
                             </Toolbar>
                           </FlexBox>
                         }
-                        selectionMode="MultiSelect"
+                        selectionMode="Multiple"
                         onRowSelect={handleRowSelect}
                         loading={loading}
                         showOverlay={page === 0 && loading}

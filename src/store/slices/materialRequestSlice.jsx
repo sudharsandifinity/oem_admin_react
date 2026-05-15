@@ -6,8 +6,28 @@ const API_BOQLIST = '/sap/boq/active';
 const API_USERS = '/sap/users';
 const API_EMPLOYEES = '/sap/employees';
 const API_DEPARTMENTS = '/sap/departments';
+const API_GI='sap/gi'
 
 
+export const createGoodsIssue = createAsyncThunk(
+  'goodsIssue/createGoodsIssue',
+  async (goodsIssueData, thunkApi ) => {
+    try {
+      const response = await api.post(API_GI, goodsIssueData, { withCredentials: true,timeout: 50000 });
+      return response.data;
+    } catch (error) {
+      console.error("❌ API error:", error.response.data.error.error.message);
+       console.log("error.response",error)
+      return thunkApi.rejectWithValue({
+        status: error.response?.status,
+        message: error.response?.data?.error?.error?.message|| error.response?.data?.message  ||"Login failed",
+      });
+      // return thunkApi.rejectWithValue(
+      //   error.response?.data || "Error creating order"
+      // );
+    }
+  }
+);
 export const fetchUsersList = createAsyncThunk(
   "userList/fetchUsersList",
   async (_, thunkApi) => {
@@ -158,6 +178,7 @@ export const fetchMaterialRequestById = createAsyncThunk(
 const materialRequestSlice = createSlice({
   name: 'materialRequest',
   initialState: {
+    goodsIssue:[],
     materialRequest: [],
     userList: [],
     employeeList: [],
@@ -229,7 +250,15 @@ const materialRequestSlice = createSlice({
           state.loading = false;
           state.error = action.error?.message;
         })
-  
+  //Create Goods Issue
+  .addCase(createGoodsIssue.fulfilled, (state, action) => {
+          if (Array.isArray(state.goodsIssue)) {
+            state.goodsIssue.push(action.payload);
+          } else {
+            state.goodsIssue = [action.payload];
+          }
+        })
+
         // Create Order
         .addCase(createMaterialRequest.fulfilled, (state, action) => {
           if (Array.isArray(state.materialRequest)) {

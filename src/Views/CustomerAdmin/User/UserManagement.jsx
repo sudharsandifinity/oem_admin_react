@@ -74,6 +74,23 @@ const UserManagement = () => {
     };
     fetchData();
   }, [dispatch]);
+  const handleStatusChange = async (id, status) => {
+  try {
+    console.log("Update Status", id, status);
+
+    // API call
+    // await dispatch(
+    //   updateUserStatus({
+    //     id,
+    //     status,
+    //   })
+    // ).unwrap();
+
+    // MessageToast.show("Status updated successfully");
+  } catch (error) {
+    console.log(error);
+  }
+};
   const handlesyncEmployees = async (company, roles) => {
     console.log("handlecreate", company, roles);
     try {
@@ -117,7 +134,7 @@ const UserManagement = () => {
 
   const handleView = (user) => {
     //navigate(`/users/${user.id}`);
-   navigate(`/CustomerAdmin/UserManagement/view/${user.id}`);
+    navigate(`/CustomerAdmin/UserManagement/view/${user.id}`);
   };
   console.log("users", users);
   const filteredRows =
@@ -183,20 +200,17 @@ const UserManagement = () => {
         Header: "First Name",
         accessor: "first_name",
         width: 200,
-
       },
       {
         Header: "Last Name",
         accessor: "last_name",
         filter: "text",
         width: 200,
-
       },
       {
         Header: "Email",
         accessor: "email",
         width: 250,
-
       },
       {
         Header: "User Category",
@@ -231,41 +245,58 @@ const UserManagement = () => {
         filter: roleFilter,
         filterable: true,
       },
+      // {
+      //   Header: "Status",
+      //   accessor: "status",
+      //   width: 200,
+
+      //   Cell: ({ row }) =>
+          
+      //     {
+      //       const value = row.original.status === "1";
+
+      //       const handleToggle = (checked) => {
+      //         setitemTableData((prev) => {
+      //           const updated = [...prev];
+      //           updated[row.index] = {
+      //             ...updated[row.index],
+      //             status: checked ? "Active" : "Inactive",
+      //           };
+      //           return updated;
+      //         });
+      //       };
+
+      //       return (
+      //         <>
+      //           {" "}
+      //           <Switch
+      //             checked={value}
+      //             onChange={(e) => handleToggle(e.target.checked)}
+      //           />
+      //           <span
+      //             style={{
+      //               color: value ? "green" : "red",
+      //               fontSize: "12px",
+      //             }}
+      //           >
+      //             {value ? "Active" : "Inactive"}
+      //           </span>
+      //         </>
+      //       );
+      //     },
+      // },
       {
-        Header: "Status",
         accessor: "status",
-        width: 200,
-
-        Cell: ({ row }) =>
-          // row.original.status === 1 ? (
-          //   <Tag children="Active" design="Positive" size="S" />
-          // ) : (
-          //   <Tag children="Inactive" design="Negative" size="S" />
-          // ),
-          {const value = row.original.status === "1";
-
-    const handleToggle = (checked) => {
-      setitemTableData((prev) => {
-        const updated = [...prev];
-        updated[row.index] = {
-          ...updated[row.index],
-          status: checked ? "Active" : "Inactive",
-        };
-        return updated;
-      });
-    };
-
-    return (
-     <> <Switch checked={value} onChange={(e) => handleToggle(e.target.checked)} />
-
-  <span style={{
-    color: value ? "green" : "red",
-    fontSize: "12px"
-  }}>
-    {value ? "Active" : "Inactive"}
-  </span></>
-    );
-  }
+        Header: "Edit Status",
+        Cell: ({ row }) => (
+          <Switch
+            checked={row.original.status}
+            onChange={(e) =>
+              handleStatusChange(row.original.id, e.target.checked)
+            
+            }
+          />
+        ),
       },
       {
         Header: "Actions",
@@ -281,7 +312,6 @@ const UserManagement = () => {
           const isOverlay = webComponentsReactProperties.showOverlay;
           return (
             <FlexBox alignItems="Center">
-      
               <Button
                 icon="sap-icon://show"
                 disabled={isOverlay}
@@ -296,7 +326,6 @@ const UserManagement = () => {
                 //onClick={() => { setLayout("TwoColumnsMidExpanded");setViewItem(row.original)}}
                 onClick={() => handleDelete(row.original)}
               />
-            
             </FlexBox>
           );
         },
