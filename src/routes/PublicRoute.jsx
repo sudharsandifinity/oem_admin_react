@@ -47,8 +47,8 @@ export default function PublicRoute({ children }) {
   console.log("apiError",apiError)
     if (user && !apiError && token) {
     console.log("fetchuser")
-    const isSuperUser = Boolean(user?.is_super_user);
-    const redirectPath = isSuperUser ? "/admin" : "/dashboard";
+    const isSuperUser = Boolean(user?.is_com_admin);
+    const redirectPath = isSuperUser ? "/CustomerAdmin" : "/dashboard";
     return <Navigate to={redirectPath} replace />;
   }
  
