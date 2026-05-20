@@ -240,6 +240,7 @@ export default function CloneMaterialRequest() {
           ...prev,
           RequestorCode: orderListById.RequestorCode || "",
           RequestorName: orderListById.RequestorName || "",
+          eMail:orderListById.eMail||"",
           Department: orderListById.Department || "",
           DocTotal: orderListById.DocTotal || 0,
           ApprovalStatus: orderListById.ApprovalStatus || "",
@@ -270,7 +271,7 @@ export default function CloneMaterialRequest() {
   const openBoqList = async () => {
     console.log("openBoqList");
     setIsCopyFromBOQ(true);
-    const res = await dispatch(fetchBOQList()).unwrap();
+    const res = await dispatch(fetchBOQList({ U_BPCode: formData.CusCode, U_PrjCode:formData.ProjectCode })).unwrap();
     const currentType =
       type === "Item" ? "dDocument_Items" : "dDocument_Service";
     const raw = res?.data?.value ?? res?.data ?? res?.value ?? res;
@@ -370,7 +371,7 @@ const handleSubmit = async (form) => {
         DocType: "dDocument_Items",
 
         DocumentsOwner: summaryData.RequestorName || "",
-
+        RequesterEmail:summaryData.eMail||"",
         DocumentLines: itemTabledata
           // .filter(
           //   (item) =>item.ItemCode && Number(item.quantity || 0) <= Number(item.inStock || 0),
@@ -863,7 +864,7 @@ const handleSubmit = async (form) => {
               Refresh Stock
             </Button> */}
 
-                {!location.state.formName==="Goods Issue"&&<Button design="Default" onClick={openBoqList}>
+                {!location.state.formName==="Goods Issue"&&<Button design="Default" disabled={ !formData.CusCode && !formData.ProjectCode} onClick={openBoqList}>
                   BOQ Copy From
                 </Button>}
 

@@ -59,6 +59,7 @@ import { fetchOrderItems } from "../../store/slices/CustomerOrderItemsSlice";
 import { fetchOrderServices } from "../../store/slices/CustomerOrderServiceSlice";
 import {
   fetchAttachmentDetailsById,
+  fetchEmployees,
   fetchitemprices,
 } from "../../store/slices/salesAdditionalDetailsSlice";
 import {
@@ -120,6 +121,8 @@ const EditSalesOrder = () => {
   const [roundOff, setRoundOff] = useState(0);
   const [selectedItemOwner, setSelectedItemOwner] = useState("");
   const [selectedServiceOwner, setSelectedServiceOwner] = useState("");
+    const [employeeList, setEmployeeList] = useState([]);
+  
 
   const [currencyType, setCurrencyType] = useState("GBP");
 
@@ -770,6 +773,19 @@ const EditSalesOrder = () => {
     const newRows = form[key].filter((_, idx) => idx !== i);
     setForm({ ...form, [key]: newRows });
   };
+
+   useEffect(() => {
+      const fetchData = async () => {
+        try {
+          const employeeList = await dispatch(fetchEmployees()).unwrap();
+          setEmployeeList(employeeList && employeeList);
+        } catch (err) {
+          console.log("Failed to fetch user", err.message);
+          //err.message && navigate("/");
+        }
+      };
+      fetchData();
+    }, [dispatch, formDetails]);
   const handleSubmit = async (form) => {
     console.log("Form submitted:", formData, itemTabledata, itemdata);
     let filteredData = [];
@@ -832,6 +848,11 @@ const EditSalesOrder = () => {
           NumAtCard: formData.CustomerRefNo || "",
           DocType: "dDocument_Items",
           DocumentsOwner: selectedItemOwner || "",
+          ...(formDetails[0]?.name === "Purchase Request" && {
+            RequesterEmail: employeeList.find(
+              (e) => e.EmployeeID === selectedItemOwner,
+            )?.eMail,
+          }),
           DocumentLines: Object.values(itemTabledata).map((line) => ({
             ItemCode: line.ItemCode,
             ItemDescription: line.ItemName, // ✅ rename to ItemDescription
@@ -909,6 +930,11 @@ const EditSalesOrder = () => {
           }),
           NumAtCard: formData.CustomerRefNo || "",
           DocumentsOwner: selectedServiceOwner || "",
+          ...(formDetails[0]?.name === "Purchase Request" && {
+            RequesterEmail: employeeList.find(
+              (e) => e.EmployeeID === selectedItemOwner,
+            )?.eMail,
+          }),
           DocumentLines: Object.values(serviceTabledata).map((line) => ({
             AccountCode: line.ServiceCode,
             ItemDescription: line.ServiceName, // ✅ rename to ItemDescription

@@ -350,8 +350,8 @@ const UserManagement = () => {
                   if (route) navigate(route);
                 }}
               >
-                <BreadcrumbsItem data-route="/admin">Admin</BreadcrumbsItem>
-                <BreadcrumbsItem data-route="/admin/users">
+                <BreadcrumbsItem data-route="/CustomerAdmin">Admin</BreadcrumbsItem>
+                <BreadcrumbsItem data-route="/CustomerAdmin/UserManagement">
                   Users
                 </BreadcrumbsItem>
               </Breadcrumbs>
@@ -415,13 +415,13 @@ const UserManagement = () => {
                   onScopeChange={function Xs() {}}
                   onSearch={(e) => setSearch(e.target.value)}
                 />
-                <Button
+                {user.is_super_user&&<Button
                   design="default"
                   style={{ marginLeft: "10px" }}
                   onClick={openSyncEmployeesPopup}
                 >
                   Sync Employees
-                </Button>
+                </Button>}
               </FlexBox>
               <FlexibleColumnLayout
                 // style={{ height: "600px" }}

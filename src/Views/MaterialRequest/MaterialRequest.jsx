@@ -171,7 +171,7 @@ export default function MaterialRequest() {
   const openBoqList = async () => {
     console.log("openBoqList");
     setIsCopyFromBOQ(true);
-    const res = await dispatch(fetchBOQList()).unwrap();
+    const res = await dispatch(fetchBOQList({ U_BPCode: formData.CusCode, U_PrjCode:formData.ProjectCode })).unwrap();
     const currentType =
       type === "Item" ? "dDocument_Items" : "dDocument_Service";
     const raw = res?.data?.value ?? res?.data ?? res?.value ?? res;
@@ -658,7 +658,7 @@ export default function MaterialRequest() {
               Refresh Stock
             </Button> */}
 
-                <Button design="Default" onClick={openBoqList}>
+                <Button design="Default" disabled={ !formData.CusCode && !formData.ProjectCode} onClick={openBoqList}>
                   BOQ Copy From
                 </Button>
 

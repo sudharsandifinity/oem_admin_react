@@ -100,6 +100,8 @@ const CloneSalesOrder = () => {
   const [summaryDiscountPercent, setSummaryDiscountPercent] = useState(0);
   const [summaryDiscountAmount, setSummaryDiscountAmount] = useState(0);
   const [roundingEnabled, setRoundingEnabled] = useState(false);
+    const [employeeList, setEmployeeList] = useState([]);
+  
   const [roundOff, setRoundOff] = useState(0);
 
   const [itemdata, setitemData] = useState([
@@ -499,6 +501,19 @@ const CloneSalesOrder = () => {
     const newRows = form[key].filter((_, idx) => idx !== i);
     setForm({ ...form, [key]: newRows });
   };
+  
+     useEffect(() => {
+        const fetchData = async () => {
+          try {
+            const employeeList = await dispatch(fetchEmployees()).unwrap();
+            setEmployeeList(employeeList && employeeList);
+          } catch (err) {
+            console.log("Failed to fetch user", err.message);
+            //err.message && navigate("/");
+          }
+        };
+        fetchData();
+      }, [dispatch, formDetails]);
   const handleSubmit = async (form) => {
     try {
     console.log("Form submitted:", formData, itemTabledata, itemdata);
