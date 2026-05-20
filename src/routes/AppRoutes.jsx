@@ -90,6 +90,8 @@ import MaterialRequest from "../Views/MaterialRequest/MaterialRequest";
 import EditMaterialRequest from "../Views/MaterialRequest/EditMaterialRequest";
 import ViewMaterialRequest from "../Views/MaterialRequest/ViewMaterialRequest";
 import CloneMaterialRequest from "../Views/MaterialRequest/CloneMaterialRequest";
+import ViewCustomerRole from "../Views/CustomerAdmin/Role/ViewCustomerRole";
+import EditUserManagement from "../Views/CustomerAdmin/User/EditUserManagement";
 
 const AppRoutes = () => {
   return (
@@ -116,6 +118,8 @@ const AppRoutes = () => {
 
         <Route path="UserManagement" element={<UserManagement />} />
         <Route path="UserManagement/create" element={<CreateEmployee />} />
+        <Route path="UserManagement/edit/:id" element={<EditUserManagement />} />
+
         <Route path="UserManagement/view/:id" element={<ViewUserManagement />} />
 
         <Route path="MenuManagement" element={<MenuManagement/>}/>
@@ -128,6 +132,7 @@ const AppRoutes = () => {
         <Route path="RoleManagement" element={<RoleManagement />} />
         <Route path="RoleManagement/create" element={<CreateCustomerRole/>} />
         <Route path="RoleManagement/edit/:id" element={<EditCustomerRole />} />
+
 
       </Route>
      

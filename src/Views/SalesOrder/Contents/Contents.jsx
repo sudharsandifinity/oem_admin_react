@@ -47,7 +47,6 @@ import { fetchOrderServices } from "../../../store/slices/CustomerOrderServiceSl
 import {
   fetchfreightDetails,
   fetchProfitCenterDetails,
-  fetchProjectsDetails,
   fetchPurOrderAddDetails,
   fetchSalesOrderAddDetails,
   fetchWarehousesDetails,
@@ -118,6 +117,7 @@ const Contents = (props) => {
   const tableRef = useRef();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+   const {user} = useSelector((state) => state.auth);
 
   const placeholderRows = Array(5).fill({
     ItemCode: "Loading...",
@@ -189,9 +189,8 @@ const Contents = (props) => {
         setWarehouseData(warehouseData.value);
         setOriginalWarehouseData(warehouseData.value);
 
-        const projectData = await dispatch(fetchProjectsDetails()).unwrap();
-        setProjectData(projectData.value);
-        setOriginalProjectData(projectData.value);
+        setProjectData(user.Projects);
+        setOriginalProjectData(user.Projects);
 
         const profitCenterData = await dispatch(
           fetchProfitCenterDetails(),

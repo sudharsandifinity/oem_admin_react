@@ -20,18 +20,18 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 import { set } from "react-hook-form";
-import { fetchRoles } from "../../../store/slices/roleSlice";
-import { fetchCompanies } from "../../../store/slices/companiesSlice";
 import AppBar from "../../../Components/Module/Appbar";
+import { deleteCustomerAdminRole, fetchCustomerAdminCompanyList, fetchCustomerAdminRoleList } from "../../../store/slices/customerAdminSlice";
+import ViewCustomerRole from "./ViewCustomerRole";
 // const ViewRole = Loadable(lazy(() => import("./ViewRole")));
 
 const RoleManagement = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { roles } = useSelector((state) => state.roles);
+  const { userList,companyList,roleList, loading } = useSelector((state) => state.customerAdmin);
   const { user } = useSelector((state) => state.auth);
+
   const { branches } = useSelector((state) => state.branches);
-  const { companies } = useSelector((state) => state.companies);
 
   const [search, setSearch] = useState("");
   const [layout, setLayout] = useState("OneColumn");
@@ -42,8 +42,8 @@ const RoleManagement = () => {
     //dispatch(fetchRoles());
     const fetchData = async () => {
       try {
-        const res = await dispatch(fetchRoles()).unwrap();
-        await dispatch(fetchCompanies()).unwrap();
+        const res = await dispatch(fetchCustomerAdminRoleList()).unwrap();
+        await dispatch(fetchCustomerAdminCompanyList()).unwrap();
         console.log("resusers", res);
 
         if (res.message === "Please Login!") {
@@ -60,7 +60,7 @@ const RoleManagement = () => {
   const handleDelete = async (role) => {
     if (window.confirm(`Are you sure to delete role: ${role.name}?`)) {
       try {
-        const res = await dispatch(deleteRole(role.id)).unwrap();
+        const res = await dispatch(deleteCustomerAdminRole(role.id)).unwrap();
         if (res.message === "Please Login!") {
           navigate("/login");
         }
@@ -77,10 +77,12 @@ const RoleManagement = () => {
 
   const handleView = (role) => {
     //navigate(`/roles/${user.id}`);
+   // navigate(`/CustomerAdmin/RoleManagement/view/${role.id}`);
+
     setViewId(role.id);
   };
 
-  const filteredRows = roles?.filter((role) =>
+  const filteredRows = roleList?.filter((role) =>
     role.name.toLowerCase().includes(search.toLowerCase()),
   );
 
@@ -89,28 +91,21 @@ const RoleManagement = () => {
       {
         Header: "Role Name",
         accessor: "name",
+          Cell:({row})=><div style={{paddingLeft:2}}>{row.original.name}</div>
       },
 
       {
         Header: "Company",
         accessor: "company",
         Cell: ({ row }) => {
-          const company = companies.find((company) =>
-            company.Branches?.some(
-              (branch) => branch.id === row.original.branchId,
-            ),
+          const company = companyList.find((company) =>
+            company.id === row.original.companyId,
+            
           );
           return company ? company.name : "";
         },
       },
-      {
-        Header: "Created Date",
-        accessor: "createdAt",
-        Cell: ({ row }) => {
-          const CreateDate = row.original.createdAt || row.original.createdAt? new Date(row.original.createdAt ||row.original.createdAt).toLocaleDateString() : "-";
-          return CreateDate 
-        },
-      },
+     
       {
         Header: "Status",
         accessor: "status",
@@ -136,10 +131,10 @@ const RoleManagement = () => {
           const isOverlay = webComponentsReactProperties.showOverlay;
           return (
             <FlexBox alignItems="Center">
-              {user !== null &&
+              {/* {user !== null &&
                 user.Roles.some((role) =>
                   role.Permissions.some((f) => f.name === "role_get"),
-                ) && (
+                ) && ( */}
                   <Button
                     icon="sap-icon://edit"
                     disabled={isOverlay}
@@ -147,7 +142,7 @@ const RoleManagement = () => {
                     //onClick={() => { setLayout("TwoColumnsMidExpanded");setViewItem(row.original)}}
                     onClick={() => handleEdit(row.original)}
                   />
-                )}
+                {/* )} */}
               {user !== null &&
                 user.Roles.some((role) =>
                   role.Permissions.some((f) => f.name === "role_delete"),
@@ -214,17 +209,17 @@ const RoleManagement = () => {
             </div>
           }
           endContent={
-            user !== null &&
-            user.Roles.some((role) =>
-              role.Permissions.some((f) => f.name === "role_create"),
-            ) && (
+            // user !== null &&
+            // user.Roles.some((role) =>
+            //   role.Permissions.some((f) => f.name === "role_create"),
+            // ) && (
               <Button
-                design="default"
+                design="Emphasized"
                 onClick={() => navigate("/CustomerAdmin/RoleManagement/create")}
               >
                 Add Role
               </Button>
-            )
+          //  )
           }
         ></AppBar>
         <Page
@@ -307,12 +302,12 @@ const RoleManagement = () => {
                   <FlexBox direction="Column">
                     <div>
                       <FlexBox direction="Column">
-                        {user !== null &&
+                        {/* {user !== null &&
                           user.Roles.some((role) =>
                             role.Permissions.some(
                               (f) => f.name === "role_list",
                             ),
-                          ) && (
+                          ) && ( */}
                             <AnalyticalTable
                               columns={columns}
                               data={filteredRows || []}
@@ -332,7 +327,7 @@ const RoleManagement = () => {
                               onSort={() => {}}
                               onTableScroll={() => {}}
                             />
-                          )}
+                          {/* )} */}
                       </FlexBox>
                     </div>
                   </FlexBox>
@@ -362,7 +357,7 @@ const RoleManagement = () => {
                         verticalAlign: "middle",
                       }}
                     >
-                      {/* <ViewRole id={ViewId} /> */}
+                      <ViewCustomerRole id={ViewId} />
                     </div>
                   </Page>
                 }

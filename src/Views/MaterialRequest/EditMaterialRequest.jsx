@@ -917,7 +917,7 @@ const refreshStock = async () => {
     if (itemdata.length === 1 && itemdata[0].ItemCode === "") {
       filteredData = itemTabledata;
     } else {
-      filteredData = itemdata.filter((item) =>
+      filteredData = itemTabledata.filter((item) =>
         itemTabledata.some(
           (tableItem) =>
             tableItem.ItemCode === item.ItemCode &&
@@ -943,7 +943,7 @@ const refreshStock = async () => {
         formData,
         freightRowSelection,
       );
-      console.log("formDatahandlesubmit", formData);
+      console.log("formDatahandlesubmit", filteredData);
       setLoading(true);
 
       let payload = {
@@ -969,7 +969,7 @@ const refreshStock = async () => {
         U_ReqName: summaryData.RequestorName,
         U_Dept: summaryData.Department || "",
         U_DocTotal: summaryData.DocTotal || 0,
-        HLB_MRQ1Collection: itemTabledata.map((item) => ({
+        HLB_MRQ1Collection: filteredData.map((item) => ({
           U_ItmSerCode: item.ItemCode,
           U_ItemDesc: item.ItemName,
           U_ReqQty: item.quantity || 0,

@@ -19,7 +19,7 @@ import { lazy } from "react";
 import Loadable from "../../../../ui-component/Loadable";
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchUsers, deleteUser } from "../../../../store/slices/usersSlice";
+import { fetchUsers, deleteUser, syncProjects, } from "../../../../store/slices/usersSlice";
 import { useNavigate } from "react-router-dom";
 import Admin from "../../Admin";
 import AppBar from "../../../../Components/Module/Appbar";
@@ -56,6 +56,20 @@ const Users = () => {
     fetchData();
   }, [dispatch]);
 
+  const syncProject = async()=>{
+     try {
+        const res = await dispatch(syncProjects()).unwrap();
+       
+        console.log("resusers", res);
+        if (res.message === "Please Login!") {
+         // navigate("/");
+        }
+      } catch (err) {
+        console.log("Failed to fetch user", err.message);
+        setApiError(err.message);
+       // err.message && navigate("/");
+      }
+  }
   const handleDelete = async (user) => {
     if (
       window.confirm(
@@ -273,6 +287,12 @@ const Users = () => {
               onClick={() => navigate("/admin/users/EmployeeCreate")}
             >
               Add Employee
+            </Button>
+             <Button
+              design="default"
+              onClick={syncProject}
+            >
+              Sync Project
             </Button>
             </FlexBox>
           }

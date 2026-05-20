@@ -25,7 +25,7 @@ const CreateUser = () => {
         is_super_user: data.is_super_user,
         password: data.password,
         roleIds: data.roleIds,
-        branchIds: data.branchIds,
+        projectIds: data.projectIds,
         status: data.status,
       };
 console.log("handlecreate payload", payload, addDetail);
@@ -53,7 +53,7 @@ console.log("handlecreate payload", payload, addDetail);
     companyId: "",
     is_super_user: "0",
     //formId: [],
-    branchIds: [],
+    projectIds: [],
     adddetail: [],
 }} onSubmitCreate={handleCreate} mode="create" apiError={apiError} />;
 };

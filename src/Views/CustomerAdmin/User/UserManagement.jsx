@@ -20,27 +20,20 @@ import { lazy } from "react";
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import {
-  createEmployee,
-  deleteUser,
-  fetchUsers,
-} from "../../../store/slices/usersSlice";
+
 import AppBar from "../../../Components/Module/Appbar";
 import Loadable from "../../../ui-component/Loadable";
 import SyncEmployeedialog from "./SyncEmployeedialog";
 import { set } from "react-hook-form";
-import { fetchCompanies } from "../../../store/slices/companiesSlice";
-import { fetchRoles } from "../../../store/slices/roleSlice";
+import { createSyncEmployees, fetchCustomerAdminCompanyList, fetchCustomerAdminRoleList, fetchCustomerAdminUserList } from "../../../store/slices/customerAdminSlice";
 
 // const ViewUser = Loadable(lazy(() => import("./ViewUser")));
 
 const UserManagement = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { users, loading } = useSelector((state) => state.users);
+  const { userList,companyList,roleList, loading } = useSelector((state) => state.customerAdmin);
   const { user } = useSelector((state) => state.auth);
-  const { companies } = useSelector((state) => state.companies);
-  const { roles } = useSelector((state) => state.roles);
 
   const [search, setSearch] = useState("");
   const [layout, setLayout] = useState("OneColumn");
@@ -49,6 +42,7 @@ const UserManagement = () => {
   const [apiError, setApiError] = useState(null);
   const [isEmployeeSyncing, setIsEmployeeSyncing] = useState(false);
   const [active, setActive] = useState(false);
+
 
   const openSyncEmployeesPopup = () => {
     // Implement the logic to open the Sync Employees popup
@@ -59,10 +53,10 @@ const UserManagement = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await dispatch(fetchUsers()).unwrap();
-        await dispatch(fetchCompanies()).unwrap();
-        await dispatch(fetchRoles()).unwrap();
-        console.log("resusers", res);
+        const res = await dispatch(fetchCustomerAdminUserList()).unwrap();
+        const companylistRes = await dispatch(fetchCustomerAdminCompanyList()).unwrap();
+        const roleListRes = await dispatch(fetchCustomerAdminRoleList()).unwrap();
+        
         if (res.message === "Please Login!") {
           // navigate("/");
         }
@@ -99,7 +93,7 @@ const UserManagement = () => {
         roleIds: roles,
       };
       console.log("handlecreate payload", payload);
-      const res = await dispatch(createEmployee(payload)).unwrap();
+      const res = await dispatch(createSyncEmployees(payload)).unwrap();
       if (res.message === "Please Login!") {
         navigate("/login");
       } else {
@@ -111,22 +105,7 @@ const UserManagement = () => {
     }
   };
 
-  const handleDelete = async (user) => {
-    if (
-      window.confirm(
-        `Are you sure to delete user: ${user.first_name} ${user.last_name}?`,
-      )
-    ) {
-      try {
-        const res = await dispatch(deleteUser(user.id)).unwrap();
-        if (res.message === "Please Login!") {
-          navigate("/login");
-        }
-      } catch (error) {
-        console.error("Error deleting user:", error);
-      }
-    }
-  };
+
 
   const handleEdit = (user) => {
     navigate(`/CustomerAdmin/UserManagement/edit/${user.id}`);
@@ -136,11 +115,10 @@ const UserManagement = () => {
     //navigate(`/users/${user.id}`);
     navigate(`/CustomerAdmin/UserManagement/view/${user.id}`);
   };
-  console.log("users", users);
   const filteredRows =
-    users !== null &&
-    users.length > 0 &&
-    users?.filter(
+    userList !== null &&
+    userList.length > 0 &&
+    userList?.filter(
       (user) =>
         user.first_name.toLowerCase().includes(search.toLowerCase()) ||
         user.last_name.toLowerCase().includes(search.toLowerCase()) ||
@@ -200,6 +178,7 @@ const UserManagement = () => {
         Header: "First Name",
         accessor: "first_name",
         width: 200,
+        Cell:({row})=><div style={{paddingLeft:2}}>{row.original.first_name}</div>
       },
       {
         Header: "Last Name",
@@ -215,7 +194,7 @@ const UserManagement = () => {
       {
         Header: "User Category",
         accessor: "is_super_user",
-        width: 200,
+        width: 150,
 
         Cell: ({ row }) =>
           row.original.is_super_user === 1 ? "Super User" : "User",
@@ -223,13 +202,28 @@ const UserManagement = () => {
       {
         Header: "Company",
         // accessor: "Company",
-        width: 200,
+        width: 150,
 
         Cell: ({ row }) => {
           const companies =
-            row.original.Branches?.map((b) => b.Company.name) || [];
+            row.original.Companies?.map((b) => b.name) || [];
           const uniqueCompanies = [...new Set(companies)];
           return uniqueCompanies.join(", ");
+        },
+
+        filter: CompanyFilter,
+        filterable: true,
+      },
+      {
+        Header: "Project",
+        // accessor: "Company",
+        width: 200,
+
+        Cell: ({ row }) => {
+          const projects =
+            row.original.Projects?.map((b) => b.Name) || [];
+          const uniqueprojects = [...new Set(projects)];
+          return uniqueprojects.join(", ");
         },
 
         filter: CompanyFilter,
@@ -241,7 +235,7 @@ const UserManagement = () => {
         width: 200,
 
         Cell: ({ row }) =>
-          row.original.Roles.map((role) => role.name).join(", ") || "N/A",
+          row.original.Roles?.map((role) => role.name).join(", ") || "N/A",
         filter: roleFilter,
         filterable: true,
       },
@@ -287,16 +281,15 @@ const UserManagement = () => {
       // },
       {
         accessor: "status",
-        Header: "Edit Status",
-        Cell: ({ row }) => (
-          <Switch
-            checked={row.original.status}
-            onChange={(e) =>
-              handleStatusChange(row.original.id, e.target.checked)
-            
-            }
-          />
-        ),
+        Header: "Status",
+        width:150,
+        Cell: ({ row }) => 
+            row.original.status === 1 ? (
+                     <Tag children="Active" design="Positive" size="S" />
+                   ) : (
+                     <Tag children="Inactive" design="Negative" size="S" />
+                   ),
+        
       },
       {
         Header: "Actions",
@@ -306,12 +299,19 @@ const UserManagement = () => {
         disableResizing: true,
         disableSortBy: true,
         id: "actions",
-        width: 300,
+        width: 150,
         Cell: (instance) => {
           const { cell, row, webComponentsReactProperties } = instance;
           const isOverlay = webComponentsReactProperties.showOverlay;
           return (
             <FlexBox alignItems="Center">
+              <Button
+                icon="sap-icon://edit"
+                disabled={isOverlay}
+                design="Transparent"
+                //onClick={() => { setLayout("TwoColumnsMidExpanded");setViewItem(row.original)}}
+                onClick={() => handleEdit(row.original)}
+              />
               <Button
                 icon="sap-icon://show"
                 disabled={isOverlay}
@@ -319,13 +319,7 @@ const UserManagement = () => {
                 //onClick={() => { setLayout("TwoColumnsMidExpanded");setViewItem(row.original)}}
                 onClick={() => handleView(row.original)}
               />
-              <Button
-                icon="sap-icon://delete"
-                disabled={isOverlay}
-                design="Transparent"
-                //onClick={() => { setLayout("TwoColumnsMidExpanded");setViewItem(row.original)}}
-                onClick={() => handleDelete(row.original)}
-              />
+             
             </FlexBox>
           );
         },
@@ -496,8 +490,8 @@ const UserManagement = () => {
       <SyncEmployeedialog
         open={isEmployeeSyncing}
         setIsEmployeeSyncing={setIsEmployeeSyncing}
-        companies={companies}
-        roles={roles}
+        companies={companyList}
+        roles={roleList}
         handlesyncEmployees={handlesyncEmployees}
       />
     </>

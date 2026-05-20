@@ -6,6 +6,7 @@ import { fetchPermissions } from '../../../store/slices/permissionSlice';
 import { fetchBranch } from '../../../store/slices/branchesSlice';
 import { fetchRoleById, updateRole } from '../../../store/slices/roleSlice';
 import RoleForm from './RoleForm';
+import { fetchCustomerAdminRoleById, updateCustomerAdminRole } from '../../../store/slices/customerAdminSlice';
 
 
 const EditCustomerRole = () => {
@@ -14,18 +15,21 @@ const EditCustomerRole = () => {
     const { id } = useParams();
     const [apiError, setApiError] = useState(null);
     const { permissions, loading: permissionsLoading } = useSelector(state => state.permissions);
-    const { currentRole, loading: roleLoading } = useSelector(state => state.roles);
     const branches = useSelector(state => state.branches.branches);
+      const { userList,companyList,roleList, loading } = useSelector((state) => state.customerAdmin);
+    
+      const currentCustomerAdminRole = roleList && roleList.find((c) => c.id === id);
 
     useEffect(() => {
         //dispatch(fetchPermissions());
         //dispatch(fetchRoleById(id));
  const fetchData = async () => {
           try {
-            const res = await dispatch(fetchPermissions()).unwrap();
+            const res = dispatch(fetchCustomerAdminRoleById(id)).unwrap();
+            await dispatch(fetchPermissions()).unwrap();
             await dispatch(fetchBranch()).unwrap();
             console.log("resusers", res);
-            dispatch(fetchRoleById(id));
+            
             if (res.message === "Please Login!") {
               navigate("/");
             }
@@ -42,49 +46,34 @@ const EditCustomerRole = () => {
     try {
         const payload = {
             id,
-            data: {
-            name: data.name,
-            scope: data.scope,
-            status: parseInt(data.status),
-            branchId: data.branchId === "null" ? null : data.branchId,
-        ...(data.scope === "master"
-          ? {
-              // master → use permissionIds only
-              permissionIds: (data.permissionIds || []).map((perm) =>
-                typeof perm === "object" ? perm.id : perm
-              ),
-            }
-          : {
-              // user → use userMenus only
-              userMenus: data.userMenus || [],
-            }),
-            }
+            data:{name: data.name,
+        status: data.status,
+        companyId: data.companyId,
+
+        // user → use userMenus only
+        userMenuIds: data.customermenus || []}
         };
    
-      await dispatch(updateRole(payload)).unwrap();
-      navigate('/admin/roles');
+      await dispatch(updateCustomerAdminRole(payload)).unwrap();
+      navigate('/CustomerAdmin/RoleManagement');
     } catch (err) {
       setApiError(err.message || 'Failed to update role');
     }
   };
 
-  if (roleLoading || permissionsLoading || !currentRole) {
-    return <div>Loading...</div>;
-  }
-{console.log("currentRole",currentRole  )}
+
+{console.log("currentCustomerAdminRole",currentCustomerAdminRole  )}
   return <RoleForm 
             onSubmit={handleUpdate} 
             defaultValues={{
-                id: currentRole.id,
-                name: currentRole.name || '',
-                scope:currentRole.scope || 'user',
-                branchId: currentRole.branchId ? String(currentRole.branchId) : 'null',
-                companyId:branches.find(b => b.id === currentRole.branchId)?.companyId ? String(branches.find(b => b.id === currentRole.branchId)?.companyId) : 'null',
-                status: String(currentRole.status ?? '1'),
-                permissionIds: Array.isArray(currentRole.Permissions)
-                ? currentRole.Permissions.map(p => p.id)
-                : [],
-                 UserMenus: currentRole.UserMenus ? currentRole.UserMenus : []
+                id: currentCustomerAdminRole.id,
+                name: currentCustomerAdminRole.name || '',
+                companyId: currentCustomerAdminRole.companyId||'',
+                status: String(currentCustomerAdminRole.status ?? '1'),
+                // permissionIds: Array.isArray(currentCustomerAdminRole.Permissions)
+                // ? currentCustomerAdminRole.Permissions.map(p => p.id)
+                // : [],
+                 UserMenus: currentCustomerAdminRole.UserMenus ? currentCustomerAdminRole.UserMenus : []
             }}
             permissions={permissions} 
             apiError={apiError} 

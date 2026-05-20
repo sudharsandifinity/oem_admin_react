@@ -27,20 +27,19 @@ const SyncEmployeedialog = (props) => {
     const handleselectedCompany = (company) => {
     console.log(
       "handleselectedCompany",      
-      company,
+      company,roles
     );
 
     console.log("selectedCompany", selectedCompany,roles);
 
-     roleList.push(
-      ...roles.filter(
-        (r) =>
-          r.status &&
-        selectedCompany&& r.companyId === selectedCompany
-      )
-    );
-    console.log("rolelist", roleList);
-    setRoleList(roleList);
+       const filteredRoles = roles.filter(
+    (r) =>
+      r.status &&
+      r.companyId === company
+  );
+
+    console.log("rolelist", filteredRoles);
+    setRoleList(filteredRoles);
   
 }
   const handleSubmit = (callback) => (event) => {
@@ -97,7 +96,6 @@ const SyncEmployeedialog = (props) => {
                   </Option>
 {console.log("companies",companies)}
                   {companies
-                    .filter((r) => r.status)
                     .map((r) => (
                       <Option key={r.id} value={r.id}>
                         {r.name}

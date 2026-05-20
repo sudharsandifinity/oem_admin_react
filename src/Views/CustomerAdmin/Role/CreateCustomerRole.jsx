@@ -3,23 +3,21 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import RoleForm from "./RoleForm";
 import { fetchPermissions } from "../../../store/slices/permissionSlice";
-import { fetchCompanies } from "../../../store/slices/companiesSlice";
 import { createRole } from "../../../store/slices/roleSlice";
-
+import { createCustomerAdminRole } from "../../../store/slices/customerAdminSlice";
 
 const CreateCustomerRole = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { permissions } = useSelector((state) => state.permissions);
   const [apiError, setApiError] = useState(null);
-  const { companies } = useSelector((state) => state.companies);
 
   useEffect(() => {
     //dispatch(fetchPermissions());
     const fetchData = async () => {
       try {
         const res = await dispatch(fetchPermissions()).unwrap();
-        dispatch(fetchCompanies());
+       
         console.log("resusers", res);
 
         if (res.message === "Please Login!") {
@@ -38,27 +36,19 @@ const CreateCustomerRole = () => {
     try {
       const roleData = {
         name: data.name,
-        scope: data.scope,
         status: data.status,
-        branchId: data.branchId === "null" ? null : data.branchId,
-        ...(data.scope === "master"
-          ? {
-              // master → use permissionIds only
-              permissionIds: (data.permissionIds || []).map((perm) =>
-                typeof perm === "object" ? perm.id : perm
-              ),
-            }
-          : {
-              // user → use userMenus only
-              userMenus: data.userMenus || [],
-            }),
+        companyId: data.companyId,
+
+        // user → use userMenus only
+        userMenuIds: data.customermenus || [],
       };
       console.log("object", roleData);
-      const res = await dispatch(createRole(roleData)).unwrap();
+      const res = await dispatch(createCustomerAdminRole(roleData)).unwrap();
+      console.log("rescustomeradmin",res)
       if (res.message === "Please Login!") {
         navigate("/login");
       } else {
-        navigate("/admin/roles");
+        navigate("/CustomerAdmin/RoleManagement");
       }
     } catch (error) {
       setApiError(error.error || "Failed to create role");
@@ -67,10 +57,8 @@ const CreateCustomerRole = () => {
   return (
     <RoleForm
       onSubmit={handleCreate}
-      companies={companies}
       defaultValues={{
         name: "",
-        scope: "master",
         status: "1",
         companyId: "null",
         permissionIds: [],

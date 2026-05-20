@@ -4,8 +4,39 @@ import api from '../../api/axios';
 // API Base URL
 const API_URL = '/admin/users';
 const EMPL_API_URL = '/admin/users/sync';
+const PROJECT_API_URL = '/admin/projects'
+const SYNCPROJECT_API_URL = '/admin/projects/sync'
 
 // Thunks for API calls
+export const fetchProjects = createAsyncThunk('projects/fetchProjects', async () => {
+  const response = await api.get(PROJECT_API_URL, {withCredentials: true});
+  return response.data;
+});
+
+export const syncProjects = createAsyncThunk(
+  "syncproject/syncProjects",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await api.get(
+        SYNCPROJECT_API_URL,
+        {
+          withCredentials: true,
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      return response.data;
+    } catch (err) {
+      console.log("SYNC PROJECT ERROR", err.response);
+
+      return rejectWithValue(
+        err.response?.data?.message || "Error syncing projects"
+      );
+    }
+  }
+);
 export const createEmployee = createAsyncThunk('Employees/createEmployee', async (userData) => {
   const response = await api.post(EMPL_API_URL, userData, {withCredentials: true});
   return response.data;
@@ -41,12 +72,26 @@ const usersSlice = createSlice({
   initialState: {
     users: [],
     Employees: [],
+    projects:[],
+  syncproject: [],
     loading: false,
     error: null
   },
   reducers: {},
   extraReducers: (builder) => {
     builder
+     .addCase(fetchProjects.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchProjects.fulfilled, (state, action) => {
+        state.loading = false;
+        state.projects = action.payload;
+      })
+      .addCase(fetchProjects.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
       .addCase(fetchUsers.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -71,7 +116,26 @@ const usersSlice = createSlice({
       })
       .addCase(deleteUser.fulfilled, (state, action) => {
         state.users = state.users.filter((u) => u.id !== action.payload);
-      });
+      })
+       .addCase(syncProjects.pending, (state) => {
+  state.loading = true;
+  state.error = null;
+})
+
+.addCase(syncProjects.fulfilled, (state, action) => {
+  state.loading = false;
+
+  // if response is array
+  state.syncproject = action.payload;
+
+  // OR if you want to append single item use:
+  // state.syncproject.push(action.payload);
+})
+
+.addCase(syncProjects.rejected, (state, action) => {
+  state.loading = false;
+  state.error = action.payload;
+});
   }
 });
 
