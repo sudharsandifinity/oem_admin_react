@@ -1004,32 +1004,7 @@ const Itemtable = (props) => {
         ),
       },
 
-      {
-        Header: "UOM",
-        accessor: "uom",
-        Cell: ({ row }) => (
-          <>
-            <Input
-              value={row.original.uom ? row.original.uom : ""}
-              readonly
-              disabled={mode === "view"}
-              style={{ textAlign: "right" }}
-              onFocus={(e) =>
-                (e.target.style.borderBottom = "1px solid #007aff")
-              }
-              onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
-              onClick={() =>
-                // !row.original.UOM &&
-                {
-                  setSelectedProjectRowIndex(row.index);
-                  setisProjectDialogOpen(true);
-                }
-              }
-            />
-            
-          </>
-        ),
-      },
+      
 
       {
         Header: "Stage",
@@ -1138,7 +1113,52 @@ const Itemtable = (props) => {
           </>
         ),
       },
-
+      {
+        Header: "Open Qty",
+        accessor: "openQty",
+        Cell: ({ row }) => (
+          <>
+            <Input
+              value={row.original.openQty ? row.original.openQty : ""}
+              readonly
+              disabled={mode === "view"}
+              style={{ textAlign: "right" }}
+              onFocus={(e) =>
+                (e.target.style.borderBottom = "1px solid #007aff")
+              }
+              onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
+              
+            />
+            
+          </>
+        ),
+      },
+{
+        Header: "UOM",
+        accessor: "uom",
+        Cell: ({ row }) => (
+          <>
+            <Input
+              value={row.original.uom ? row.original.uom : ""}
+              readonly
+              disabled={mode === "view"}
+              style={{ textAlign: "right" }}
+              onFocus={(e) =>
+                (e.target.style.borderBottom = "1px solid #007aff")
+              }
+              onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
+              onClick={() =>
+                // !row.original.UOM &&
+                {
+                  setSelectedProjectRowIndex(row.index);
+                  setisProjectDialogOpen(true);
+                }
+              }
+            />
+            
+          </>
+        ),
+      },
       {
         Header: "Rate Total",
         accessor: "rateTotal",

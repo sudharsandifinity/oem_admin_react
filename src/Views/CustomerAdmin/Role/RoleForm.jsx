@@ -27,11 +27,10 @@ import {
 } from "@ui5/webcomponents-react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchCompanies } from "../../../store/slices/companiesSlice";
-import { fetchUserMenus } from "../../../store/slices/usermenusSlice";
-import { fetchBranch } from "../../../store/slices/branchesSlice";
-import AppBar from "../../../Components/Module/Appbar";
+import { fetchCustomerAdminCompanyList, fetchCustomerAdminUserList, fetchCustomerMenus } from "../../../store/slices/customerAdminSlice";
 
+import AppBar from "../../../Components/Module/Appbar";
+import { fetchUserMenus } from "../../../store/slices/usermenusSlice";
 
 // Validation schema
 const schema = yup.object().shape({
@@ -76,24 +75,18 @@ const RoleForm = ({
     defaultValues.companyId ? defaultValues.companyId : "",
   );
 
-  const { companies } = useSelector((state) => state.companies);
-  const { branches } = useSelector((state) => state.branches);
   const { usermenus, loading } = useSelector((state) => state.usermenus);
+    const { userList,companyList,roleList,customermenus } = useSelector((state) => state.customerAdmin);
 
-  const branchList = selectedCompany
-    ? branches.filter((branch) => branch.Company.id === selectedCompany)
-    : branches;
+
 
   const dispatch = useDispatch();
   const permissionIds = watch("permissionIds");
-  const userMenus = watch("UserMenus");
   const branchid = watch("branchId");
-  console.log("userMenus", userMenus);
+  console.log("userMenus", customermenus);
   const navigate = useNavigate();
   const formRef = useRef(null);
-  const [currScope, setCurrscope] = useState(
-    mode === "edit" ? defaultValues.scope : "master",
-  );
+  
   const [selectedBranch, setSelectedBranch] = useState(
     branchid ? branchid : "",
   );
@@ -109,11 +102,13 @@ const RoleForm = ({
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await dispatch(fetchCompanies()).unwrap();
-        await dispatch(fetchUserMenus()).unwrap();
-        await dispatch(fetchBranch()).unwrap();
+        const res = await dispatch(fetchCustomerAdminCompanyList()).unwrap();
+        await dispatch(fetchCustomerAdminUserList()).unwrap();
+        
+        //await dispatch(fetchUserMenus()).unwrap();
+        const customermenuRes = await dispatch(fetchCustomerMenus()).unwrap();
 
-        console.log("resusers", res);
+        console.log("resusers", res,customermenuRes);
         if (res.message === "Please Login!") {
           navigate("/");
         }
@@ -124,167 +119,235 @@ const RoleForm = ({
     };
     fetchData();
   }, [dispatch]);
-  // const handleChange = (row) => {
+ const handleChange = (e, permissionName, menuId, parentId) => {
+  const checked = e.target.checked;
 
-  //   const permissionName = row;
-  //   console.log("handlechange",permissionName,permissions)
-  //   const permission = permissions.find(per => per.name === permissionName.toLowerCase());
-  //   console.log("permission",permission)
+  let current = [...(getValues("customermenus") || [])];
 
-  //   if (!permission) return; // safeguard in case not found
+  // Find existing menu permission
+  const existingIndex = current.findIndex((m) => m.menuId === menuId);
 
-  //   const existId = permission.id;
-  //   const exists = permissionIds.includes(existId);
+  // -----------------------------
+  // 1. UPDATE CURRENT MENU
+  // -----------------------------
+  if (existingIndex > -1) {
+    current[existingIndex][permissionName] = checked;
+  } else {
+    current.push({
+      menuId,
+      can_list_view: false,
+      can_create: false,
+      can_edit: false,
+      can_view: false,
+      can_delete: false,
+      [permissionName]: checked,
+    });
+  }
 
-  //   const updated = exists
-  //     ? permissionIds.filter(pid => pid !== existId) // remove if already selected
-  //     : [...permissionIds, existId];       // add if not present
-  // console.log("updated",updated,permissionIds,exists)
+  // -----------------------------
+  // 2. CHILD -> PARENT AUTO SELECT
+  // -----------------------------
+  if (parentId) {
+    const parentIndex = current.findIndex((m) => m.menuId === parentId);
 
-  //   setValue("permissionIds", updated);
-  // };
-  const handleChange = (e, permissionName, menuId) => {
-    const checked = e.target.checked;
-
-    if (currScope === "master") {
-      // Master scope logic remains the same
-      const permission = permissions.find(
-        (per) => per.name === permissionName.toLowerCase(),
-      );
-      if (!permission) return;
-
-      const id = permission.id;
-      let updated = checked
-        ? [...new Set([...permissionIds, id])]
-        : permissionIds.filter((pid) => pid !== id);
-
-      setValue("permissionIds", updated, {
-        shouldValidate: true,
-        shouldDirty: true,
-        shouldTouch: true,
-      });
-    } else {
-      // User scope
-      let current = getValues("userMenus") || [];
-      console.log("current", current, menuId);
-      const existing = current.find((m) => m.menuId === menuId);
-      const menu = menulist.find((m) => m.id === menuId);
-      const defaultPermsParent = {
-        menuId: menu && menu.parentUserMenuId ? menu.parentUserMenuId : "",
-        can_list_view: true,
-        can_create: false,
-        can_edit: false,
-        can_view: false,
-        can_delete: false,
-      };
-      const defaultPerms = {
-        menuId,
-        can_list_view: false,
-        can_create: false,
-        can_edit: false,
-        can_view: false,
-        can_delete: false,
-      };
-      if (existing) {
-        current = current.map((m) =>
-          m.menuId === menuId ? { ...m, [permissionName]: checked } : m,
-        );
+    if (checked) {
+      // add/select parent automatically
+      if (parentIndex > -1) {
+        current[parentIndex].can_list_view = true;
       } else {
-        //current = [...current,{...defaultPermsParent}, { ...defaultPerms, [permissionName]: checked }];
-        const newEntries = [];
-
-        // ✅ Add parent ONLY if it exists
-        if (menu?.parentUserMenuId) {
-          newEntries.push({
-            menuId: menu.parentUserMenuId,
-            can_list_view: true,
-            can_create: false,
-            can_edit: false,
-            can_view: false,
-            can_delete: false,
-          });
-        }
-
-        // ✅ Always add current menu
-        newEntries.push({
-          menuId,
-          can_list_view: false,
+        current.push({
+          menuId: parentId,
+          can_list_view: true,
           can_create: false,
           can_edit: false,
           can_view: false,
           can_delete: false,
-          [permissionName]: checked,
         });
-
-        current = [...current, ...newEntries];
       }
+    } else {
+      // if all children unchecked -> uncheck parent
+      const siblings = menuListData.filter(
+        (m) => m.parentId === parentId
+      );
 
-      // Handle parent-child syncing only for List permission
-      console.log("permissionName", permissionName, menulist);
-      //if (permissionName === "can_list_view") {
-      console.log("menu::->", menu);
-      // 1️⃣ Child → Parent
-      if (menu && menu.parentUserMenuId) {
-        const siblings = menulist.filter(
-          (m) => m.parentUserMenuId === menu.parentUserMenuId,
-        );
-        console.log("siblings", siblings);
-        const anySiblingChecked = siblings.some((sib) =>
-          sib.id === menuId
-            ? checked
-            : current.find((c) => c.menuId === sib.id)?.can_list_view,
-        );
-        console.log("anySiblingChecked", anySiblingChecked, current);
-        current = current.map((m) =>
-          m.menuId === menu.parentUserMenuId
-            ? { ...m, can_list_view: anySiblingChecked }
-            : m,
+      const anyChecked = siblings.some((sib) => {
+        if (sib.id === menuId) return false;
+
+        const sibPermission = current.find(
+          (m) => m.menuId === sib.id
         );
 
-        console.log("currentaftersiblng", current);
-      }
-
-      // 2️⃣ Parent → Child
-      if (menu && !menu.parentUserMenuId) {
-        const children = menulist.filter((m) => m.parentUserMenuId === menuId);
-        current = current.map((m) =>
-          children.some((c) => c.id === m.menuId)
-            ? { ...m, can_list_view: checked }
-            : m,
-        );
-      }
-      //}
-
-      setValue("userMenus", current, {
-        shouldValidate: true,
-        shouldDirty: true,
-        shouldTouch: true,
+        return sibPermission?.can_list_view;
       });
-    }
-  };
 
-  const menulist = selectedBranch
-    ? usermenus
-        .map((menu) =>
-          menu.children.filter((child) => child.companyId === selectedCompany),
-        )
-        .flat()
-    : usermenus.map((menu) => menu.children).flat();
-  console.log("menuList", usermenus, menulist, selectedBranch);
-  // const filteredMenus = selectedCompany !
-  //  selectedCompany !== ""
-  //   ? usermenus.map(menu => ({
-  //       ...menu,
-  //       children: menu.children?.filter(child =>
-  //         child.companyId === selectedCompany || child.companyId === ""
-  //       ) || []
-  //     }))
-  //   : usermenus;
+      if (!anyChecked) {
+        current = current.map((m) =>
+          m.menuId === parentId
+            ? { ...m, can_list_view: false }
+            : m
+        );
+      }
+    }
+  }
+
+  // -----------------------------
+  // 3. PARENT -> CHILD AUTO SELECT
+  // -----------------------------
+  if (!parentId) {
+    const children = menuListData.filter(
+      (m) => m.parentId === menuId
+    );
+
+    children.forEach((child) => {
+      const childIndex = current.findIndex(
+        (m) => m.menuId === child.id
+      );
+
+      if (childIndex > -1) {
+        current[childIndex].can_list_view = checked;
+      } else {
+        current.push({
+          menuId: child.id,
+          can_list_view: checked,
+          can_create: false,
+          can_edit: false,
+          can_view: false,
+          can_delete: false,
+        });
+      }
+    });
+  }
+
+  setValue("customermenus", current, {
+    shouldValidate: true,
+    shouldDirty: true,
+    shouldTouch: true,
+  });
+};
+  // const handleChange = (e, permissionName, menuId,parentId) => {
+  //   const checked = e.target.checked;
+
+  //     // User scope
+  //     let current = getValues("customermenus") || [];
+  //     console.log("current", current, menuId,parentId,menulist);
+  //     const existing = current.find((m) => m.menuId === menuId);
+  //     const menu = menulist.find((m) => m.id === parentId);
+  //     console.log("handlechange",menu,"existing",existing)
+  //     const defaultPermsParent = {
+  //       menuId: menu && menu.parentUserMenuId ? menu.parentUserMenuId : "",
+  //       can_list_view: true,
+  //       can_create: false,
+  //       can_edit: false,
+  //       can_view: false,
+  //       can_delete: false,
+  //     };
+  //     const defaultPerms = {
+  //       menuId,
+  //       can_list_view: false,
+  //       can_create: false,
+  //       can_edit: false,
+  //       can_view: false,
+  //       can_delete: false,
+  //     };
+  //     if (existing) {
+  //       current = current.map((m) =>
+  //         m.menuId === menuId ? { ...m, [permissionName]: checked } : m,
+  //       );
+  //     } else {
+  //       //current = [...current,{...defaultPermsParent}, { ...defaultPerms, [permissionName]: checked }];
+  //       const newEntries = [];
+
+  //       // ✅ Add parent ONLY if it exists
+  //       if (menu?.parentUserMenuId) {
+  //         newEntries.push({
+  //           menuId: menu.parentUserMenuId,
+  //           can_list_view: true,
+  //           can_create: false,
+  //           can_edit: false,
+  //           can_view: false,
+  //           can_delete: false,
+  //         });
+  //       }
+
+  //       // ✅ Always add current menu
+  //       newEntries.push({
+  //         menuId,
+  //         can_list_view: false,
+  //         can_create: false,
+  //         can_edit: false,
+  //         can_view: false,
+  //         can_delete: false,
+  //         [permissionName]: checked,
+  //       });
+
+  //       current = [...current, ...newEntries];
+  //     }
+
+  //     // Handle parent-child syncing only for List permission
+  //     console.log("permissionName", permissionName, menulist);
+  //     //if (permissionName === "can_list_view") {
+  //     console.log("menu::->", menu);
+  //     // 1️⃣ Child → Parent
+  //     if (menu && menu.parentUserMenuId) {
+  //       const siblings = menulist.filter(
+  //         (m) => m.parentUserMenuId === menu.parentUserMenuId,
+  //       );
+  //       console.log("siblings", siblings);
+  //       const anySiblingChecked = siblings.some((sib) =>
+  //         sib.id === menuId
+  //           ? checked
+  //           : current.find((c) => c.menuId === sib.id)?.can_list_view,
+  //       );
+  //       console.log("anySiblingChecked", anySiblingChecked, current);
+  //       current = current.map((m) =>
+  //         m.menuId === menu.parentUserMenuId
+  //           ? { ...m, can_list_view: anySiblingChecked }
+  //           : m,
+  //       );
+
+  //       console.log("currentaftersiblng", current);
+  //     }
+
+  //     // 2️⃣ Parent → Child
+  //     if (menu && !menu.parentUserMenuId) {
+  //       const children = menulist.filter((m) => m.parentUserMenuId === menuId);
+  //       current = current.map((m) =>
+  //         children.some((c) => c.id === m.menuId)
+  //           ? { ...m, can_list_view: checked }
+  //           : m,
+  //       );
+  //     }
+  //     //}
+
+  //     setValue("customermenus", current, {
+  //       shouldValidate: true,
+  //       shouldDirty: true,
+  //       shouldTouch: true,
+  //     });
+    
+  // };
+
+  // const menulist = selectedBranch
+  //   ? usermenus
+  //       .map((menu) =>
+  //         menu.children.filter((child) => child.branchId === selectedBranch),
+  //       )
+  //       .flat()
+  //   : usermenus.map((menu) => menu.children).flat();
+  const menulist = selectedCompany !== ""
+    ? customermenus.map(menu => ({
+        ...menu,
+        children: menu.children?.filter(child =>
+          child.companyId === selectedCompany || child.companyId === ""
+        ) || []
+      }))
+    : customermenus;
+  console.log("menuList", customermenus, menulist, selectedBranch);
 
   useEffect(() => {
-    console.log("userMenuPermission", userMenus);
-    if (mode === "edit" && userMenus?.length) {
-      const prefilled = userMenus.map((menu) => ({
+    console.log("userMenuPermission", customermenus);
+    if (mode === "edit" && customermenus?.length) {
+      const prefilled = customermenus.map((menu) => ({
         menuId: menu.id, // id from your API object
         can_list_view: menu.RoleMenu?.can_list_view ?? false,
         can_create: menu.RoleMenu?.can_create ?? false,
@@ -293,19 +356,20 @@ const RoleForm = ({
         can_delete: menu.RoleMenu?.can_delete ?? false,
       }));
 
-      setValue("userMenus", prefilled, {
+      setValue("customermenus", prefilled, {
         shouldValidate: false,
         shouldDirty: false,
         shouldTouch: false,
       });
     }
-  }, [mode, userMenus, setValue]);
+  }, [mode, customermenus, setValue]);
   const buildMenuListData = () => {
+     console.log("buildMenuListData",customermenus)
     const list = [];
-
-    (selectedCompany
-      ? usermenus.filter((m) => m.companyId === selectedCompany&&m.status)
-      : usermenus
+   
+    (selectedCompany !== ""
+      ? customermenus.filter((m) => m.companyId === selectedCompany)
+      : customermenus
     ).forEach((menu) => {
       // Add parent row
       list.push({
@@ -319,8 +383,7 @@ const RoleForm = ({
         Delete: "",
       });
       // Add children rows
-      menu.children
-        .filter((child) => !selectedCompany || child.companyId === selectedCompany&&child.status)
+      menu.children?.filter((child) => !selectedCompany || child.companyId === selectedCompany)
         .forEach((child) => {
           list.push({
             Module: child.name,
@@ -350,7 +413,7 @@ const RoleForm = ({
   //   Edit: "",
   //   Delete: "",
   // }));
-  console.log("usermenus", usermenus, menulist, selectedBranch);
+  console.log("customermenus", customermenus, menulist, selectedBranch);
 
   const columns = useMemo(
     () => [
@@ -370,21 +433,25 @@ const RoleForm = ({
           const permissionName = fieldMap[col];
 
           const isParent = row.original.isParent;
-          const current = getValues("userMenus") || [];
+          const current = getValues("customermenus") || [];
           const existing = current.find((m) => m.menuId === row.original.id);
           const isChecked = existing ? existing[permissionName] : false;
-
           return (
             <CheckBox
               checked={isChecked}
               disabled={isParent && permissionName !== "can_list_view"} // optional: prevent editing parent for non-list
-              onChange={(e) => handleChange(e, permissionName, row.original.id)}
+              onChange={(e) => handleChange(
+    e,
+    permissionName,
+    row.original.id,
+    row.original.parentId
+  )}
             />
           );
         },
       })),
     ],
-    [getValues, currScope, menuListData],
+    [getValues, menuListData],
   );
 
   const data = [
@@ -483,11 +550,11 @@ const RoleForm = ({
                 }}
                 separators="Slash"
               >
-                <BreadcrumbsItem data-route="/CustomerAdmin">Customer Admin</BreadcrumbsItem>
+                <BreadcrumbsItem data-route="/admin">Admin</BreadcrumbsItem>
                 <BreadcrumbsItem data-route="/CustomerAdmin/RoleManagement">
                   Roles
                 </BreadcrumbsItem>
-                <BreadcrumbsItem data-route="/CustomerAdmin/RoleManagement/create"> 
+                <BreadcrumbsItem data-route="/admin/roles/create">
                   {mode === "edit" ? "Edit Role " : "Create Role"}
                 </BreadcrumbsItem>
               </Breadcrumbs>
@@ -587,40 +654,7 @@ const RoleForm = ({
             })}
           >
             <FlexBox style={{ paddingTop: "2rem" }}>
-              <FlexBox direction="Column" style={{ flex: " 28%" }}>
-                <Label>Scope</Label>{" "}
-                <FlexBox label={<Label required>Scope</Label>}>
-                  <Controller
-                    name="scope"
-                    control={control}
-                    render={({ field }) => (
-                      <Select
-                        style={{ width: "80%" }}
-                        name="scope"
-                        value={field.value ?? "master"}
-                        onChange={(e) => {
-                          field.onChange(e.target.value);
-                          setCurrscope(e.target.value);
-                        }}
-                        valueState={errors.scope ? "Error" : "None"}
-                      >
-                        <Option value="master">master</Option>
-
-                        <Option value="user">User</Option>
-                      </Select>
-                    )}
-                  />
-
-                  {errors.scope && (
-                    <span
-                      slot="valueStateMessage"
-                      style={{ color: "var(--sapNegativeColor)" }}
-                    >
-                      {errors.scope.message}
-                    </span>
-                  )}
-                </FlexBox>
-              </FlexBox>
+              
               <FlexBox direction="Column" style={{ flex: " 28%" }}>
                 <Label>Company</Label>{" "}
                 <FlexBox label={<Label required>Company</Label>}>
@@ -635,7 +669,6 @@ const RoleForm = ({
                     render={({ field }) => (
                       <Select
                         style={{ width: "80%" }}
-                        disabled={currScope === "master"}
                         name="companyId"
                         value={field.value ?? ""}
                         onChange={(e) => {
@@ -648,10 +681,9 @@ const RoleForm = ({
                         <Option key="select" value="">
                           Select
                         </Option>
-                        {console.log("companieasass", companies)}
+                        {console.log("companieasass", companyList)}
 
-                        {companies
-                          .filter((r) => r.status)
+                        {companyList
                           .map((r) => (
                             <Option key={r.id} value={r.id}>
                               {r.name}
@@ -741,7 +773,7 @@ const RoleForm = ({
               <FlexBox direction="Column" style={{ marginTop: "1rem" }}>
                 <AnalyticalTable
                   columns={columns}
-                  data={currScope === "master" ? data : menuListData}
+                  data={menuListData}
                   selectionMode="None"
                   visibleRows={10}
                 />

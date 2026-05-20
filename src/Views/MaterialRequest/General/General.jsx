@@ -32,7 +32,6 @@ import CardDialog from "./CardCodeDialog/CardDialog";
 import { fetchPurBusinessPartner } from "../../../store/slices/purchaseorderSlice";
 import ProjectCodeDialog from "./ProjectCodeDialog/ProjectCodeDialog";
 import { fetchCustomerDetails } from "../../../store/slices/CustomerDetailsSlice";
-import { fetchProjectsDetails } from "../../../store/slices/salesAdditionalDetailsSlice";
 const schema = yup.object().shape({
   name: yup.string().required("Name is required"),
   city: yup.string().required("City is required"),
@@ -109,6 +108,8 @@ const General = ({
   const [projectdialogOpen, setProjectDialogOpen] = useState(false);
   const [projectList, setProjectList] = useState([]);
   const [selectedProject, setSelectedProject] = useState(null);
+   const {user} = useSelector((state) => state.auth);
+  
 
   const handleProjectCodeDialogOpen = () => setProjectDialogOpen(true);
   const handleProjectDialogClose = () => setProjectDialogOpen(false);
@@ -120,14 +121,13 @@ const General = ({
         let res = [];
 
         res = await dispatch(fetchCustomerDetails()).unwrap();
-        const projectDetails = await dispatch(fetchProjectsDetails()).unwrap();
-        const projectdataConfig = projectDetails.value.map((item) => ({
+        const projectdataConfig = user.Projects.map((item) => ({
           ProjectCode: item.Code,
           ProjectName: item.Name,
           status: item.Active === "tYES" ? "Active" : "Inactive",
         }));
         setProjectList(projectdataConfig);
-        console.log("fetchCustomerDetailsres", res, projectDetails);
+        console.log("fetchCustomerDetailsres",user, res);
 
         if (res?.length > 0) {
           const dataconfig = res.map((item) => ({

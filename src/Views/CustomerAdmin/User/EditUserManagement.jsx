@@ -3,11 +3,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { useParams, useNavigate } from "react-router-dom";
 
 import { BusyIndicator, FlexBox, MessageStrip } from "@ui5/webcomponents-react";
-import { fetchUserById, updateUser } from "../../../store/slices/usersSlice";
 import UserForm from "./UserForm";
-import { fetchCustomerAdminUserByID } from "../../../store/slices/customerAdminSlice";
+import { fetchCustomerAdminUserByID, updateCustomeradminUser } from "../../../store/slices/customerAdminSlice";
 
-const ViewUserManagement = () => {
+const EditUserManagement = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -30,12 +29,12 @@ const ViewUserManagement = () => {
     status: String(user?.status ?? '1'),
     password: user?.password || "",
     assignBranches: user?.Branches?.map((b) => b.id),
-    company: user?.Branches?.map((b) => b.Company.name) || "",
-    companyId: user?.Branches?.map((b) => b.Company.id) || "",
+    company: user?.Companies?.map((c) => c.name) || "",
+    companyId:user?.Companies?.map((c) => c.id) || "",
     is_super_user: user?.is_super_user?.toString() || "0" ,
     //formId: [],
-    branchIds: user?.Branches?.map((branch) => branch.id) || [],
-    branch: user?.Branches?.map((branch) => branch.name) || [],
+    projectIds: user?.Projects?.map((branch) => branch.id) || [],
+    projectId: user?.Projects?.map((branch) => branch.name) || [],
 
 
   };
@@ -59,19 +58,17 @@ const ViewUserManagement = () => {
   }, [dispatch, id, user]);
 
   const handleUpdate = async (data) => {
-    
+    console.log("data",data)
      try {
       
       const payload = {
         first_name: data.first_name,
         last_name: data.last_name,
-        email: data.email,
-        is_super_user: data.is_super_user,
         roleIds: data.roleIds,
-        branchIds: data.branchIds,
+        projectIds: data.projectIds,
         status: data.status,
       };
-      const res = await dispatch(updateUser({ id, data: payload })).unwrap();
+      const res = await dispatch(updateCustomeradminUser({ id, data: payload })).unwrap();
       if (res.message === "Please Login!") {
         navigate("/login");
       } else {
@@ -116,15 +113,15 @@ const ViewUserManagement = () => {
       </FlexBox>
     );
   }
-{console.log("convertedUser", convertedUser)}
   return (
     <UserForm
       onSubmitCreate={handleUpdate}
       defaultValues={convertedUser}
-      mode="view"
+      mode="edit"
       apiError={apiError}
     />
   );
 };
 
-export default ViewUserManagement;
+
+export default EditUserManagement
