@@ -66,7 +66,10 @@ import { createCustomerOrder } from "../../store/slices/CustomerOrderSlice";
 import { createSalesQuotation } from "../../store/slices/SalesQuotationSlice";
 import BarDesign from "@ui5/webcomponents/dist/types/BarDesign.js";
 
-import { createPurchaseOrder, fetchPurchaseOrder } from "../../store/slices/PurchaseOrderSlice";
+import {
+  createPurchaseOrder,
+  fetchPurchaseOrder,
+} from "../../store/slices/PurchaseOrderSlice";
 import { createPurchaseQuotation } from "../../store/slices/PurchaseQuotation";
 import {
   createPurchaseRequest,
@@ -75,7 +78,7 @@ import {
 } from "../../store/slices/PurchaseRequestSlice";
 import { createPurchaseDeliveryNotes } from "../../store/slices/purDeliveryNoteSlice";
 import CopyFromDialog from "./CopyFromDialog/CopyFromDialog";
-import { fetchitemprices } from "../../store/slices/salesAdditionalDetailsSlice";
+import { fetchEmployees, fetchitemprices } from "../../store/slices/salesAdditionalDetailsSlice";
 
 export default function SalesOrder() {
   const { fieldConfig, CustomerDetails, DocumentDetails } =
@@ -119,6 +122,7 @@ export default function SalesOrder() {
   const [selectedItemOwner, setSelectedItemOwner] = useState("");
   const [selectedServiceOwner, setSelectedServiceOwner] = useState("");
   const [selectedServices, setSelectedServices] = useState({});
+  const [employeeList, setEmployeeList] = useState([]);
   const [itemTabledata, setitemTableData] = useState([
     {
       slno: 1,
@@ -131,7 +135,7 @@ export default function SalesOrder() {
       Warehouse: "",
     },
   ]);
-  console.log("selectedItemOwner",selectedItemOwner)
+  console.log("selectedItemOwner", selectedItemOwner);
   const [summaryData, setSummaryData] = useState({});
   const [itemdata, setitemData] = useState([
     { slno: 1, ItemCode: "", ItemName: "", quantity: "", amount: "" },
@@ -171,7 +175,7 @@ export default function SalesOrder() {
     const res = await dispatch(fetchPurchaseOrder()).unwrap();
     const currentType =
       type === "Item" ? "dDocument_Items" : "dDocument_Service";
-        const raw = res?.data?.value ?? res?.data ?? res?.value ?? res;
+    const raw = res?.data?.value ?? res?.data ?? res?.value ?? res;
 
     setRequestList(raw.filter((val) => val.DocType === currentType));
     console.log("currentType", currentType, res?.data);
@@ -212,7 +216,18 @@ export default function SalesOrder() {
     const newRows = form[key].filter((_, idx) => idx !== i);
     setForm({ ...form, [key]: newRows });
   };
-
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const employeeList = await dispatch(fetchEmployees()).unwrap();
+        setEmployeeList(employeeList && employeeList);
+      } catch (err) {
+        console.log("Failed to fetch user", err.message);
+        //err.message && navigate("/");
+      }
+    };
+    fetchData();
+  }, [dispatch, formDetails]);
   const handleSubmit = async () => {
     try {
       console.log(
@@ -267,6 +282,11 @@ export default function SalesOrder() {
           NumAtCard: formData.CustomerRefNo || "",
           DocType: "dDocument_Items",
           DocumentsOwner: selectedItemOwner || "",
+          ...(formDetails[0]?.name === "Purchase Request" && {
+            RequesterEmail: employeeList.find(
+              (e) => e.EmployeeID === selectedItemOwner,
+            )?.eMail,
+          }),
           DocumentLines: itemTabledata.map((line) => ({
             ItemCode: line.ItemCode,
             ItemDescription: line.ItemName,
@@ -312,11 +332,7 @@ export default function SalesOrder() {
         };
       } else {
         {
-          console.log(
-            "isSalesMenu",
-            isSalesMenu,
-            formData.ReqDate,
-          );
+          console.log("isSalesMenu", isSalesMenu, formData.ReqDate);
         }
         payload = {
           CardCode: formData.CardCode || selectedcardcode,
@@ -351,6 +367,11 @@ export default function SalesOrder() {
           //DocEntry: formData.DocEntry,
           DocumentStatus: "open",
           DocumentsOwner: selectedServiceOwner || "",
+          ...(formDetails[0]?.name === "Purchase Request" && {
+            RequesterEmail: employeeList.find(
+              (e) => e.EmployeeID === selectedItemOwner,
+            )?.eMail,
+          }),
           ContactPerson: formData.ContactPerson || "",
           NumAtCard: formData.CustomerRefNo || "",
           DocumentLines: serviceTabledata.map((line) => ({
@@ -423,7 +444,15 @@ export default function SalesOrder() {
           formDataToSend.append(key, payload[key]);
         }
       });
-      console.log("formdatatosend", payload, formDataToSend, formDetails,"attachmentsList",attachmentsList);
+      console.log(
+        "formdatatosend",
+        payload,
+        formDataToSend,
+        formDetails,
+        "attachmentsList",
+        attachmentsList, 
+        employeeList
+      );
       let res = "";
       if (formDetails[0]?.name === "Sales Order") {
         res = await dispatch(createCustomerOrder(formDataToSend)).unwrap();

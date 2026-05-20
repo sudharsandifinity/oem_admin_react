@@ -239,7 +239,7 @@ const Contents = (props) => {
         //err.message && navigate("/");
       }
     };
-    fetchData();
+    fetchData(); 
   }, [dispatch, formDetails]);
   const onRowSelect = (e) => {
     //selectionChangeHandler(e.detail.row.original);

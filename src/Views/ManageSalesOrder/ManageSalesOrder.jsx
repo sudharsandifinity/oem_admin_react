@@ -103,66 +103,75 @@ const ManageSalesOrder = () => {
   };
   const fetchLoadMoreData = async () => {
     try {
-    
- let res = "";
-        if (formDetails[0]?.name === "Sales Order") {
-          res = await dispatch(
-            fetchCustomerOrder({ top: pageSize,
-          skip: page * pageSize, }),
-          ).unwrap();
-        } else if (formDetails[0]?.name === "Sales Quotation") {
-          res = await dispatch(
-            fetchSalesQuotations({ top: pageSize, skip: page * pageSize }),
-          ).unwrap();
-        } else if (
-          formDetails[0]?.name === "Purchase Order" ||
-          formDetails[0]?.name === "Purchase Orders"
-        ) {
-          res = await dispatch(
-            fetchPurchaseOrder({ top: pageSize, skip: page * pageSize }),
-          ).unwrap();
-        } else if (formDetails[0]?.name === "Purchase Quotation") {
-          res = await dispatch(
-            fetchPurchaseQuotation({ top: pageSize, skip: page * pageSize }),
-          ).unwrap();
-        } else if (formDetails[0]?.name === "Purchase Request") {
-          res = await dispatch(
-            fetchPurchaseRequest({ top: pageSize, skip: page * pageSize }),
-          ).unwrap();
-        } else if (formDetails[0]?.name === "GRPO") {
-          res = await dispatch(
-            fetchPurchaseDeliveryNotes({ top: pageSize, skip: page * pageSize }),
-          ).unwrap();
-        } else if (formDetails[0]?.name === "BOQ") {
-          // res = await dispatch(
-          //   fetchPurchaseDeliveryNotes({ top: pageSize, skip: 0 }),
-          // ).unwrap();
-          res = "";
-        } else if (formDetails[0]?.name === "Material Request") {
-          res = await dispatch(
-            fetchMaterialRequest({ top: pageSize, skip: page * pageSize }),
-          ).unwrap();
-        }
-console.log("materialrequestres",res,formDetails[0]?.name)
+      let res = "";
+      if (formDetails[0]?.name === "Sales Order") {
+        res = await dispatch(
+          fetchCustomerOrder({ top: pageSize, skip: page * pageSize }),
+        ).unwrap();
+      } else if (formDetails[0]?.name === "Sales Quotation") {
+        res = await dispatch(
+          fetchSalesQuotations({ top: pageSize, skip: page * pageSize }),
+        ).unwrap();
+      } else if (
+        formDetails[0]?.name === "Purchase Order" ||
+        formDetails[0]?.name === "Purchase Orders"
+      ) {
+        res = await dispatch(
+          fetchPurchaseOrder({ top: pageSize, skip: page * pageSize }),
+        ).unwrap();
+      } else if (formDetails[0]?.name === "Purchase Quotation") {
+        res = await dispatch(
+          fetchPurchaseQuotation({ top: pageSize, skip: page * pageSize }),
+        ).unwrap();
+      } else if (formDetails[0]?.name === "Purchase Request") {
+        res = await dispatch(
+          fetchPurchaseRequest({ top: pageSize, skip: page * pageSize }),
+        ).unwrap();
+      } else if (formDetails[0]?.name === "GRPO") {
+        res = await dispatch(
+          fetchPurchaseDeliveryNotes({ top: pageSize, skip: page * pageSize }),
+        ).unwrap();
+      } else if (formDetails[0]?.name === "BOQ") {
+        // res = await dispatch(
+        //   fetchPurchaseDeliveryNotes({ top: pageSize, skip: 0 }),
+        // ).unwrap();
+        res = "";
+      } else if (formDetails[0]?.name === "Material Request") {
+        res = []
+        // await dispatch(
+        //   fetchMaterialRequest({ top: pageSize, skip: page * pageSize }),
+        // ).unwrap();
+      }
+      console.log("materialrequestres", res, formDetails[0]?.name);
       if (res.length < pageSize) {
         setAllLoaded(true);
       }
-const raw = res?.data?.value ?? res?.data ?? res?.value ?? res;
-    
-        // Ensure it's an array
-        const list = Array.isArray(raw)
-          ? raw
-          : raw
-            ? [raw] // if it's single object
-            : []; // if null or undefined
+      const raw = res?.data?.value ?? res?.data ?? res?.value ?? res;
+
+      // Ensure it's an array
+      const list = Array.isArray(raw)
+        ? raw
+        : raw
+          ? [raw] // if it's single object
+          : []; // if null or undefined
       const newRecords = list.map((item) => ({
         DocEntry: item.DocEntry,
-          CustomerCode: item.CardCode || item.Requester || item.Creator,
-          CustomerName: item.CardName || item.RequesterName || item.Creator,
-          DocumentNo: item.DocNum,
-          DocumentLines: item.DocumentLines,
-          PostingDate: item.CreationDate || item.CreateDate? new Date(item.CreationDate || item.CreateDate).toLocaleDateString() : "-",
-          Status: item.DocumentStatus==="so_Open"?"Open":"Closed" || item.Status==="O"?"Open":"Closed",
+        CustomerCode: item.CardCode || item.Requester || item.Creator,
+        CustomerName: item.CardName || item.RequesterName || item.Creator,
+        DocumentNo: item.DocNum,
+        DocumentLines: item.DocumentLines,
+        PostingDate:
+          item.CreationDate || item.CreateDate
+            ? new Date(
+                item.CreationDate || item.CreateDate,
+              ).toLocaleDateString()
+            : "-",
+        Status:
+          item.DocumentStatus === "so_Open"
+            ? "Open"
+            : "Closed" || item.Status === "O"
+              ? "Open"
+              : "Closed",
       }));
 
       settableData((prev) => [...prev, ...newRecords]);
@@ -237,8 +246,18 @@ const raw = res?.data?.value ?? res?.data ?? res?.value ?? res;
           CustomerName: item.CardName || item.RequesterName || item.Creator,
           DocumentNo: item.DocNum,
           DocumentLines: item.DocumentLines,
-          PostingDate: item.CreationDate || item.CreateDate ? new Date(item.CreationDate || item.CreateDate).toLocaleDateString() : "-",
-          Status: item.DocumentStatus==="so_Open"?"Open":"Closed" || item.Status==="O"?"Open":"Closed",
+          PostingDate:
+            item.CreationDate || item.CreateDate
+              ? new Date(
+                  item.CreationDate || item.CreateDate,
+                ).toLocaleDateString()
+              : "-",
+          Status:
+            item.DocumentStatus === "so_Open"
+              ? "Open"
+              : "Closed" || item.Status === "O"
+                ? "Open"
+                : "Closed",
         }));
 
         settableData(initialData);
@@ -370,10 +389,9 @@ const raw = res?.data?.value ?? res?.data ?? res?.value ?? res;
   };
   const viewRow = async (rowData) => {
     console.log("rowData", rowData);
- title === "Material Request"
+    title === "Material Request"
       ? navigate("/MaterialRequest/view/" + formId + "/" + rowData.DocEntry)
       : navigate("/Order/view/" + formId + "/" + rowData.DocEntry);
-    
   };
 
   const columns = useMemo(
@@ -549,6 +567,21 @@ const raw = res?.data?.value ?? res?.data ?? res?.value ?? res;
       navigate("/");
     }
   }, [user, formId]);
+  const [showNoData, setShowNoData] = useState(false);
+
+  useEffect(() => {
+    let timer;
+
+    if (!loading && tableData.length === 0) {
+      timer = setTimeout(() => {
+        setShowNoData(true);
+      }, 2000);
+    } else {
+      setShowNoData(false);
+    }
+
+    return () => clearTimeout(timer);
+  }, [loading, tableData]);
 
   return (
     <div style={{ width: "100%" }}>
@@ -776,7 +809,9 @@ const raw = res?.data?.value ?? res?.data ?? res?.value ?? res;
                         noDataText={
                           loading ? (
                             "Loading data..."
-                          ) : tableData.length === 0 ? (
+                          ) : showNoData ? (
+                            "No Data Found"
+                          ) : (
                             <FlexBox
                               justifyContent="Center"
                               alignItems="Center"
@@ -784,8 +819,6 @@ const raw = res?.data?.value ?? res?.data ?? res?.value ?? res;
                             >
                               <BusyIndicator delay={1000} active size="M" />
                             </FlexBox>
-                          ) : (
-                            ""
                           )
                         }
                         sortable

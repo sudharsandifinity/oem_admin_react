@@ -240,7 +240,7 @@ const refreshStock = async () => {
   try {
     setLoading(true);
 
-    const res = await dispatch(fetchBOQList()).unwrap();
+    const res = await dispatch(fetchBOQList({ U_BPCode: formData.CusCode, U_PrjCode:formData.ProjectCode })).unwrap();
 
     const currentItemValues = itemTabledata.map((item) => ({
       ItemCode: item.ItemCode,
@@ -277,7 +277,7 @@ const refreshStock = async () => {
   const openBoqList = async () => {
     console.log("openBoqList");
     setIsCopyFromBOQ(true);
-    const res = await dispatch(fetchBOQList()).unwrap();
+    const res = await dispatch(fetchBOQList({ U_BPCode: formData.CusCode, U_PrjCode:formData.ProjectCode })).unwrap();
     const currentType =
       type === "Item" ? "dDocument_Items" : "dDocument_Service";
     const raw = res?.data?.value ?? res?.data ?? res?.value ?? res;
@@ -550,6 +550,7 @@ const refreshStock = async () => {
                       ? {
                           task: matched.U_Task, // usually LineNum is 0-based
                           BoqLineNum: matched.U_SQlineNum,
+                          LineId:matched.LineId,
                           ItemCode: matched.U_ItmSerCode,
                           ItemName: matched.U_ItemType,
                           fulldescription: matched.U_ItemDesc,
@@ -569,6 +570,7 @@ const refreshStock = async () => {
                       : {
                           task: item.U_Task, // usually LineNum is 0-based
                           BoqLineNum: item.U_SQlineNum,
+                          LineId:item.LineId,
                           ItemCode: item.U_ItmSerCode,
                           ItemName: item.U_ItemType,
                           fulldescription: item.U_ItemDesc,
@@ -600,6 +602,7 @@ const refreshStock = async () => {
                       ? {
                           task: matched.U_Task, // usually LineNum is 0-based
                           BoqLineNum: matched.U_SQlineNum,
+                          LineId:matched.LineId,
                           ItemCode: matched.U_ItmSerCode,
                           ItemName: matched.U_ItemType,
                           fulldescription: matched.U_ItemDesc,
@@ -619,6 +622,7 @@ const refreshStock = async () => {
                       : {
                           task: item.U_Task, // usually LineNum is 0-based
                           BoqLineNum: item.U_SQlineNum,
+                          LineId:item.LineId,
                           ItemCode: item.U_ItmSerCode,
                           ItemName: item.U_ItemType,
                           fulldescription: item.U_ItemDesc,
@@ -643,6 +647,7 @@ const refreshStock = async () => {
               orderListById.HLB_MRQ1Collection.map((item, index) => ({
                 task: item.U_Task, // usually LineNum is 0-based
                 BoqLineNum: item.U_SQlineNum,
+                LineId:item.LineId,
                 ItemCode: item.U_ItmSerCode,
                 ItemName: item.U_ItemType,
                 fulldescription: item.U_ItemDesc,
@@ -689,6 +694,7 @@ const refreshStock = async () => {
             ...prev,
             RequestorCode: orderListById.U_ReqCode,
             RequestorName: orderListById.U_ReqName,
+            eMail:orderListById.eMail,
             Department: orderListById.U_Dept,
             DocTotal: orderListById.DocTotal,
             ApprovalStatus: orderListById.U_AppStatus,
@@ -970,6 +976,7 @@ const refreshStock = async () => {
         U_Dept: summaryData.Department || "",
         U_DocTotal: summaryData.DocTotal || 0,
         HLB_MRQ1Collection: filteredData.map((item) => ({
+          LineId:item.LineId,
           U_ItmSerCode: item.ItemCode,
           U_ItemDesc: item.ItemName,
           U_ReqQty: item.quantity || 0,
@@ -1103,7 +1110,7 @@ const refreshStock = async () => {
                     Refresh Stock
                   </Button>
 
-                  <Button design="Default" onClick={openBoqList}>
+                  <Button design="Default" disabled={ !formData.CusCode && !formData.ProjectCode} onClick={openBoqList}>
                     BOQ Copy From
                   </Button>
 

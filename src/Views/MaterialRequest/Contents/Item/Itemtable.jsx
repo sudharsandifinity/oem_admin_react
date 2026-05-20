@@ -218,9 +218,11 @@ const Itemtable = (props) => {
     const selectedUserId = e.target.value;
    
     console.log("selectedUser", selectedUserId);
+    
     setSummaryData((prev) => ({
       ...prev,
       RequestorCode: selectedUserId,
+
     }));
   };
 
@@ -233,6 +235,7 @@ const Itemtable = (props) => {
     setSummaryData((prev) => ({
       ...prev,
       RequestorName: selectedUser ? selectedUser.UserName : "",
+      eMail:selectedUser?selectedUser.eMail:"",
       Department: selectedUser ? selectedUser.Department : "",
     }));
   };

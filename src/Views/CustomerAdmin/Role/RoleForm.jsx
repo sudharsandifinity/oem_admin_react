@@ -61,6 +61,7 @@ const RoleForm = ({
     handleSubmit,
     watch,
     setValue,
+    reset,
     getValues,
     formState: { errors },
   } = useForm({
@@ -83,6 +84,8 @@ const RoleForm = ({
   const dispatch = useDispatch();
   const permissionIds = watch("permissionIds");
   const branchid = watch("branchId");
+  const customerMenus = watch("customerMenus");
+
   console.log("userMenus", customermenus);
   const navigate = useNavigate();
   const formRef = useRef(null);
@@ -344,25 +347,50 @@ const RoleForm = ({
     : customermenus;
   console.log("menuList", customermenus, menulist, selectedBranch);
 
-  useEffect(() => {
-    console.log("userMenuPermission", customermenus);
-    if (mode === "edit" && customermenus?.length) {
-      const prefilled = customermenus.map((menu) => ({
-        menuId: menu.id, // id from your API object
-        can_list_view: menu.RoleMenu?.can_list_view ?? false,
-        can_create: menu.RoleMenu?.can_create ?? false,
-        can_edit: menu.RoleMenu?.can_edit ?? false,
-        can_view: menu.RoleMenu?.can_view ?? false,
-        can_delete: menu.RoleMenu?.can_delete ?? false,
-      }));
+ useEffect(() => {
+  if (mode === "edit" && defaultValues) {
+    const prefilledMenus =
+      defaultValues.UserMenus?.map((menu) => ({
+        menuId: menu.menuId || menu.id,
 
-      setValue("customermenus", prefilled, {
-        shouldValidate: false,
-        shouldDirty: false,
-        shouldTouch: false,
-      });
-    }
-  }, [mode, customermenus, setValue]);
+        can_list_view:
+          menu.RoleMenu?.can_list_view ?? false,
+
+        can_create:
+          menu.RoleMenu?.can_create ?? false,
+
+        can_edit:
+          menu.RoleMenu?.can_edit ?? false,
+
+        can_view:
+          menu.RoleMenu?.can_view ?? false,
+
+        can_delete:
+          menu.RoleMenu?.can_delete ?? false,
+      })) || [];
+
+    reset({
+      companyId: defaultValues.companyId || "",
+      name: defaultValues.name || "",
+      status: String(defaultValues.status ?? ""),
+      customermenus: prefilledMenus,
+    });
+
+    setSelectedCompany(defaultValues.companyId || "");
+  }
+
+  // Create mode reset
+  if (mode === "create") {
+    reset({
+      companyId: "",
+      name: "",
+      status: "",
+      customermenus: [],
+    });
+
+    setSelectedCompany("");
+  }
+}, [defaultValues, mode, reset]);
   const buildMenuListData = () => {
      console.log("buildMenuListData",customermenus)
     const list = [];
@@ -550,11 +578,11 @@ const RoleForm = ({
                 }}
                 separators="Slash"
               >
-                <BreadcrumbsItem data-route="/admin">Admin</BreadcrumbsItem>
+                <BreadcrumbsItem data-route="/CustomerAdmin">Admin</BreadcrumbsItem>
                 <BreadcrumbsItem data-route="/CustomerAdmin/RoleManagement">
                   Roles
                 </BreadcrumbsItem>
-                <BreadcrumbsItem data-route="/admin/roles/create">
+                <BreadcrumbsItem data-route="/UserManagement/RoleManagement/create">
                   {mode === "edit" ? "Edit Role " : "Create Role"}
                 </BreadcrumbsItem>
               </Breadcrumbs>

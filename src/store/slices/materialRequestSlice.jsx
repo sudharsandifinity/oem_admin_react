@@ -78,9 +78,9 @@ export const fetchDepartmentsList = createAsyncThunk(
 );
 export const fetchBOQList = createAsyncThunk(
   "materialRequest/fetchBOQList",
-  async (_, thunkApi) => {
+  async ({ U_BPCode = 20, U_PrjCode = 0 }, thunkApi) => {
     try { 
-      const response = await api.get(`${API_BOQLIST}`, {
+      const response = await api.get(`${API_BOQLIST}?U_BPCode=${U_BPCode}&U_PrjCode=${U_PrjCode}`, {
         withCredentials: true,
       });
       return response.data;

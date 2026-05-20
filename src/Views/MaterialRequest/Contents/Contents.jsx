@@ -196,6 +196,7 @@ const Contents = (props) => {
         setSummaryData((prev) => ({
           ...prev,
           RequestorName: String(users && users[0]?.UserName) ,
+          eMail:users&&users[0]?.eMail
         }));
         console.log("usersfetchdata",users)
 

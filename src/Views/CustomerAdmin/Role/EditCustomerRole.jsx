@@ -19,17 +19,17 @@ const EditCustomerRole = () => {
       const { userList,companyList,roleList, loading } = useSelector((state) => state.customerAdmin);
     
       const currentCustomerAdminRole = roleList && roleList.find((c) => c.id === id);
-
+const [selectedRole,setSelectedRole]=useState([])
     useEffect(() => {
         //dispatch(fetchPermissions());
         //dispatch(fetchRoleById(id));
  const fetchData = async () => {
           try {
-            const res = dispatch(fetchCustomerAdminRoleById(id)).unwrap();
-            await dispatch(fetchPermissions()).unwrap();
-            await dispatch(fetchBranch()).unwrap();
-            console.log("resusers", res);
-            
+            const res = await dispatch(fetchCustomerAdminRoleById(id)).unwrap();
+            //await dispatch(fetchPermissions()).unwrap();
+            //await dispatch(fetchBranch()).unwrap();
+            console.log("editcustomerroleresusers", res);
+            setSelectedRole(res)
             if (res.message === "Please Login!") {
               navigate("/");
             }
@@ -62,18 +62,18 @@ const EditCustomerRole = () => {
   };
 
 
-{console.log("currentCustomerAdminRole",currentCustomerAdminRole  )}
+{console.log("currentCustomerAdminRole",currentCustomerAdminRole  ,selectedRole)}
   return <RoleForm 
             onSubmit={handleUpdate} 
             defaultValues={{
-                id: currentCustomerAdminRole.id,
-                name: currentCustomerAdminRole.name || '',
-                companyId: currentCustomerAdminRole.companyId||'',
-                status: String(currentCustomerAdminRole.status ?? '1'),
+                id: selectedRole.id,
+                name: selectedRole.name || '',
+                companyId: selectedRole.companyId||'',
+                status: String(selectedRole.status ?? '1'),
                 // permissionIds: Array.isArray(currentCustomerAdminRole.Permissions)
                 // ? currentCustomerAdminRole.Permissions.map(p => p.id)
                 // : [],
-                 UserMenus: currentCustomerAdminRole.UserMenus ? currentCustomerAdminRole.UserMenus : []
+                 UserMenus: selectedRole.UserMenus ? selectedRole.UserMenus : []
             }}
             permissions={permissions} 
             apiError={apiError} 

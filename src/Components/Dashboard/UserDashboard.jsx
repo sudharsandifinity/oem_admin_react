@@ -265,7 +265,7 @@ const UserDashboard = () => {
                   }}
                 >
                   <h3>{title}</h3>
-                  <p>{Math.floor(Math.random() * 100)}</p>
+                  {/* <p>{Math.floor(Math.random() * 100)}</p> */}
                 </div>
               );
             })}
