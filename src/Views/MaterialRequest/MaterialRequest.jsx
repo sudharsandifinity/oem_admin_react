@@ -465,7 +465,7 @@ export default function MaterialRequest() {
             amount: item.U_Rate,
             linetotal: item.U_PCost,
             project: item.U_Project,
-            warehouse: item.WarehouseCode,
+            warehouse: item.U_Whs,
             uom: item.U_UOM,
             stage: item.U_Stage,
             issuedQty: item.U_AQty,
