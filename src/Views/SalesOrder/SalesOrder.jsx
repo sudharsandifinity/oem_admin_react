@@ -78,7 +78,10 @@ import {
 } from "../../store/slices/PurchaseRequestSlice";
 import { createPurchaseDeliveryNotes } from "../../store/slices/purDeliveryNoteSlice";
 import CopyFromDialog from "./CopyFromDialog/CopyFromDialog";
-import { fetchEmployees, fetchitemprices } from "../../store/slices/salesAdditionalDetailsSlice";
+import {
+  fetchEmployees,
+  fetchitemprices,
+} from "../../store/slices/salesAdditionalDetailsSlice";
 
 export default function SalesOrder() {
   const { fieldConfig, CustomerDetails, DocumentDetails } =
@@ -168,7 +171,52 @@ export default function SalesOrder() {
     U_Test1: "",
     U_Test2: "",
   });
+  const copyRequestDetails = async (po) => {
+    const orderListById = Object.values(po)[0]
+    console.log("copyRequestDetailsorderListById",orderListById,orderListById.CardCode)
+    setSelectedCardCode(orderListById.CardCode);
+    setFormData({
+      docEntry: orderListById.DocEntry,
+      CardCode: orderListById.CardCode,
+      CustomerRefNo: orderListById.NumAtCard || "",
 
+      CardName: orderListById.CardName,
+      DocDueDate: orderListById.DocDueDate
+        ? new Date(orderListById.DocDueDate).toISOString().split("T")[0]
+        : new Date().toISOString().split("T")[0],
+      PostingDate: orderListById.DocDate
+        ? new Date(orderListById.DocDate).toISOString().split("T")[0]
+        : new Date().toISOString().split("T")[0],
+      TaxDate: orderListById.TaxDate
+        ? new Date(orderListById.TaxDate).toISOString().split("T")[0]
+        : new Date().toISOString().split("T")[0],
+      ReqDate: orderListById.RequriedDate
+        ? new Date(orderListById.RequriedDate).toISOString().split("T")[0]
+        : new Date().toISOString().split("T")[0],
+      DocumentLines: orderListById.DocumentLines || [],
+      formData: orderListById.formData,
+    });
+    setSummaryData((prev) => ({
+      ...prev,
+      Remark: orderListById.Comments,
+      DocTotal: orderListById.DocTotal,
+      Rounding: orderListById.Rounding,
+      RoundingDiffAmount: orderListById.RoundingDiffAmount,
+      DiscountPercent: orderListById.DiscountPercent,
+      TotalDiscount: orderListById.TotalDiscount,
+      VatSum: orderListById.VatSum,
+    }));
+    // set general header edit data
+    setFreightRowSelection(orderListById.DocumentAdditionalExpenses || []);
+    setSummaryDiscountPercent(orderListById.DiscountPercent);
+    orderListById.DocType === "dDocument_Items"
+      ? setSelectedItemOwner(orderListById.DocumentsOwner || "")
+      : setSelectedServiceOwner(orderListById.DocumentsOwner || "");
+    setRoundingEnabled(orderListById.Rounding === "tYES");
+    setRoundOff(orderListById.RoundingDiffAmount);
+   
+    setUserDefinedData(orderListById.formData);
+  };
   const copyFrom = async () => {
     setIsCopyFromPurchase(true);
     //const res = await dispatch(fetchPurchaseRequest()).unwrap();
@@ -450,8 +498,8 @@ export default function SalesOrder() {
         formDataToSend,
         formDetails,
         "attachmentsList",
-        attachmentsList, 
-        employeeList
+        attachmentsList,
+        employeeList,
       );
       let res = "";
       if (formDetails[0]?.name === "Sales Order") {
@@ -1184,6 +1232,7 @@ export default function SalesOrder() {
         open={opencopyFromDialog}
         setOpen={setOpenCopyFromDialog}
         requestList={requestList}
+        copyRequestDetails={copyRequestDetails}
         saveItem={saveItem}
         saveService={saveService}
         type={type}
