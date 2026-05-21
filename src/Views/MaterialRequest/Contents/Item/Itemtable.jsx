@@ -1399,7 +1399,6 @@ formData,
           direction="Column"
           style={{
             flex: 1,
-            minWidth: "420px",
             gap: "0.5rem",
           }}
         >
@@ -1465,7 +1464,6 @@ formData,
           direction="Column"
           style={{
             flex: 1,
-            minWidth: "420px",
             gap: "0.5rem",
           }}
         >
