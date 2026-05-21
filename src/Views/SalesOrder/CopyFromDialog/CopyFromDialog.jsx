@@ -8,7 +8,7 @@ import React, { useMemo, useState } from "react";
 import ListPurItemDialog from "./ListPurItemDialog";
 
 const CopyFromDialog = (props) => {
-  const { open, setOpen, requestList, saveItem,type,saveService } = props;
+  const { open, setOpen, requestList, saveItem,type,saveService,copyRequestDetails } = props;
   const [rowSelection, setRowSelection] = useState([]);
   const [openPurchaseItem, setOpenPurchaseItem] = useState(false);
   const [selectedPurList, setSelectedPurlist] = useState([]);
@@ -101,6 +101,7 @@ const CopyFromDialog = (props) => {
                     (req) => req.DocumentLines || [], 
                   ),
                 );
+                 copyRequestDetails(rowSelection)
                 // saveItem(
                 //   Object.values(rowSelection).flatMap(
                 //     (req) => req.DocumentLines || [],
@@ -119,7 +120,7 @@ const CopyFromDialog = (props) => {
           data={requestList}
           columns={itemcolumns}
           //header={`Items (${requestList.length})`}
-          selectionMode="Multiple"
+          selectionMode="Single"
           selectedRowIds={rowSelection}
           onRowSelect={onitemchildRowSelect}
           visibleRows={6}
