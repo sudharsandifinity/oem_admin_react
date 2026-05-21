@@ -882,68 +882,6 @@ formData,
         ),
       },
       {
-        Header: "Unit Price",
-        accessor: "amount",
-        //width: 250,
-        Cell: ({ row, value }) => (
-          <Input
-            style={{ textAlign: "right" }}
-            disabled={mode === "view"}
-            type="Number"
-            value={value || ""}
-            onChange={(e) => {
-              const newValue = e.target.value;
-              const rowIndex = row.index;
-              setitemTableData((prev) => {
-                const updated = [...prev];
-                updated[rowIndex] = {
-                  ...updated[rowIndex],
-                  amount: newValue.toLocaleString(undefined, {
-                    minimumFractionDigits: 2,
-                  }),
-                };
-                return updated;
-              });
-            }}
-            onInput={(e) => {
-              const newValue = e.target.value;
-              const rowIndex = row.index;
-
-              setitemTableData((prev) => {
-                const updated = [...prev];
-                const newRow = { ...updated[rowIndex], amount: newValue };
-                updated[rowIndex] = calculateRowTotals(newRow);
-                return updated;
-              });
-            }}
-          />
-        ),
-      },
-
-      {
-        Header: "Line Total",
-        accessor: "linetotal",
-        Cell: ({ row, value }) => (
-          <Input
-            value={row.original.amount*row.original.quantity}
-            readonly
-            disabled={mode === "view"}
-            style={{
-              border: "none",
-              borderBottom: "1px solid #ccc",
-              backgroundColor: "transparent",
-              outline: "none",
-              padding: "4px 0",
-              fontSize: "14px",
-              transition: "border-color 0.2s",
-            }}
-            onFocus={(e) => (e.target.style.borderBottom = "1px solid #007aff")}
-            onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
-          />
-        ),
-      },
-
-      {
         Header: "Project",
         accessor: "project",
         Cell: ({ row }) => (
@@ -1390,7 +1328,6 @@ formData,
         justifyContent="SpaceBetween"
         style={{
           marginTop: "2rem",
-          gap: "50rem",
           width: "100%",
         }}
       >
@@ -1399,7 +1336,6 @@ formData,
           direction="Column"
           style={{
             flex: 1,
-            minWidth: "420px",
             gap: "0.5rem",
           }}
         >
@@ -1465,7 +1401,6 @@ formData,
           direction="Column"
           style={{
             flex: 1,
-            minWidth: "420px",
             gap: "0.5rem",
           }}
         >

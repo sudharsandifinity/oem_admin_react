@@ -434,7 +434,10 @@ export default function MaterialRequest() {
   };
   const saveItem = async (item) => {
     console.log("saveitemitem", item);
-    const newItems = Array.isArray(item) ? item.filter(i=>i.U_ItemCode!==null) : Object.values(item).filter(i=>i.U_ItemCode!==null);
+    // const newItems = Array.isArray(item) ? item.filter(i=>i.U_ItemCode!=="") : Object.values(item).filter(i=>i.U_ItemCode!==null);
+    const newItems = Array.isArray(item)
+      ? item.filter(i => i.U_ItemCode)       // filters out null, "", undefined, 0, false
+      : Object.values(item).filter(i => i.U_ItemCode);
 
     for (const newItem of newItems) {
       const itemresponse = await getItemPrice(

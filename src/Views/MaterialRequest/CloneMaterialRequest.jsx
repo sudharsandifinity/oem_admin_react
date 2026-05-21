@@ -1059,6 +1059,7 @@ const handleSubmit = async (form) => {
             <Contents
               selectedcardcode={selectedcardcode}
               rowSelection={rowSelection}
+              formData={formData}
               setRowSelection={setRowSelection}
               itemdata={itemdata}
               setitemData={setitemData}
