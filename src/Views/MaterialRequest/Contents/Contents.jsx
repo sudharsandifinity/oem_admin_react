@@ -70,6 +70,7 @@ const Contents = (props) => {
     setitemData,
     setitemTableData,
     formDetails,
+    formData,
     itemTabledata,
     summaryData,
     setSummaryData,
@@ -855,6 +856,7 @@ const Contents = (props) => {
                         setOriginalProfitCenterData={
                           setOriginalProfitCenterData
                         }
+                        formData={formData}
                         originalProfitCenterData={originalProfitCenterData}
                         originalTaxData={originalTaxData}
                         freightData={freightData}

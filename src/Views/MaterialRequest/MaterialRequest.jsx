@@ -168,10 +168,15 @@ export default function MaterialRequest() {
   });
   const [isBoqListopem, setisBoqListopem] = useState(false);
   const [boqrequestList, setBoqRequestList] = useState([]);
+  const [selectedSectionId, setSelectedSectionId] =
+  useState("section1");
   const openBoqList = async () => {
+    setSelectedSectionId("section2")
     console.log("openBoqList");
     setIsCopyFromBOQ(true);
-    const res = await dispatch(fetchBOQList({ U_BPCode: formData.CusCode, U_PrjCode:formData.ProjectCode })).unwrap();
+    const data={ U_BPCode: formData.CusCode||null, 
+      U_PrjCode:formData.ProjectCode||null }
+    const res = await dispatch(fetchBOQList(data)).unwrap();
     const currentType =
       type === "Item" ? "dDocument_Items" : "dDocument_Service";
     const raw = res?.data?.value ?? res?.data ?? res?.value ?? res;
@@ -429,7 +434,7 @@ export default function MaterialRequest() {
   };
   const saveItem = async (item) => {
     console.log("saveitemitem", item);
-    const newItems = Array.isArray(item) ? item : Object.values(item);
+    const newItems = Array.isArray(item) ? item.filter(i=>i.U_ItemCode!==null) : Object.values(item).filter(i=>i.U_ItemCode!==null);
 
     for (const newItem of newItems) {
       const itemresponse = await getItemPrice(
@@ -644,6 +649,7 @@ export default function MaterialRequest() {
           `}
       </style>
       <ObjectPage
+         selectedSectionId={selectedSectionId}
         className="sales-order-page"
         footerArea={
           <Bar
@@ -743,7 +749,7 @@ export default function MaterialRequest() {
         onPinButtonToggle={function Xs() {}}
         onSelectedSectionChange={function Xs() {}}
         onToggleHeaderArea={function Xs() {}}
-        selectedSectionId="section1"
+       
         style={{
           maxHeight: "95vh",
         }}
@@ -829,6 +835,7 @@ export default function MaterialRequest() {
         </ObjectPageSection>
 
         <ObjectPageSection
+        
           id="section2"
           style={{
             height: "100%",
@@ -852,6 +859,7 @@ export default function MaterialRequest() {
               setRowSelection={setRowSelection}
               itemdata={itemdata}
               setitemData={setitemData}
+              formData={formData}
               formName={"Material Request"}
               setitemTableData={setitemTableData}
               itemTabledata={itemTabledata}
