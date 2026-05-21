@@ -88,6 +88,7 @@ import {
   fetchMaterialRequestById,
   updateMaterialRequest,
 } from "../../store/slices/materialRequestSlice";
+import BOQListDialog from "./BOQCopyFrom/BOQListDialog";
 
 const EditMaterialRequest = () => {
   const { id, formId } = useParams();
@@ -189,6 +190,8 @@ const EditMaterialRequest = () => {
   const [isBoqListopem, setisBoqListopem] = useState(false);
   const [boqrequestList, setBoqRequestList] = useState([]);
   const [refreshdata, setRefreshData] = useState([]);
+   const [selectedSectionId, setSelectedSectionId] =
+    useState("section1");
 
   const goodsIssue = async()=>{
       const tabledata = itemTabledata;
@@ -239,8 +242,9 @@ const EditMaterialRequest = () => {
 const refreshStock = async () => {
   try {
     setLoading(true);
-
-    const res = await dispatch(fetchBOQList({ U_BPCode: formData.CusCode, U_PrjCode:formData.ProjectCode })).unwrap();
+ const data={ U_BPCode: formData.CusCode||null, 
+      U_PrjCode:formData.ProjectCode||null }
+    const res = await dispatch(fetchBOQList(data)).unwrap();
 
     const currentItemValues = itemTabledata.map((item) => ({
       ItemCode: item.ItemCode,
@@ -276,8 +280,11 @@ const refreshStock = async () => {
 
   const openBoqList = async () => {
     console.log("openBoqList");
+    setSelectedSectionId("section2")
     setIsCopyFromBOQ(true);
-    const res = await dispatch(fetchBOQList({ U_BPCode: formData.CusCode, U_PrjCode:formData.ProjectCode })).unwrap();
+     const data={ U_BPCode: formData.CusCode||null, 
+      U_PrjCode:formData.ProjectCode||null }
+    const res = await dispatch(fetchBOQList(data)).unwrap();
     const currentType =
       type === "Item" ? "dDocument_Items" : "dDocument_Service";
     const raw = res?.data?.value ?? res?.data ?? res?.value ?? res;
@@ -359,7 +366,8 @@ const refreshStock = async () => {
   };
   const saveItem = async (item) => {
     console.log("saveitemitem", item);
-    const newItems = Array.isArray(item) ? item : Object.values(item);
+       const newItems = Array.isArray(item) ? item.filter(i=>i.U_ItemCode!==null) : Object.values(item).filter(i=>i.U_ItemCode!==null);
+
 
     for (const newItem of newItems) {
       const itemresponse = await getItemPrice(
@@ -1196,7 +1204,7 @@ const refreshStock = async () => {
           onPinButtonToggle={function Xs() {}}
           onSelectedSectionChange={function Xs() {}}
           onToggleHeaderArea={function Xs() {}}
-          selectedSectionId="section1"
+           selectedSectionId={selectedSectionId}
           style={{
             maxHeight: "90vh",
           }}
@@ -1291,6 +1299,7 @@ const refreshStock = async () => {
               itemdata={itemdata}
               setitemData={setitemData}
               formName={"Material Request"}
+              formData={formData}
               setitemTableData={setitemTableData}
               itemTabledata={itemTabledata}
               servicedata={servicedata}
@@ -1342,6 +1351,15 @@ const refreshStock = async () => {
         open={opencopyFromDialog}
         setOpen={setOpenCopyFromDialog}
         requestList={requestList}
+        saveItem={saveItem}
+        saveService={saveService}
+        type={type}
+        setType={setType}
+      />
+      <BOQListDialog
+        open={isBoqListopem}
+        setOpen={setisBoqListopem}
+        boqrequestList={boqrequestList}
         saveItem={saveItem}
         saveService={saveService}
         type={type}

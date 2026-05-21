@@ -21,7 +21,7 @@ const ViewUserManagement = () => {
   const user = userList.find((c) => c.id === id);
 
   const convertedUser = {
-    first_name: user?.first_name || "",
+  first_name: user?.first_name || "",
     last_name: user?.last_name || "",
     email: user?.email || "",
     roleIds: user ? user.Roles.map((role) => role.id) : [],
@@ -30,12 +30,12 @@ const ViewUserManagement = () => {
     status: String(user?.status ?? '1'),
     password: user?.password || "",
     assignBranches: user?.Branches?.map((b) => b.id),
-    company: user?.Branches?.map((b) => b.Company.name) || "",
-    companyId: user?.Branches?.map((b) => b.Company.id) || "",
+    company: user?.Companies?.map((c) => c.name) || "",
+    companyId:user?.Companies?.map((c) => c.id) || "",
     is_super_user: user?.is_super_user?.toString() || "0" ,
     //formId: [],
-    branchIds: user?.Branches?.map((branch) => branch.id) || [],
-    branch: user?.Branches?.map((branch) => branch.name) || [],
+    projectIds: user?.Projects?.map((branch) => branch.id) || [],
+    projectId: user?.Projects?.map((branch) => branch.name) || [],
 
 
   };

@@ -80,7 +80,7 @@ const Itemtable = (props) => {
     setEmployeeList,
     departmentList,
     setDepartmentList,
-
+formData,
     projectData,
     setProjectData,
     originalProjectData,
@@ -949,7 +949,7 @@ const Itemtable = (props) => {
         Cell: ({ row }) => (
           <>
             <Input
-              value={row.original.project ? row.original.project : ""}
+              value={formData.ProjectCode?formData.ProjectCode: row.original.project}
               readonly
               disabled={mode === "view"}
               style={{ textAlign: "right" }}
@@ -974,10 +974,10 @@ const Itemtable = (props) => {
         accessor: "warehouse",
         Cell: ({ row }) => (
           <>
-            {" "}
+            {" "}{console.log("originalWarehouseData",warehouseData)}
             <Input
               value={
-                row.original.warehouse ? row.original.warehouse : ""
+                row.original.warehouse ? row.original.warehouse : originalWarehouseData[0]?.WarehouseCode
               }
               readonly
               disabled={mode === "view"}
