@@ -949,7 +949,7 @@ formData,
         Cell: ({ row }) => (
           <>
             <Input
-              value={formData.ProjectCode?formData.ProjectCode: row.original.project}
+              value={formData.ProjectCode?formData.ProjectCode: row.original.Project}
               readonly
               disabled={mode === "view"}
               style={{ textAlign: "right" }}

@@ -89,6 +89,7 @@ export default function CloneMaterialRequest() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { orderItems } = useSelector((state) => state.orderItems);
+  const {warehousesdetails} = useSelector((state)=>state.salesadddetails)
   const [apiError, setApiError] = useState(null);
   const { formId,pageId } = useParams();
   const user = useSelector((state) => state.auth.user);
@@ -137,7 +138,7 @@ export default function CloneMaterialRequest() {
       Warehouse: "",
     },
   ]);
-  console.log("selectedItemOwner", selectedItemOwner);
+  console.log("selectedItemOwner", selectedItemOwner,warehousesdetails);
   const [summaryData, setSummaryData] = useState({});
   const [itemdata, setitemData] = useState([
     { slno: 1, ItemCode: "", ItemName: "", quantity: "", amount: "" },
@@ -385,7 +386,7 @@ const handleSubmit = async (form) => {
               ItemDescription: line.ItemName || "",
               Quantity: Number(line.quantity || 0),
               UnitPrice: Number(line.amount || 0),
-              WarehouseCode: line.warehouse || "",
+              WarehouseCode: line.warehouse||warehousesdetails?.value[0]?.WarehouseCode,
               //ProjectCode: line.project || "",
               TaxCode: line.TaxCode || "",
               VatGroup: line.TaxCode || "",
@@ -445,7 +446,7 @@ const handleSubmit = async (form) => {
               ItemDescription: line.ItemName || "",
               Quantity: Number(line.quantity || 0),
               UnitPrice: Number(line.amount || 0),
-              WarehouseCode: line.warehouse || "",
+              WarehouseCode: line.warehouse || warehousesdetails.value[0]?.WarehouseCode,
               //ProjectCode: line.project || "",
               TaxCode: line.TaxCode || "",
               VatGroup: line.TaxCode || "",
@@ -546,7 +547,7 @@ const handleSubmit = async (form) => {
           U_UnitPrice: item.amount || 0,
           U_LineTotal: item.quantity * item.amount || 0,
           U_AvlQty: item.availableQty || 0,
-          U_Whs: item.warehouse || "",
+          U_Whs: item.warehouse || "01",
           U_SQlineNum: item.BoqLineNum || "",
         })),
       };
@@ -1061,6 +1062,8 @@ const handleSubmit = async (form) => {
               setRowSelection={setRowSelection}
               itemdata={itemdata}
               setitemData={setitemData}
+              formData={formData}
+
               setitemTableData={setitemTableData}
               itemTabledata={itemTabledata}
               summaryData={summaryData}
