@@ -1390,7 +1390,6 @@ formData,
         justifyContent="SpaceBetween"
         style={{
           marginTop: "2rem",
-          gap: "50rem",
           width: "100%",
         }}
       >
