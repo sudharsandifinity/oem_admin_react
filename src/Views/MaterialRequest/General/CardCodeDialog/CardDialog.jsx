@@ -29,12 +29,11 @@ const CardDialog = ({
   const columns = [
    
     {
-      Header: "Card Code",
+      Header: "Customer Code",
       accessor: "CardCode",
-      width: 100,
     },
-    { Header: "Card Name", accessor: "CardName" },
-    { Header: "Contact Person", accessor: "ContactPerson" },
+    { Header: "Customer Name", accessor: "CardName" },
+    // { Header: "Contact Person", accessor: "ContactPerson" },
   ];
  const clearFilter = () => {
     // Implement clear filter logic here
@@ -93,7 +92,7 @@ const CardDialog = ({
   return (
     <Dialog
       open={open}
-      headerText="Select Card Details"
+      headerText="Select Customer Details"
       footer={
         <>
           <Button
@@ -122,7 +121,7 @@ const CardDialog = ({
         >
           <FlexBox direction="Column">
             {" "}
-            <Label>Card Code</Label>
+            <Label>Customer Code</Label>
             {/* <Select
               onChange={(e) => handleFilterChange(e, "CardCode")}
               value={inputValue.CardCode || ""}
@@ -147,7 +146,7 @@ const CardDialog = ({
           </FlexBox>
           <FlexBox direction="Column">
             {" "}
-            <Label>Card Name</Label>
+            <Label>Customer Name</Label>
             {/* <Select
               onChange={(e) => handleFilterChange(e, "CardName")}
               value={inputValue.CardName || ""}
@@ -170,20 +169,10 @@ const CardDialog = ({
               ))}
             </ComboBox>
           </FlexBox>
-          <FlexBox direction="Column">
+          {/* <FlexBox direction="Column">
             {" "}
             <Label>Contact Person</Label>
-            {/* <Select
-              onChange={(e) => handleFilterChange(e, "ContactPerson")}
-              value={inputValue.ContactPerson || ""}
-            >
-              <Option value=""></Option>
-              {originalGeneralData.map((data, index) => (
-                <Option key={index} value={data.ContactPerson}>
-                  {data.ContactPerson}
-                </Option>
-              ))}
-            </Select> */}
+            
             <ComboBox
               filter
               value={inputValue.ContactPerson || ""}
@@ -194,7 +183,7 @@ const CardDialog = ({
                 <ComboBoxItem key={idx} text={data.ContactPerson} />
               ))}
             </ComboBox>
-          </FlexBox>
+          </FlexBox> */}
           {console.log("originalGeneralData", originalGeneralData)}
           <Button
             style={{ width: "100px" }}

@@ -191,7 +191,7 @@ export default function CloneMaterialRequest() {
         setSelectedCardCode(orderListById.U_CardCode || "");
 
         setFormData({
-          docEntry: orderListById.DocEntry || "",
+          docEntry: orderListById.docEntry || "",
           docNum: orderListById.DocNum || "",
           RequisitionNo: orderListById.RequisitionNo || "",
           RequisitionDate: orderListById.RequisitionDate || "",
@@ -392,7 +392,7 @@ const handleSubmit = async (form) => {
               VatGroup: line.TaxCode || "",
               DiscountPercent: Number(line.discount || 0),
               LineTotal: Number(line.linetotal || 0),
-              U_MRDocEntry: formData.DocEntry,
+              U_MRDocEntry: formData.docEntry,
               U_MRDocNo: formData.docNum || "",
               U_MRLine:line.BoqLineNum,
               RequiredDate: formatDate(formData.RequiredDate),
@@ -452,7 +452,7 @@ const handleSubmit = async (form) => {
               VatGroup: line.TaxCode || "",
               DiscountPercent: Number(line.discount || 0),
               LineTotal: Number(line.linetotal || 0),
-              U_MRDocEntry: formData.DocEntry,
+              U_MRDocEntry: formData.docEntry,
               U_MRDocNo: formData.docNum || "",
               U_MRLine:line.BoqLineNum,
               //RequiredDate: formatDate(formData.RequiredDate),
@@ -890,7 +890,7 @@ const handleSubmit = async (form) => {
                 </Button>
 
                 <Button design="default" onClick={() => handleSubmit()}>
-                  Save
+                  Submit
                 </Button>
               </FlexBox>
             }

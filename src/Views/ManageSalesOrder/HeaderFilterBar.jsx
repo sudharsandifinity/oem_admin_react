@@ -18,6 +18,7 @@ import {
 import React, { useEffect, useState } from "react";
 import "@ui5/webcomponents-icons/dist/value-help.js";
 import HeaderFilterDialog from "./HeaderFilterDialog";
+import { useLocation } from "react-router-dom";
 
 export const HeaderFilterBar = ({
   key,
@@ -39,6 +40,7 @@ export const HeaderFilterBar = ({
   const [fieldName, setfieldName] = useState("");
   const [filterdialogOpen, setFilterDialogOpen] = useState(false);
   const [inputvalue, setInputValue] = useState([]);
+  const location = useLocation().pathname.split("/")[1];
   // Suggestion and dialog items
   const productCollection = [
     { Name: "Person1" },
@@ -120,7 +122,7 @@ export const HeaderFilterBar = ({
         //     onChange={(e) => handleChange(e, "ToDate")}
         //   />
         // </FlexBox>
-        <FlexBox direction="Column" >
+        <FlexBox direction="Column">
           <Text>{field.DisplayName}</Text>
           {console.log(
             "filters[field.field_name]",
@@ -129,7 +131,7 @@ export const HeaderFilterBar = ({
             filters,
           )}
           <DatePicker
-          style={{ width: "250px" }}
+            style={{ width: "250px" }}
             name={field.FieldName}
             value={filters[field.FieldName]}
             onChange={(e) => handleChange(e, field.FieldName)}
@@ -187,52 +189,71 @@ export const HeaderFilterBar = ({
         </FlexBox>
       );
     case "select":
-      return (
-        <FlexBox direction="Column">
-          <Text>
-            {menuChildMap[0]?.menuName === "Purchase" &&
-            field.FieldName === "CustomerCode"
-              ? "Vendor Code"
-              : menuChildMap[0]?.menuName === "Purchase" &&
-                  field.FieldName === "CustomerName"
-                ? "Vendor Name"
-                : field.DisplayName}
-          </Text>
-          <Input
-            icon={
-              <Icon
-              style={{paddingTop:"0.5rem"}}
-                name="value-help"
-                onClick={() => handleValueHelpRequest(field.FieldName)}
-              />
-            }
-            name={field.FieldName}
-            value={inputvalue}
-            onInput={(e) => {
-              console.log("selectVal", e.target.value);
-              handleChange(e, field.FieldName);
-            }}
-            type={field.inputType}
-          >
-            {productCollection
-              .filter(
-                (item, index, self) =>
-                  index === self.findIndex((t) => t.Name === item.Name),
-              )
-              .map((item, idx) => (
-                <SuggestionItem key={idx} text={item.Name} />
-              ))}
-          </Input>
+     const isSales = location === "Sales";
+const isPurchase = location === "Purchase";
 
-          <HeaderFilterDialog
-            filterdialogOpen={filterdialogOpen}
-            setFilterDialogOpen={setFilterDialogOpen}
-            itempopupData={tableData}
-            handleDialogItemClick={handleDialogItemClick}
-            fieldName={field.FieldName}
-          />
-        </FlexBox>
-      );
+const shouldHideField =
+  (isSales || isPurchase)
+    ? field.FieldName === "ProjectCode" ||
+      field.FieldName === "ProjectName"
+    : field.FieldName === "CustomerCode" ||
+      field.FieldName === "CustomerName";
+
+const fieldLabel =
+  isPurchase && field.FieldName === "CustomerCode"
+    ? "Vendor Code"
+    : isPurchase && field.FieldName === "CustomerName"
+    ? "Vendor Name"
+    : !isSales &&
+      !isPurchase &&
+      field.FieldName === "ProjectCode"
+    ? "Project Code"
+    : !isSales &&
+      !isPurchase &&
+      field.FieldName === "ProjectName"
+    ? "Project Name"
+    : field.DisplayName;
+
+if (shouldHideField) return null;
+
+return (
+  <FlexBox direction="Column">
+    <Text>{fieldLabel}</Text>
+
+    <Input
+      icon={
+        <Icon
+          style={{ paddingTop: "0.5rem" }}
+          name="value-help"
+          onClick={() => handleValueHelpRequest(field.FieldName)}
+        />
+      }
+      name={field.FieldName}
+      value={inputvalue}
+      onInput={(e) => {
+        handleChange(e, field.FieldName);
+      }}
+      type={field.inputType}
+    >
+      {productCollection
+        .filter(
+          (item, index, self) =>
+            index === self.findIndex((t) => t.Name === item.Name)
+        )
+        .map((item, idx) => (
+          <SuggestionItem key={idx} text={item.Name} />
+        ))}
+    </Input>
+
+    <HeaderFilterDialog
+      filterdialogOpen={filterdialogOpen}
+      setFilterDialogOpen={setFilterDialogOpen}
+      itempopupData={tableData}
+      handleDialogItemClick={handleDialogItemClick}
+      fieldName={field.FieldName}
+    />
+  </FlexBox>
+);
     default:
       return null;
   }

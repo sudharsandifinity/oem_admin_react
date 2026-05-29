@@ -89,6 +89,7 @@ import {
   updateMaterialRequest,
 } from "../../store/slices/materialRequestSlice";
 import BOQListDialog from "./BOQCopyFrom/BOQListDialog";
+import OpenPurRequestItemsDialog from "./openPurRequestItemsDialog";
 
 const EditMaterialRequest = () => {
   const { id, formId } = useParams();
@@ -123,11 +124,14 @@ const EditMaterialRequest = () => {
   const [roundOff, setRoundOff] = useState(0);
   const [selectedItemOwner, setSelectedItemOwner] = useState("");
   const [selectedServiceOwner, setSelectedServiceOwner] = useState("");
+  const [selectedPurRequestList, setSelectedPurRequestList] = useState([]);
+  const [originalSelectedPurRequestList, setOriginalSelectedPurRequestList] = useState([]);
 
   const [currencyType, setCurrencyType] = useState("GBP");
 
   const [dimensionData, setDimensionData] = useState([]);
-
+ const [originalboqrequestList,setOriginalboqrequestlist] = useState([]);
+  const [inputValue, setInputValue] = useState({});
   const [itemdata, setitemData] = useState([
     {
       slno: 1,
@@ -190,6 +194,8 @@ const EditMaterialRequest = () => {
   const [isBoqListopem, setisBoqListopem] = useState(false);
   const [boqrequestList, setBoqRequestList] = useState([]);
   const [refreshdata, setRefreshData] = useState([]);
+  const [openPurRequestItemsDialog, setOpenPurRequestItemsDialog] = useState(false);
+  
    const [selectedSectionId, setSelectedSectionId] =
     useState("section1");
 
@@ -290,11 +296,23 @@ const refreshStock = async () => {
     const raw = res?.data?.value ?? res?.data ?? res?.value ?? res;
     console.log("resraw", res, raw);
     setBoqRequestList(raw);
+    setOriginalboqrequestlist(raw);
     console.log("currentType", currentType, res?.data);
     setisBoqListopem(true);
   };
-  const submitPurchaseRequest = async () => {
-    const tabledata = itemTabledata;
+  const openPurRequestItems=async()=>{
+      setOpenPurRequestItemsDialog(true);
+      console.log("openPurRequestItems",itemTabledata)
+      setSelectedPurRequestList( itemTabledata.filter(
+            (item) =>item.ItemCode && Number(item.quantity || 0) >= Number(item.availableQty || 0),
+          ));
+          setOriginalSelectedPurRequestList( itemTabledata.filter(
+            (item) =>item.ItemCode && Number(item.quantity || 0) >= Number(item.availableQty || 0),
+          ));
+  }
+  const submitPurchaseRequest = async (selectedRow) => {
+    console.log("selectedRow",selectedRow)
+    const tabledata = Object.values(selectedRow) || [];
     const data = {
       ...formData,
       ...tabledata,
@@ -330,7 +348,7 @@ const refreshStock = async () => {
       VatSum: summaryData.VatSum,
     };
     setCopiedFormData(cloneFOrmData);
-    //HandleSubmitCLoneData(cloneFOrmData);
+    HandleSubmitCLoneData(cloneFOrmData);
     navigate(
       "/cloneMaterialRequest/create/" + formId + "/" + formData.docEntry,
       {
@@ -560,7 +578,7 @@ const refreshStock = async () => {
                           BoqLineNum: matched.U_SQlineNum,
                           LineId:matched.LineId,
                           ItemCode: matched.U_ItmSerCode,
-                          ItemName: matched.U_ItemType,
+                          ItemName: matched.U_Desc,
                           fulldescription: matched.U_ItemDesc,
                           quantity: matched.U_ReqQty,
                           amount: matched.U_UnitPrice,
@@ -1119,18 +1137,18 @@ const refreshStock = async () => {
                   </Button>
 
                   <Button design="Default" disabled={ !formData.CusCode && !formData.ProjectCode} onClick={openBoqList}>
-                    BOQ Copy From
+                  Copy From BOM
                   </Button>
 
                   <Button
                     design="Default"
-                    onClick={() => submitPurchaseRequest()}
+                    onClick={() =>{ openPurRequestItems()}}
                   >
                     Purchase Request
                   </Button>
-                    <Button design="Default" onClick={() => goodsIssue()}>
+                    {/* <Button design="Default" onClick={() => goodsIssue()}>
                     Goods Issue
-                  </Button>
+                  </Button> */}
                  
                 </FlexBox>
               }
@@ -1364,6 +1382,26 @@ const refreshStock = async () => {
         saveService={saveService}
         type={type}
         setType={setType}
+         setBoqRequestList={setBoqRequestList}
+         originalboqrequestList={originalboqrequestList}
+  setOriginalboqrequestlist={setOriginalboqrequestlist}
+  inputValue={inputValue}
+  setInputValue={setInputValue}
+      />
+      <OpenPurRequestItemsDialog
+        open={openPurRequestItemsDialog}
+        setOpen={setOpenPurRequestItemsDialog}
+        selectedPurRequestList={selectedPurRequestList}
+        saveItem={saveItem}
+        saveService={saveService}
+        type={type}
+        setType={setType}
+        submitPurchaseRequest={submitPurchaseRequest}
+        setSelectedPurRequestList={setSelectedPurRequestList}
+         originalSelectedPurRequestList={originalSelectedPurRequestList}
+  setOriginalSelectedPurRequestList={setOriginalSelectedPurRequestList}
+  inputValue={inputValue}
+  setInputValue={setInputValue}
       />
       <Dialog open={open} onAfterClose={() => setOpen(false)}>
         <div

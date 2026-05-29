@@ -80,7 +80,7 @@ const Itemtable = (props) => {
     setEmployeeList,
     departmentList,
     setDepartmentList,
-formData,
+    formData,
     projectData,
     setProjectData,
     originalProjectData,
@@ -120,6 +120,7 @@ formData,
     selectedItemOwner,
     setSelectedItemOwner,
   } = props;
+  console.log("formdataitemtable",formData)
   const menuRef = useRef();
 
   const handleOpenMenu = (e) => {
@@ -187,7 +188,7 @@ formData,
 
       selectedIdsArray.forEach((id) => {
         const rowData = itemTabledata.find(
-          (item) => item.slno.toString() === id,
+          (item) => item.slno?.toString() === id,
         );
         if (rowData) {
           updated[id] = rowData;
@@ -216,17 +217,16 @@ formData,
   };
   const handlechangerequestor = (e) => {
     const selectedUserId = e.target.value;
-   
+
     console.log("selectedUser", selectedUserId);
-    
+
     setSummaryData((prev) => ({
       ...prev,
       RequestorCode: selectedUserId,
-
     }));
   };
 
-  const handlechangeUser = (e) => { 
+  const handlechangeUser = (e) => {
     const selectedUserId = e.target.value;
     const selectedUser = userList.find(
       (user) => String(user.InternalKey) === selectedUserId,
@@ -235,7 +235,7 @@ formData,
     setSummaryData((prev) => ({
       ...prev,
       RequestorName: selectedUser ? selectedUser.UserName : "",
-      eMail:selectedUser?selectedUser.eMail:"",
+      eMail: selectedUser ? selectedUser.eMail : "",
       Department: selectedUser ? selectedUser.Department : "",
     }));
   };
@@ -375,7 +375,7 @@ formData,
   };
 
   const calculateRowTotals = (row) => {
-    console.log("calculateRowTotals::->",calculateRowTotals)
+    console.log("calculateRowTotals::->", calculateRowTotals);
     const quantity = parseFloat(row.quantity) || 1;
     const unitPrice = parseFloat(row.unitPrice || row.amount) || 0;
     const discount = parseFloat(row.discount) || 0;
@@ -554,15 +554,17 @@ formData,
   // ]);
 
   useEffect(() => {
-    console.log("itemTabledata",itemTabledata)
+    console.log("itemTabledata", itemTabledata);
     setSummaryData((prev) => ({
       ...prev,
       TotalDiscount: summaryDiscountAmount,
       VatSum: summaryCalculation.totalTaxAmount,
       DocTotal: itemTabledata.reduce((sum, item) => {
-        return sum + (parseFloat(item.amount) || 0) * (parseFloat(item.quantity) || 0);
+        return (
+          sum +
+          (parseFloat(item.amount) || 0) * (parseFloat(item.quantity) || 0)
+        );
       }, 0),
-
     }));
   }, [itemTabledata]);
 
@@ -753,11 +755,11 @@ formData,
           <div disabled={mode === "view"}>{row.index + 1}</div>
         ),
       },
-      {
-        Header: "Task",
-        accessor: "task",
-        width: 50,
-      },
+      // {
+      //   Header: "Task",
+      //   accessor: "task",
+      //   width: 50,
+      // },
       {
         Header: "BOQ LineNum",
         accessor: "BoqLineNum",
@@ -882,12 +884,41 @@ formData,
         ),
       },
       {
+        Header: "UOM",
+        accessor: "uom",
+        Cell: ({ row }) => (
+          <>
+            <Input
+              value={row.original.uom ? row.original.uom : ""}
+              readonly
+              disabled={mode === "view"}
+              style={{ textAlign: "right" }}
+              onFocus={(e) =>
+                (e.target.style.borderBottom = "1px solid #007aff")
+              }
+              onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
+              onClick={() =>
+                // !row.original.UOM &&
+                {
+                  setSelectedProjectRowIndex(row.index);
+                  setisProjectDialogOpen(true);
+                }
+              }
+            />
+          </>
+        ),
+      },
+      {
         Header: "Project",
         accessor: "project",
         Cell: ({ row }) => (
           <>
             <Input
-              value={formData.ProjectCode?formData.ProjectCode: row.original.Project}
+              value={
+                formData.ProjectCode
+                  ? formData.ProjectCode
+                  : row.original.Project
+              }
               readonly
               disabled={mode === "view"}
               style={{ textAlign: "right" }}
@@ -903,7 +934,6 @@ formData,
                 }
               }
             />
-          
           </>
         ),
       },
@@ -912,10 +942,13 @@ formData,
         accessor: "warehouse",
         Cell: ({ row }) => (
           <>
-            {" "}{console.log("originalWarehouseData",warehouseData)}
+            {" "}
+            {console.log("originalWarehouseData", warehouseData)}
             <Input
               value={
-                row.original.warehouse ? row.original.warehouse : originalWarehouseData[0]?.WarehouseCode
+                row.original.warehouse
+                  ? row.original.warehouse
+                  : originalWarehouseData[0]?.WarehouseCode
               }
               readonly
               disabled={mode === "view"}
@@ -940,39 +973,36 @@ formData,
                 }
               }
             />
-           
           </>
         ),
       },
 
-      
+      // {
+      //   Header: "Stage",
+      //   accessor: "stage",
+      //   Cell: ({ row }) => (
+      //     <>
+      //       <Input
+      //         value={row.original.stage ? row.original.stage : ""}
+      //         readonly
+      //         disabled={mode === "view"}
+      //         style={{ textAlign: "right" }}
+      //         onFocus={(e) =>
+      //           (e.target.style.borderBottom = "1px solid #007aff")
+      //         }
+      //         onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
+      //         onClick={() =>
+      //           // !row.original.Project &&
+      //           {
+      //             setSelectedProjectRowIndex(row.index);
+      //             setisProjectDialogOpen(true);
+      //           }
+      //         }
+      //       />
 
-      {
-        Header: "Stage",
-        accessor: "stage",
-        Cell: ({ row }) => (
-          <>
-            <Input
-              value={row.original.stage ? row.original.stage : ""}
-              readonly
-              disabled={mode === "view"}
-              style={{ textAlign: "right" }}
-              onFocus={(e) =>
-                (e.target.style.borderBottom = "1px solid #007aff")
-              }
-              onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
-              onClick={() =>
-                // !row.original.Project &&
-                {
-                  setSelectedProjectRowIndex(row.index);
-                  setisProjectDialogOpen(true);
-                }
-              }
-            />
-           
-          </>
-        ),
-      },
+      //     </>
+      //   ),
+      // },
 
       {
         Header: "Issued Qty",
@@ -996,7 +1026,6 @@ formData,
                 }
               }
             />
-           
           </>
         ),
       },
@@ -1023,7 +1052,6 @@ formData,
                 }
               }
             />
-           
           </>
         ),
       },
@@ -1050,7 +1078,6 @@ formData,
                 }
               }
             />
-            
           </>
         ),
       },
@@ -1068,46 +1095,48 @@ formData,
                 (e.target.style.borderBottom = "1px solid #007aff")
               }
               onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
+            />
+          </>
+        ),
+      },
+      
+      // {
+      //   Header: "Rate Total",
+      //   accessor: "rateTotal",
+      //   Cell: ({ row }) => (
+      //     <>
+      //       <Input
+      //         value={row.original.rateTotal ? row.original.rateTotal : ""}
+      //         readonly
+      //         disabled={mode === "view"}
+      //         style={{ textAlign: "right" }}
+      //         onFocus={(e) =>
+      //           (e.target.style.borderBottom = "1px solid #007aff")
+      //         }
+      //         onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
+      //         onClick={() =>
+      //           // !row.original.Project &&
+      //           {
+      //             setSelectedProjectRowIndex(row.index);
+      //             setisProjectDialogOpen(true);
+      //           }
+      //         }
+      //       />
+      //     </>
+      //   ),
+      // },
+  {
+        Header: "Requisition Date",
+        accessor: "requisitiondate",
+        Cell: ({ row }) => (
+          <>
+            <Input
+              value={
+                formData.requisitiondate
+                  ? formData.requisitiondate
+                  : row.original.requisitiondate
+              }
               
-            />
-            
-          </>
-        ),
-      },
-{
-        Header: "UOM",
-        accessor: "uom",
-        Cell: ({ row }) => (
-          <>
-            <Input
-              value={row.original.uom ? row.original.uom : ""}
-              readonly
-              disabled={mode === "view"}
-              style={{ textAlign: "right" }}
-              onFocus={(e) =>
-                (e.target.style.borderBottom = "1px solid #007aff")
-              }
-              onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
-              onClick={() =>
-                // !row.original.UOM &&
-                {
-                  setSelectedProjectRowIndex(row.index);
-                  setisProjectDialogOpen(true);
-                }
-              }
-            />
-            
-          </>
-        ),
-      },
-      {
-        Header: "Rate Total",
-        accessor: "rateTotal",
-        Cell: ({ row }) => (
-          <>
-            <Input
-              value={row.original.rateTotal ? row.original.rateTotal : ""}
-              readonly
               disabled={mode === "view"}
               style={{ textAlign: "right" }}
               onFocus={(e) =>
@@ -1122,11 +1151,9 @@ formData,
                 }
               }
             />
-            
           </>
         ),
       },
-
       {
         Header: "Remarks",
         accessor: "remarks",
@@ -1134,22 +1161,39 @@ formData,
           <>
             <Input
               value={row.original.remarks ? row.original.remarks : ""}
-              readonly
+              
               disabled={mode === "view"}
               style={{ textAlign: "right" }}
               onFocus={(e) =>
                 (e.target.style.borderBottom = "1px solid #007aff")
               }
               onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
-              onClick={() =>
-                // !row.original.Project &&
-                {
-                  setSelectedProjectRowIndex(row.index);
-                  setisProjectDialogOpen(true);
-                }
-              }
+              onChange={(e) => {
+              const newValue = e.target.value;
+              const rowIndex = row.index;
+              console.log("selectedrow", row);
+              setitemTableData((prev) => {
+                const updated = [...prev];
+
+                updated[rowIndex] = {
+                  ...updated[rowIndex],
+                  remarks: newValue,
+                };
+                return updated;
+              });
+            }}
+            onInput={(e) => {
+              const newValue = e.target.value;
+              const rowIndex = row.index;
+
+              setitemTableData((prev) => {
+                const updated = [...prev];
+                const newRow = { ...updated[rowIndex], remarks: newValue };
+                
+                return updated;
+              });
+            }}
             />
-            
           </>
         ),
       },
@@ -1300,7 +1344,7 @@ formData,
         //selectedRowIds={rowSelection && Object.keys(rowSelection)} // 👈 ensures rows are preselected
         onRowSelect={(e) => onRowSelect(e)}
         // markNavigatedRow={markNavigatedRow}
-        visibleRows={10}
+        visibleRows={6}
       />
       {/* <FlexBox
         justifyContent="end"
@@ -1339,116 +1383,79 @@ formData,
             gap: "0.5rem",
           }}
         >
-          {console.log("summaryData", summaryData,userList)}
+          {console.log("summaryData", summaryData, userList)}
           {/* Requestor Code */}
-           {formName!=="Goods Issue"&&<FlexBox alignItems="Center" style={{ gap: "1rem" }}>
-            <Text style={{ width: "140px" }}>Requestor Code</Text>
+          {formName !== "Goods Issue" && (
+            <FlexBox alignItems="Center" style={{ gap: "1rem" }}>
+              <Text style={{ width: "140px" }}>Requestor Code</Text>
 
-            <Select
-              disabled={mode === "view"}
-              style={{ width: "200px" }}
-              value={String(summaryData?.RequestorCode || "")}
-              onChange={handlechangerequestor}
-            >
-              <Option value="">Select Type</Option>
-              <Option value="1">User</Option>
-              <Option value="2">Employee</Option>
-            </Select>
+              <Select
+                disabled={mode === "view"}
+                style={{ width: "200px" }}
+                value={String(summaryData?.RequestorCode || "")}
+                onChange={handlechangerequestor}
+              >
+                <Option value="">Select Type</Option>
+                <Option value="1">User</Option>
+                <Option value="2">Employee</Option>
+              </Select>
 
-            {/* <Input
+              {/* <Input
               value={String(summaryData?.RequestorCode || "") }
               placeholder="Requestor Code"
               style={{ flex: 1 }}
             /> */}
-          </FlexBox>}
+            </FlexBox>
+          )}
           {/* Requestor Name */}
-           {formName!=="Goods Issue"&&<FlexBox alignItems="Center" style={{ gap: "1rem" }}>
-            <Text style={{ width: "140px" }}>Requestor Name</Text>
-            <Select
-              disabled={mode === "view"}
-              style={{ width: "200px" }}
-               value={summaryData?.RequestorName}
-             
-              onChange={handlechangeUser}
-            >
-              <Option value="">Select Requestor</Option>
-              {summaryData?.RequestorCode==="1"?
-              userList.length>0&&userList.map((user) => (
-                <Option key={user.id} value={user.id}>
-                  {user.UserName}
-                </Option>
-              )):employeeList.length>0&&employeeList.map((emp) => (
-                <Option key={emp.id} value={emp.id}>
-                  {emp.name}
-                </Option>
-              ))}
-            </Select>
-          </FlexBox>}
+          {formName !== "Goods Issue" && (
+            <FlexBox alignItems="Center" style={{ gap: "1rem" }}>
+              <Text style={{ width: "140px" }}>Requestor Name</Text>
+              <Select
+                disabled={mode === "view"}
+                style={{ width: "200px" }}
+                value={summaryData?.RequestorName}
+                onChange={handlechangeUser}
+              >
+                <Option value="">Select Requestor</Option>
+                {summaryData?.RequestorCode === "1"
+                  ? userList.length > 0 &&
+                    userList.map((user) => (
+                      <Option key={user.id} value={user.id}>
+                        {user.UserName}
+                      </Option>
+                    ))
+                  : employeeList.length > 0 &&
+                    employeeList.map((emp) => (
+                      <Option key={emp.id} value={emp.id}>
+                        {emp.name}
+                      </Option>
+                    ))}
+              </Select>
+            </FlexBox>
+          )}
           {/* Department */}
-           {formName!=="Goods Issue"&&<FlexBox alignItems="Center" style={{ gap: "1rem" }}>
-            <Text style={{ width: "140px" }}>Department</Text>
+          {formName !== "Goods Issue" && (
+            <FlexBox alignItems="Center" style={{ gap: "1rem" }}>
+              <Text style={{ width: "140px" }}>Department</Text>
 
-            <Input
-              value={summaryData?.Department?departmentList?.find((dept) => dept.Code === summaryData?.Department)?.Name || "":departmentList?.find((dept) => dept.Code === 1)?.Name }
-              placeholder="Department"
-              style={{ width: "200px" }}
-            />
-          </FlexBox>}
+              <Input
+               disabled={mode === "view"}
+                value={
+                  summaryData?.Department
+                    ? departmentList?.find(
+                        (dept) => dept.Code === summaryData?.Department,
+                      )?.Name || ""
+                    : departmentList?.find((dept) => dept.Code === 1)?.Name
+                }
+                placeholder="Department"
+                style={{ width: "200px" }}
+              />
+            </FlexBox>
+          )}
         </FlexBox>
 
-        {/* RIGHT SIDE */}
-        <FlexBox
-          direction="Column"
-          style={{
-            flex: 1,
-            gap: "0.5rem",
-          }}
-        >
-          {/* Doc Total */}
-           {formName!=="Goods Issue"&&<FlexBox alignItems="Center" style={{ gap: "0.5rem" }}>
-            <Text style={{ width: "180px" }}>Doc Total</Text>
-
-            <Input
-              //type="Number"
-              disabled={mode === "view"}
-              value={String(summaryData?.DocTotal) || ""}
-              style={{ flex: 1 }}
-            />
-          </FlexBox>}
-
-          {/* Approval Status */}
-          {/* <FlexBox alignItems="Center" style={{ gap: "1rem" }}>
-            <Text style={{ width: "180px" }}>Approval Status</Text>
-
-            <Select
-              disabled={mode === "view"}
-              value={summaryData?.ApprovalStatus}
-              style={{ flex: 1 }}
-            >
-              <Option value="P">Pending</Option>
-              <Option value="A">Approved</Option>
-              <Option value="R">Rejected</Option>
-            </Select>
-          </FlexBox>
-
-          <FlexBox alignItems="Center" style={{ gap: "1rem" }}>
-            <Text style={{ width: "180px" }}>Approved By</Text>
-
-            <Input value={summaryData?.ApprovedBy || ""} style={{ flex: 1 }} />
-          </FlexBox>
-
-          <FlexBox alignItems="Center" style={{ gap: "1rem" }}>
-            <Text style={{ width: "180px" }}>Approved Date & Time</Text>
-
-            <Input
-              type="datetime-local"
-              value={
-                summaryData?.ApprovedDate + "" + summaryData?.ApprovedTime || ""
-              }
-              style={{ flex: 1 }}
-            />
-          </FlexBox> */}
-        </FlexBox>
+       
       </FlexBox>
       <Dialog
         headerText="Select Item"

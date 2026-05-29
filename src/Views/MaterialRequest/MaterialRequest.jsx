@@ -121,6 +121,8 @@ export default function MaterialRequest() {
   const [selectedItemOwner, setSelectedItemOwner] = useState("");
   const [selectedServiceOwner, setSelectedServiceOwner] = useState("");
   const [selectedServices, setSelectedServices] = useState({});
+   const [originalboqrequestList,setOriginalboqrequestlist] = useState([]);
+  const [inputValue, setInputValue] = useState({});
   const [itemTabledata, setitemTableData] = useState([
     {
       slno: 1,
@@ -182,6 +184,7 @@ export default function MaterialRequest() {
     const raw = res?.data?.value ?? res?.data ?? res?.value ?? res;
     console.log("resraw", res, raw);
     setBoqRequestList(raw);
+    setOriginalboqrequestlist(raw);
     console.log("currentType", currentType, res?.data);
     setisBoqListopem(true);
   };
@@ -287,9 +290,9 @@ export default function MaterialRequest() {
           U_SQlineNum: item.BoqLineNum || "",
         })),
       };
-
+ 
       console.log("formdatatosend", payload);
-      let res = await dispatch(createMaterialRequest(payload)).unwrap();
+      let res= await dispatch(createMaterialRequest(payload)).unwrap();
       console.log("reshandlesubmit", res);
 
       if (res.message === "Please Login!") {
@@ -668,7 +671,7 @@ export default function MaterialRequest() {
             </Button> */}
 
                 <Button design="Default" disabled={ !formData.CusCode && !formData.ProjectCode} onClick={openBoqList}>
-                  BOQ Copy From
+                   Copy From BOM
                 </Button>
 
                         {/* <Button design="Default" onClick={() => handleSubmit()}>
@@ -690,7 +693,7 @@ export default function MaterialRequest() {
                 </Button>
 
                 <Button design="default" onClick={() => handleSubmit()}>
-                  Save
+                  Submit
                 </Button>
               </FlexBox>
             }
@@ -931,6 +934,11 @@ export default function MaterialRequest() {
         saveService={saveService}
         type={type}
         setType={setType}
+        setBoqRequestList={setBoqRequestList}
+         originalboqrequestList={originalboqrequestList}
+  setOriginalboqrequestlist={setOriginalboqrequestlist}
+  inputValue={inputValue}
+  setInputValue={setInputValue}
       />
       <Dialog open={open} onAfterClose={() => setOpen(false)}>
         <div

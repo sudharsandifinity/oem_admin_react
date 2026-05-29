@@ -177,14 +177,25 @@ const ViewMaterialRequest = () => {
   useEffect(() => {
     if (!formDetails || formDetails.length === 0) return;
     if (!formDetails[0]?.name) return;
+    console.log("formDetails[0]?.name",formDetails[0]?.name)
 
     const fetchData = async () => {
       setLoading(true);
 
       try {
-        let orderListById = await dispatch(
-          fetchMaterialRequestById(id),
+         let orderListById = "";
+        if (formDetails[0]?.name === "Purchase Request") {
+          
+         orderListById = await dispatch(
+          fetchPurchaseRequestById(id),
         ).unwrap();
+      }else if(formDetails[0]?.name === "GRPO"){
+          orderListById = await dispatch(
+            fetchPurchaseDeliveryNotesById(id),
+          ).unwrap();
+        }else{
+          orderListById = await dispatch( fetchMaterialRequestById(id)).unwrap(); 
+        }
 
         const orderList = await dispatch(fetchOrderItems()).unwrap();
         const serviceList = await dispatch(fetchOrderServices()).unwrap();
@@ -208,13 +219,13 @@ const ViewMaterialRequest = () => {
             CardName: orderListById.U_CardName,
           });
           // 2. Merge document lines into orderItems
-          if (orderListById.HLB_MRQ1Collection?.length > 0) {
+          if (orderListById.HLB_MRQ1Collection||orderListById.DocumentLines?.length > 0) {
             setType("Item");
             setitemData(
               () =>
                 orderList.value
                   .map((item, index) => {
-                    const matched = orderListById.HLB_MRQ1Collection.find(
+                    const matched = orderListById.HLB_MRQ1Collection||orderListById.DocumentLines.find(
                       (line) => line.U_ItmSerCode === item.ItemCode,
                     );
 
@@ -222,42 +233,42 @@ const ViewMaterialRequest = () => {
 
                     return matched !== undefined
                       ? {
-                          task: matched.U_Task, // usually LineNum is 0-based
-                          BoqLineNum: matched.U_SQlineNum,
-                          ItemCode: matched.U_ItmSerCode,
-                          ItemName: matched.U_ItemType,
-                          fulldescription: matched.U_ItemDesc,
-                          quantity: matched.U_ReqQty,
-                          amount: matched.U_UnitPrice,
-                          linetotal: matched.U_LineTotal,
-                          project: matched.U_Project,
-                          warehouse: matched.U_Whs,
-                          uom: matched.U_UOM,
-                          stage: matched.U_Stage,
-                          issuedQty: matched.U_IssuedQty,
-                          inStock: matched.U_InStock,
-                          availableQty: matched.U_AvlQty,
-                          rateTotal: matched.U_RateTotal,
-                          remarks: matched.U_HLB_Rmarks,
+                          task: matched.U_Task||matched.Task,
+                          BoqLineNum: matched.U_SQlineNum||matched.SQlineNum,
+                          ItemCode: matched.U_ItmSerCode||matched.ItemCode,
+                          ItemName: matched.U_ItemType||matched.ItemDescription,
+                          fulldescription: matched.U_ItemDesc||matched.ItemDescription,
+                          quantity: matched.U_ReqQty||matched.Quantity,
+                          amount: matched.U_UnitPrice||matched.UnitPrice,
+                          linetotal: matched.U_LineTotal||matched.LineTotal,
+                          project: matched.U_Project||matched.ProjectCode,
+                          warehouse: matched.U_Whs||matched.Warehouse,
+                          uom: matched.U_UOM||matched.UoMCode,
+                          stage: matched.U_Stage||matched.StgDesc,
+                          issuedQty: matched.U_IssuedQty||matched.IssuedQty,
+                          inStock: matched.U_InStock||matched.InStock,
+                          availableQty: matched.U_AvlQty||matched.AvlQty,
+                          rateTotal: matched.U_RateTotal||matched.Rate,
+                          remarks: matched.U_HLB_Rmarks||matched.Remarks,
                         }
                       : {
-                         task: item.U_Task, // usually LineNum is 0-based
-                          BoqLineNum: item.U_SQlineNum,
-                          ItemCode: item.U_ItmSerCode,
-                          ItemName: item.U_ItemType,
-                          fulldescription: item.U_ItemDesc,
-                          quantity: item.U_ReqQty,
-                          amount: item.U_UnitPrice,
-                          linetotal: item.U_LineTotal,
-                          project: item.U_Project,
-                          warehouse: item.U_Whs,
-                          uom: item.U_UOM,
-                          stage: item.U_Stage,
-                          issuedQty: item.U_IssuedQty,
-                          inStock: item.U_InStock,
-                          availableQty: item.U_AvlQty,
-                          rateTotal: item.U_RateTotal,
-                          remarks: item.U_HLB_Rmarks,
+                         task: item.U_Task||item.Task, // usually LineNum is 0-based
+                          BoqLineNum: item.U_SQlineNum||item.SQlineNum,
+                          ItemCode: item.U_ItmSerCode||item.ItemCode,
+                          ItemName: item.U_ItemType||item.ItemDescription,
+                          fulldescription: item.U_ItemDesc||item.ItemDescription,
+                          quantity: item.U_ReqQty||item.Quantity,
+                          amount: item.U_UnitPrice||item.UnitPrice,
+                          linetotal: item.U_LineTotal||item.LineTotal,
+                          project: item.U_Project||item.ProjectCode,
+                          warehouse: item.U_Whs||item.Warehouse,
+                          uom: item.U_UOM||item.UoMCode,
+                          stage: item.U_Stage||item.StgDesc,
+                          issuedQty: item.U_IssuedQty||item.IssuedQty,
+                          inStock: item.U_InStock||item.InStock,
+                          availableQty: item.U_AvlQty||item.AvlQty,
+                          rateTotal: item.U_RateTotal||item.Rate,
+                          remarks: item.U_HLB_Rmarks||item.Remarks,
                         }; // no placeholder
                   })
                   .filter(Boolean), // remove nulls
@@ -267,76 +278,76 @@ const ViewMaterialRequest = () => {
               () =>
                 orderList.value
                   .map((item) => {
-                    const matched = orderListById.HLB_MRQ1Collection.find(
+                    const matched = orderListById.HLB_MRQ1Collection||orderListById.DocumentLines.find(
                       (line) => line.ItemCode === item.U_ItmSerCode,
                     );
                     return matched !== undefined
                       ? {
-                         task: matched.U_Task, // usually LineNum is 0-based
-                          BoqLineNum: matched.U_SQlineNum,
-                          ItemCode: matched.U_ItmSerCode,
-                          ItemName: matched.U_ItemType,
-                          fulldescription: matched.U_ItemDesc,
-                          quantity: matched.U_ReqQty,
-                          amount: matched.U_UnitPrice,
-                          linetotal: matched.U_LineTotal,
-                          project: matched.U_Project,
-                          warehouse: matched.U_Whs,
-                          uom: matched.U_UOM,
-                          stage: matched.U_Stage,
-                          issuedQty: matched.U_IssuedQty,
-                          inStock: matched.U_InStock,
-                          availableQty: matched.U_AvlQty,
-                          rateTotal: matched.U_RateTotal,
-                          remarks: matched.U_HLB_Rmarks,
+                         task: matched.U_Task||matched.Task, // usually LineNum is 0-based
+                          BoqLineNum: matched.U_SQlineNum||matched.SQlineNum,
+                          ItemCode: matched.U_ItmSerCode||matched.ItemCode,
+                          ItemName: matched.U_ItemType||matched.ItemDescription,
+                          fulldescription: matched.U_ItemDesc||matched.ItemDescription,
+                          quantity: matched.U_ReqQty||matched.Quantity,
+                          amount: matched.U_UnitPrice||matched.UnitPrice,
+                          linetotal: matched.U_LineTotal||matched.LineTotal,
+                          project: matched.U_Project||matched.ProjectCode,
+                          warehouse: matched.U_Whs||matched.Warehouse,
+                          uom: matched.U_UOM||matched.UoMCode,
+                          stage: matched.U_Stage||matched.StgDesc,
+                          issuedQty: matched.U_IssuedQty||matched.IssuedQty,
+                          inStock: matched.U_InStock||matched.InStock,
+                          availableQty: matched.U_AvlQty||matched.AvlQty,
+                          rateTotal: matched.U_RateTotal||matched.Rate,
+                          remarks: matched.U_HLB_Rmarks||matched.Remarks,
                         }
                       : {
-                           task: item.U_Task, // usually LineNum is 0-based
-                          BoqLineNum: item.U_SQlineNum,
-                          ItemCode: item.U_ItmSerCode,
-                          ItemName: item.U_ItemType,
-                          fulldescription: item.U_ItemDesc,
-                          quantity: item.U_ReqQty,
-                          amount: item.U_UnitPrice,
-                          linetotal: item.U_LineTotal,
-                          project: item.U_Project,
-                          warehouse: item.U_Whs,
-                          uom: item.U_UOM,
-                          stage: item.U_Stage,
-                          issuedQty: item.U_IssuedQty,
-                          inStock: item.U_InStock,
-                          availableQty: item.U_AvlQty,
-                          rateTotal: item.U_RateTotal,
-                          remarks: item.U_HLB_Rmarks,
+                           task: item.U_Task||item.Task, // usually LineNum is 0-based
+                          BoqLineNum: item.U_SQlineNum||item.SQlineNum,
+                          ItemCode: item.U_ItmSerCode||item.ItemCode,
+                          ItemName: item.U_ItemType||item.ItemDescription,
+                          fulldescription: item.U_ItemDesc||item.ItemDescription,
+                          quantity: item.U_ReqQty||item.Quantity,
+                          amount: item.U_UnitPrice||item.UnitPrice,
+                          linetotal: item.U_LineTotal||item.LineTotal,
+                          project: item.U_Project||item.ProjectCode,
+                          warehouse: item.U_Whs||item.Warehouse,
+                          uom: item.U_UOM||item.UoMCode,
+                          stage: item.U_Stage||item.StgDesc,
+                          issuedQty: item.U_IssuedQty||item.IssuedQty,
+                          inStock: item.U_InStock||item.InStock,
+                          availableQty: item.U_AvlQty||item.AvlQty,
+                          rateTotal: item.U_RateTotal||item.Rate,
+                          remarks: item.U_HLB_Rmarks||item.Remarks,
                         }; // no placeholder
                   })
                   .filter(Boolean), // remove nulls
             );
 
             setitemTableData(() =>
-              orderListById.HLB_MRQ1Collection.map((item, index) => ({
-                task: item.U_Task, // usually LineNum is 0-based
-                BoqLineNum: item.U_SQlineNum,
-                ItemCode: item.U_ItmSerCode,
-                ItemName: item.U_ItemType,
-                fulldescription: item.U_ItemDesc,
-                quantity: item.U_ReqQty,
-                amount: item.U_UnitPrice,
-                linetotal: item.U_LineTotal,
-                project: item.U_Project,
-                warehouse: item.U_Whs,
-                uom: item.U_UOM,
-                stage: item.U_Stage,
-                issuedQty: item.U_IssuedQty,
-                inStock: item.U_InStock,
-                availableQty: item.U_AvlQty,
-                rateTotal: item.U_RateTotal,
-                remarks: item.U_HLB_Rmarks,
+              orderListById.HLB_MRQ1Collection||orderListById.DocumentLines.map((item, index) => ({
+                task: item.U_Task||item.Task, // usually LineNum is 0-based
+                BoqLineNum: item.U_SQlineNum||item.SQlineNum,
+                ItemCode: item.U_ItmSerCode||item.ItemCode,
+                ItemName: item.U_ItemType||item.ItemDescription,
+                fulldescription: item.U_ItemDesc||item.ItemDescription,
+                quantity: item.U_ReqQty||item.Quantity,
+                amount: item.U_UnitPrice||item.UnitPrice,
+                linetotal: item.U_LineTotal||item.LineTotal,
+                project: item.U_Project||item.ProjectCode,
+                warehouse: item.U_Whs||item.Warehouse,
+                uom: item.U_UOM||item.UoMCode,
+                stage: item.U_Stage||item.StgDesc,
+                issuedQty: item.U_IssuedQty||item.IssuedQty,
+                inStock: item.U_InStock||item.InStock,
+                availableQty: item.U_AvlQty||item.AvlQty,
+                rateTotal: item.U_RateTotal||item.Rate,
+                remarks: item.U_HLB_Rmarks||item.Remarks,
               })),
             );
             if (orderList.value?.length > 0) {
               const preselected = {};
-              orderListById.HLB_MRQ1Collection.forEach((line) => {
+              orderListById.HLB_MRQ1Collection||orderListById.DocumentLines.forEach((line) => {
                 const idx = orderList.value.findIndex(
                   (o) => o.ItemCode === line.U_ItmSerCode,
                 );
@@ -351,7 +362,6 @@ const ViewMaterialRequest = () => {
               "itemTabledata:->",
               itemTabledata,
               itemdata,
-              orderListById.HLB_MRQ1Collection,
               orderListById,
               "formData",
               formData,
@@ -756,6 +766,7 @@ const ViewMaterialRequest = () => {
                 itemdata={itemdata}
                 setitemData={setitemData}
                 formName={"Material Request"}
+                formData={formData}
                 setitemTableData={setitemTableData}
                 itemTabledata={itemTabledata}
                 servicedata={servicedata}

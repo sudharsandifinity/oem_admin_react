@@ -9,7 +9,7 @@ import {
 const ViewSalesOrder = (viewItem) => {
   console.log("viewItem", viewItem);
   return (
-    <div style={{ height: "flex", width: "300px", marginTop: "20px" }}>
+    <div style={{ height: "flex", width: "500px", marginTop: "20px" }}>
       <List>
         {viewItem &&
           viewItem.viewItem &&
