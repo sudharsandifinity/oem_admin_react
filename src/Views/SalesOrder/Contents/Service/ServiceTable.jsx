@@ -352,7 +352,7 @@ const Servicetable = (props) => {
     const discount = parseFloat(row.discount) || 0;
     const taxPercent = parseFloat(row.TaxRate) || 0;
 
-    const effectiveDiscount = discount + (summaryDiscountPercent || 0);
+    const effectiveDiscount = discount ;//+ (summaryDiscountPercent || 0);
 
     // Calculations
     const baseAmount = quantity * unitPrice;
@@ -365,7 +365,13 @@ const Servicetable = (props) => {
     return {
       ...row,
       BaseAmount: taxable.toFixed(2),
-      TaxRate: taxAmt.toFixed(2),
+      TaxTotal:
+        taxAmt.toFixed(2) - summaryDiscountPercent
+          ? (
+              taxAmt.toFixed(2) -
+              (taxAmt.toFixed(2) * summaryDiscountPercent) / 100
+            ).toFixed(2)
+          : taxAmt.toFixed(2),
       grosstotal: grossTotal.toFixed(2),
     };
   };
@@ -454,7 +460,7 @@ const Servicetable = (props) => {
     const cal = serviceTabledata.reduce(
       (acc, item) => {
         const bdTotal = parseFloat(item.BaseAmount) || 0;
-        const taxTotal = parseFloat(item.TaxRate) || 0;
+        const taxTotal = parseFloat(item.TaxTotal) || 0;
         acc.totalBeforeDiscount += bdTotal;
         acc.totalTaxAmount += taxTotal;
         return acc;
@@ -801,43 +807,43 @@ const Servicetable = (props) => {
           />
         ),
       },
-      {
-        Header: "Discount (%)",
-        accessor: "discount",
-        Cell: ({ row, value }) => (
-          <Input
-            style={{ textAlign: "right" }}
-            type="number"
-            disabled={mode === "view"}
-            value={value || ""}
-            onChange={(e) => {
-              const newValue = e.target.value;
-              const rowIndex = row.index;
-              setserviceTableData((prev) => {
-                const updated = [...prev];
-                updated[rowIndex] = {
-                  ...updated[rowIndex],
-                  discount: newValue.toLocaleString(undefined, {
-                    minimumFractionDigits: 2,
-                  }),
-                };
-                return updated;
-              });
-            }}
-            onInput={(e) => {
-              const newValue = Number(e.target.value) || 0;
-              const rowIndex = row.index;
+      // {
+      //   Header: "Discount (%)",
+      //   accessor: "discount",
+      //   Cell: ({ row, value }) => (
+      //     <Input
+      //       style={{ textAlign: "right" }}
+      //       type="number"
+      //       disabled={mode === "view"}
+      //       value={value || ""}
+      //       onChange={(e) => {
+      //         const newValue = e.target.value;
+      //         const rowIndex = row.index;
+      //         setserviceTableData((prev) => {
+      //           const updated = [...prev];
+      //           updated[rowIndex] = {
+      //             ...updated[rowIndex],
+      //             discount: newValue.toLocaleString(undefined, {
+      //               minimumFractionDigits: 2,
+      //             }),
+      //           };
+      //           return updated;
+      //         });
+      //       }}
+      //       onInput={(e) => {
+      //         const newValue = Number(e.target.value) || 0;
+      //         const rowIndex = row.index;
 
-              setserviceTableData((prev) => {
-                const updated = [...prev];
-                const newRow = { ...updated[rowIndex], discount: newValue };
-                updated[rowIndex] = calculateRowTotals(newRow);
-                return updated;
-              });
-            }}
-          />
-        ),
-      },
+      //         setserviceTableData((prev) => {
+      //           const updated = [...prev];
+      //           const newRow = { ...updated[rowIndex], discount: newValue };
+      //           updated[rowIndex] = calculateRowTotals(newRow);
+      //           return updated;
+      //         });
+      //       }}
+      //     />
+      //   ),
+      // },
       {
         Header: "Total",
         accessor: "total",
@@ -1204,207 +1210,236 @@ const Servicetable = (props) => {
       </div>
 
       <FlexBox
-        wrap="Wrap"
-        justifyContent="SpaceBetween"
-        style={{ marginTop: "2rem", gap: "20rem" }}
-      >
-        <FlexBox
-          direction="Column"
-          style={{
-            flex: 1,
-            minWidth: "300px",
-            gap: "1rem",
-            padding: "1rem",
-          }}
-        >
-          <FlexBox alignItems="Center" justifyContent="SpaceBetween">
-            <Text style={{ minWidth: "120px" }}>Owner</Text>
-            <Select
-            disable={mode === "view"}
-              style={{ width: "100%" }}
-              value={String(selectedServiceOwner)}
-              onChange={handlechangeOwner}
-            >
-              <Option value="">Select Owner</Option>
-
-              {OwnerList.map((owner) => (
-                <Option key={owner.EmployeeID} value={owner.EmployeeID}>
-                  {owner.FirstName} {owner.LastName}
-                </Option>
-              ))}
-            </Select>
-          </FlexBox>
-          <FlexBox alignItems="Start" justifyContent="SpaceBetween">
-            <Text style={{ minWidth: "120px" }}>Remark</Text>
-            <TextArea
-            disable={mode === "view"}
-              growing
-              name="Remark"
-              value={
-                summaryData?.Remark !== "undefined" ? summaryData?.Remark : ""
-              }
-              onInput={(e) => {
-                setSummaryData((prev) => ({
-                  ...prev,
-                  Remark: e.target.value,
-                }));
-              }}
-              onScroll={function Xne() {}}
-              onSelect={function Xne() {}}
-              valueState="None"
-            />
-          </FlexBox>
-        </FlexBox>
-        {/* RIGHT SIDE */}
-        <FlexBox
-          direction="Column"
-          alignItems="FlexStart"
-          style={{ width: "40%", gap: "10px" }}
-        >
-          <Title level="H3" style={{ marginBottom: "16px" }}>
-            Total Summary
-          </Title>
-          <FlexBox>
-            <Text showColon style={{ minWidth: "200px" }}>
-              Total Before Discount
-            </Text>
-            <FlexBox style={{ width: "100%" }} justifyContent="End">
-              {summaryCalculation.totalBeforeDiscount}
-            </FlexBox>
-          </FlexBox>
-          <FlexBox alignItems="Center">
-            <Text showColon style={{ minWidth: "200px" }}>
-              Discount
-            </Text>
-            <FlexBox
-              style={{ width: "100%" }}
+              wrap="Wrap"
               justifyContent="SpaceBetween"
-              alignItems="Center"
+              style={{ marginTop: "2rem", gap: "20rem" }}
             >
-              <FlexBox alignItems="Center">
-                <Input
-                disable={mode === "view"}
-                  type="Number"
-                  style={{ textAlign: "right" }}
-                  value={summaryDiscountPercent}
-                  onInput={(e) => {
-                    const value = parseFloat(e.target.value) || 0;
-                    setSummaryDiscountPercent(value);
-                    setSummaryData((prev) => ({
-                      ...prev,
-                      DiscountPercent: value,
-                    }));
-                  }}
-                />
-                %
+              {/* LEFT SIDE */}
+              <FlexBox
+                direction="Column"
+                style={{
+                  flex: 1,
+                  minWidth: "300px",
+                  maxWidth: "600px",
+                  gap: "1rem",
+                  padding: "1rem",
+                }}
+              >
+                {console.log("selectedServiceOwner", selectedServiceOwner)}
+                <FlexBox alignItems="Center" justifyContent="SpaceBetween">
+                  <Text style={{ minWidth: "120px" }}>Owner</Text>
+                  <Select
+                    disabled={mode === "view"}
+                    style={{ width: "100%" }}
+                    value={String(selectedServiceOwner)}
+                    onChange={handlechangeOwner}
+                  >
+                    <Option value="">Select Owner</Option>
+                    {OwnerList &&
+                      OwnerList.length > 0 &&
+                      OwnerList.map((owner) => (
+                        <Option key={owner.EmployeeID} value={owner.EmployeeID}>
+                          {owner.FirstName} {owner.LastName}
+                        </Option>
+                      ))}
+                  </Select>
+                </FlexBox>
+      
+                {/* Remark */}
+                <FlexBox alignItems="Start" justifyContent="SpaceBetween">
+                  <Text style={{ minWidth: "120px" }}>Remark</Text>
+                  <TextArea
+                    growing
+                    disabled={mode === "view"}
+                    style={{ width: "100%" }}
+                    value={summaryData?.Remark || ""}
+                    onBlur={(e) => {
+                      setSummaryData((prev) => ({
+                        ...prev,
+                        Remark: e.target.value,
+                      }));
+                    }}
+                  />
+                </FlexBox>
               </FlexBox>
-              <Text>{summaryDiscountAmount}</Text>
-            </FlexBox>
-          </FlexBox>
-          {formDetails[0].name !== "Purchase Request" && (
-            <FlexBox>
-              <Text
-                showColon
-                style={{ minWidth: "200px", marginBottom: "10px" }}
+      
+              {/* RIGHT SIDE */}
+              <FlexBox
+                direction="Column"
+                style={{
+                  width: "320px",
+                  border: "1px solid #cfcfcf",
+                  padding: "12px",
+                  background: "#f5f5f5",
+                  gap: "6px",
+                  fontSize: "13px",
+                }}
               >
-                Freight
-              </Text>
-              <Button
-              disable={mode === "view"}
-                design="Default"
-                onClick={() => setfreightDialogOpen(true)}
-                tooltip="Freight"
-                // make the button compact so only icon shows visually:
-              >
-                <Icon
-                  tooltip="Add Freight"
-                  name="arrow-right"
-                  style={{
-                    color: "#ff9e00",
-                    width: "18px",
-                    height: "18px",
-                    fontSize: "18px",
-                  }}
-                />
-              </Button>
-              <FlexBox style={{ width: "100%" }} justifyContent="End">
-                {console.log("itemFreightAmount", totalFreightFromPopup)}
-                {useEffect(() => {
+                {/* Total Before Discount */}
+                <FlexBox alignItems="Center">
+                  <Text style={{ width: "160px", fontSize: "13px" }}>
+                    Total Before Discount
+                  </Text>
+      
+                  <Input
+                    value={summaryCalculation.totalBeforeDiscount}
+                    readonly
+                    style={{ width: "140px" }}
+                  />
+                </FlexBox>
+      
+                {/* Discount */}
+                <FlexBox alignItems="Center">
+                  <Text style={{ width: "160px", fontSize: "13px" }}>Discount</Text>
+      
+                  <FlexBox alignItems="Center" style={{ gap: "4px" }}>
+                    <Input
+                      type="Number"
+                      disabled={mode === "view"}
+                      value={summaryDiscountPercent}
+                      onBlur={(e) => {
+                        const value = parseFloat(e.target.value) || 0;
+      
+                        setSummaryDiscountPercent(value);
+      
+                        setSummaryData((prev) => ({
+                          ...prev,
+                          DiscountPercent: value,
+                        }));
+                      }}
+                      style={{ width: "70px" }}
+                    />
+      
+                    <Text>%</Text>
+      
+                    <Input
+                      value={summaryDiscountAmount}
+                      readonly
+                      style={{ width: "140px" }}
+                    />
+                  </FlexBox>
+                </FlexBox>
+      
+                {/* Freight */}
+                {formDetails[0].name !== "Purchase Request" && (
+                  <FlexBox alignItems="Center">
+                    <Text style={{ width: "160px", fontSize: "13px" }}>Freight</Text>
+                    <FlexBox alignItems="Center" style={{ gap: "4px" }}>
+                      <Button
+                        design="Transparent"
+                        disabled={mode === "view"}
+                        onClick={() => setfreightDialogOpen(true)}
+                        style={{
+                          minWidth: "32px",
+                          height: "32px",
+                          marginRight: "6px",
+                        }}
+                      >
+                        <Icon
+                          name="arrow-right"
+                          style={{
+                            color: "#d9a300",
+                            fontSize: "16px",
+                          }}
+                        />
+                      </Button>
+                       {useEffect(() => {
                   setTotalFreightAmount(totalFreightFromPopup);
                 }, [totalFreightFromPopup])}{" "}
-                <Text>
-                  {" "}
-                  {totalFreightAmount.toLocaleString(undefined, {
-                    minimumFractionDigits: 2,
-                  })}
-                </Text>
+                      <Input
+                        value={totalFreightAmount.toLocaleString(undefined, {
+                          minimumFractionDigits: 2,
+                        })}
+                        readonly
+                        style={{ width: "140px" }}
+                      />{" "}
+                    </FlexBox>
+                  </FlexBox>
+                )}
+      
+                {/* Rounding */}
+                {formDetails[0].name !== "Purchase Request" && (
+                  <FlexBox alignItems="Center">
+                    <Text style={{ width: "160px", fontSize: "13px" }}>Rounding</Text>
+                    <FlexBox alignItems="Center" style={{ gap: "4px" }}>
+                      <CheckBox
+                        disabled={mode === "view"}
+                        checked={roundingEnabled}
+                        onChange={(e) => {
+                          const checked = e.target.checked;
+      
+                          setRoundingEnabled(checked);
+      
+                          if (!checked) {
+                            setRoundOff(0);
+                          }
+      
+                          setSummaryData((prev) => ({
+                            ...prev,
+                            Rounding: checked ? "tYES" : "tNO",
+                          }));
+                        }}
+                        style={{ marginRight: "8px" }}
+                      />
+      
+                      {roundingEnabled ? (
+                        <Input
+                          type="Number"
+                          disabled={mode === "view"}
+                          value={roundOff}
+                          onBlur={(e) => {
+                            const value = parseFloat(e.target.value) || 0;
+      
+                            setRoundOff(value);
+      
+                            setSummaryData((prev) => ({
+                              ...prev,
+                              RoundingDiffAmount: value,
+                            }));
+                          }}
+                          style={{ width: "140px" }}
+                        />
+                      ) : (
+                        <Input value="0.00" readonly style={{ width: "140px" }} />
+                      )}
+                    </FlexBox>
+                  </FlexBox>
+                )}
+      
+                {/* Tax */}
+                <FlexBox alignItems="Center">
+                  <Text style={{ width: "160px", fontSize: "13px" }}>Tax</Text>
+      
+                  <Input
+                    value={summaryCalculation.totalTaxAmount}
+                    readonly
+                    style={{ width: "140px" }}
+                  />
+                </FlexBox>
+      
+                {/* Total */}
+                <FlexBox alignItems="Center">
+                  <Text
+                    style={{
+                      width: "160px",
+                      fontWeight: "bold",
+                      fontSize: "14px",
+                    }}
+                  >
+                    Total
+                  </Text>
+      
+                  <Input
+                    value={finalTotal}
+                    readonly
+                    style={{
+                      width: "140px",
+                      fontWeight: "bold",
+                    }}
+                  />
+                </FlexBox>
               </FlexBox>
             </FlexBox>
-          )}
-          <FlexBox>
-            <Text showColon style={{ minWidth: "200px" }}>
-              Tax
-            </Text>
-            <FlexBox style={{ width: "100%" }} justifyContent="End">
-              <Text> {summaryCalculation.totalTaxAmount}</Text>
-            </FlexBox>
-          </FlexBox>
-          <FlexBox alignItems="Center">
-            <Text showColon style={{ minWidth: "200px" }}>
-              Rounding
-            </Text>
-            <FlexBox
-              style={{ width: "100%" }}
-              justifyContent="SpaceBetween"
-              alignItems="Center"
-            >
-              <CheckBox
-              disable={mode === "view"}
-                checked={roundingEnabled}
-                onChange={(e) => {
-                  const checked = e.target.checked;
-                  setRoundingEnabled(checked);
-                  if (!checked) {
-                    setRoundOff(0);
-                  }
-                  setSummaryData((prev) => ({
-                    ...prev,
-                    Rounding: checked ? "tYES" : "tNO",
-                  }));
-                }}
-              />
-              {roundingEnabled ? (
-                <Input
-                disable={mode === "view"}
-                  type="number"
-                  value={roundOff}
-                  style={{ textAlign: "right" }}
-                  onInput={(e) => {
-                    setRoundOff(parseFloat(e.target.value) || 0);
-                    setSummaryData((prev) => ({
-                      ...prev,
-                      RoundingDiffAmount: e.target.value,
-                    }));
-                  }}
-                />
-              ) : (
-                <Text>{roundOff && roundOff.toFixed(2)}</Text>
-              )}
-            </FlexBox>
-          </FlexBox>
-          <FlexBox>
-            <Text showColon style={{ minWidth: "200px" }}>
-              Total
-            </Text>
-            <FlexBox
-              style={{ width: "100%", fontWeight: "bold" }}
-              justifyContent="End"
-            >
-              <Text>{finalTotal}</Text>
-            </FlexBox>
-          </FlexBox>
-        </FlexBox>
-      </FlexBox>
       <Dialog
         headerText="Select Service"
         open={dialogOpen}

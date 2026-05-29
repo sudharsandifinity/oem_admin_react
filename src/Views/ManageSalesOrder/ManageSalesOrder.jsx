@@ -54,8 +54,10 @@ const ManageSalesOrder = () => {
     ManageSalesOrderTableData,
     ManageSalesOderHeaderField,
     ManagePurchaseOrderTableColumn,
+    ManageProjectOrderTableColumn,
   } = useContext(FormConfigContext);
   const dispatch = useDispatch();
+  const location = useLocation().pathname.split("/")[1];
   const { formId, childId } = useParams();
 
   const [filters, setFilters] = useState({
@@ -93,6 +95,8 @@ const ManageSalesOrder = () => {
         DocEntry: item.DocEntry,
         CustomerCode: item.CardCode,
         CustomerName: item.CardName,
+        ProjectCode: item.U_PrjCode,
+        ProjectName: item.U_PrjDesc,
         DocumentNo: item.DocNum,
         PostingDate: item.CreationDate,
         Status: item.DocumentStatus,
@@ -137,7 +141,7 @@ const ManageSalesOrder = () => {
         // ).unwrap();
         res = "";
       } else if (formDetails[0]?.name === "Material Request") {
-        res = []
+        res = [];
         // await dispatch(
         //   fetchMaterialRequest({ top: pageSize, skip: page * pageSize }),
         // ).unwrap();
@@ -158,7 +162,10 @@ const ManageSalesOrder = () => {
         DocEntry: item.DocEntry,
         CustomerCode: item.CardCode || item.Requester || item.Creator,
         CustomerName: item.CardName || item.RequesterName || item.Creator,
+        ProjectCode: item.U_PrjCode,
+        ProjectName: item.U_PrjDesc,
         DocumentNo: item.DocNum,
+        MRNO: item.U_MRNo || "",
         DocumentLines: item.DocumentLines,
         PostingDate:
           item.CreationDate || item.CreateDate
@@ -244,7 +251,10 @@ const ManageSalesOrder = () => {
           DocEntry: item.DocEntry,
           CustomerCode: item.CardCode || item.Requester || item.Creator,
           CustomerName: item.CardName || item.RequesterName || item.Creator,
+          ProjectCode: item.U_PrjCode,
+          ProjectName: item.U_PrjDesc,
           DocumentNo: item.DocNum,
+          MRNO: item.U_MRNo || null,
           DocumentLines: item.DocumentLines,
           PostingDate:
             item.CreationDate || item.CreateDate
@@ -370,16 +380,50 @@ const ManageSalesOrder = () => {
       return null;
     }).filter(Boolean),
   );
-  const ManageSalesOrderTableCols =
-    menuChildMap[0] && menuChildMap[0].menuName === "Purchase"
-      ? ManagePurchaseOrderTableColumn?.map((col) => ({
-          Header: col.Header,
-          accessor: col.accessor,
-        })) || []
-      : ManageSalesOrderTableColumn?.map((col) => ({
-          Header: col.Header,
-          accessor: col.accessor,
-        })) || [];
+  {
+    console.log(
+      " menuChildMap[0] && menuChildMap[0].menuName",
+      menuChildMap,
+      location,
+      formId,
+    );
+  }
+  const currentMenuName = location;
+
+  const matchedMenu = menuChildMap.find(
+    (menu) => menu.menuName.replace(/\s+/g, "-") === currentMenuName,
+  );
+
+  const columnConfig = {
+    Sales: ManageSalesOrderTableColumn,
+    Purchase: ManagePurchaseOrderTableColumn,
+    "Contracting Management": ManageProjectOrderTableColumn,
+  };
+
+  const ManageSalesOrderTableCols = (
+    columnConfig[matchedMenu?.menuName] || []
+  ).map((col) => ({
+    Header: col.Header,
+    accessor: col.accessor,
+  }));
+
+  console.log("matchedMenu", matchedMenu);
+  console.log("columns", ManageSalesOrderTableCols);
+  // const ManageSalesOrderTableCols =
+  //   menuChildMap[0] && menuChildMap[0].menuName === "Purchase"
+  //     ? ManagePurchaseOrderTableColumn?.map((col) => ({
+  //         Header: col.Header,
+  //         accessor: col.accessor,
+  //       })) || []
+  //     :( menuChildMap[0] && menuChildMap[0].menuName === "Contracting-Management"
+  //       ? ManageProjectOrderTableColumn?.map((col) => ({
+  //           Header: col.Header,
+  //           accessor: col.accessor,
+  //         })) || []
+  //       : ManageSalesOrderTableColumn?.map((col) => ({
+  //           Header: col.Header,
+  //           accessor: col.accessor,
+  //         })) || [])
 
   const editRow = async (rowData) => {
     console.log("rowData", rowData);
@@ -391,7 +435,9 @@ const ManageSalesOrder = () => {
     console.log("rowData", rowData);
     title === "Material Request"
       ? navigate("/MaterialRequest/view/" + formId + "/" + rowData.DocEntry)
-      : navigate("/Order/view/" + formId + "/" + rowData.DocEntry);
+      : rowData.MRNO
+        ? navigate("/MaterialRequest/view/" + formId + "/" + rowData.DocEntry)
+        : navigate("/Order/view/" + formId + "/" + rowData.DocEntry);
   };
 
   const columns = useMemo(
@@ -421,15 +467,18 @@ const ManageSalesOrder = () => {
               direction="Row"
               justifyContent="Center"
             >
-              <Button
-                icon="edit"
-                //disabled={isOverlay || isRowDisabled}
-                design="Transparent"
-                onClick={() => {
-                  editRow(row.original);
-                }}
-                // onClick={() => editRow(row)}
-              />
+              {formDetails[0]?.name !== "GRPO" &&
+                row.original.MRNO === null && (
+                  <Button
+                    icon="edit"
+                    //disabled={isOverlay || isRowDisabled}
+                    design="Transparent"
+                    onClick={() => {
+                      editRow(row.original);
+                    }}
+                    // onClick={() => editRow(row)}
+                  />
+                )}
               {/* <Button
                 icon="sap-icon://delete"
                 disabled={isOverlay}
@@ -451,7 +500,18 @@ const ManageSalesOrder = () => {
                 onClick={() => {
                   setLayout("TwoColumnsMidExpanded");
                   //viewRow(row.original)
-                  setViewItem(row.original);
+
+                  const viewitem = {
+                    ...row.original,
+                    ManageSalesOrderTableCols: ManageSalesOrderTableCols.filter(
+                      (col) => col.accessor !== "DocumentLines",
+                    ).reduce((acc, col) => {
+                      acc[col.accessor] = row.original[col.accessor];
+                      return acc;
+                    }, {}),
+                  };
+                  console.log("viewRow", viewitem);
+                  setViewItem(viewitem.ManageSalesOrderTableCols);
                 }}
                 // onClick={() => editRow(row)}
               />
@@ -773,27 +833,30 @@ const ManageSalesOrder = () => {
                               style={{ border: "none" }}
                             >
                               {console.log("title", title)}
-                              <ToolbarButton
-                                design="default"
-                                onClick={() => {
-                                  title === "Material Request"
-                                    ? navigate(
-                                        "/MaterialRequest/create/" +
-                                          formId +
-                                          "/" +
-                                          (tableData.length > 0 &&
-                                            tableData[0]?.DocEntry + 1),
-                                      )
-                                    : navigate(
-                                        "/Order/create/" +
-                                          formId +
-                                          "/" +
-                                          (tableData.length > 0 &&
-                                            tableData[0]?.DocEntry + 1),
-                                      );
-                                }}
-                                text="Create"
-                              />
+                              {(location === "Contracting-Management" &&
+                                formDetails[0]?.name === "Purchase Request") ?<></>: (
+                                  <ToolbarButton
+                                    design="default"
+                                    onClick={() => {
+                                      title === "Material Request"
+                                        ? navigate(
+                                            "/MaterialRequest/create/" +
+                                              formId +
+                                              "/" +
+                                              (tableData.length > 0 &&
+                                                tableData[0]?.DocEntry + 1),
+                                          )
+                                        : navigate(
+                                            "/Order/create/" +
+                                              formId +
+                                              "/" +
+                                              (tableData.length > 0 &&
+                                                tableData[0]?.DocEntry + 1),
+                                          );
+                                    }}
+                                    text="Create"
+                                  />
+                                )}
                               <ToolbarButton
                                 design="default"
                                 onClick={handleExportPDF}
@@ -880,7 +943,7 @@ const ManageSalesOrder = () => {
                         />
                       }
                       startContent={
-                        <Title level="H5">Preview Sales Order</Title>
+                        <Title level="H5">Preview {formDetails[0]?.name}</Title>
                       }
                     ></Bar>
                   }

@@ -8,23 +8,21 @@ import {
   Label,
 } from "@ui5/webcomponents-react";
 import React, { useMemo, useState } from "react";
-import ListBOQItemDialogDialog from "./ListBOQItemDialog";
-import ListBOQItemDialog from "./ListBOQItemDialog";
 //import ListPurItemDialog from "./ListPurItemDialog";
 
-const BOQListDialog = (props) => {
+const openPurRequestItemsDialog = (props) => {
   const {
     open,
     setOpen,
-    boqrequestList,
+    selectedPurRequestList,
     saveItem,
     type,
     saveService,
-    originalboqrequestList,
+    originalSelectedPurRequestList,
     setOriginalboqrequestlist,
     inputValue,
-    setBoqRequestList,
-    setInputValue,
+    setSelectedPurRequestList,
+    setInputValue,submitPurchaseRequest
   } = props;
   const [rowSelection, setRowSelection] = useState([]);
   const [openListBOQItem, setOpenListBOQItem] = useState(false);
@@ -45,14 +43,14 @@ const BOQListDialog = (props) => {
     }));
 
     // ✅ Optional filtering logic
-    const filteredList = boqrequestList.filter((item) =>
+    const filteredList = selectedPurRequestList.filter((item) =>
       item[fieldname]
         ?.toString()
         .toLowerCase()
         .includes(selectedValue.toLowerCase()),
     );
 console.log("filteredList", filteredList);
-    setBoqRequestList(filteredList);
+    setSelectedPurRequestList(filteredList);
   };
   const onitemchildRowSelect = (e) => {
     console.log("e.detail.row.original", e.detail.row);
@@ -90,56 +88,56 @@ console.log("filteredList", filteredList);
     }
   };
   const itemcolumns = useMemo(
-    () => [
-     
+     () => [
       {
-        Header: "Document Entry",
-        accessor: "DocEntry",
+        Header: "Line Id",
+        accessor: "LineId", // not used for data, but needed for the column
+        Cell: ({ row }) => Number(row.id) + 1, // ✅ row.id is 0-based
+        width: 80,
       },
       {
-        Header: "Customer Code",
-        accessor: "U_BPCode",
-      },
-       {
-        Header: "Customer Name",
-        accessor: "U_BPName",
+        Header:"Item Code",
+        accessor:"ItemCode",
       },
       {
+        Header:"Item Description",
+        accessor:"ItemName",
+      },
+      {
+        Header: "Quantity",
+        accessor: "quantity",
+      },{
+        Header: "Amount",
+        accessor: "amount",
+      },{
         Header: "Project Code",
-        accessor: "U_PrjCode",
-      },
-       {
-        Header: "Project Name",
-        accessor: "U_PrjName",
+        accessor: "project",
       },
       {
-        Header: "Project Location",
-        accessor: "U_PrjLoc",
+        Header: "Warehouse code",
+        accessor: "warehouse",
       },
       {
-        Header: "Reference No",
-        accessor: "U_RefNo",
+        Header: "Remarks",
+        accessor: "remarks",
       },
+
       {
-        Header: "Currency",
-        accessor: "U_Cur",
-      },
-       {
-        Header: "Status",
-        accessor: "U_Status",
+        Header: "Item Description",
+        accessor: "U_Desc",
       },
     ],
     [],
   );
   const clearFilter = () => {
     // Implement clear filter logic here
-    setBoqRequestList(originalboqrequestList);
+    setSelectedPurRequestList(originalSelectedPurRequestList);
     setInputValue({});
   };
   return (
     <>
       <Dialog
-        headerText="BOQ List"
+        headerText="Material Request Item List"
         open={open}
         onAfterClose={() => setopen(false)}
         footer={
@@ -151,21 +149,7 @@ console.log("filteredList", filteredList);
                 //setOpen(false);
                 console.log("rowselectionsave", rowSelection);
                 setOpenListBOQItem(true);
-                setSelectedBOQList(
-                  Object.values(rowSelection).flatMap(
-                    (req) => req.HLB_BOQT1Collection || [],
-                  ),
-                );
-                setOriginalSelectedBOQList(
-                  Object.values(rowSelection).flatMap(
-                    (req) => req.HLB_BOQT1Collection || [],
-                  ),
-                );
-                // saveItem(
-                //   Object.values(rowSelection).flatMap(
-                //     (req) => req.DocumentLines || [],
-                //   ),
-                // );
+                submitPurchaseRequest(rowSelection);
               }}
             >
               Choose
@@ -187,46 +171,46 @@ console.log("filteredList", filteredList);
             }}
           >
             <FlexBox direction="Column">
-              <Label>Document Entry</Label>
-
-              <ComboBox
-                filter
-                value={inputValue?.DocEntry || ""}
-                onChange={(e) => handleFilterChange(e, "DocEntry")}
-                placeholder="Search DocEntry..."
-              >
-                {originalboqrequestList?.map((data, idx) => (
-                  <ComboBoxItem key={idx} text={String(data.DocEntry)} />
-                ))}
-              </ComboBox>
-            </FlexBox>
-            <FlexBox direction="Column">
-              {" "}
-              <Label>Creator</Label>
-              <ComboBox
-                filter
-                value={inputValue?.Creator || ""}
-                onChange={(e) => handleFilterChange(e, "Creator")}
-                placeholder="Search Creator..."
-              >
-                {originalboqrequestList?.map((data, idx) => (
-                  <ComboBoxItem key={idx} text={data.Creator} />
-                ))}
-              </ComboBox>
-            </FlexBox>
+                        <Label>Item Code</Label>
+            
+                        <ComboBox
+                          filter
+                          value={inputValue.ItemCode || ""}
+                          onChange={(e) => handleFilterChange(e, "ItemCode")}
+                          placeholder="Search Item Code..."
+                        >
+                          {originalSelectedPurRequestList?.map((data, idx) => (
+                            <ComboBoxItem key={idx} text={String(data.ItemCode)} />
+                          ))}
+                        </ComboBox>
+                      </FlexBox>
+                      <FlexBox direction="Column">
+                        {" "}
+                        <Label>Item Full Description</Label>
+                        <ComboBox
+                          filter
+                          value={inputValue.ItemName || ""}
+                          onChange={(e) => handleFilterChange(e, "ItemName")}
+                          placeholder="Search Item Description..."
+                        >
+                          {originalSelectedPurRequestList?.map((data, idx) => (
+                            <ComboBoxItem key={idx} text={String(data.ItemName)} />
+                          ))}
+                        </ComboBox>
+                      </FlexBox>
             <Button style={{ width: "100px" }} onClick={clearFilter}>
               Clear Filter
             </Button>
           </FlexBox>
           {console.log(
-            "boqrequestList",
-            boqrequestList,
-            originalboqrequestList,
+            "selectedPurRequestList",
+            selectedPurRequestList,
+            originalSelectedPurRequestList,
           )}
           <AnalyticalTable
-            data={boqrequestList}
+            data={selectedPurRequestList}
             columns={itemcolumns}
-            //header={`Items (${boqrequestList.length})`}
+            //header={`Items (${selectedPurRequestList.length})`}
             selectionMode="Multiple"
             selectedRowIds={rowSelection}
             onRowSelect={onitemchildRowSelect}
@@ -239,22 +223,10 @@ console.log("filteredList", filteredList);
           />
         </FlexBox>
       </Dialog>
-      <ListBOQItemDialog
-        openListBOQItem={openListBOQItem}
-        setOpenListBOQItem={setOpenListBOQItem}
-        setOpen={setOpen}
-        selectedBOQList={selectedBOQList}
-        setSelectedBOQList={setSelectedBOQList}
-        originalSelectedBOQList={originalSelectedBOQList}
-        setOriginalSelectedBOQList={setOriginalSelectedBOQList}
-        saveItem={saveItem}
-        saveService={saveService}
-         inputValue={inputValue}
-  setInputValue={setInputValue}
-        type={type}
-      />
+     
     </>
   );
 };
 
-export default BOQListDialog;
+
+export default openPurRequestItemsDialog

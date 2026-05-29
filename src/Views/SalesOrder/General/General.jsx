@@ -223,12 +223,18 @@ const General = ({
                   }}
                 >
                   <FlexBox alignItems="Center">
-                    <Label style={{ minWidth: "200px" }}>Customer:</Label>
+                    <Label style={{ minWidth: "200px" }}>
+                      {formDetails[0]?.name === "Purchase Order" ||
+                      formDetails[0]?.name === "Purchase Quotation" ||
+                      formDetails[0]?.name === "Purchase Request"
+                        ? "Vendor"
+                        : "Customer:"}
+                    </Label>
                     <Controller
                       name="CardCode"
                       control={control}
                       render={({ field }) =>
-                        formDetails[0]?.name === "Purchase Request"? (
+                        formDetails[0]?.name === "Purchase Request" ? (
                           <Select
                             style={{ width: "100%" }}
                             placeholder="Reactor"
@@ -238,15 +244,17 @@ const General = ({
                             onChange={(e) => field.onChange(e.target.value)}
                             valueState={errors.CardCode ? "Error" : "None"}
                           >
-                            
-
                             <Option value="1">Manager</Option>
                           </Select>
                         ) : (
                           <Input
                             placeholder="Select Card"
                             name="CardCode"
-                            disabled={mode === "view"||(formDetails[0]?.name === "GRPO" &&mode=== "edit")}
+                            disabled={
+                              mode === "view" ||
+                              (formDetails[0]?.name === "GRPO" &&
+                                mode === "edit")
+                            }
                             style={{ width: "100%" }}
                             value={
                               selectedcardcode
@@ -285,9 +293,17 @@ const General = ({
                         <Input
                           placeholder="Card Name"
                           name="CardName"
-                          disabled={mode === "view"||formDetails[0]?.name==="Purchase Request"||(formDetails[0]?.name === "GRPO" &&mode=== "edit") }
+                          disabled={
+                            mode === "view" ||
+                            formDetails[0]?.name === "Purchase Request" ||
+                            (formDetails[0]?.name === "GRPO" && mode === "edit")
+                          }
                           style={{ width: "100%" }}
-                          value={formDetails[0]?.name==="Purchase Request"?"manager":autoCardNameRef || field.value}
+                          value={
+                            formDetails[0]?.name === "Purchase Request"
+                              ? "manager"
+                              : autoCardNameRef || field.value
+                          }
                           onInput={(e) => field.onChange(e.target.value)}
                           onChange={handleChange}
                           valueState={errors.CardName ? "Error" : "None"}
@@ -398,8 +414,9 @@ const General = ({
                     gap: "8px",
                   }}
                 >
-                  {formDetails[0]?.name === "Purchase Quotation" ||
-                    (formDetails[0]?.name === "Purchase Request" && (
+                  {formDetails[0]?.name === "Purchase Order" ||
+                      formDetails[0]?.name === "Purchase Quotation" ||
+                      formDetails[0]?.name === "Purchase Request"? 
                       <FlexBox alignItems="Center">
                         <Label style={{ minWidth: "200px" }}>
                           Required Date:
@@ -434,8 +451,8 @@ const General = ({
                             </Input>
                           )}
                         />
-                      </FlexBox>
-                    ))}
+                      </FlexBox>:<></>
+                    }
                   <FlexBox alignItems="Center">
                     <Label style={{ minWidth: "200px" }}>Posting Date:</Label>
                     <Controller

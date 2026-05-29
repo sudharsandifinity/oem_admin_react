@@ -389,6 +389,7 @@ const FreightTable = (props) => {
         selectedRowIds={freightRowSelection}
         
       /> */}
+      {console.log("freightRowSelection",freightRowSelection)}
       <AnalyticalTable
         data={mode === "create" ? freightData : mergedFreightData}
         columns={Column}
