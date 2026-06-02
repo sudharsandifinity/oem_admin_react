@@ -43,7 +43,7 @@ export const updatePurchaseQuotation = createAsyncThunk(
       console.error("❌ API error:", error.response?.data || error.message);
        return thunkApi.rejectWithValue({
         status: error.response?.status,
-        message: error.response?.data?.message || "Login failed",
+        message: error.response?.data?.error?.error?.message||error.response?.data?.message || "Login failed",
       });
     }
   }

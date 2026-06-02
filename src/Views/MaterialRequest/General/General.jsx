@@ -22,7 +22,7 @@ import {
 import React, { useContext, useState } from "react";
 import { FormConfigContext } from "../../../Components/Context/FormConfigContext";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import {
   fetchSalesBusinessPartner,
@@ -67,6 +67,7 @@ const General = ({
   });
   const formRef = useRef(null);
   const { id, formId } = useParams();
+  const location = useLocation().pathname.split("/")[1];
 
   const {
     fieldConfig,
@@ -207,7 +208,7 @@ const General = ({
 
   return (
     <div>
-      {console.log("formData", formData)}
+      {console.log("formData", formData, formDetails)}
       {pageLoading && !formData ? (
         <FlexBox
           justifyContent="Center"
@@ -234,7 +235,11 @@ const General = ({
                 justifyContent="SpaceBetween"
                 style={{ padding: "40px 30px", gap: "150px" }}
               >
-                {console.log("selectedcardcode", selectedcardcode)}
+                {console.log(
+                  "selectedcardcode",
+                  selectedcardcode,
+                  formDetails[0]?.name,
+                )}
                 <FlexBox
                   direction="Column"
                   style={{
@@ -255,7 +260,11 @@ const General = ({
                           disabled
                           type="number"
                           style={{ width: "100%" }}
-                          value={pageId}
+                          value={
+                            formDetails[0]?.name === "GRPO"
+                              ? formData.RequisitionNo
+                              : pageId
+                          }
                           onInput={(e) => field.onChange(e.target.value)}
                           onChange={handleChange}
                           valueState={errors.RequisitionNo ? "Error" : "None"}
@@ -284,13 +293,14 @@ const General = ({
                             placeholder="Requisition Date"
                             name="RequisitionDate"
                             type="date"
-                             disabled={mode === "view"}
+                            disabled={
+                              mode === "view" ||
+                              location === "cloneMaterialRequest"
+                            }
                             style={{ width: "100%" }}
                             value={
                               formData.RequisitionDate
-                                ? new Date(formData.RequisitionDate)
-                                    .toISOString()
-                                    .split("T")[0]
+                                ? new Date(formData.RequisitionDate).toISOString().split("T")[0]
                                 : new Date().toISOString().split("T")[0]
                             }
                             onInput={(e) => field.onChange(e.target.value)}
@@ -322,7 +332,10 @@ const General = ({
                             placeholder="Requisition Time"
                             name="RequisitionTime"
                             type="time"
-                            disabled={mode === "view"}
+                            disabled={
+                              mode === "view" ||
+                              location === "cloneMaterialRequest"
+                            }
                             style={{ width: "100%" }}
                             value={
                               formData.RequisitionTime
@@ -356,7 +369,10 @@ const General = ({
                           placeholder="Required Date"
                           name="RequiredDate"
                           type="date"
-                          disabled={mode === "view"}
+                          disabled={
+                            mode === "view" ||
+                            location === "cloneMaterialRequest"
+                          }
                           style={{ width: "100%" }}
                           value={
                             formData.RequiredDate
@@ -408,7 +424,10 @@ const General = ({
                             placeholder="Select Card"
                             name="RequisitionNo"
                             style={{ width: "100%" }}
-                              disabled={mode === "view"}
+                            disabled={
+                              mode === "view" ||
+                              location === "cloneMaterialRequest"
+                            }
                             value={formData.CusCode}
                             onInput={(e) => field.onChange(e.target.value)}
                             onChange={handleChange}
@@ -443,19 +462,21 @@ const General = ({
                           <Input
                             placeholder="Select Card"
                             name="CusName"
-                            disabled={mode === "view"}
+                            disabled={
+                              mode === "view" ||
+                              location === "cloneMaterialRequest"
+                            }
                             style={{ width: "100%" }}
                             value={
-                              formData.CusCode
-                                ? generalData.find(
+                              formDetails[0]?.name === "GRPO"
+                                ? formData.CusName
+                                : generalData.find(
                                     (r) => r.CardCode === formData.CusCode,
                                   )?.CardName
-                                : null
                             }
                             onInput={(e) => field.onChange(e.target.value)}
                             onChange={handleChange}
                             valueState={errors.CusName ? "Error" : "None"}
-                            
                           >
                             {errors.CusName && (
                               <span slot="valueStateMessage">
@@ -478,7 +499,10 @@ const General = ({
                             placeholder="Project Code"
                             name="ProjectCode"
                             style={{ width: "100%" }}
-                            disabled={mode === "view"}
+                            disabled={
+                              mode === "view" ||
+                              location === "cloneMaterialRequest"
+                            }
                             value={formData.ProjectCode}
                             onInput={(e) => field.onChange(e.target.value)}
                             onChange={handleChange}
@@ -511,7 +535,10 @@ const General = ({
                           <Input
                             placeholder="Project Name"
                             name="ProjectName"
-                            disabled={mode === "view"}
+                            disabled={
+                              mode === "view" ||
+                              location === "cloneMaterialRequest"
+                            }
                             min="2025-01-01"
                             style={{ width: "100%", minWidth: "150px" }}
                             value={formData.ProjectName}
@@ -538,7 +565,10 @@ const General = ({
                         <Input
                           placeholder="Remarks"
                           name="Remarks"
-                          disabled={mode === "view"}
+                          disabled={
+                            mode === "view" ||
+                            location === "cloneMaterialRequest"
+                          }
                           min="2025-01-01"
                           style={{ width: "100%", minWidth: "150px" }}
                           value={formData.Remarks}

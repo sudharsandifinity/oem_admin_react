@@ -75,7 +75,7 @@ export const createCustomerOrder = createAsyncThunk(
       console.error("❌ API error:", error.response?.data || error.message);
        return thunkApi.rejectWithValue({
         status: error.response?.status,
-        message: error.response?.data?.message || "Login failed",
+        message:error.response?.data?.error?.error?.message||error.response?.data?.message || "Login failed",
       });
     }
   }
@@ -93,10 +93,10 @@ export const updateCustomerOrder = createAsyncThunk(
       });
       return response.data;
     } catch (error) {
-      console.error("❌ API error:", error.response?.data || error.message);
+      console.error("❌ API error:", error.response?.data || error.error.message);
        return thunkApi.rejectWithValue({
         status: error.response?.status,
-        message: error.response?.data?.message || "Login failed",
+        message:error.response?.data?.error?.error?.message|| error.response?.data?.message || "Login failed",
       });
     }
   }

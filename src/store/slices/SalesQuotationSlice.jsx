@@ -60,7 +60,7 @@ export const updateSalesQuotation = createAsyncThunk(
        console.log("error.response",error)
       return thunkApi.rejectWithValue({
         status: error.response?.status,
-        message: error.response?.data?.message || "Login failed",
+        message: error.response?.data?.error?.error?.message||error.response?.data?.message || "Login failed",
       });
      
     }

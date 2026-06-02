@@ -26,9 +26,9 @@ export const fetchPurBusinessPartner = createAsyncThunk(
 // ✅ Fetch All Orders
 export const fetchPurchaseOrder = createAsyncThunk(
   "purchaseorder/fetchAll",
-  async (_, thunkApi) => {
+  async ({ top = 20, skip = 0 }, thunkApi) => {
     try {
-      const response = await api.get(API_URL, { withCredentials: true });
+      const response = await api.get(`/sap/purchase-orders?top=${top}&skip=${skip}`, { withCredentials: true });
       return response.data.value;
     } catch (error) {
       return thunkApi.rejectWithValue({
@@ -96,7 +96,7 @@ export const updatePurchaseOrder = createAsyncThunk(
       console.error("❌ API error:", error.response?.data || error.message);
        return thunkApi.rejectWithValue({
         status: error.response?.status,
-        message: error.response?.data?.message || "Login failed",
+          message:error.response?.data?.error?.error?.message|| error.response?.data?.message || "Login failed",
       });
     }
   },

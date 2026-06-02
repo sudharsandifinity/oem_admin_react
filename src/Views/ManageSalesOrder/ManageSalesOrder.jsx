@@ -54,7 +54,6 @@ const ManageSalesOrder = () => {
     ManageSalesOrderTableData,
     ManageSalesOderHeaderField,
     ManagePurchaseOrderTableColumn,
-    ManageProjectOrderTableColumn,
   } = useContext(FormConfigContext);
   const dispatch = useDispatch();
   const location = useLocation().pathname.split("/")[1];
@@ -64,7 +63,7 @@ const ManageSalesOrder = () => {
     FromDate: "",
     ToDate: "",
   });
-
+  const [tableLoading, setTableLoading] = useState(true);
   const [isClearFilter, setisClearFilter] = useState(false);
   const user = useSelector((state) => state.auth.user);
   const [apiError, setApiError] = useState(null);
@@ -106,10 +105,11 @@ const ManageSalesOrder = () => {
     }
   };
   const fetchLoadMoreData = async () => {
+    console.log(" formDetails[0]?.name", formDetails[0]?.name);
     try {
       let res = "";
       if (formDetails[0]?.name === "Sales Order") {
-        res = await dispatch(
+        await dispatch(
           fetchCustomerOrder({ top: pageSize, skip: page * pageSize }),
         ).unwrap();
       } else if (formDetails[0]?.name === "Sales Quotation") {
@@ -124,13 +124,16 @@ const ManageSalesOrder = () => {
           fetchPurchaseOrder({ top: pageSize, skip: page * pageSize }),
         ).unwrap();
       } else if (formDetails[0]?.name === "Purchase Quotation") {
-        res = await dispatch(
+        const purRes = await dispatch(
           fetchPurchaseQuotation({ top: pageSize, skip: page * pageSize }),
         ).unwrap();
-      } else if (formDetails[0]?.name === "Purchase Request") {
-        res = await dispatch(
-          fetchPurchaseRequest({ top: pageSize, skip: page * pageSize }),
-        ).unwrap();
+
+        const data = purRes?.data?.value ?? purRes?.data ?? purRes ?? [];
+
+        res =
+          location === "Contracting-Management"
+            ? data.filter((item) => item.U_MRNo !== null && item.U_MRNo !== "")
+            : data.filter((item) => item.U_MRNo === null || item.U_MRNo === "");
       } else if (formDetails[0]?.name === "GRPO") {
         res = await dispatch(
           fetchPurchaseDeliveryNotes({ top: pageSize, skip: page * pageSize }),
@@ -139,12 +142,12 @@ const ManageSalesOrder = () => {
         // res = await dispatch(
         //   fetchPurchaseDeliveryNotes({ top: pageSize, skip: 0 }),
         // ).unwrap();
-        res = "";
-      } else if (formDetails[0]?.name === "Material Request") {
         res = [];
-        // await dispatch(
-        //   fetchMaterialRequest({ top: pageSize, skip: page * pageSize }),
-        // ).unwrap();
+      } else if (formDetails[0]?.name === "Material Request") {
+        res;
+        await dispatch(
+          fetchMaterialRequest({ top: pageSize, skip: page * pageSize }),
+        ).unwrap();
       }
       console.log("materialrequestres", res, formDetails[0]?.name);
       if (res.length < pageSize) {
@@ -164,6 +167,7 @@ const ManageSalesOrder = () => {
         CustomerName: item.CardName || item.RequesterName || item.Creator,
         ProjectCode: item.U_PrjCode,
         ProjectName: item.U_PrjDesc,
+        MRNO: item.U_MRNo || null,
         DocumentNo: item.DocNum,
         MRNO: item.U_MRNo || "",
         DocumentLines: item.DocumentLines,
@@ -192,6 +196,7 @@ const ManageSalesOrder = () => {
 
   useEffect(() => {
     console.log("formdetails", formDetails);
+    setTableLoading(true);
     const fetchInitial = async () => {
       try {
         let res = "";
@@ -215,9 +220,23 @@ const ManageSalesOrder = () => {
             fetchPurchaseQuotation({ top: pageSize, skip: 0 }),
           ).unwrap();
         } else if (formDetails[0]?.name === "Purchase Request") {
-          res = await dispatch(
-            fetchPurchaseRequest({ top: pageSize, skip: 0 }),
+          const purRes = await dispatch(
+            fetchPurchaseRequest({
+              top: pageSize,
+              skip: 0,
+            }),
           ).unwrap();
+
+          const data = purRes?.data?.value ?? purRes?.data ?? purRes ?? [];
+
+          res =
+            location === "Contracting-Management"
+              ? data.filter(
+                  (item) => item.U_MRNo !== null && item.U_MRNo !== "",
+                )
+              : data.filter(
+                  (item) => item.U_MRNo === null || item.U_MRNo === "",
+                );
         } else if (formDetails[0]?.name === "GRPO") {
           res = await dispatch(
             fetchPurchaseDeliveryNotes({ top: pageSize, skip: 0 }),
@@ -233,12 +252,16 @@ const ManageSalesOrder = () => {
           ).unwrap();
         }
 
-        console.log("quotationdata", "sales", res, formDetails[0]?.name);
+        console.log(
+          "quotationdatasales",
+          res,
+          "customerorder",
+          customerorder,
+          formDetails[0]?.name,
+        );
         const raw = res?.data?.value ?? res?.data ?? res?.value ?? res;
         setTotalRecords(
-          formDetails[0]?.name === "GRPO"
-            ? res?.["@odata.count"]
-            : res?.totalCount,
+         res?.["@odata.count"]
         );
         // Ensure it's an array
         const list = Array.isArray(raw)
@@ -253,6 +276,7 @@ const ManageSalesOrder = () => {
           CustomerName: item.CardName || item.RequesterName || item.Creator,
           ProjectCode: item.U_PrjCode,
           ProjectName: item.U_PrjDesc,
+          MRNO: item.U_MRNo || null,
           DocumentNo: item.DocNum,
           MRNO: item.U_MRNo || null,
           DocumentLines: item.DocumentLines,
@@ -291,6 +315,8 @@ const ManageSalesOrder = () => {
           navigate("/login");
         }
         setApiError(err.message || "Failed to load data");
+      } finally {
+        setTableLoading(false);
       }
     };
 
@@ -393,7 +419,41 @@ const ManageSalesOrder = () => {
   const matchedMenu = menuChildMap.find(
     (menu) => menu.menuName.replace(/\s+/g, "-") === currentMenuName,
   );
+  const ManageProjectOrderTableColumn = [
+    {
+      Header: "Document Entry",
+      accessor: "DocumentNo",
+      type: "text",
+    },
 
+    {
+      Header: "Project Code",
+      accessor: "ProjectCode",
+      type: "text",
+    },
+
+    {
+      Header: "Project Name",
+      accessor: "ProjectName",
+      type: "text",
+    },
+
+    ...(formDetails[0]?.name !== "Material Request"
+      ? [
+          {
+            Header: "MR NO",
+            accessor: "MRNO",
+            type: "text",
+          },
+        ]
+      : []),
+
+    {
+      Header: "Posting Date",
+      accessor: "PostingDate",
+      type: "text",
+    },
+  ];
   const columnConfig = {
     Sales: ManageSalesOrderTableColumn,
     Purchase: ManagePurchaseOrderTableColumn,
@@ -433,7 +493,7 @@ const ManageSalesOrder = () => {
   };
   const viewRow = async (rowData) => {
     console.log("rowData", rowData);
-    title === "Material Request"
+    title === "Material Request" || title === "GRPO"
       ? navigate("/MaterialRequest/view/" + formId + "/" + rowData.DocEntry)
       : rowData.MRNO
         ? navigate("/MaterialRequest/view/" + formId + "/" + rowData.DocEntry)
@@ -807,38 +867,51 @@ const ManageSalesOrder = () => {
                         "title",
                         title,
                       )}
-                      <AnalyticalTable
-                        columns={columns}
-                        data={tableData}
-                        // header={`(Sales Order - ${tableData.length})`}
-                        rowStyle={(row) => {
-                          const docLines = row.original?.DocumentLines || [];
-                          const allQtyZero =
-                            Array.isArray(docLines) &&
-                            docLines.length > 0 &&
-                            docLines.every((l) => Number(l?.Quantity) === 1);
-                          return allQtyZero ? disabledCellStyle : {};
-                        }}
-                        header={
-                          <FlexBox
-                            justifyContent="SpaceBetween"
-                            alignItems="Center"
-                            style={{ width: "100%", padding: "4px 10px" }}
-                          >
-                            <Title style={{ minWidth: "200px" }}>
-                              {`${title} List `}
-                            </Title>
-                            <Toolbar
-                              design="Transparent"
-                              style={{ border: "none" }}
+                      {console.log("customerorder1", customerorder)}
+                      {tableLoading ? (
+                        <FlexBox
+                          justifyContent="Center"
+                          alignItems="Center"
+                          style={{ height: "500px", width: "100%" }}
+                        >
+                          <BusyIndicator active size="M" />
+                        </FlexBox>
+                      ) : (
+                        <AnalyticalTable
+                          columns={columns}
+                          data={tableData}
+                          // header={`(Sales Order - ${tableData.length})`}
+                          rowStyle={(row) => {
+                            const docLines = row.original?.DocumentLines || [];
+                            const allQtyZero =
+                              Array.isArray(docLines) &&
+                              docLines.length > 0 &&
+                              docLines.every((l) => Number(l?.Quantity) === 1);
+                            return allQtyZero ? disabledCellStyle : {};
+                          }}
+                          header={
+                            <FlexBox
+                              justifyContent="SpaceBetween"
+                              alignItems="Center"
+                              style={{ width: "100%", padding: "4px 10px" }}
                             >
-                              {console.log("title", title)}
-                              {(location === "Contracting-Management" &&
-                                formDetails[0]?.name === "Purchase Request") ?<></>: (
+                              <Title style={{ minWidth: "200px" }}>
+                                {`${title} List `}
+                              </Title>
+                              <Toolbar
+                                design="Transparent"
+                                style={{ border: "none" }}
+                              >
+                                {console.log("title", title)}
+                                {location === "Contracting-Management" &&
+                                formDetails[0]?.name === "Purchase Request" ? (
+                                  <></>
+                                ) : (
                                   <ToolbarButton
                                     design="default"
                                     onClick={() => {
-                                      title === "Material Request"
+                                      title === "Material Request" ||
+                                      title === "GRPO"
                                         ? navigate(
                                             "/MaterialRequest/create/" +
                                               formId +
@@ -857,67 +930,60 @@ const ManageSalesOrder = () => {
                                     text="Create"
                                   />
                                 )}
-                              <ToolbarButton
-                                design="default"
-                                onClick={handleExportPDF}
-                                text="Export"
-                              />
-                            </Toolbar>
-                          </FlexBox>
-                        }
-                        selectionMode="Multiple"
-                        onRowSelect={handleRowSelect}
-                        loading={loading}
-                        showOverlay={page === 0 && loading}
-                        noDataText={
-                          loading ? (
-                            "Loading data..."
-                          ) : showNoData ? (
-                            "No Data Found"
-                          ) : (
-                            <FlexBox
-                              justifyContent="Center"
-                              alignItems="Center"
-                              style={{ height: "80vh", width: "100%" }}
-                            >
-                              <BusyIndicator delay={1000} active size="M" />
+                                <ToolbarButton
+                                  design="default"
+                                  onClick={handleExportPDF}
+                                  text="Export"
+                                />
+                              </Toolbar>
                             </FlexBox>
-                          )
-                        }
-                        sortable
-                        filterable
-                        visibleRows={10}
-                        // visibleRowCountMode="Fixed"
-                        minRows={6}
-                        scaleWidthMode="Smart"
-                        groupBy={[]}
-                        groupable
-                        // header="Table Title"
-                        infiniteScroll
-                        onGroup={() => {}}
-                        onLoadMore={async () => {
-                          if (isLoadingMore || allLoaded) return;
+                          }
+                          selectionMode="Multiple"
+                          onRowSelect={handleRowSelect}
+                          loading={tableLoading}
+                          showOverlay={tableLoading}
+                          noDataText={
+                            tableLoading ? (
+                              <BusyIndicator active size="S" />
+                            ) : (
+                              "No Data Found"
+                            )
+                          }
+                          sortable
+                          filterable
+                          visibleRows={10}
+                          // visibleRowCountMode="Fixed"
+                          minRows={6}
+                          scaleWidthMode="Smart"
+                          groupBy={[]}
+                          groupable
+                          // header="Table Title"
+                          infiniteScroll
+                          onGroup={() => {}}
+                          onLoadMore={async () => {
+                            if (isLoadingMore || allLoaded) return;
 
-                          setIsLoadingMore(true);
+                            setIsLoadingMore(true);
 
-                          fetchLoadMoreData().finally(() =>
-                            setIsLoadingMore(false),
-                          );
-                        }}
-                        onRowExpandChange={() => {}}
-                        onSort={() => {}}
-                        onTableScroll={() => {}}
-                        //selectionBehavior="RowOnly"
-                        // tableHooks={[AnalyticalTableHooks.useManualRowSelect("isSelected")]}
-                        // markNavigatedRow={markNavigatedRow}
-                        // withRowHighlight
-                        // adjustTableHeightOnPopIn
-                        rowHeight={40}
-                        headerRowHeight={50}
-                        // retainColumnWidth
-                        // alternateRowColor
-                        withNavigationHighlight
-                      />
+                            fetchLoadMoreData().finally(() =>
+                              setIsLoadingMore(false),
+                            );
+                          }}
+                          onRowExpandChange={() => {}}
+                          onSort={() => {}}
+                          onTableScroll={() => {}}
+                          //selectionBehavior="RowOnly"
+                          // tableHooks={[AnalyticalTableHooks.useManualRowSelect("isSelected")]}
+                          // markNavigatedRow={markNavigatedRow}
+                          // withRowHighlight
+                          // adjustTableHeightOnPopIn
+                          rowHeight={40}
+                          headerRowHeight={50}
+                          // retainColumnWidth
+                          // alternateRowColor
+                          withNavigationHighlight
+                        />
+                      )}
                       <div style={{ marginTop: "10px" }}>
                         <span>
                           {`Showing ${

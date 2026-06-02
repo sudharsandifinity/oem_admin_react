@@ -211,12 +211,12 @@ const ViewMaterialRequest = () => {
             RequisitionNo: orderListById.U_ReqCode,
             RequisitionDate: orderListById.U_DocDate || "",
             RequisitionTime: orderListById.U_ReqTime || "",
-            RequiredDate: orderListById.U_ReqDate || "",
-            CusCode: orderListById.U_CardCode,
-            ProjectCode: orderListById.U_PrjCode,
+            RequiredDate: orderListById.U_ReqDate ||orderListById.RequriedDate,
+            CusCode: orderListById.U_CardCode||orderListById.CardCode,
+            ProjectCode: orderListById.U_PrjCode||orderListById.ProjectCode,
             ProjectName: orderListById.U_PrjDesc,
             Remarks: orderListById.U_Remark,
-            CardName: orderListById.U_CardName,
+            CusName: orderListById.U_CardName||orderListById.CardName,
           });
           // 2. Merge document lines into orderItems
           if (orderListById.HLB_MRQ1Collection||orderListById.DocumentLines?.length > 0) {
@@ -671,10 +671,10 @@ const ViewMaterialRequest = () => {
                     <BreadcrumbsItem data-route="/dashboard">
                       Home
                     </BreadcrumbsItem>
-                    <BreadcrumbsItem data-route={`/Sales/${formId}`}>
+                    <BreadcrumbsItem data-route={`/Contracting-Management/${formId}`}>
                       {formDetails
                         ? formDetails[0]?.name + " List "
-                        : "Sales Orders"}
+                        : "Contracting Management"}
                     </BreadcrumbsItem>
                     <BreadcrumbsItem>
                       {formDetails ? "View " + formDetails[0]?.name : "View"}

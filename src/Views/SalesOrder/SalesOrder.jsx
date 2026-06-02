@@ -329,11 +329,11 @@ export default function SalesOrder() {
           ContactPerson: formData.ContactPerson || "",
           NumAtCard: formData.CustomerRefNo || "",
           DocType: "dDocument_Items",
-          DocumentsOwner: selectedItemOwner || "",
+          DocumentsOwner: selectedItemOwner || 1,
           ...(formDetails[0]?.name === "Purchase Request" && {
             RequesterEmail: employeeList.find(
               (e) => e.EmployeeID === selectedItemOwner,
-            )?.eMail,
+            )?.eMail||"",
           }),
           DocumentLines: itemTabledata.map((line) => ({
             ItemCode: line.ItemCode,
@@ -359,7 +359,7 @@ export default function SalesOrder() {
               : new Date().toISOString().split("T")[0].replace(/-/g, ""),
           })),
 
-          data: userdefinedData || {},
+         // data: userdefinedData || {},
           Rounding: summaryData.Rounding || "tNO",
           RoundingDiffAmount: summaryData.RoundingDiffAmount || 0,
           DiscountPercent: summaryData.DiscountPercent || 0,
@@ -445,7 +445,7 @@ export default function SalesOrder() {
               : new Date().toISOString().split("T")[0].replace(/-/g, ""),
           })),
 
-          data: userdefinedData || {},
+          //data: userdefinedData || {},
           Rounding: summaryData.Rounding || "tNO",
           RoundingDiffAmount: summaryData.RoundingDiffAmount || 0,
           DiscountPercent: summaryData.DiscountPercent || 0,
@@ -455,12 +455,12 @@ export default function SalesOrder() {
           DocumentAdditionalExpenses: Object.values(freightRowSelection).map(
             (freight) => ({
               ExpenseCode: Number(freight.ExpensCode),
-              LineTotal: Number(freight.grossTotal),
-              Remarks: freight.quantity,
+              LineTotal: Number(freight.LineTotal),
+              Remarks: freight.Remarks,
               TaxCode: freight.TaxCode,
               TaxPercent: Number(freight.TaxPercent),
               TaxSum: Number(freight.TotalTaxAmount),
-              LineGross: Number(freight.amount),
+              LineGross: Number(freight.LineGross),
             }),
           ),
         };
@@ -481,7 +481,7 @@ export default function SalesOrder() {
         "DocumentAdditionalExpenses",
         JSON.stringify(payload.DocumentAdditionalExpenses),
       );
-      formDataToSend.append("data", JSON.stringify(payload.data));
+      //formDataToSend.append("data", JSON.stringify(payload.data));
 
       Object.keys(payload).forEach((key) => {
         if (
@@ -615,6 +615,7 @@ export default function SalesOrder() {
       return "Document total must be less than 1000";
     }
     const message =
+     error?.error?.message||
       error?.message?.value ||
       error?.message ||
       error?.response?.data?.message ||

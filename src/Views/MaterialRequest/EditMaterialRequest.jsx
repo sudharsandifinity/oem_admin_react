@@ -529,14 +529,21 @@ const refreshStock = async () => {
   useEffect(() => {
     if (!formDetails || formDetails.length === 0) return;
     if (!formDetails[0]?.name) return;
-
+console.log("formDetails",formDetails[0]?.name)
     const fetchData = async () => {
       setLoading(true);
 
       try {
-        let orderListById = await dispatch(
+        let orderListById =[];
+        if(formDetails[0]?.name === "Material Request"){
+         orderListById = await dispatch(
           fetchMaterialRequestById(id),
         ).unwrap();
+      }else if(formDetails[0]?.name === "GRPO"){  
+          orderListById = await dispatch(
+            fetchPurchaseDeliveryNotesById(id),
+          ).unwrap();
+        }
 
         const orderList = await dispatch(fetchOrderItems()).unwrap();
         const serviceList = await dispatch(fetchOrderServices()).unwrap();
@@ -1247,10 +1254,10 @@ const refreshStock = async () => {
                     <BreadcrumbsItem data-route="/dashboard">
                       Home
                     </BreadcrumbsItem>
-                    <BreadcrumbsItem data-route={`/Sales/${formId}`}>
+                    <BreadcrumbsItem data-route={`/Contracting-Management/${formId}`}>
                       {formDetails
                         ? formDetails[0]?.name + " List"
-                        : "Sales Orders"}
+                        : "Contracting Management"}
                     </BreadcrumbsItem>
                     <BreadcrumbsItem>
                       {formDetails
