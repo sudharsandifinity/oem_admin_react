@@ -359,8 +359,8 @@ export default function CloneMaterialRequest() {
         ItemDescription: line.ItemName || "",
         Quantity: Number(line.quantity || 0),
         UnitPrice: Number(line.amount || 0),
-        TaxCode: line.TaxCode || "E2",
-        VatGroup: line.TaxCode || "E2",
+       // TaxCode: line.TaxCode || "E2",
+        //VatGroup: line.TaxCode || "E2",
         WarehouseCode:
           line.warehouse || warehousesdetails?.value?.[0]?.WarehouseCode,
         ProjectCode: formData.ProjectCode || "",
