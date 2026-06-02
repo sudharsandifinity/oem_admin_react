@@ -44,6 +44,7 @@ import "@ui5/webcomponents-icons/dist/navigation-right-arrow.js"; // or arrow-ri
 import TaxDialog from "../TaxPopup/TaxDialog";
 import WarehouseDialog from "../WarehousePopup/WarehouseDialog";
 import ProfitCenterDialog from "../ProfitCenterPopup/ProfitCenter";
+import { useLocation } from "react-router-dom";
 
 const Itemtable = (props) => {
   const {
@@ -120,7 +121,8 @@ const Itemtable = (props) => {
     selectedItemOwner,
     setSelectedItemOwner,
   } = props;
-  console.log("formdataitemtable",formData)
+    const location = useLocation();
+  console.log("formdataitemtable",formData,location)
   const menuRef = useRef();
 
   const handleOpenMenu = (e) => {
@@ -663,7 +665,7 @@ const Itemtable = (props) => {
     setitemTableData((prev) =>
       prev.map((r, idx) =>
         idx === selectedWarehouseRowIndex
-          ? { ...r, WarehouseCode: e.detail.row.original.WarehouseCode }
+          ? { ...r, warehouse: e.detail.row.original.WarehouseCode }
           : r,
       ),
     );
@@ -672,7 +674,7 @@ const Itemtable = (props) => {
         idx === Number(e.detail.row.id)
           ? {
               ...r,
-              WarehouseCode: e.detail.row.original.WarehouseCode,
+              warehouse: e.detail.row.original.WarehouseCode,
             }
           : r,
       ),
@@ -762,7 +764,7 @@ const Itemtable = (props) => {
       // },
       {
         Header: "BOQ LineNum",
-        accessor: "id",
+        accessor: "BoqLineNum",
         width: 50,
       },
 
@@ -897,28 +899,24 @@ const Itemtable = (props) => {
                 (e.target.style.borderBottom = "1px solid #007aff")
               }
               onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
-              onClick={() =>
-                // !row.original.UOM &&
-                {
-                  setSelectedProjectRowIndex(row.index);
-                  setisProjectDialogOpen(true);
-                }
-              }
+              // onClick={() =>
+              //   // !row.original.UOM &&
+              //   {
+              //     setSelectedProjectRowIndex(row.index);
+              //     setisProjectDialogOpen(true);
+              //   }
+              // }
             />
           </>
         ),
       },
-      {
-        Header: "Project",
-        accessor: "project",
+       {
+        Header: "BOM QTY",
+        accessor: "bomqty",
         Cell: ({ row }) => (
           <>
             <Input
-              value={
-                formData.ProjectCode
-                  ? formData.ProjectCode
-                  : row.original.Project
-              }
+              value={row.original.uom ? row.original.uom : ""}
               readonly
               disabled={mode === "view"}
               style={{ textAlign: "right" }}
@@ -926,18 +924,125 @@ const Itemtable = (props) => {
                 (e.target.style.borderBottom = "1px solid #007aff")
               }
               onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
-              onClick={() =>
-                // !row.original.Project &&
-                {
-                  setSelectedProjectRowIndex(row.index);
-                  setisProjectDialogOpen(true);
-                }
-              }
+              // onClick={() =>
+              //   // !row.original.UOM &&
+              //   {
+              //     setSelectedProjectRowIndex(row.index);
+              //     setisProjectDialogOpen(true);
+              //   }
+              // }
             />
           </>
         ),
       },
-      {
+       {
+        Header: "BOM Open Qty",
+        accessor: "bomopenqty",
+        Cell: ({ row }) => (
+          <>
+            <Input
+              value={row.original.bomopenqty ? row.original.bomopenqty : ""}
+              readonly
+              disabled={mode === "view"}
+              style={{ textAlign: "right" }}
+              onFocus={(e) =>
+                (e.target.style.borderBottom = "1px solid #007aff")
+              }
+              onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
+              // onClick={() =>
+              //   // !row.original.UOM &&
+              //   {
+              //     setSelectedProjectRowIndex(row.index);
+              //     setisProjectDialogOpen(true);
+              //   }
+              // }
+            />
+          </>
+        ),
+      },
+       {
+        Header: "MR Open Qty",
+        accessor: " mropenqty",
+        Cell: ({ row }) => (
+          <>
+            <Input
+              value={row.original.mropenqty ? row.original.mropenqty   : ""}
+              readonly
+              disabled={mode === "view"}
+              style={{ textAlign: "right" }}
+              onFocus={(e) =>
+                (e.target.style.borderBottom = "1px solid #007aff")
+              }
+              onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
+              // onClick={() =>
+              //   // !row.original.UOM &&
+              //   {
+              //     setSelectedProjectRowIndex(row.index);
+              //     setisProjectDialogOpen(true);
+              //   }
+              // }
+            />
+          </>
+        ),
+      },
+       ...(location?.state?.formname === "Purchase Request"
+    ? [
+        {
+        Header: "MR Qty",
+        accessor: " mrqty",
+        Cell: ({ row }) => (
+          <>
+            <Input
+              value={row.original.mrqty ? row.original.mrqty   : ""}
+              readonly
+              disabled={mode === "view"}
+              style={{ textAlign: "right" }}
+              onFocus={(e) =>
+                (e.target.style.borderBottom = "1px solid #007aff")
+              }
+              onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
+              // onClick={() =>
+              //   // !row.original.UOM &&
+              //   {
+              //     setSelectedProjectRowIndex(row.index);
+              //     setisProjectDialogOpen(true);
+              //   }
+              // }
+            />
+          </>
+        ),
+      },]
+    : []),
+     ...(location?.state?.formname === "Purchase Request"
+    ? [
+       {
+        Header: "PR Open Qty",
+        accessor: " propenqty",
+        Cell: ({ row }) => (
+          <>
+            <Input
+              value={row.original.propenqty ? row.original.propenqty   : ""}
+              readonly
+              disabled={mode === "view"}
+              style={{ textAlign: "right" }}
+              onFocus={(e) =>
+                (e.target.style.borderBottom = "1px solid #007aff")
+              }
+              onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
+              // onClick={() =>
+              //   // !row.original.UOM &&
+              //   {
+              //     setSelectedProjectRowIndex(row.index);
+              //     setisProjectDialogOpen(true);
+              //   }
+              // }
+            />
+          </>
+        ),
+      },
+      ]
+    : []),
+       {
         Header: "Warehouse",
         accessor: "warehouse",
         Cell: ({ row }) => (
@@ -976,6 +1081,30 @@ const Itemtable = (props) => {
           </>
         ),
       },
+      {
+        Header: "Project",
+        accessor: "project",
+        Cell: ({ row }) => (
+          <>
+            <Input
+              value={
+                formData.ProjectCode
+                  ? formData.ProjectCode
+                  : row.original.Project
+              }
+              readonly
+              disabled={mode === "view"}
+              style={{ textAlign: "right" }}
+              onFocus={(e) =>
+                (e.target.style.borderBottom = "1px solid #007aff")
+              }
+              onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
+              
+            />
+          </>
+        ),
+      },
+     
 
       // {
       //   Header: "Stage",
@@ -1018,13 +1147,7 @@ const Itemtable = (props) => {
                 (e.target.style.borderBottom = "1px solid #007aff")
               }
               onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
-              onClick={() =>
-                // !row.original.Project &&
-                {
-                  setSelectedProjectRowIndex(row.index);
-                  setisProjectDialogOpen(true);
-                }
-              }
+             
             />
           </>
         ),
@@ -1044,61 +1167,13 @@ const Itemtable = (props) => {
                 (e.target.style.borderBottom = "1px solid #007aff")
               }
               onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
-              onClick={() =>
-                // !row.original.Project &&
-                {
-                  setSelectedProjectRowIndex(row.index);
-                  setisProjectDialogOpen(true);
-                }
-              }
+              
             />
           </>
         ),
       },
 
-      {
-        Header: "Available Qty",
-        accessor: "availableQty",
-        Cell: ({ row }) => (
-          <>
-            <Input
-              value={row.original.availableQty ? row.original.availableQty : ""}
-              readonly
-              disabled={mode === "view"}
-              style={{ textAlign: "right" }}
-              onFocus={(e) =>
-                (e.target.style.borderBottom = "1px solid #007aff")
-              }
-              onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
-              onClick={() =>
-                // !row.original.Project &&
-                {
-                  setSelectedProjectRowIndex(row.index);
-                  setisProjectDialogOpen(true);
-                }
-              }
-            />
-          </>
-        ),
-      },
-      {
-        Header: "Open Qty",
-        accessor: "openQty",
-        Cell: ({ row }) => (
-          <>
-            <Input
-              value={row.original.openQty ? row.original.openQty : ""}
-              readonly
-              disabled={mode === "view"}
-              style={{ textAlign: "right" }}
-              onFocus={(e) =>
-                (e.target.style.borderBottom = "1px solid #007aff")
-              }
-              onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
-            />
-          </>
-        ),
-      },
+      
       
       // {
       //   Header: "Rate Total",
@@ -1125,35 +1200,32 @@ const Itemtable = (props) => {
       //     </>
       //   ),
       // },
-  {
-        Header: "Requisition Date",
-        accessor: "requisitiondate",
-        Cell: ({ row }) => (
-          <>
+  ...(location?.state?.formname === "Purchase Request" 
+    ? [
+        {
+          Header: "Required Date",
+          accessor: "requiredDate",
+          Cell: ({ row }) => (
             <Input
               value={
-                formData.requisitiondate
-                  ? formData.requisitiondate
+                formData.requiredDate
+                  ? formData.requiredDate
                   : row.original.requisitiondate
               }
-              
               disabled={mode === "view"}
               style={{ textAlign: "right" }}
               onFocus={(e) =>
                 (e.target.style.borderBottom = "1px solid #007aff")
               }
-              onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
-              onClick={() =>
-                // !row.original.Project &&
-                {
-                  setSelectedProjectRowIndex(row.index);
-                  setisProjectDialogOpen(true);
-                }
+              onBlur={(e) =>
+                (e.target.style.borderBottom = "1px solid #ccc")
               }
             />
-          </>
-        ),
-      },
+          ),
+        },
+      ]
+    : []),
+
       {
         Header: "Remarks",
         accessor: "remarks",
@@ -1330,7 +1402,7 @@ const Itemtable = (props) => {
       {console.log(
         "copiedItemDocumentLines",
         copiedItemDocumentLines,
-        itemTabledata,
+        itemTabledata,formDetails
       )}
       <AnalyticalTable
         style={{ borderTop: "1px solid #d6dbe0" }}

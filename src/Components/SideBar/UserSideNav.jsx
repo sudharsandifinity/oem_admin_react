@@ -59,24 +59,24 @@ const UserSideNav = ({
       >
         <SideNavigation
           style={{ height: "95%" }}
-          fixedItems={
+          // fixedItems={
            
-              <SideNavigationGroup text="Approver Module" >
-            <SideNavigationItem  onClick={() => navigate("/approver")} text="Approver Status" unselectable>
+          //     <SideNavigationGroup text="Approver Module" >
+          //   <SideNavigationItem  onClick={() => navigate("/approver")} text="Approver Status" unselectable>
               
-              </SideNavigationItem>
-            <SideNavigationItem  onClick={() => navigate("/approver/ApproverTemplate")} text="Approval Template" unselectable>
+          //     </SideNavigationItem>
+          //   <SideNavigationItem  onClick={() => navigate("/approver/ApproverTemplate")} text="Approval Template" unselectable>
               
-              </SideNavigationItem>
+          //     </SideNavigationItem>
                   
-            <SideNavigationItem  onClick={() => navigate("/workflowmanagement")} text="Workflow Management" unselectable>
+          //   <SideNavigationItem  onClick={() => navigate("/workflowmanagement")} text="Workflow Management" unselectable>
              
-            </SideNavigationItem>
-             <SideNavigationItem onClick={() => navigate("/stagemanagement")} text="Stage Management" unselectable>
+          //   </SideNavigationItem>
+          //    <SideNavigationItem onClick={() => navigate("/stagemanagement")} text="Stage Management" unselectable>
               
-            </SideNavigationItem>
-          </SideNavigationGroup>
-          }
+          //   </SideNavigationItem>
+          // </SideNavigationGroup>
+          // }
         >
           <SideNavigationGroup text="User Modules" expanded>{console.log("menulist",menulist)}
             {menulist.length > 0 &&

@@ -97,7 +97,7 @@ export const fetchMaterialRequest = createAsyncThunk(
   async ({ top = 20, skip = 0 }, thunkApi) => {
     try {
       
-      const response = await api.get(`${API_MATERIALREQUEST}?top=${top}&skip=${skip}`, {
+      const response = await api.get(`/sap/mr/list?top=${top}&skip=${skip}`, {
         withCredentials: true,
       });
       return response.data;

@@ -25,13 +25,13 @@ export const createPurchaseRequest = createAsyncThunk(
   
    async (requestData, thunkApi) => {
     try {
-      const response = await api.post(API_REQUEST, requestData, { headers: { "Content-Type": "multipart/form-data" }, withCredentials: true,timeout: 50000 });
+      const response = await api.post(API_REQUEST, requestData, {  withCredentials: true,timeout: 50000 });
       return response.data;
     } catch (error) {
       console.error("❌ API error:", error.response?.data || error.message);
        return thunkApi.rejectWithValue({
         status: error.response?.status,
-        message: error.response?.data?.message || "Login failed",
+        message: error.response?.data?.error?.error?.message||error.response?.data?.message || "Login failed",
       });
     }
   }
