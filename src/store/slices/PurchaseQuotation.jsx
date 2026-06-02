@@ -3,11 +3,23 @@ import api from '../../api/axios';
 
 const API_QUOTATION = '/sap/purchase-quotations';
 
-export const fetchPurchaseQuotation = createAsyncThunk('quotations/fetchPurchaseQuotation', async () => {
-  const response = await api.get(API_QUOTATION, { withCredentials: true });
-  return response.data;
-});
 
+export const fetchPurchaseQuotation = createAsyncThunk(
+  "quotations/fetchPurchaseQuotation",
+  async ({ top = 20, skip = 0 }, thunkApi) => {
+    try {
+      const response = await api.get(`/sap/purchase-quotations?top=${top}&skip=${skip}`, {
+        withCredentials: true,
+      });
+      return response.data;
+    } catch (error) {
+      return thunkApi.rejectWithValue({
+        status: error.response?.status,
+        message: error.response?.data?.message || "Login failed",
+      });
+    }
+  }
+);
 export const createPurchaseQuotation = createAsyncThunk(
   'quotations/createPurchaseQuotation',
   async (quotationData, thunkApi) => {
