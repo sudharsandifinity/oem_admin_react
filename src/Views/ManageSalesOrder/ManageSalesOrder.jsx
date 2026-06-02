@@ -227,7 +227,7 @@ const ManageSalesOrder = () => {
             }),
           ).unwrap();
 
-          const data = purRes?.data?.value ?? purRes?.data ?? purRes ?? [];
+          const data = purRes?.data?.value ?? purRes?.data??purRes.value ?? purRes ?? [];
 
           res =
             location === "Contracting-Management"
