@@ -441,8 +441,8 @@ let grpopayload={CardCode: formData.CardCode || selectedcardcode,
         }
       });
       let res = [];
-      if (formDetails[0]?.name === "Purchase Request") {
-        res=await dispatch(createMaterialRequest(formDataToSend)).unwrap();
+      if (formDetails[0]?.name === "Material Request") {
+        res=await dispatch(createMaterialRequest(payload)).unwrap();
       } else if (formDetails[0]?.name === "GRPO") {
         res = await dispatch(createPurchaseDeliveryNotes(grpopayload)).unwrap();
       }
@@ -621,7 +621,7 @@ let grpopayload={CardCode: formData.CardCode || selectedcardcode,
             id: index,
             slno: index + 1,
             task: item.U_Task, // usually LineNum is 0-based
-            BoqLineNum: item.U_SQlineNum,
+            BoqLineNum: item.LineId,
             ItemCode: item.U_ItemCode||item.ItemCode,
             ItemName: item.U_Desc||item.ItemDescription,
             fulldescription: item.U_FullDesc||item.FullDescription,
@@ -1183,7 +1183,7 @@ let grpopayload={CardCode: formData.CardCode || selectedcardcode,
           <Button
             design="Emphasized"
             onClick={() => {
-              apiError ? setOpen(false) : navigate(`/Sales/${formId}`);
+              apiError ? setOpen(false) : navigate(`/Contracting-Management/${formId}`);
             }}
           >
             OK

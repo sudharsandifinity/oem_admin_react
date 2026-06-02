@@ -89,9 +89,9 @@ export default function CloneMaterialRequest() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { orderItems } = useSelector((state) => state.orderItems);
-  const {warehousesdetails} = useSelector((state)=>state.salesadddetails)
+  const { warehousesdetails } = useSelector((state) => state.salesadddetails);
   const [apiError, setApiError] = useState(null);
-  const { formId,pageId } = useParams();
+  const { formId, pageId } = useParams();
   const user = useSelector((state) => state.auth.user);
   const [loading, setLoading] = useState(false);
   const [tabList, setTabList] = useState([]);
@@ -138,7 +138,7 @@ export default function CloneMaterialRequest() {
       Warehouse: "",
     },
   ]);
-  console.log("selectedItemOwner", selectedItemOwner,warehousesdetails);
+  console.log("selectedItemOwner", selectedItemOwner, warehousesdetails);
   const [summaryData, setSummaryData] = useState({});
   const [itemdata, setitemData] = useState([
     { slno: 1, ItemCode: "", ItemName: "", quantity: "", amount: "" },
@@ -202,6 +202,7 @@ export default function CloneMaterialRequest() {
           ProjectName: orderListById.ProjectName || "",
           Remarks: orderListById.Remarks || "",
           CardName: orderListById.CardName || "",
+          DocumentLines: orderListById.DocumentLines || [],
         });
 
         // Item Lines
@@ -213,7 +214,7 @@ export default function CloneMaterialRequest() {
               id: index + 1,
               slno: index + 1,
               task: item.task || "",
-                BoqLineNum: item.BoqLineNum|| "",
+              BoqLineNum: item.BoqLineNum || "",
               ItemCode: item.ItemCode || "",
               ItemName: item.fulldescription || "",
               fulldescription: item.fulldescription || "",
@@ -241,7 +242,7 @@ export default function CloneMaterialRequest() {
           ...prev,
           RequestorCode: orderListById.RequestorCode || "",
           RequestorName: orderListById.RequestorName || "",
-          eMail:orderListById.eMail||"",
+          eMail: orderListById.eMail || "",
           Department: orderListById.Department || "",
           DocTotal: orderListById.DocTotal || 0,
           ApprovalStatus: orderListById.ApprovalStatus || "",
@@ -272,8 +273,10 @@ export default function CloneMaterialRequest() {
   const openBoqList = async () => {
     console.log("openBoqList");
     setIsCopyFromBOQ(true);
-     const data={ U_BPCode: formData.CusCode||null, 
-      U_PrjCode:formData.ProjectCode||null }
+    const data = {
+      U_BPCode: formData.CusCode || null,
+      U_PrjCode: formData.ProjectCode || null,
+    };
     const res = await dispatch(fetchBOQList(data)).unwrap();
     const currentType =
       type === "Item" ? "dDocument_Items" : "dDocument_Service";
@@ -333,7 +336,7 @@ export default function CloneMaterialRequest() {
     const newRows = form[key].filter((_, idx) => idx !== i);
     setForm({ ...form, [key]: newRows });
   };
-const handleSubmit = async (form) => {
+  const handleSubmit = async (form) => {
     try {
       console.log(
         "itemTabledatahandleSubmit",
@@ -345,126 +348,140 @@ const handleSubmit = async (form) => {
       );
       console.log("formDatahandlesubmit", formData);
       setLoading(true);
-      let payload = {};
 
       const formatDate = (date) =>
         date
           ? new Date(date).toISOString().split("T")[0].replace(/-/g, "")
           : new Date().toISOString().split("T")[0].replace(/-/g, "");
-
-      payload = {
+      const documentLines = Object.values(itemTabledata).map((line, index) => ({
+      
+        ItemCode: line.ItemCode || "", // "ERM00001","A00001",
+        ItemDescription: line.ItemName || "",
+        Quantity: Number(line.quantity || 0),
+        UnitPrice: Number(line.amount || 0),
+        TaxCode: line.TaxCode || "E2",
+        VatGroup: line.TaxCode || "E2",
+        WarehouseCode:
+          line.warehouse || warehousesdetails?.value?.[0]?.WarehouseCode,
+        ProjectCode: formData.ProjectCode || "",
+        DiscountPercent: Number(line.discount || 0),
+        U_MRDocEntry: formData.docEntry,
+        U_MRDocNo: formData.docNum || "",
+        U_MRLine: line.BoqLineNum,
+        LineTotal: null,
+        CostingCode: null,
+        CostingCode2: null,
+        CostingCode3: null,
+        CostingCode4: null,
+        CostingCode5: null,
+        RequiredDate: "20260602", //formatDate(formData.RequiredDate)
+      }));
+      const payload = {
         CardCode: formData.CusCode || "",
-
         DocDate: formatDate(formData.RequisitionDate),
-
         DocDueDate: formatDate(formData.DocDueDate),
-
-        TaxDate: formatDate(formData.TaxDate),
-
+        //TaxDate: formatDate(formData.TaxDate),
         RequriedDate: formatDate(formData.RequiredDate),
-
-        // DocEntry: formData.DocEntry,
-
-        DocumentStatus: "open",
-
-        ContactPerson: formData.ContactPerson || "",
-
-        NumAtCard: formData.CustomerRefNo || "",
-
+        //DocumentStatus: "open",
+        //ContactPerson: formData.ContactPerson || "",
+        //NumAtCard: formData.CustomerRefNo || "",
         DocType: "dDocument_Items",
-U_PrjCode: formData.ProjectCode || "",
-        DocumentsOwner: summaryData.RequestorName || "",
-        RequesterEmail:summaryData.eMail||"",
-        DocumentLines: itemTabledata
-          // .filter(
-          //   (item) =>item.ItemCode && Number(item.quantity || 0) <= Number(item.inStock || 0),
-          // )
-          .map((line) => {
-            console.log("setitemeditpage", line);
-            return {
-              ItemCode: line.ItemCode || "",
-              ItemDescription: line.ItemName || "",
-              Quantity: Number(line.quantity || 0),
-              UnitPrice: Number(line.amount || 0),
-              WarehouseCode: line.warehouse||warehousesdetails?.value[0]?.WarehouseCode,
-              ProjectCode: line.project || "",
-              TaxCode: line.TaxCode || "",
-              VatGroup: line.TaxCode || "",
-              DiscountPercent: Number(line.discount || 0),
-              LineTotal: Number(line.linetotal || 0),
-              U_MRDocEntry: formData.docEntry,
-              U_MRDocNo: formData.docNum || "",
-              U_MRLine:line.BoqLineNum,
-              RequiredDate: formatDate(formData.RequiredDate),
-            };
-          }),
-          U_MRNo:formData.docEntry,
+        //U_PrjCode: formData.ProjectCode || "",
+        //DocumentsOwner: summaryData.RequestorName || "",
+        ///RequesterEmail: summaryData.eMail || "",
+        // DocumentLines: itemTabledata.map((line, index) => ({
+        //   //const existingLine = formData.formData?.DocumentLines?.[index];
+
+        //   //LineNum: index,
+        //   ItemCode: line.ItemCode || "",
+        //   ItemDescription: line.ItemName || "",
+        //   Quantity: Number(line.quantity || 0),
+        //   UnitPrice: Number(line.amount || 0),
+        //   WarehouseCode:
+        //     line.warehouse || warehousesdetails?.value?.[0]?.WarehouseCode,
+        //   ProjectCode: line.project || formData.ProjectCode || "",
+        //   TaxCode: line.TaxCode || "",
+        //   VatGroup: line.TaxCode || "",
+        //   DiscountPercent: Number(line.discount || 0),
+        //   LineTotal: Number(line.linetotal || 0),
+        //   U_MRDocEntry: formData.docEntry,
+        //   U_MRDocNo: formData.docNum || "",
+        //   U_MRLine: line.BoqLineNum,
+        //   RequiredDate: formatDate(formData.RequiredDate),
+        // })),
+        DocumentLines: JSON.stringify(documentLines) || [],
+        DocTotal: 65000,
+        // U_MRNo: formData.docEntry,
         Rounding: summaryData.Rounding || "tNO",
-
-        RoundingDiffAmount: Number(summaryData.RoundingDiffAmount || 0),
-
-        DiscountPercent: Number(summaryData.DiscountPercent || 0),
-
-        TotalDiscount: Number(summaryData.TotalDiscount || 0),
-
-        Comments: summaryData.Remark || "",
-
+        // RoundingDiffAmount: Number(summaryData.RoundingDiffAmount || 0),
+        // DiscountPercent: Number(summaryData.DiscountPercent || 0),
+        //TotalDiscount: Number(summaryData.TotalDiscount || 0),
+        //Comments: summaryData.Remark || "",
         VatSum: Number(summaryData.VatSum || 0),
-
-        DocTotal: Number(summaryData.DocTotal || 0),
       };
 
       const formDataToSend = new FormData();
+      attachmentsList.forEach((f) => {
+        if (f.rawFile) {
+          return formDataToSend.append("Attachments2_Lines", f.rawFile);
+        }
+      });
 
       formDataToSend.append(
         "DocumentLines",
         JSON.stringify(payload.DocumentLines),
       );
-
-      formDataToSend.append("data", JSON.stringify(payload.data));
+      formDataToSend.append(
+        "DocumentAdditionalExpenses",
+        JSON.stringify(payload.DocumentAdditionalExpenses),
+      );
+      //formDataToSend.append("data", JSON.stringify(payload.data));
 
       Object.keys(payload).forEach((key) => {
-        if (key !== "DocumentLines" && key !== "data") {
+        if (
+          key !== "DocumentLines" &&
+          key !== "data" &&
+          key !== "DocumentAdditionalExpenses"
+        ) {
           formDataToSend.append(key, payload[key]);
         }
       });
       console.log(
         "formdatatosendhandlesubmit",
         payload,
-        formDataToSend,location.state.formname,
-       
+        formDataToSend,
+        location.state.formname,
       );
       const GoodsissuePayload = {
-         DocDate: formatDate(formData.RequisitionDate),
-         Comments: summaryData.Remark || "",
-         DocumentLines: itemTabledata
-          .map((line) => {
-            console.log("setitemeditpage", line);
-            return {
-              LineNum:"1",
-              ItemCode: line.ItemCode || "",
-              ItemDescription: line.ItemName || "",
-              Quantity: Number(line.quantity || 0),
-              UnitPrice: Number(line.amount || 0),
-              WarehouseCode: line.warehouse || warehousesdetails.value[0]?.WarehouseCode,
-              //ProjectCode: line.project || "",
-              TaxCode: line.TaxCode || "",
-              VatGroup: line.TaxCode || "",
-              DiscountPercent: Number(line.discount || 0),
-              LineTotal: Number(line.linetotal || 0),
-              U_MRDocEntry: formData.docEntry,
-              U_MRDocNo: formData.docNum || "",
-              U_MRLine:line.BoqLineNum,
-              //RequiredDate: formatDate(formData.RequiredDate),
-            };
-          })
+        DocDate: formatDate(formData.RequisitionDate),
+        Comments: summaryData.Remark || "",
+        DocumentLines: itemTabledata.map((line) => {
+          console.log("setitemeditpage", line);
+          return {
+            LineNum: "1",
+            ItemCode: line.ItemCode || "",
+            ItemDescription: line.ItemName || "",
+            Quantity: Number(line.quantity || 0),
+            UnitPrice: Number(line.amount || 0),
+            WarehouseCode:
+              line.warehouse || warehousesdetails.value[0]?.WarehouseCode,
+            //ProjectCode: line.project || "",
+            TaxCode: line.TaxCode || "",
+            VatGroup: line.TaxCode || "",
+            DiscountPercent: Number(line.discount || 0),
+            LineTotal: Number(line.linetotal || 0),
+            U_MRDocEntry: formData.docEntry,
+            U_MRDocNo: formData.docNum || "",
+            U_MRLine: line.BoqLineNum,
+            //RequiredDate: formatDate(formData.RequiredDate),
+          };
+        }),
       };
       let res = "";
-      if(location.state.formname==="Goods Issue"){
-       res= await dispatch(createGoodsIssue(GoodsissuePayload)).unwrap();
-      }else{
-         res = await dispatch(createPurchaseRequest(formDataToSend)).unwrap();
-        
+      if (location.state.formname === "Goods Issue") {
+        res = await dispatch(createGoodsIssue(GoodsissuePayload)).unwrap();
+      } else {
+        res = await dispatch(createPurchaseRequest(payload)).unwrap();
       }
 
       console.log("reshandlesubmit", res);
@@ -482,17 +499,17 @@ U_PrjCode: formData.ProjectCode || "",
 
       console.error("c:", statusCode, "Message:", message);
       setApiError(
-        "A Material Request converted into "+location.state.formname +"/n"+ message,
+        "A Material Request converted into " +
+          location.state.formname +
+          "/n" +
+          message,
       );
 
       // If 401, redirect to login
       if (statusCode === 401) {
         navigate("/login");
       }
-      setApiError(
-       
-          (err.message || "Error creating order"),
-      );
+      setApiError(err.message || "Error creating order");
     } finally {
       setTimeout(() => {
         setLoading(false);
@@ -867,9 +884,15 @@ U_PrjCode: formData.ProjectCode || "",
               Refresh Stock
             </Button> */}
 
-                {!location.state.formName==="Goods Issue"&&<Button design="Default" disabled={ !formData.CusCode && !formData.ProjectCode} onClick={openBoqList}>
-                Copy From BOM
-                </Button>}
+                {!location.state.formName === "Goods Issue" && (
+                  <Button
+                    design="Default"
+                    disabled={!formData.CusCode && !formData.ProjectCode}
+                    onClick={openBoqList}
+                  >
+                    Copy From BOM
+                  </Button>
+                )}
 
                 {/* <Button design="Default" onClick={() => handleSubmit()}>
                   Purchase Request
@@ -979,7 +1002,7 @@ U_PrjCode: formData.ProjectCode || "",
                   </BreadcrumbsItem>
                   <BreadcrumbsItem data-route={`/Sales/${formId}`}>
                     {formDetails.length > 0
-                      ?"Material Request List "
+                      ? "Material Request List "
                       : formId
                         ? formId
                         : "Sales Orders"}
@@ -1064,7 +1087,6 @@ U_PrjCode: formData.ProjectCode || "",
               itemdata={itemdata}
               setitemData={setitemData}
               formData={formData}
-
               setitemTableData={setitemTableData}
               itemTabledata={itemTabledata}
               summaryData={summaryData}
@@ -1168,7 +1190,7 @@ U_PrjCode: formData.ProjectCode || "",
           <Button
             design="Emphasized"
             onClick={() => {
-              apiError ? setOpen(false) : navigate(`/Sales/${formId}`);
+              apiError ? setOpen(false) : navigate(`/Contracting-Management/${formId}`);
             }}
           >
             OK

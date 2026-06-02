@@ -98,10 +98,7 @@ const ListBOQItemDialog = (props) => {
         Cell: ({ row }) => Number(row.id) + 1, // ✅ row.id is 0-based
         width: 80,
       },
-      {
-        Header: "Document Entry",
-        accessor: "DocEntry",
-      },
+     
       {
         Header: "Item Code",
         accessor: "U_ItemCode",
@@ -189,20 +186,7 @@ const ListBOQItemDialog = (props) => {
             paddingBottom: "1rem",
           }}
         >
-           <FlexBox direction="Column">
-            <Label>Document Entry</Label>
-
-            <ComboBox
-              filter
-              value={inputValue?.DocEntry || ""}
-              onChange={(e) => handleFilterChange(e, "DocEntry")}
-              placeholder="Search Document Entry..."
-            >
-              {originalSelectedBOQList?.map((data, idx) => (
-                <ComboBoxItem key={idx} text={String(data.DocEntry)} />
-              ))}
-            </ComboBox>
-          </FlexBox>
+          
           <FlexBox direction="Column">
             <Label>Item Code</Label>
 
