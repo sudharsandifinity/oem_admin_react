@@ -101,7 +101,9 @@ const CloneSalesOrder = () => {
   const [summaryDiscountAmount, setSummaryDiscountAmount] = useState(0);
   const [roundingEnabled, setRoundingEnabled] = useState(false);
     const [employeeList, setEmployeeList] = useState([]);
-  
+    const [selectedItemOwner, setSelectedItemOwner] = useState("");
+    const [selectedServiceOwner, setSelectedServiceOwner] = useState("");
+
   const [roundOff, setRoundOff] = useState(0);
 
   const [itemdata, setitemData] = useState([
@@ -435,6 +437,10 @@ const CloneSalesOrder = () => {
             orderListById.freightRowSelection || [],
           );
           setSummaryDiscountPercent(orderListById.DiscountPercent);
+          orderListById.DocType === "dDocument_Items"
+            ? setSelectedItemOwner(orderListById.DocumentsOwner || "")
+            : setSelectedServiceOwner(orderListById.DocumentsOwner || "");
+        
           setRoundingEnabled(orderListById.Rounding === "tYES");
           setRoundOff(orderListById.RoundingDiffAmount);
           setgeneraleditdata({
@@ -612,7 +618,7 @@ const CloneSalesOrder = () => {
             CostingCode5: line["5_ProfitCenterCode"] || null,
             };
           }),
-          data: userdefinedData || {},
+          //data: userdefinedData || {},
           Rounding: summaryData.Rounding || "tNO",
           RoundingDiffAmount: summaryData.RoundingDiffAmount || 0,
           DiscountPercent: summaryData.DiscountPercent || 0,
@@ -621,12 +627,12 @@ const CloneSalesOrder = () => {
           VatSum: summaryData.VatSum || 0,
           DocumentAdditionalExpenses: Object.values(freightRowSelection).map(
             (freight) => ({
-              ExpenseCode: Number(freight.ExpensCode),
+              ExpenseCode: Number(freight.ExpenseCode),
               LineTotal: Number(freight.LineTotal),
               Remarks: freight.Remarks,
               TaxCode: freight.TaxCode,
               TaxPercent: Number(freight.TaxPercent),
-              TaxSum: Number(freight.TotalTaxAmount),
+              TaxSum: Number(freight.TaxTotalSum),
               LineGross: Number(freight.LineGross),
             }),
           ),
@@ -690,7 +696,7 @@ const CloneSalesOrder = () => {
             };
           }),
 
-          data: userdefinedData || {},
+          //data: userdefinedData || {},
           Rounding: summaryData.Rounding || "tNO",
           RoundingDiffAmount: summaryData.RoundingDiffAmount || 0,
           DiscountPercent: summaryData.DiscountPercent || 0,
@@ -699,12 +705,12 @@ const CloneSalesOrder = () => {
           VatSum: summaryData.VatSum || 0,
           DocumentAdditionalExpenses: Object.values(freightRowSelection).map(
             (freight) => ({
-              ExpenseCode: Number(freight.ExpensCode),
+              ExpenseCode: Number(freight.ExpenseCode),
               LineTotal: Number(freight.grossTotal),
               Remarks: freight.quantity,
               TaxCode: freight.TaxCode,
               TaxPercent: Number(freight.TaxPercent),
-              TaxSum: Number(freight.TotalTaxAmount),
+              TaxSum: Number(freight.TaxTotalSum),
               LineGross: Number(freight.amount),
             }),
           ),
@@ -726,12 +732,12 @@ const CloneSalesOrder = () => {
         "DocumentAdditionalExpenses",
         JSON.stringify(payload.DocumentAdditionalExpenses),
       );
-      formDataToSend.append("data", JSON.stringify(payload.data));
+     // formDataToSend.append("data", JSON.stringify(payload.data));
 
       Object.keys(payload).forEach((key) => {
         if (
           key !== "DocumentLines" &&
-          key !== "data" &&
+         // key !== "data" &&
           key !== "DocumentAdditionalExpenses"
         ) {
           formDataToSend.append(key, payload[key]);
@@ -798,6 +804,13 @@ const CloneSalesOrder = () => {
         }}
         active={loading}
       >
+        <style>
+          {`
+            ._footer_17oaz_164{
+              position: static
+            }
+          `}
+        </style>
         <ObjectPage
           footerArea={
             <>
@@ -821,38 +834,38 @@ const CloneSalesOrder = () => {
               />
             </>
           }
-          headerArea={
-            <DynamicPageHeader>
-              <FlexBox wrap="Wrap">
-                <FlexBox direction="Column">
-                  <Label>Customer</Label>
-                </FlexBox>
-                <span style={{ width: "4rem" }} />
-                <FlexBox direction="Column">
-                  <Label>Total:</Label>
-                  <ObjectStatus state="None">GBP 0.00</ObjectStatus>
-                </FlexBox>
-                <span style={{ width: "4rem" }} />
-                <FlexBox direction="Column">
-                  <Label>Status</Label>
-                  <ObjectStatus state="Positive">Open</ObjectStatus>
-                </FlexBox>
-                <span style={{ width: "4rem" }} />
-                <FlexBox direction="Column">
-                  <Label>Credit Limit Utilization</Label>
-                  <Slider
-                    min={0}
-                    max={100}
-                    step={1}
-                    //value={value}
-                    showTickmarks
-                    showTooltip
-                    //onInput={handleSliderChange}
-                  />
-                </FlexBox>
-              </FlexBox>
-            </DynamicPageHeader>
-          }
+          // headerArea={
+          //   <DynamicPageHeader>
+          //     <FlexBox wrap="Wrap">
+          //       <FlexBox direction="Column">
+          //         <Label>Customer</Label>
+          //       </FlexBox>
+          //       <span style={{ width: "4rem" }} />
+          //       <FlexBox direction="Column">
+          //         <Label>Total:</Label>
+          //         <ObjectStatus state="None">GBP 0.00</ObjectStatus>
+          //       </FlexBox>
+          //       <span style={{ width: "4rem" }} />
+          //       <FlexBox direction="Column">
+          //         <Label>Status</Label>
+          //         <ObjectStatus state="Positive">Open</ObjectStatus>
+          //       </FlexBox>
+          //       <span style={{ width: "4rem" }} />
+          //       <FlexBox direction="Column">
+          //         <Label>Credit Limit Utilization</Label>
+          //         <Slider
+          //           min={0}
+          //           max={100}
+          //           step={1}
+          //           //value={value}
+          //           showTickmarks
+          //           showTooltip
+          //           //onInput={handleSliderChange}
+          //         />
+          //       </FlexBox>
+          //     </FlexBox>
+          //   </DynamicPageHeader>
+          // }
           // image="https://sap.github.io/ui5-webcomponents-react/v2/assets/Person-B7wHqdJw.png"
           imageShapeCircle
           mode="IconTabBar"
@@ -862,7 +875,6 @@ const CloneSalesOrder = () => {
           onToggleHeaderArea={function Xs() {}}
           selectedSectionId="section1"
           style={{
-            height: "700px",
             maxHeight: "90vh",
           }}
           titleArea={
@@ -898,18 +910,18 @@ const CloneSalesOrder = () => {
                   {formDetails ? formDetails[0]?.name : "Sales Order"}
                 </Title>
               }
-              navigationBar={
-                <Toolbar design="Transparent">
-                  {/* <ToolbarButton design="Transparent" icon="full-screen" />
-              <ToolbarButton design="Transparent" icon="exit-full-screen" /> */}
+              // navigationBar={
+              //   <Toolbar design="Transparent">
+              //     {/* <ToolbarButton design="Transparent" icon="full-screen" />
+              // <ToolbarButton design="Transparent" icon="exit-full-screen" /> */}
 
-                  <ToolbarButton
-                    onClick={() => navigate(`/Sales/${formId}`)}
-                    design="Transparent"
-                    icon="decline"
-                  />
-                </Toolbar>
-              }
+              //     <ToolbarButton
+              //       onClick={() => navigate(`/Sales/${formId}`)}
+              //       design="Transparent"
+              //       icon="decline"
+              //     />
+              //   </Toolbar>
+              // }
             >
               <ObjectStatus>
                 {/* <Button design="Transparent" icon="navigation-right-arrow"  onClick={openMenu} >
@@ -963,6 +975,10 @@ const CloneSalesOrder = () => {
               serviceTabledata={serviceTabledata}
               summaryData={summaryData}
               setSummaryData={setSummaryData}
+              selectedItemOwner={selectedItemOwner}
+              selectedServiceOwner={selectedServiceOwner}
+              setSelectedItemOwner={setSelectedItemOwner}
+              setSelectedServiceOwner={setSelectedServiceOwner}
               orderItems={orderItems}
               formDetails={formDetails}
               loading={loading}
@@ -992,7 +1008,7 @@ const CloneSalesOrder = () => {
             />
           </ObjectPageSection>
 
-          <ObjectPageSection
+          {/* <ObjectPageSection
             id="section3"
             style={{
               height: "100%",
@@ -1005,9 +1021,9 @@ const CloneSalesOrder = () => {
               form={form}
               handleChange={handleChange}
             />
-          </ObjectPageSection>
+          </ObjectPageSection> */}
 
-          <ObjectPageSection
+          {/* <ObjectPageSection
             id="section4"
             style={{
               height: "100%",
@@ -1015,7 +1031,7 @@ const CloneSalesOrder = () => {
             titleText="Accounting"
           >
             <Accounting />
-          </ObjectPageSection>
+          </ObjectPageSection> */}
           {/* );
                     } else if (tab.name === "attachments") {
                         return ( */}
@@ -1036,7 +1052,7 @@ const CloneSalesOrder = () => {
             />
           </ObjectPageSection>
 
-          <ObjectPageSection
+          {/* <ObjectPageSection
             id="section6"
             style={{
               height: "100%",
@@ -1054,7 +1070,7 @@ const CloneSalesOrder = () => {
               setFormData={setFormData}
               formData={formData}
             />
-          </ObjectPageSection>
+          </ObjectPageSection> */}
         </ObjectPage>
       </BusyIndicator>
       <Dialog open={open} onAfterClose={() => setOpen(false)}>

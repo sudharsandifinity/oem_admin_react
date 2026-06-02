@@ -747,14 +747,14 @@ const Itemtable = (props) => {
   const columns = useMemo(() => {
     // Define all possible columns
     const allColumns = [
-      {
-        Header: "SL No",
-        accessor: "slno",
-        width: 50,
-        Cell: ({ row }) => (
-          <div disabled={mode === "view"}>{row.index + 1}</div>
-        ),
-      },
+      // {
+      //   Header: "SL No",
+      //   accessor: "slno",
+      //   width: 50,
+      //   Cell: ({ row }) => (
+      //     <div disabled={mode === "view"}>{row.index + 1}</div>
+      //   ),
+      // },
       // {
       //   Header: "Task",
       //   accessor: "task",
@@ -762,7 +762,7 @@ const Itemtable = (props) => {
       // },
       {
         Header: "BOQ LineNum",
-        accessor: "BoqLineNum",
+        accessor: "id",
         width: 50,
       },
 

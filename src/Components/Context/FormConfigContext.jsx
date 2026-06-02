@@ -212,7 +212,7 @@ const FormConfigProvider = ({ children }) => {
     // },
   ];
   const ManageSalesOrderTableColumn = [
-    { Header: "Document No", accessor: "DocumentNo", type: "text" },
+    { Header: "Document Entry", accessor: "DocumentNo", type: "text" },
     { Header: "Customer Code", accessor: "CustomerCode", type: "text" },
     { Header: "Customer Name", accessor: "CustomerName", type: "text" },
     // { Header: "Customer Ref. No", accessor: "CustomerRefno", type: "text" },
@@ -227,7 +227,7 @@ const FormConfigProvider = ({ children }) => {
     // { Header: "User Signature", accessor: "UserSignature", type: "text" },
   ];
    const ManagePurchaseOrderTableColumn = [
-    { Header: "Document No", accessor: "DocumentNo", type: "text" },
+    { Header: "Document Entry", accessor: "DocumentNo", type: "text" },
     { Header: "Vendor Code", accessor: "CustomerCode", type: "text" },
     { Header: "Vendor Name", accessor: "CustomerName", type: "text" },
     // { Header: "Customer Ref. No", accessor: "CustomerRefno", type: "text" },
@@ -242,9 +242,10 @@ const FormConfigProvider = ({ children }) => {
     // { Header: "User Signature", accessor: "UserSignature", type: "text" },
   ];
    const ManageProjectOrderTableColumn = [
-    { Header: "Document No", accessor: "DocumentNo", type: "text" },
+    { Header: "Document Entry", accessor: "DocumentNo", type: "text" },
     { Header: "Project Code", accessor: "ProjectCode", type: "text" },
     { Header: "Project Name", accessor: "ProjectName", type: "text" },
+    {Header: "MR NO", accessor: "MRNO", type: "text" },
     // { Header: "Customer Ref. No", accessor: "CustomerRefno", type: "text" },
     { Header: "Posting Date", accessor: "PostingDate", type: "text" },
     // { Header: "Delivery Date", accessor: "DeliveryDate", type: "text" },

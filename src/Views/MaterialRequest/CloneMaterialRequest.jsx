@@ -372,7 +372,7 @@ const handleSubmit = async (form) => {
         NumAtCard: formData.CustomerRefNo || "",
 
         DocType: "dDocument_Items",
-
+U_PrjCode: formData.ProjectCode || "",
         DocumentsOwner: summaryData.RequestorName || "",
         RequesterEmail:summaryData.eMail||"",
         DocumentLines: itemTabledata
@@ -387,7 +387,7 @@ const handleSubmit = async (form) => {
               Quantity: Number(line.quantity || 0),
               UnitPrice: Number(line.amount || 0),
               WarehouseCode: line.warehouse||warehousesdetails?.value[0]?.WarehouseCode,
-              //ProjectCode: line.project || "",
+              ProjectCode: line.project || "",
               TaxCode: line.TaxCode || "",
               VatGroup: line.TaxCode || "",
               DiscountPercent: Number(line.discount || 0),
@@ -868,7 +868,7 @@ const handleSubmit = async (form) => {
             </Button> */}
 
                 {!location.state.formName==="Goods Issue"&&<Button design="Default" disabled={ !formData.CusCode && !formData.ProjectCode} onClick={openBoqList}>
-                  BOQ Copy From
+                Copy From BOM
                 </Button>}
 
                 {/* <Button design="Default" onClick={() => handleSubmit()}>

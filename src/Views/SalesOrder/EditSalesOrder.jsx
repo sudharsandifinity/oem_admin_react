@@ -204,6 +204,7 @@ const EditSalesOrder = () => {
       DiscountPercent: summaryData.DiscountPercent,
       TotalDiscount: summaryData.TotalDiscount,
       VatSum: summaryData.VatSum,
+      DocumentsOwner: type === "Item" ? selectedItemOwner : selectedServiceOwner,
     });
   };
   const copyFrom = async () => {
@@ -1074,6 +1075,7 @@ const EditSalesOrder = () => {
     ) || [];
   const childOptions = menuBlocks.length > 0 ? menuBlocks[0].children : [];
   const getUserFriendlyMessage = (error) => {
+    console.log("userfriendlymessage",error)
     if (!error) return "An unexpected error occurred.";
 
     if (error.code === "-5002") {
@@ -1090,6 +1092,7 @@ const EditSalesOrder = () => {
       return "Document total must be less than 1000";
     }
     const message =
+    error?.error?.message||
       error?.message?.value ||
       error?.message ||
       error?.response?.data?.message ||

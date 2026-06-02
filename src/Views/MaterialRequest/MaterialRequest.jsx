@@ -70,7 +70,7 @@ import {
   fetchPurchaseRequestById,
 } from "../../store/slices/PurchaseRequestSlice";
 import { createPurchaseDeliveryNotes } from "../../store/slices/purDeliveryNoteSlice";
-import CopyFromDialog from "./CopyFromDialog/CopyFromDialog";
+
 import { fetchitemprices } from "../../store/slices/salesAdditionalDetailsSlice";
 import BOQListDialog from "./BOQCopyFrom/BOQListDialog";
 import { set } from "react-hook-form";
@@ -78,6 +78,8 @@ import {
   createMaterialRequest,
   fetchBOQList,
 } from "../../store/slices/materialRequestSlice";
+import { fetchPurchaseOrder } from "../../store/slices/purchaseorderSlice";
+import CopyFromDialog from "../SalesOrder/CopyFromDialog/CopyFromDialog";
 
 export default function MaterialRequest() {
   const { fieldConfig, CustomerDetails, DocumentDetails } =
@@ -86,7 +88,7 @@ export default function MaterialRequest() {
   const navigate = useNavigate();
   const { orderItems } = useSelector((state) => state.orderItems);
   const [apiError, setApiError] = useState(null);
-  const { formId,id } = useParams();
+  const { formId, id } = useParams();
   const user = useSelector((state) => state.auth.user);
   const [loading, setLoading] = useState(false);
   const [tabList, setTabList] = useState([]);
@@ -116,12 +118,13 @@ export default function MaterialRequest() {
   const [copiedServiceDocumentLines, setCopiedServiceDocumentLine] = useState(
     [],
   );
+  const [isCopyFromPurchase, setIsCopyFromPurchase] = useState(false);
   const [opencopyFromDialog, setOpenCopyFromDialog] = useState(false);
   const [isCopyFromBOQ, setIsCopyFromBOQ] = useState(false);
   const [selectedItemOwner, setSelectedItemOwner] = useState("");
   const [selectedServiceOwner, setSelectedServiceOwner] = useState("");
   const [selectedServices, setSelectedServices] = useState({});
-   const [originalboqrequestList,setOriginalboqrequestlist] = useState([]);
+  const [originalboqrequestList, setOriginalboqrequestlist] = useState([]);
   const [inputValue, setInputValue] = useState({});
   const [itemTabledata, setitemTableData] = useState([
     {
@@ -170,14 +173,15 @@ export default function MaterialRequest() {
   });
   const [isBoqListopem, setisBoqListopem] = useState(false);
   const [boqrequestList, setBoqRequestList] = useState([]);
-  const [selectedSectionId, setSelectedSectionId] =
-  useState("section1");
+  const [selectedSectionId, setSelectedSectionId] = useState("section1");
   const openBoqList = async () => {
-    setSelectedSectionId("section2")
+    setSelectedSectionId("section2");
     console.log("openBoqList");
     setIsCopyFromBOQ(true);
-    const data={ U_BPCode: formData.CusCode||null, 
-      U_PrjCode:formData.ProjectCode||null }
+    const data = {
+      U_BPCode: formData.CusCode || null,
+      U_PrjCode: formData.ProjectCode || null,
+    };
     const res = await dispatch(fetchBOQList(data)).unwrap();
     const currentType =
       type === "Item" ? "dDocument_Items" : "dDocument_Service";
@@ -201,6 +205,78 @@ export default function MaterialRequest() {
 
     setRequestList(raw.filter((val) => val.DocType === currentType));
     console.log("currentType", currentType, res?.data);
+    setOpenCopyFromDialog(true);
+  };
+  const copyRequestDetails = async (po) => {
+    const orderListById = Object.values(po)[0];
+    console.log(
+      "copyRequestDetailsorderListById",
+      orderListById,
+      orderListById.CardCode,
+    );
+    setSelectedCardCode(orderListById.CardCode);
+    setFormData({
+      docEntry: orderListById.DocEntry,
+      docNum: orderListById.DocNum,
+      RequisitionNo: orderListById.DocEntry,
+      RequisitionDate: orderListById.RequisitionDate ? new Date(orderListById.RequisitionDate).toISOString().split("T")[0]
+        : new Date().toISOString().split("T")[0],
+
+      CusCode: orderListById.CardCode,
+      CusName: orderListById.CardName,
+      RequisitionTime: orderListById.U_ReqTime? orderListById.U_ReqTime : new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+
+      ProjectCode: orderListById.U_PrjCode||orderListById.Project,
+      ProjectName: orderListById.U_PrjDesc,
+      Remarks: orderListById.U_Remark,
+      CardName: orderListById.CardName,
+      DocDueDate: orderListById.DocDueDate
+        ? new Date(orderListById.DocDueDate).toISOString().split("T")[0]
+        : new Date().toISOString().split("T")[0],
+      PostingDate: orderListById.DocDate
+        ? new Date(orderListById.DocDate).toISOString().split("T")[0]
+        : new Date().toISOString().split("T")[0],
+      TaxDate: orderListById.TaxDate
+        ? new Date(orderListById.TaxDate).toISOString().split("T")[0]
+        : new Date().toISOString().split("T")[0],
+      RequiredDate: orderListById.RequriedDate
+        ? new Date(orderListById.RequriedDate).toISOString().split("T")[0]
+        : new Date().toISOString().split("T")[0],
+      DocumentLines: orderListById.DocumentLines || [],
+      formData: orderListById.formData,
+    });
+
+    setSummaryData((prev) => ({
+      ...prev,
+      Remark: orderListById.Comments,
+      DocTotal: orderListById.DocTotal,
+      Rounding: orderListById.Rounding,
+      RoundingDiffAmount: orderListById.RoundingDiffAmount,
+      DiscountPercent: orderListById.DiscountPercent,
+      TotalDiscount: orderListById.TotalDiscount,
+      VatSum: orderListById.VatSum,
+    }));
+    // set general header edit data
+    setFreightRowSelection(orderListById.DocumentAdditionalExpenses || []);
+    setSummaryDiscountPercent(orderListById.DiscountPercent);
+    orderListById.DocType === "dDocument_Items"
+      ? setSelectedItemOwner(orderListById.DocumentsOwner || "")
+      : setSelectedServiceOwner(orderListById.DocumentsOwner || "");
+    setRoundingEnabled(orderListById.Rounding === "tYES");
+    setRoundOff(orderListById.RoundingDiffAmount);
+
+    setUserDefinedData(orderListById.formData);
+  };
+  const copyFromsPO = async () => {
+    setIsCopyFromPurchase(true);
+    //const res = await dispatch(fetchPurchaseRequest()).unwrap();
+    const res = await dispatch( fetchPurchaseOrder({ top:20, skip: 0 })).unwrap();
+    const currentType =
+      type === "Item" ? "dDocument_Items" : "dDocument_Service";
+    const raw = res?.data?.value ?? res?.data ?? res?.value ?? res;
+
+    setRequestList(raw.filter((val) => val.DocType === currentType));
+    console.log("currentType", currentType, raw,res?.data);
     setOpenCopyFromDialog(true);
   };
   const handleChange = (e, name, formName) => {
@@ -290,9 +366,86 @@ export default function MaterialRequest() {
           U_SQlineNum: item.BoqLineNum || "",
         })),
       };
- 
-      console.log("formdatatosend", payload);
-      let res= await dispatch(createMaterialRequest(payload)).unwrap();
+let grpopayload={CardCode: formData.CardCode || selectedcardcode,
+          DocDate: new Date().toISOString().split("T")[0].replace(/-/g, ""),//formData.PostingDate
+            // ? new Date(formData.PostingDate)
+            //     .toISOString()
+            //     .split("T")[0]
+            //     .replace(/-/g, "")
+            // : new Date().toISOString().split("T")[0].replace(/-/g, ""),
+          DocDueDate: new Date().toISOString().split("T")[0].replace(/-/g, ""),//formData.DocDueDate
+            // ? new Date(formData.DocDueDate)
+            //     .toISOString()
+            //     .split("T")[0]
+            //     .replace(/-/g, "")
+            // : new Date().toISOString().split("T")[0].replace(/-/g, ""),
+          TaxDate: new Date().toISOString().split("T")[0].replace(/-/g, ""),//formData.TaxDate
+            // ? new Date(formData.TaxDate)
+            //     .toISOString()
+            //     .split("T")[0]
+            //     .replace(/-/g, "")
+            // : new Date().toISOString().split("T")[0].replace(/-/g, ""),
+
+            RequriedDate: new Date().toISOString().split("T")[0].replace(/-/g, ""),//formData.ReqDate
+              // ? new Date(formData.ReqDate)
+              //     .toISOString()
+              //     .split("T")[0]
+              //     .replace(/-/g, "")
+              // : new Date().toISOString().split("T")[0].replace(/-/g, ""),
+        
+
+          //DocEntry: formData.DocEntry,
+          DocumentStatus: "open",
+          ContactPerson: formData.ContactPerson || "",
+          NumAtCard: formData.CustomerRefNo || "",
+          DocType: "dDocument_Items",
+         U_ReqCode: summaryData.RequestorCode || "",
+        U_ReqName: summaryData.RequestorName,
+          DocumentLines: itemTabledata.map((line) => ({
+            ItemCode: line.ItemCode,
+            ItemDescription: line.ItemName,
+            Quantity: Number(line.quantity),
+            UnitPrice: Number(line.amount),
+            WarehouseCode: line.WarehouseCode,
+            ProjectCode: line.ProjectCode,
+            TaxCode: line.TaxCode,
+            VatGroup: line.TaxCode,
+            DiscountPercent: Number(line.discount),
+            LineTotal: Number(line.total),
+            RequiredDate: formData.ReqDate
+              ? new Date(formData.ReqDate)
+                  .toISOString()
+                  .split("T")[0]
+                  .replace(/-/g, "")
+              : new Date().toISOString().split("T")[0].replace(/-/g, ""),
+          })),
+
+         
+        };
+      console.log("formdatatosend", payload,grpopayload);
+      const formDataToSend = new FormData();
+     
+
+      formDataToSend.append(
+        "DocumentLines",
+        JSON.stringify(payload.DocumentLines),
+      );
+      
+      //formDataToSend.append("data", JSON.stringify(payload.data));
+
+      Object.keys(payload).forEach((key) => {
+        if (
+          key !== "DocumentLines" 
+        ) {
+          formDataToSend.append(key, payload[key]);
+        }
+      });
+      let res = [];
+      if (formDetails[0]?.name === "Purchase Request") {
+        res=await dispatch(createMaterialRequest(formDataToSend)).unwrap();
+      } else if (formDetails[0]?.name === "GRPO") {
+        res = await dispatch(createPurchaseDeliveryNotes(grpopayload)).unwrap();
+      }
       console.log("reshandlesubmit", res);
 
       if (res.message === "Please Login!") {
@@ -439,8 +592,8 @@ export default function MaterialRequest() {
     console.log("saveitemitem", item);
     // const newItems = Array.isArray(item) ? item.filter(i=>i.U_ItemCode!=="") : Object.values(item).filter(i=>i.U_ItemCode!==null);
     const newItems = Array.isArray(item)
-      ? item.filter(i => i.U_ItemCode)       // filters out null, "", undefined, 0, false
-      : Object.values(item).filter(i => i.U_ItemCode);
+      ? item.filter((i) => i.U_ItemCode||i.ItemCode) // filters out null, "", undefined, 0, false
+      : Object.values(item).filter((i) => i.U_ItemCode||i.ItemCode);
 
     for (const newItem of newItems) {
       const itemresponse = await getItemPrice(
@@ -469,20 +622,20 @@ export default function MaterialRequest() {
             slno: index + 1,
             task: item.U_Task, // usually LineNum is 0-based
             BoqLineNum: item.U_SQlineNum,
-            ItemCode: item.U_ItemCode,
-            ItemName: item.U_Desc,
-            fulldescription: item.U_FullDesc,
-            quantity: item.U_PQty,
-            amount: item.U_Rate,
-            linetotal: item.U_PCost,
-            project: item.U_Project,
-            warehouse: item.U_Whs,
-            uom: item.U_UOM,
+            ItemCode: item.U_ItemCode||item.ItemCode,
+            ItemName: item.U_Desc||item.ItemDescription,
+            fulldescription: item.U_FullDesc||item.FullDescription,
+            quantity: item.U_PQty||item.Quantity,
+            amount: item.U_Rate||item.Price,
+            linetotal: item.U_PCost||item.LineTotal,
+            project: item.U_Project||item.ProjectCode,
+            warehouse: item.U_Whs||item.WarehouseCode,
+            uom: item.U_UOM||item.UoMCode,
             stage: item.U_Stage,
             issuedQty: item.U_AQty,
             inStock: item.U_InStock,
             availableQty: item.U_AQty,
-            rateTotal: item.U_RateTotal,
+            rateTotal: item.U_RateTotal||item.Rate,
             remarks: item.U_HLB_Rmarks,
           }));
 
@@ -494,6 +647,50 @@ export default function MaterialRequest() {
           return [...newRows];
         });
         setIsCopyFromBOQ(false);
+        setIsCopyFromPurchase(false);
+      }else if(isCopyFromPurchase){
+         console.log("isCopyFromBOQ", isCopyFromBOQ);
+        setitemTableData((prev) => {
+          setSummaryData((prevSummary) => ({
+            ...prevSummary,
+            DocTotal:
+              prevSummary.DocTotal +
+              newItems.reduce(
+                (sum, item) => sum + Number(item.U_PCost || 0),
+                0,
+              ),
+          }));
+
+          const newRows = newItems.flatMap((item, index) => ({
+            id: index,
+            slno: index + 1,
+            task: item.U_Task, // usually LineNum is 0-based
+            BoqLineNum: item.U_SQlineNum,
+            ItemCode:item.ItemCode,
+            ItemName:item.ItemDescription,
+            fulldescription: item.FullDescription,
+            quantity: item.Quantity,
+            amount: item.Price,
+            linetotal: item.LineTotal,
+            project: item.ProjectCode,
+            warehouse: item.WarehouseCode,
+            uom:item.UoMCode,
+            stage: item.U_Stage,
+            issuedQty: item.U_AQty,
+            inStock: item.U_InStock,
+            availableQty: item.U_AQty,
+            rateTotal:item.Rate,
+            remarks: item.U_HLB_Rmarks,
+          }));
+
+          const existingIds = new Set(prev.map((row) => row.id));
+
+          const filteredNew = newRows.filter((row) => !existingIds.has(row.id));
+
+          // return [...prev, ...filteredNew];
+          return [...newRows];
+        });
+        setIsCopyFromPurchase(false);
       } else {
         setitemTableData((prev) => {
           let updated = [...prev];
@@ -560,6 +757,7 @@ export default function MaterialRequest() {
           return [...newRows];
         });
         setIsCopyFromBOQ(false);
+        setIsCopyFromPurchase(false);
       } else {
         setserviceTableData((prev) => {
           let updated = [...prev];
@@ -655,7 +853,7 @@ export default function MaterialRequest() {
           `}
       </style>
       <ObjectPage
-         selectedSectionId={selectedSectionId}
+        selectedSectionId={selectedSectionId}
         className="sales-order-page"
         footerArea={
           <Bar
@@ -666,15 +864,25 @@ export default function MaterialRequest() {
             }}
             startContent={
               <FlexBox style={{ gap: "0.5rem" }}>
-                    {/* <Button design="Default" onClick={() => handleSubmit()}>
+                {/* <Button design="Default" onClick={() => handleSubmit()}>
               Refresh Stock
             </Button> */}
 
-                <Button design="Default" disabled={ !formData.CusCode && !formData.ProjectCode} onClick={openBoqList}>
-                   Copy From BOM
-                </Button>
+                {formDetails[0]?.name === "Material Request" ? (
+                  <Button
+                    design="Default"
+                    disabled={!formData.CusCode && !formData.ProjectCode}
+                    onClick={openBoqList}
+                  >
+                    Copy From BOM
+                  </Button>
+                ) : (
+                  <Button design="Default" onClick={copyFromsPO}>
+                    Copy From PO
+                  </Button>
+                )}
 
-                        {/* <Button design="Default" onClick={() => handleSubmit()}>
+                {/* <Button design="Default" onClick={() => handleSubmit()}>
                   Purchase Request
                 </Button>
 
@@ -755,7 +963,6 @@ export default function MaterialRequest() {
         onPinButtonToggle={function Xs() {}}
         onSelectedSectionChange={function Xs() {}}
         onToggleHeaderArea={function Xs() {}}
-       
         style={{
           maxHeight: "95vh",
         }}
@@ -780,7 +987,9 @@ export default function MaterialRequest() {
                   <BreadcrumbsItem data-route="/dashboard">
                     Home
                   </BreadcrumbsItem>
-                  <BreadcrumbsItem data-route={`/Sales/${formId}`}>
+                  <BreadcrumbsItem
+                    data-route={`/Contracting-Management/${formId}`}
+                  >
                     {formDetails.length > 0
                       ? formDetails[0]?.name + " List "
                       : formId
@@ -841,7 +1050,6 @@ export default function MaterialRequest() {
         </ObjectPageSection>
 
         <ObjectPageSection
-        
           id="section2"
           style={{
             height: "100%",
@@ -921,6 +1129,7 @@ export default function MaterialRequest() {
         open={opencopyFromDialog}
         setOpen={setOpenCopyFromDialog}
         requestList={requestList}
+        copyRequestDetails={copyRequestDetails}
         saveItem={saveItem}
         saveService={saveService}
         type={type}
@@ -935,10 +1144,10 @@ export default function MaterialRequest() {
         type={type}
         setType={setType}
         setBoqRequestList={setBoqRequestList}
-         originalboqrequestList={originalboqrequestList}
-  setOriginalboqrequestlist={setOriginalboqrequestlist}
-  inputValue={inputValue}
-  setInputValue={setInputValue}
+        originalboqrequestList={originalboqrequestList}
+        setOriginalboqrequestlist={setOriginalboqrequestlist}
+        inputValue={inputValue}
+        setInputValue={setInputValue}
       />
       <Dialog open={open} onAfterClose={() => setOpen(false)}>
         <div

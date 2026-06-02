@@ -103,7 +103,7 @@ const UserSideBar = (props) => {
   return (
     <FlexBox style={{ height: "100vh" }}>
         <FlexBox direction="Column" style={{ display:collapsed ? "none" : "flex" }}>
-          <Bar
+          {/* <Bar
             design="Header"
             style={{width: '256px', height: '180px' }}
           >
@@ -142,7 +142,7 @@ const UserSideBar = (props) => {
                 </Select>
                 </div>
             </div>
-          </Bar>
+          </Bar> */}
             
             {/* <Text style={{ paddingLeft: '16px', paddingBottom: '20px' }}>Menu List</Text> */}
             <SideNavigation>
@@ -153,7 +153,7 @@ const UserSideBar = (props) => {
                         !menu.RoleMenu.can_list_view ? null : (
                         <SideNavigationItem key={menu.id} text={menu.display_name} unselectable>
                             {menu.children?.length > 0 &&
-                            menu.children.map((child) => (
+                            menu.children.filter((r) => r.status===1).map((child) => (
                                 <SideNavigationSubItem
                                 key={child.id}
                                 text={child.display_name}
@@ -167,6 +167,17 @@ const UserSideBar = (props) => {
                         )
                     )}
                 </SideNavigationGroup>
+                <SideNavigationGroup text="Approver Module" expanded>
+                    <SideNavigationItem text="Approval Workflow Template" unselectable>
+                        <SideNavigationSubItem
+                        text="Approval Workflow Template"
+                        onClick={(e) => {
+                            e.preventDefault();
+                            navigate(`/approver/ApproverTemplate`);
+                        }}
+                        />
+                    </SideNavigationItem>
+                  </SideNavigationGroup>
             </SideNavigation>
         </FlexBox>
     </FlexBox>

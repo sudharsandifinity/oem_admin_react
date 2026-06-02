@@ -139,7 +139,7 @@ console.log("filteredList", filteredList);
   return (
     <>
       <Dialog
-        headerText="BOQ List"
+        headerText="BOM List"
         open={open}
         onAfterClose={() => setopen(false)}
         footer={
@@ -227,7 +227,7 @@ console.log("filteredList", filteredList);
             data={boqrequestList}
             columns={itemcolumns}
             //header={`Items (${boqrequestList.length})`}
-            selectionMode="Multiple"
+            selectionMode="Single"
             selectedRowIds={rowSelection}
             onRowSelect={onitemchildRowSelect}
             visibleRows={6}

@@ -59,24 +59,24 @@ const UserSideNav = ({
       >
         <SideNavigation
           style={{ height: "95%" }}
-          // fixedItems={
+          fixedItems={
            
-          //     <SideNavigationGroup text="Approver Module" >
-          //   <SideNavigationItem  onClick={() => navigate("/approver")} text="Approver Status" unselectable>
+              <SideNavigationGroup text="Approver Module" >
+            <SideNavigationItem  onClick={() => navigate("/approver")} text="Approver Status" unselectable>
               
-          //     </SideNavigationItem>
-          //   <SideNavigationItem  onClick={() => navigate("/approver/ApproverTemplate")} text="Approval Template" unselectable>
+              </SideNavigationItem>
+            <SideNavigationItem  onClick={() => navigate("/approver/ApproverTemplate")} text="Approval Template" unselectable>
               
-          //     </SideNavigationItem>
+              </SideNavigationItem>
                   
-          //   <SideNavigationItem  onClick={() => navigate("/workflowmanagement")} text="Workflow Management" unselectable>
+            <SideNavigationItem  onClick={() => navigate("/workflowmanagement")} text="Workflow Management" unselectable>
              
-          //   </SideNavigationItem>
-          //    <SideNavigationItem onClick={() => navigate("/stagemanagement")} text="Stage Management" unselectable>
+            </SideNavigationItem>
+             <SideNavigationItem onClick={() => navigate("/stagemanagement")} text="Stage Management" unselectable>
               
-          //   </SideNavigationItem>
-          // </SideNavigationGroup>
-          // }
+            </SideNavigationItem>
+          </SideNavigationGroup>
+          }
         >
           <SideNavigationGroup text="User Modules" expanded>{console.log("menulist",menulist)}
             {menulist.length > 0 &&
@@ -93,8 +93,11 @@ const UserSideNav = ({
                           key={child.id}
                           text={child.display_name}
                           onClick={(e) => {
+                            console.log("onclick")
                             e.preventDefault();
-                            navigate(`/${menu.display_name}/${child.formId}`);
+                            const slug = menu.display_name.replace(/\s+/g, "-");
+                            console.log("slug", slug);
+                            navigate(`/${slug}/${child.formId}`);
                             //const slug = child.display_name.replace(/\s+/g, "-");
 
                             //navigate(`/${menu.display_name}/${slug}`)

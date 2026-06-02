@@ -50,6 +50,9 @@ import EditSalesOrder from "../Views/SalesOrder/editSalesOrder";
 import SideNavWrapper from "../Components/SideBar/SideNavWrapper";
 import UserSideNavWrapper from "../Components/SideBar/UserSideNavWrapper";
 import UserDashboard from "../Components/Dashboard/UserDashboard";
+import AlavonUserDashboard from "../Components/Dashboard/UserDashboardAlAvon";
+
+
 //import UserDashboard from "../Views/Dashboard/UserDashboard";
 
 import ViewSalesOrder from "../Views/SalesOrder/ViewSalesOrder";
@@ -78,10 +81,7 @@ import Approver from "../Views/Approver/Approver";
 import StageManagement from "../Views/Approver/StageManagement/StageManagement";
 import WorkflowManagement from "../Views/Approver/WorkflowManagement/WorkflowManagement";
 import CreateStage from "../Views/Approver/StageManagement/CreateStage";
-import GRP from "../Views/GoodsRecieptPO/GRP";
-import CreateGRP from "../Views/GoodsRecieptPO/CreateGRP";
-import EditGRP from "../Views/GoodsRecieptPO/EditGRP";
-import ViewGRP from "../Views/GoodsRecieptPO/ViewGRP";
+
 
 import WorkflowBuilder from "../Views/FlowBuilder/WorlflowBuilder";
 import ApproverTemplate from "../Views/Approver/ApproverTemplate/ApproverTemplate";
@@ -92,8 +92,12 @@ import ViewMaterialRequest from "../Views/MaterialRequest/ViewMaterialRequest";
 import CloneMaterialRequest from "../Views/MaterialRequest/CloneMaterialRequest";
 import ViewCustomerRole from "../Views/CustomerAdmin/Role/ViewCustomerRole";
 import EditUserManagement from "../Views/CustomerAdmin/User/EditUserManagement";
+import { useSelector } from "react-redux";
 
 const AppRoutes = () => {
+    const { user, token } = useSelector((state) => state.auth);
+
+ const isAlavonUser = user?.email === "alavon@yopmail.com";
   return (
     <Routes>
       <Route
@@ -147,8 +151,13 @@ const AppRoutes = () => {
       >
         <Route path="/dashboard" element={<UserSideNavWrapper />}>
           {/* nested child route so outlet inside UserSideNav will render dashboard component */}
-          <Route index element={<UserDashboard />} />
+          {isAlavonUser ? (
+            <Route index element={<AlavonUserDashboard />} />
+          ) : (
+            <Route index element={<UserDashboard />} />
+          )}
         </Route>
+        
         <Route path="/change-password" element={<ChangePassword />} />
         <Route path="/Admin" element={<SideNavWrapper />} />
         <Route path="/admin" element={<SideNavWrapper />}>
@@ -225,6 +234,7 @@ const AppRoutes = () => {
             element={<CloneMaterialRequest />}
           />
 
+          <Route path="/MaterialRequest/edit/:formId/:id" element={<ViewMaterialRequest />} />
           <Route path="/Order/create/:formId/:id" element={<SalesOrder />} />
           <Route path="/Order/edit/:formId/:id" element={<EditSalesOrder />} />
           <Route path="/Order/view/:formId/:id" element={<ViewSalesOrder />} />
@@ -251,6 +261,7 @@ const AppRoutes = () => {
           <Route path="/Sales/:formId" element={<ManageSalesOrder />} />
           <Route path="/Purchase/:formId" element={<ManageSalesOrder />} />
           <Route path="/Projects/:formId" element={<ManageSalesOrder />} />
+          <Route path="/Contracting-Management/:formId" element={<ManageSalesOrder />} />
 
 
           {/* Approver screen */}
@@ -264,10 +275,6 @@ const AppRoutes = () => {
           <Route path="/workflow-management/create" element={ <WorkflowBuilder />} />
           {/* Approver screen */}
 
-          <Route path="/GRP" element={<GRP/>} />
-          <Route path="/GRP/create" element={<CreateGRP />} />
-          <Route path="/GRP/edit/:docNo" element={<EditGRP />} />
-          <Route path="/GRP/view/:docNo" element={<ViewGRP/>} />
         </Route>
       </Route>
 

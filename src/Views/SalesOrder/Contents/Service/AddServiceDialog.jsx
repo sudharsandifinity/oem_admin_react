@@ -274,6 +274,7 @@ const Addservicedialog = (props) => {
 
           <Button
             onClick={() => {
+              console.log("addservicedialog")
               setAddServiceDialogOpen(false);
               saveService(rowSelection, selectedRowIndex);
               setInputValue([]);
@@ -287,7 +288,7 @@ const Addservicedialog = (props) => {
      style={{ width: "50vw"}}
     >
       <FlexBox direction="Column" >
-          <DynamicPageHeader>
+          {/* <DynamicPageHeader> */}
                        <FlexBox direction="Row" style={{display: 'inline-flex', alignServices: 'end', flexWrap: 'wrap', gap: '15px'}}>
                         
               <Grid
@@ -321,7 +322,7 @@ const Addservicedialog = (props) => {
             </FlexBox>
 
             {/* Basic Company Code Search */}
-          </DynamicPageHeader>
+          {/* //</DynamicPageHeader> */}
         
       
             <div style={{flex:1,overflow:"hidden"}}>
