@@ -848,7 +848,7 @@ const ViewMaterialRequest = () => {
           <Button
             design="Emphasized"
             onClick={() => {
-              navigate(`/Sales/${formId}`);
+              navigate(`/Contracting-Management/${formId}`);
               setOpen(false);
             }}
           >

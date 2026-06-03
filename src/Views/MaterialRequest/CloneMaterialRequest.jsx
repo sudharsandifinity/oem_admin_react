@@ -907,7 +907,7 @@ export default function CloneMaterialRequest() {
               <FlexBox style={{ gap: "0.5rem" }}>
                 <Button
                   design="Transparent"
-                  onClick={() => navigate(`/Sales/${formId}`)}
+                  onClick={() => navigate(`/Contracting-Management/${formId}`)}
                 >
                   Cancel
                 </Button>
@@ -1000,12 +1000,12 @@ export default function CloneMaterialRequest() {
                   <BreadcrumbsItem data-route="/dashboard">
                     Home
                   </BreadcrumbsItem>
-                  <BreadcrumbsItem data-route={`/Sales/${formId}`}>
+                  <BreadcrumbsItem data-route={`/Contracting-Management/${formId}`}>
                     {formDetails.length > 0
                       ? "Material Request List "
                       : formId
                         ? formId
-                        : "Sales Orders"}
+                        : "Contracting Management"}
                   </BreadcrumbsItem>
                   <BreadcrumbsItem>
                     {formDetails.length > 0

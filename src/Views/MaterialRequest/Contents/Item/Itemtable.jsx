@@ -910,6 +910,8 @@ const Itemtable = (props) => {
           </>
         ),
       },
+       ...(location?.state?.formname === "Material Request"||formDetails[0].name === "Material Request"
+    ? [
        {
         Header: "BOM QTY",
         accessor: "bomqty",
@@ -935,6 +937,10 @@ const Itemtable = (props) => {
           </>
         ),
       },
+      ]
+    : []),
+     ...(location?.state?.formname === "Material Request"||formDetails[0].name === "Material Request"
+    ? [
        {
         Header: "BOM Open Qty",
         accessor: "bomopenqty",
@@ -960,9 +966,13 @@ const Itemtable = (props) => {
           </>
         ),
       },
+      ]
+    : []),
+     ...(location?.state?.formname === "Material Request"||formDetails[0].name === "Material Request"
+    ? [
        {
         Header: "MR Open Qty",
-        accessor: " mropenqty",
+        accessor: "mropenqty",
         Cell: ({ row }) => (
           <>
             <Input
@@ -985,11 +995,13 @@ const Itemtable = (props) => {
           </>
         ),
       },
-       ...(location?.state?.formname === "Purchase Request"
+      ]
+    : []),
+       ...(location?.state?.formname === "Purchase Request"||formDetails[0].name === "Purchase Request"
     ? [
         {
         Header: "MR Qty",
-        accessor: " mrqty",
+        accessor: "mrqty",
         Cell: ({ row }) => (
           <>
             <Input
@@ -1013,15 +1025,74 @@ const Itemtable = (props) => {
         ),
       },]
     : []),
-     ...(location?.state?.formname === "Purchase Request"
+   
+     ...(location?.state?.formname === "Purchase Request"||formDetails[0].name === "Purchase Request"
     ? [
        {
         Header: "PR Open Qty",
-        accessor: " propenqty",
+        accessor: "propenqty",
         Cell: ({ row }) => (
           <>
             <Input
               value={row.original.propenqty ? row.original.propenqty   : ""}
+              readonly
+              disabled={mode === "view"}
+              style={{ textAlign: "right" }}
+              onFocus={(e) =>
+                (e.target.style.borderBottom = "1px solid #007aff")
+              }
+              onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
+              // onClick={() =>
+              //   // !row.original.UOM &&
+              //   {
+              //     setSelectedProjectRowIndex(row.index);
+              //     setisProjectDialogOpen(true);
+              //   }
+              // }
+            />
+          </>
+        ),
+      },
+      ]
+    : []),
+     ...(location?.state?.formname === "GRPO" ||formDetails[0].name === "GRPO"
+    ? [
+       {
+        Header: "PO Qty",
+        accessor: "poqty",
+        Cell: ({ row }) => (
+          <>
+            <Input
+              value={row.original.poqty ? row.original.poqty   : ""}
+              readonly
+              disabled={mode === "view"}
+              style={{ textAlign: "right" }}
+              onFocus={(e) =>
+                (e.target.style.borderBottom = "1px solid #007aff")
+              }
+              onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
+              // onClick={() =>
+              //   // !row.original.UOM &&
+              //   {
+              //     setSelectedProjectRowIndex(row.index);
+              //     setisProjectDialogOpen(true);
+              //   }
+              // }
+            />
+          </>
+        ),
+      },
+       ]
+    : []),
+     ...(location?.state?.formname === "GRPO" ||formDetails[0].name === "GRPO"
+    ? [
+       {
+        Header: "PO Open Qty",
+        accessor: " poopenqty",
+        Cell: ({ row }) => (
+          <>
+            <Input
+              value={row.original.poopenqty ? row.original.poopenqty   : ""}
               readonly
               disabled={mode === "view"}
               style={{ textAlign: "right" }}
@@ -1305,11 +1376,11 @@ const Itemtable = (props) => {
     ];
 
     // Create an array of accessors that should be visible
-    const visibleAccessors = dynamcicItemCols?.map((col) => col.accessor) || [];
+    const visibleAccessors = dynamcicItemCols?.map((col) => col?.accessor) || [];
 
     // Filter columns based on dynamic list
     const visibleColumns = allColumns.filter(
-      (col) => visibleAccessors.includes(col.accessor) || col.id === "actions", // always include actions
+      (col) => visibleAccessors.includes(col?.accessor) || col?.id === "actions", // always include actions
     );
 
     return allColumns;
