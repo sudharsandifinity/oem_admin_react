@@ -411,7 +411,7 @@ export default function CloneMaterialRequest() {
         // })),
         DocumentLines: JSON.stringify(documentLines) || [],
         DocTotal: 65000,
-        // U_MRNo: formData.docEntry,
+         U_MRNo: formData.docEntry,
         Rounding: summaryData.Rounding || "tNO",
         // RoundingDiffAmount: Number(summaryData.RoundingDiffAmount || 0),
         // DiscountPercent: Number(summaryData.DiscountPercent || 0),
