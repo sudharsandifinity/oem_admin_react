@@ -238,7 +238,7 @@ const General = ({
                 {console.log(
                   "selectedcardcode",
                   selectedcardcode,
-                  formDetails[0]?.name,
+                  formDetails[0]?.name,location
                 )}
                 <FlexBox
                   direction="Column"
@@ -413,9 +413,11 @@ const General = ({
                   {" "}
                   {formName !== "Goods Issue" && (
                     <FlexBox alignItems="Center">
-                      <Label style={{ minWidth: "200px" }}>
+                      {formDetails[0]?.name === "GRPO"||location==="GRPO"?<Label style={{ minWidth: "200px" }}>
+                        Vendor code:
+                      </Label>:<Label style={{ minWidth: "200px" }}>
                         Customer code:
-                      </Label>
+                      </Label>}
                       <Controller
                         name="CusCode"
                         control={control}
@@ -452,9 +454,11 @@ const General = ({
                   )}
                   {formName !== "Goods Issue" && (
                     <FlexBox alignItems="Center">
-                      <Label style={{ minWidth: "200px" }}>
+                       {formDetails[0]?.name === "GRPO"||location==="GRPO"?<Label style={{ minWidth: "200px" }}>
+                        Vendor Name:
+                      </Label>:<Label style={{ minWidth: "200px" }}>
                         Customer Name:
-                      </Label>
+                      </Label>}
                       <Controller
                         name="CusName"
                         control={control}
