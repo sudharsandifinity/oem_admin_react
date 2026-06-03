@@ -410,10 +410,10 @@ let grpopayload={CardCode: formData.CardCode || selectedcardcode,
             UnitPrice: Number(line.amount),
             WarehouseCode: line.WarehouseCode,
             ProjectCode: line.ProjectCode,
-            TaxCode: line.TaxCode,
-            VatGroup: line.TaxCode,
-            DiscountPercent: Number(line.discount),
-            LineTotal: Number(line.total),
+            //TaxCode: line.TaxCode,
+            //VatGroup: line.TaxCode,
+            //DiscountPercent: Number(line.discount),
+            //LineTotal: Number(line.total),
             RequiredDate: formData.ReqDate
               ? new Date(formData.ReqDate)
                   .toISOString()
