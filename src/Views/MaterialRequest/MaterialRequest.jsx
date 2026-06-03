@@ -125,6 +125,7 @@ export default function MaterialRequest() {
   const [selectedServiceOwner, setSelectedServiceOwner] = useState("");
   const [selectedServices, setSelectedServices] = useState({});
   const [originalboqrequestList, setOriginalboqrequestlist] = useState([]);
+  const [originalporequestList, setOriginalporequestlist] = useState([]);
   const [inputValue, setInputValue] = useState({});
   const [itemTabledata, setitemTableData] = useState([
     {
@@ -276,6 +277,7 @@ export default function MaterialRequest() {
     const raw = res?.data?.value ?? res?.data ?? res?.value ?? res;
 
     setRequestList(raw.filter((val) => val.DocType === currentType));
+    setOriginalporequestlist(raw.filter((val) => val.DocType === currentType));
     console.log("currentType", currentType, raw,res?.data);
     setOpenCopyFromDialog(true);
   };
@@ -895,7 +897,7 @@ let grpopayload={CardCode: formData.CardCode || selectedcardcode,
               <FlexBox style={{ gap: "0.5rem" }}>
                 <Button
                   design="Transparent"
-                  onClick={() => navigate(`/Sales/${formId}`)}
+                  onClick={() => navigate(`/Contracting-Management/${formId}`)}
                 >
                   Cancel
                 </Button>
@@ -1129,8 +1131,13 @@ let grpopayload={CardCode: formData.CardCode || selectedcardcode,
         open={opencopyFromDialog}
         setOpen={setOpenCopyFromDialog}
         requestList={requestList}
+        setRequestList={setRequestList}
         copyRequestDetails={copyRequestDetails}
+        originalporequestList={originalporequestList}
+        setOriginalporequestlist={setOriginalporequestlist}
         saveItem={saveItem}
+         inputValue={inputValue}
+        setInputValue={setInputValue}
         saveService={saveService}
         type={type}
         setType={setType}
@@ -1145,7 +1152,7 @@ let grpopayload={CardCode: formData.CardCode || selectedcardcode,
         setType={setType}
         setBoqRequestList={setBoqRequestList}
         originalboqrequestList={originalboqrequestList}
-        setOriginalboqrequestlist={setOriginalboqrequestlist}
+        setoriginalboqrequestList={setOriginalboqrequestlist}
         inputValue={inputValue}
         setInputValue={setInputValue}
       />

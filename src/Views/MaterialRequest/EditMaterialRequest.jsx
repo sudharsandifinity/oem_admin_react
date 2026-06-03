@@ -1166,7 +1166,7 @@ console.log("formDetails",formDetails[0]?.name)
                   </Button>
                   <Button
                     design="default"
-                    onClick={() => navigate(`/Sales/${formId}`)}
+                    onClick={() => navigate(`/Contracting-Management/${formId}`)}
                   >
                     Cancel
                   </Button>
@@ -1448,7 +1448,7 @@ console.log("formDetails",formDetails[0]?.name)
           <Button
             design="Emphasized"
             onClick={() => {
-              apiError ? setOpen(false) : navigate(`/Sales/${formId}`);
+              apiError ? setOpen(false) : navigate(`/Contracting-Management/${formId}`);
               setOpen(false);
             }}
           >
