@@ -82,6 +82,8 @@ import {
   fetchEmployees,
   fetchitemprices,
 } from "../../store/slices/salesAdditionalDetailsSlice";
+import { createARInvoice } from "../../store/slices/ARInvoice";
+import {  createPRInvoice } from "../../store/slices/APInvoice";
 
 export default function SalesOrder() {
   const { fieldConfig, CustomerDetails, DocumentDetails } =
@@ -172,8 +174,12 @@ export default function SalesOrder() {
     U_Test2: "",
   });
   const copyRequestDetails = async (po) => {
-    const orderListById = Object.values(po)[0]
-    console.log("copyRequestDetailsorderListById",orderListById,orderListById.CardCode)
+    const orderListById = Object.values(po)[0];
+    console.log(
+      "copyRequestDetailsorderListById",
+      orderListById,
+      orderListById.CardCode,
+    );
     setSelectedCardCode(orderListById.CardCode);
     setFormData({
       docEntry: orderListById.DocEntry,
@@ -214,7 +220,7 @@ export default function SalesOrder() {
       : setSelectedServiceOwner(orderListById.DocumentsOwner || "");
     setRoundingEnabled(orderListById.Rounding === "tYES");
     setRoundOff(orderListById.RoundingDiffAmount);
-   
+
     setUserDefinedData(orderListById.formData);
   };
   const copyFrom = async () => {
@@ -314,6 +320,15 @@ export default function SalesOrder() {
                 .split("T")[0]
                 .replace(/-/g, "")
             : new Date().toISOString().split("T")[0].replace(/-/g, ""),
+          ...(formDetails[0]?.name === "A/R Invoice" ||
+            (formDetails[0]?.name === "A/P Invoice" && {
+              DueDate: formData.DueDate
+                ? new Date(formData.DueDate)
+                    .toISOString()
+                    .split("T")[0]
+                    .replace(/-/g, "")
+                : new Date().toISOString().split("T")[0].replace(/-/g, ""),
+            })),
 
           ...(!isSalesMenu && {
             RequriedDate: formData.ReqDate
@@ -331,9 +346,9 @@ export default function SalesOrder() {
           DocType: "dDocument_Items",
           DocumentsOwner: selectedItemOwner || 1,
           ...(formDetails[0]?.name === "Purchase Request" && {
-            RequesterEmail: employeeList.find(
-              (e) => e.EmployeeID === selectedItemOwner,
-            )?.eMail||"",
+            RequesterEmail:
+              employeeList.find((e) => e.EmployeeID === selectedItemOwner)
+                ?.eMail || "",
           }),
           DocumentLines: itemTabledata.map((line) => ({
             ItemCode: line.ItemCode,
@@ -359,7 +374,7 @@ export default function SalesOrder() {
               : new Date().toISOString().split("T")[0].replace(/-/g, ""),
           })),
 
-         // data: userdefinedData || {},
+          // data: userdefinedData || {},
           Rounding: summaryData.Rounding || "tNO",
           RoundingDiffAmount: summaryData.RoundingDiffAmount || 0,
           DiscountPercent: summaryData.DiscountPercent || 0,
@@ -403,7 +418,15 @@ export default function SalesOrder() {
                 .split("T")[0]
                 .replace(/-/g, "")
             : new Date().toISOString().split("T")[0].replace(/-/g, ""),
-
+          ...(formDetails[0]?.name === "A/R Invoice" ||
+            (formDetails[0]?.name === "A/P Invoice" && {
+              DueDate: formData.DueDate
+                ? new Date(formData.DueDate)
+                    .toISOString()
+                    .split("T")[0]
+                    .replace(/-/g, "")
+                : new Date().toISOString().split("T")[0].replace(/-/g, ""),
+            })),
           ...(!isSalesMenu && {
             RequriedDate: formData.ReqDate
               ? new Date(formData.ReqDate)
@@ -523,6 +546,15 @@ export default function SalesOrder() {
           createPurchaseDeliveryNotes(formDataToSend),
         ).unwrap();
       }
+      else if (formDetails[0]?.name === "A/R Invoice") {
+        res = await dispatch(
+          createARInvoice(formDataToSend),
+        ).unwrap();
+      }else if (formDetails[0]?.name === "A/P Invoice") {
+        res = await dispatch(
+          createPRInvoice(formDataToSend),
+        ).unwrap();
+      }
       console.log("reshandlesubmit", res);
 
       if (res.message === "Please Login!") {
@@ -615,7 +647,7 @@ export default function SalesOrder() {
       return "Document total must be less than 1000";
     }
     const message =
-     error?.error?.message||
+      error?.error?.message ||
       error?.message?.value ||
       error?.message ||
       error?.response?.data?.message ||

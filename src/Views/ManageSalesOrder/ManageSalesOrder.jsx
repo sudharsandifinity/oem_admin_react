@@ -47,6 +47,8 @@ import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import { fetchPurchaseDeliveryNotes } from "../../store/slices/purDeliveryNoteSlice";
 import { fetchMaterialRequest } from "../../store/slices/materialRequestSlice";
+import {  fetchARInvoices } from "../../store/slices/ARInvoice";
+import { fetchPRInvoices } from "../../store/slices/APInvoice";
 
 const ManageSalesOrder = () => {
   const {
@@ -249,6 +251,14 @@ const ManageSalesOrder = () => {
         } else if (formDetails[0]?.name === "Material Request") {
           res = await dispatch(
             fetchMaterialRequest({ top: pageSize, skip: 0 }),
+          ).unwrap();
+        }else if (formDetails[0]?.name === "A/R Invoice") {
+          res = await dispatch(
+            fetchARInvoices({ top: pageSize, skip: 0 }),
+          ).unwrap();
+        }else if (formDetails[0]?.name === "A/P Invoice") {
+          res = await dispatch(
+            fetchPRInvoices({ top: pageSize, skip: 0 }),
           ).unwrap();
         }
 
@@ -455,20 +465,17 @@ const ManageSalesOrder = () => {
     },
   ];
   const columnConfig = {
-    Sales: ManageSalesOrderTableColumn,
-    Purchase: ManagePurchaseOrderTableColumn,
+    "Sales": ManageSalesOrderTableColumn,
+    "Purchase": ManagePurchaseOrderTableColumn,
     "Contracting Management": ManageProjectOrderTableColumn,
   };
-
+console.log("ManagePurchaseOrderTableColumn",ManagePurchaseOrderTableColumn,columnConfig,"matchedMenu",matchedMenu)
   const ManageSalesOrderTableCols = (
     columnConfig[matchedMenu?.menuName] || []
   ).map((col) => ({
     Header: col.Header,
     accessor: col.accessor,
   }));
-
-  console.log("matchedMenu", matchedMenu);
-  console.log("columns", ManageSalesOrderTableCols);
   // const ManageSalesOrderTableCols =
   //   menuChildMap[0] && menuChildMap[0].menuName === "Purchase"
   //     ? ManagePurchaseOrderTableColumn?.map((col) => ({
@@ -561,17 +568,17 @@ const ManageSalesOrder = () => {
                   setLayout("TwoColumnsMidExpanded");
                   //viewRow(row.original)
 
-                  const viewitem = {
-                    ...row.original,
-                    ManageSalesOrderTableCols: ManageSalesOrderTableCols.filter(
-                      (col) => col.accessor !== "DocumentLines",
-                    ).reduce((acc, col) => {
-                      acc[col.accessor] = row.original[col.accessor];
-                      return acc;
-                    }, {}),
-                  };
-                  console.log("viewRow", viewitem);
-                  setViewItem(viewitem.ManageSalesOrderTableCols);
+                 const viewitem = {
+  ...row.original,
+  ManageOrderTableCols: ManageSalesOrderTableCols
+    .filter((col) => col.accessor !== "DocumentLines")
+    .reduce((acc, col) => {
+      acc[col.Header] = row.original[col.accessor];
+      return acc;
+    }, {}),
+};
+                  console.log("viewRow", viewitem,ManageSalesOrderTableCols,row.original);
+                  setViewItem(viewitem.ManageOrderTableCols);
                 }}
                 // onClick={() => editRow(row)}
               />
@@ -1023,7 +1030,7 @@ const ManageSalesOrder = () => {
                       height: "90%",
                       verticalAlign: "middle",
                     }}
-                  >
+                  >{console.log("ManageSalesOrderTableCols11",ManageSalesOrderTableCols)}
                     <ViewSalesOrder viewItem={viewItem} />
                     {/* <BusyIndicator active={formPreviewLoading}>
                       <PreviewForm

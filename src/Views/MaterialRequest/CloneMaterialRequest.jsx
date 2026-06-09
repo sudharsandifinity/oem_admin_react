@@ -363,7 +363,7 @@ export default function CloneMaterialRequest() {
         //VatGroup: line.TaxCode || "E2",
         WarehouseCode:
           line.warehouse || warehousesdetails?.value?.[0]?.WarehouseCode,
-        ProjectCode: formData.ProjectCode || "",
+       // ProjectCode: formData.ProjectCode || "",
         DiscountPercent: Number(line.discount || 0),
         U_MRDocEntry: formData.docEntry,
         U_MRDocNo: formData.docNum || "",
@@ -374,7 +374,8 @@ export default function CloneMaterialRequest() {
         CostingCode3: null,
         CostingCode4: null,
         CostingCode5: null,
-        RequiredDate: "20260602", //formatDate(formData.RequiredDate)
+        RequiredDate: line.requiredDate,
+        U_HLB_Rmarks: line.remarks || "",
       }));
       const payload = {
         CardCode: formData.CusCode || "",

@@ -36,7 +36,11 @@ const COLORS = ["#5b2c58", "#1b4965", "#e35305", "#2a9d8f", "#6a4c93"];
 
 const UserDashboard = () => {
   const { user } = useSelector((state) => state.auth);
+  const { requests } = useSelector((state) => state.purRequest);
+  const { deliveryNotes } = useSelector((state) => state.purDeliveryNote);
+  const { materialRequest } = useSelector((state) => state.materialRequests);
   const dispatch = useDispatch();
+  const [loading, setLoading] = useState(false);
 
   const allProjects = user?.Projects || [];
   const allMenus =
@@ -56,119 +60,89 @@ const UserDashboard = () => {
   const uniqueMenus = useMemo(() => {
     return [...new Set(allMenus)];
   }, [allMenus]);
- useEffect(() => {
-  const loadDashboardData = async () => {
-    const mockData = await Promise.all(
-      allProjects.map(async (project) => {
-        const dynamicMenus = {};
-
-        for (const menu of uniqueMenus) {
-          let res = [];
-
-          if (menu === "Purchase Request") {
-            res = await dispatch(
+  
+   useEffect(() => {
+      const fetchData = async () => {
+        try {
+          if (uniqueMenus.includes("Purchase Request")) {
+          
+           await dispatch(
               fetchPurchaseRequest({
                 top: 100,
                 skip: 0,
-              })
+              }),
             ).unwrap();
-          } else if (menu === "GRPO") {
-            res = await dispatch(
+          
+        }
+         
+            await dispatch(
               fetchPurchaseDeliveryNotes({
                 top: 100,
                 skip: 0,
-              })
+              }),
             ).unwrap();
-          } else if (
-            menu ===
-            "Material Request"
-          ) {
-            res = await dispatch(
+       
+
+         
+            await dispatch(
               fetchMaterialRequest({
                 top: 100,
                 skip: 0,
-              })
+              }),
             ).unwrap();
-          }
-
-          console.log(
-            "uniqueMenus",
-            menu,
-            res
-          );
-
-          const raw =
-            res?.data?.value ??
-            res?.data ??
-            res?.value ??
-            res;
-
-          const list = Array.isArray(raw)
-            ? raw
-            : raw
-              ? [raw]
-              : [];
-
-          // TAKE COUNT VALUE
-          dynamicMenus[menu] =
-            list.length;
+       
+        } catch (err) {
+          console.log("Failed to fetch user", err.message);
+          //setApiError(err.message);
+         // err.message && navigate("/");
         }
-
-        return {
-          projectCode:
-            project.Code,
-
-          projectName:
-            project.Name,
-
-          ...dynamicMenus,
-
-          monthly: [
-            {
-              month: "Jan",
-              amount:
-                Math.floor(
-                  Math.random() *
-                    10000
-                ),
-            },
-            {
-              month: "Feb",
-              amount:
-                Math.floor(
-                  Math.random() *
-                    10000
-                ),
-            },
-          ],
-        };
-      })
-    );
-
-    setDashboardData(mockData);
-
-    if (mockData.length > 0) {
-      setSelectedProject(
-        mockData[0]
+      };
+      fetchData();
+    }, [dispatch]);
+useEffect(() => {
+    const projectData = allProjects.map((project) => {
+      const projectRequests = requests.filter(
+        (req) => req.U_PrjCode === project.Code
       );
+      const projectDeliveryNotes = deliveryNotes.filter(
+        (note) => note.U_PrjCode === project.Code
+      );
+    const projectMaterialRequests = materialRequest.filter(
+      (mr) => mr.U_PrjCode === project.Code
+    ); // Replace with actual material requests when available
+    console.log("materialRequest",projectRequests,projectDeliveryNotes,projectMaterialRequests);
+      return {
+        projectCode: project.Code,
+        projectName: project.Name,
+        "Purchase Request": projectRequests.length,
+        GRPO: projectDeliveryNotes.length,
+        "Material Request": projectMaterialRequests.length,
+        monthly: [
+          { month: "Jan", amount: projectRequests.filter(req => new Date(req.createdAt).getMonth() === 0).length },
+          { month: "Feb", amount: projectRequests.filter(req => new Date(req.createdAt).getMonth() === 1).length },
+          { month: "Mar", amount: projectRequests.filter(req => new Date(req.createdAt).getMonth() === 2).length },
+          { month: "Apr", amount: projectRequests.filter(req => new Date(req.createdAt).getMonth() === 3).length },
+          { month: "May", amount: projectRequests.filter(req => new Date(req.createdAt).getMonth() === 4).length },
+          { month: "Jun", amount: projectRequests.filter(req => new Date(req.createdAt).getMonth() === 5).length },
+          { month: "Jul", amount: projectRequests.filter(req => new Date(req.createdAt).getMonth() === 6).length },
+          { month: "Aug", amount: projectRequests.filter(req => new Date(req.createdAt).getMonth() === 7).length },
+          { month: "Sep", amount: projectRequests.filter(req => new Date(req.createdAt).getMonth() === 8).length },
+          { month: "Oct", amount: projectRequests.filter(req => new Date(req.createdAt).getMonth() === 9).length },
+          { month: "Nov", amount: projectRequests.filter(req => new Date(req.createdAt).getMonth() === 10).length },
+          { month: "Dec", amount: projectRequests.filter(req => new Date(req.createdAt).getMonth() === 11).length },
+        ],
+      };
+    });
+    setDashboardData(projectData);
+  }, [allProjects, requests, deliveryNotes,materialRequest]);
+  useEffect(() => {
+    if (dashboardData.length > 0) {
+      setSelectedProject(dashboardData[0]);
     }
-  };
-
-  if (
-    allProjects.length > 0 &&
-    uniqueMenus.length > 0
-  ) {
-    loadDashboardData();
-  }
-}, [
-  allProjects,
-  uniqueMenus,
-  dispatch,
-]);
+  }, [dashboardData]);
 
   const menuCountData = useMemo(() => {
     if (!selectedProject) return [];
-
 
     return [
       {
@@ -261,11 +235,9 @@ const UserDashboard = () => {
         </div>
 
         {/* Charts */}
-        {selectedProject && (
+       {selectedProject && (
           <>
-            {/* KPI Cards */}
-
-            {/* Charts Row */}
+           
             <div
               style={{
                 display: "grid",
@@ -273,7 +245,6 @@ const UserDashboard = () => {
                 gap: "1rem",
               }}
             >
-              {/* Bar Chart */}
               <Card style={{ padding: "1rem" }}>
                 <Title level="H5" style={{ padding: "1rem" }}>
                   Documents by Menu
@@ -296,7 +267,6 @@ const UserDashboard = () => {
                 </div>
               </Card>
 
-              {/* Pie Chart */}
               <Card style={{ padding: "1rem" }}>
                 <Title level="H5" style={{ padding: "1rem" }}>
                   Project Distribution
@@ -328,7 +298,6 @@ const UserDashboard = () => {
                 </div>
               </Card>
 
-              {/* Monthly Trend */}
               <Card style={{ padding: "1rem" }}>
                 <Title level="H5" style={{ padding: "1rem" }}>
                   Monthly Performance
@@ -357,7 +326,7 @@ const UserDashboard = () => {
               </Card>
             </div>
           </>
-        )}
+        )} 
       </div>
     </Page>
   );

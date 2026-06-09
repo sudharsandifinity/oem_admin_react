@@ -171,14 +171,14 @@ const Contents = (props) => {
         let taxCode = [];
         if (
           (formDetails && formDetails[0]?.name === "Sales Order") ||
-          formDetails[0]?.name === "Sales Quotation"
+          formDetails[0]?.name === "Sales Quotation"|| formDetails[0]?.name === "A/R Invoice"
         ) {
           taxCode = await dispatch(fetchSalesOrderAddDetails()).unwrap();
         } else if (
           (formDetails && formDetails[0]?.name === "Purchase Order") ||
           formDetails[0]?.name === "Purchase Quotation" ||
           formDetails[0]?.name === "Purchase Request" ||
-          formDetails[0]?.name === "GRPO"
+          formDetails[0]?.name === "GRPO"|| formDetails[0]?.name === "A/P Invoice"
         ) {
           taxCode = await dispatch(fetchPurOrderAddDetails()).unwrap();
         }

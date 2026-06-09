@@ -65,6 +65,8 @@ import "@ui5/webcomponents-icons/dist/copy.js";
 import { fetchAttachmentDetailsById } from "../../store/slices/salesAdditionalDetailsSlice";
 import { fetchPurchaseRequestById, updatePurchaseRequest } from "../../store/slices/PurchaseRequestSlice";
 import { fetchPurchaseDeliveryNotesById } from "../../store/slices/purDeliveryNoteSlice";
+import { fetchPRInvoiceById } from "../../store/slices/APInvoice";
+import { fetchARInvoiceById } from "../../store/slices/ARInvoice";
 
 const ViewSalesOrder = () => {
   const { id, formId } = useParams();
@@ -205,6 +207,16 @@ useEffect(() => {
               fetchPurchaseDeliveryNotesById(id),
             ).unwrap();
             break;
+            case "A/R Invoice":
+                        orderListById = await dispatch(
+                          fetchARInvoiceById(id),
+                        ).unwrap();
+                        break;
+                        case "A/P Invoice":
+                        orderListById = await dispatch(
+                          fetchPRInvoiceById(id),
+                        ).unwrap();
+                        break;
           default:
             console.warn("Unknown form:", formDetails[0].name);
             return;
