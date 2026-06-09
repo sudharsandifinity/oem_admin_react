@@ -122,7 +122,7 @@ const Itemtable = (props) => {
     setSelectedItemOwner,
   } = props;
     const location = useLocation();
-  console.log("formdataitemtable",formData,location)
+  console.log("formdataitemtable",location?.state?.formname,formDetails[0].name)
   const menuRef = useRef();
 
   const handleOpenMenu = (e) => {
@@ -225,15 +225,18 @@ const Itemtable = (props) => {
     setSummaryData((prev) => ({
       ...prev,
       RequestorCode: selectedUserId,
+       RequestorName: userList ? userList[0]?.UserName : "",
+      eMail: userList ? userList[0]?.eMail : "",
+      Department: userList ? userList[0]?.Department : "",
     }));
   };
 
   const handlechangeUser = (e) => {
     const selectedUserId = e.target.value;
     const selectedUser = userList.find(
-      (user) => String(user.InternalKey) === selectedUserId,
+      (user) => String(user.UserName) === selectedUserId,
     );
-    console.log("selectedUser", selectedUser, selectedUserId);
+    console.log("selectedUser",userList, selectedUser,selectedUser.UserName, selectedUserId);
     setSummaryData((prev) => ({
       ...prev,
       RequestorName: selectedUser ? selectedUser.UserName : "",
@@ -1281,8 +1284,9 @@ const Itemtable = (props) => {
               value={
                 formData.requiredDate
                   ? formData.requiredDate
-                  : row.original.requisitiondate
+                  : row.original.requiredDate
               }
+              type="Date"
               disabled={mode === "view"}
               style={{ textAlign: "right" }}
               onFocus={(e) =>
@@ -1291,6 +1295,20 @@ const Itemtable = (props) => {
               onBlur={(e) =>
                 (e.target.style.borderBottom = "1px solid #ccc")
               }
+              onChange={(e) => {
+              const newValue = e.target.value;
+              const rowIndex = row.index;
+              console.log("selectedrow", row);
+              setitemTableData((prev) => {
+                const updated = [...prev];
+
+                updated[rowIndex] = {
+                  ...updated[rowIndex],
+                  requiredDate: newValue,
+                };
+                return updated;
+              });
+            }}
             />
           ),
         },
@@ -1303,9 +1321,10 @@ const Itemtable = (props) => {
         Cell: ({ row }) => (
           <>
             <Input
-              value={row.original.remarks ? row.original.remarks : ""}
+              value={row.original.U_HLB_Rmarks ? row.original.U_HLB_Rmarks : ""}
               
               disabled={mode === "view"}
+              type="Text"
               style={{ textAlign: "right" }}
               onFocus={(e) =>
                 (e.target.style.borderBottom = "1px solid #007aff")
@@ -1526,7 +1545,7 @@ const Itemtable = (props) => {
             gap: "0.5rem",
           }}
         >
-          {console.log("summaryData", summaryData, userList)}
+          {console.log("summaryData", summaryData, userList,summaryData?.RequestorName)}
           {/* Requestor Code */}
           {formName !== "Goods Issue" && (
             <FlexBox alignItems="Center" style={{ gap: "1rem" }}>
@@ -1557,14 +1576,14 @@ const Itemtable = (props) => {
               <Select
                 disabled={mode === "view"}
                 style={{ width: "200px" }}
-                value={summaryData?.RequestorName}
+                value={summaryData?.RequestorName || ""}
                 onChange={handlechangeUser}
               >
                 <Option value="">Select Requestor</Option>
                 {summaryData?.RequestorCode === "1"
                   ? userList.length > 0 &&
                     userList.map((user) => (
-                      <Option key={user.id} value={user.id}>
+                      <Option key={user.InternalKey} value={user.UserName}>
                         {user.UserName}
                       </Option>
                     ))

@@ -87,6 +87,8 @@ import {
   updatePurchaseDeliveryNotes,
 } from "../../store/slices/purDeliveryNoteSlice";
 import CopyFromDialog from "./CopyFromDialog/CopyFromDialog";
+import { fetchARInvoiceById, updateARInvoice } from "../../store/slices/ARInvoice";
+import {  fetchPRInvoiceById, updatePRInvoice } from "../../store/slices/APInvoice";
 
 const EditSalesOrder = () => {
   const { id, formId } = useParams();
@@ -399,6 +401,16 @@ const EditSalesOrder = () => {
           case "GRPO":
             orderListById = await dispatch(
               fetchPurchaseDeliveryNotesById(id),
+            ).unwrap();
+            break;
+            case "A/R Invoice":
+            orderListById = await dispatch(
+              fetchARInvoiceById(id),
+            ).unwrap();
+            break;
+            case "A/P Invoice":
+            orderListById = await dispatch(
+              fetchPRInvoiceById(id),
             ).unwrap();
             break;
           default:
@@ -1035,7 +1047,15 @@ const EditSalesOrder = () => {
         res = await dispatch(
           updatePurchaseDeliveryNotes({ id, data: formDataToSend }),
         ).unwrap();
-      }
+      }else if (formDetails[0]?.name === "A/R Invoice") {
+              res = await dispatch(
+                updateARInvoice({ id, data: formDataToSend }),
+              ).unwrap();
+            }else if (formDetails[0]?.name === "A/P Invoice") {
+              res = await dispatch(
+                updatePRInvoice({ id, data: formDataToSend }),
+              ).unwrap();
+            }
       if (res.message === "Please Login!") {
         navigate("/login");
       }

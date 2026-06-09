@@ -99,14 +99,14 @@ const General = ({
         let res = [];
         if (
           formDetails[0]?.name === "Sales Order" ||
-          formDetails[0]?.name === "Sales Quotation"
+          formDetails[0]?.name === "Sales Quotation"|| formDetails[0]?.name === "A/R Invoice"
         ) {
           res = await dispatch(fetchSalesBusinessPartner()).unwrap();
         } else if (
           formDetails[0]?.name === "Purchase Order" ||
           formDetails[0]?.name === "Purchase Quotation" ||
           formDetails[0]?.name === "Purchase Request" ||
-          formDetails[0]?.name === "GRPO"
+          formDetails[0]?.name === "GRPO"|| formDetails[0]?.name === "A/P Invoice"
         ) {
           res = await dispatch(fetchPurBusinessPartner()).unwrap();
         }
@@ -415,44 +415,46 @@ const General = ({
                   }}
                 >
                   {formDetails[0]?.name === "Purchase Order" ||
-                      formDetails[0]?.name === "Purchase Quotation" ||
-                      formDetails[0]?.name === "Purchase Request"? 
-                      <FlexBox alignItems="Center">
-                        <Label style={{ minWidth: "200px" }}>
-                          Required Date:
-                        </Label>
-                        <Controller
-                          name="ReqDate"
-                          control={control}
-                          render={({ field }) => (
-                            <Input
-                              placeholder="Required Date"
-                              name="ReqDate"
-                              type="date"
-                              disabled={mode === "view"}
-                              min="2025-01-01"
-                              style={{ width: "100%", minWidth: "150px" }}
-                              value={
-                                formData.ReqDate
-                                  ? new Date(formData.ReqDate)
-                                      .toISOString()
-                                      .split("T")[0]
-                                  : new Date().toISOString().split("T")[0]
-                              }
-                              onInput={(e) => field.onChange(e.target.value)}
-                              onChange={handleChange}
-                              valueState={errors.ReqDate ? "Error" : "None"}
-                            >
-                              {errors.ReqDate && (
-                                <span slot="valueStateMessage">
-                                  {errors.ReqDate.message}
-                                </span>
-                              )}
-                            </Input>
-                          )}
-                        />
-                      </FlexBox>:<></>
-                    }
+                  formDetails[0]?.name === "Purchase Quotation" ||
+                  formDetails[0]?.name === "Purchase Request" ? (
+                    <FlexBox alignItems="Center">
+                      <Label style={{ minWidth: "200px" }}>
+                        Required Date:
+                      </Label>
+                      <Controller
+                        name="ReqDate"
+                        control={control}
+                        render={({ field }) => (
+                          <Input
+                            placeholder="Required Date"
+                            name="ReqDate"
+                            type="date"
+                            disabled={mode === "view"}
+                            min="2025-01-01"
+                            style={{ width: "100%", minWidth: "150px" }}
+                            value={
+                              formData.ReqDate
+                                ? new Date(formData.ReqDate)
+                                    .toISOString()
+                                    .split("T")[0]
+                                : new Date().toISOString().split("T")[0]
+                            }
+                            onInput={(e) => field.onChange(e.target.value)}
+                            onChange={handleChange}
+                            valueState={errors.ReqDate ? "Error" : "None"}
+                          >
+                            {errors.ReqDate && (
+                              <span slot="valueStateMessage">
+                                {errors.ReqDate.message}
+                              </span>
+                            )}
+                          </Input>
+                        )}
+                      />
+                    </FlexBox>
+                  ) : (
+                    <></>
+                  )}
                   <FlexBox alignItems="Center">
                     <Label style={{ minWidth: "200px" }}>Posting Date:</Label>
                     <Controller
@@ -486,44 +488,81 @@ const General = ({
                       )}
                     />
                   </FlexBox>
+                  {formDetails[0]?.name === "A/R Invoice"|| formDetails[0]?.name === "A/P Invoice" ?
                   <FlexBox alignItems="Center">
-                    <Label style={{ minWidth: "200px" }}>
-                      {formDetails[0]?.name === "Sales Order" ||
-                      formDetails[0]?.name === "Purchase Order"
-                        ? "Delivery Date:"
-                        : "Valid Until:"}
-                    </Label>
-                    <Controller
-                      name="DocDueDate"
-                      control={control}
-                      render={({ field }) => (
-                        <Input
-                          placeholder="Delivery Date"
-                          name="DocDueDate"
-                          type="date"
-                          disabled={mode === "view"}
-                          min="2025-01-01"
-                          style={{ width: "100%", minWidth: "150px" }}
-                          value={
-                            formData.DocDueDate
-                              ? new Date(formData.DocDueDate)
-                                  .toISOString()
-                                  .split("T")[0]
-                              : new Date().toISOString().split("T")[0]
-                          }
-                          onInput={(e) => field.onChange(e.target.value)}
-                          onChange={handleChange}
-                          valueState={errors.DocDueDate ? "Error" : "None"}
-                        >
-                          {errors.DocDueDate && (
-                            <span slot="valueStateMessage">
-                              {errors.DocDueDate.message}
-                            </span>
-                          )}
-                        </Input>
-                      )}
-                    />
-                  </FlexBox>
+                      <Label style={{ minWidth: "200px" }}>
+                        Due Date
+                      </Label>
+                      <Controller
+                        name="DueDate"
+                        control={control}
+                        render={({ field }) => (
+                          <Input
+                            placeholder="Due Date"
+                            name="DueDate"
+                            type="date"
+                            disabled={mode === "view"}
+                            min="2025-01-01"
+                            style={{ width: "100%", minWidth: "150px" }}
+                            value={
+                              formData.DueDate
+                                ? new Date(formData.DueDate)
+                                    .toISOString()
+                                    .split("T")[0]
+                                : new Date().toISOString().split("T")[0]
+                            }
+                            onInput={(e) => field.onChange(e.target.value)}
+                            onChange={handleChange}
+                            valueState={errors.DueDate ? "Error" : "None"}
+                          >
+                            {errors.DueDate && (
+                              <span slot="valueStateMessage">
+                                {errors.DueDate.message}
+                              </span>
+                            )}
+                          </Input>
+                        )}
+                      />
+                    </FlexBox>: (
+                    <FlexBox alignItems="Center">
+                      <Label style={{ minWidth: "200px" }}>
+                        {formDetails[0]?.name === "Sales Order" ||
+                        formDetails[0]?.name === "Purchase Order"
+                          ? "Delivery Date:"
+                          : "Valid Until:"}
+                      </Label>
+                      <Controller
+                        name="DocDueDate"
+                        control={control}
+                        render={({ field }) => (
+                          <Input
+                            placeholder="Delivery Date"
+                            name="DocDueDate"
+                            type="date"
+                            disabled={mode === "view"}
+                            min="2025-01-01"
+                            style={{ width: "100%", minWidth: "150px" }}
+                            value={
+                              formData.DocDueDate
+                                ? new Date(formData.DocDueDate)
+                                    .toISOString()
+                                    .split("T")[0]
+                                : new Date().toISOString().split("T")[0]
+                            }
+                            onInput={(e) => field.onChange(e.target.value)}
+                            onChange={handleChange}
+                            valueState={errors.DocDueDate ? "Error" : "None"}
+                          >
+                            {errors.DocDueDate && (
+                              <span slot="valueStateMessage">
+                                {errors.DocDueDate.message}
+                              </span>
+                            )}
+                          </Input>
+                        )}
+                      />
+                    </FlexBox>
+                  )}
                   <FlexBox alignItems="Center">
                     <Label style={{ minWidth: "200px" }}>Document Date:</Label>
                     <Controller

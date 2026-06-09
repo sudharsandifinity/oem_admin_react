@@ -25,6 +25,9 @@ import purQuotationReducer from './slices/PurchaseQuotation';
 import purRequestReducer from './slices/PurchaseRequestSlice';
 import purDeliveryNoteReducer from './slices/purDeliveryNoteSlice';
 import customerAdminReducer  from './slices/customerAdminSlice';
+import materialRequestReducer from './slices/materialRequestSlice';
+import ARInvoiceReducer from './slices/ARInvoice';
+import APInvoiceReducer from './slices/APInvoice';
 
 const store = configureStore({
   reducer: {
@@ -55,6 +58,9 @@ const store = configureStore({
     purRequest:purRequestReducer,
     purDeliveryNote:purDeliveryNoteReducer,
     customerAdmin:customerAdminReducer,
+    materialRequests:materialRequestReducer,
+    ARInvoice:ARInvoiceReducer,
+    APInvoice:APInvoiceReducer,
   },
 });
 
