@@ -62,7 +62,7 @@ import Accounting from "./Accounting/Accounting";
 import Attachments from "./Attachments/Attachments";
 import UserDefinedFields from "./User-DefinedFields/UserDefinedFields";
 import { useDispatch, useSelector } from "react-redux";
-import { createCustomerOrder } from "../../store/slices/CustomerOrderSlice";
+import { createCustomerOrder, createDrafts } from "../../store/slices/CustomerOrderSlice";
 import { createSalesQuotation } from "../../store/slices/SalesQuotationSlice";
 import BarDesign from "@ui5/webcomponents/dist/types/BarDesign.js";
 
@@ -282,6 +282,281 @@ export default function SalesOrder() {
     };
     fetchData();
   }, [dispatch, formDetails]);
+  const handleSubmitDraft=  async()=>{
+     try {
+      console.log(
+        "itemTabledatahandleSubmit",
+        dimensionData,
+        "itemTabledata",
+        itemTabledata,
+        formData,
+        freightRowSelection,
+      );
+      console.log("formDatahandlesubmit", formData);
+      setLoading(true);
+      let payload = {};
+      const isSalesMenu =
+        formDetails[0]?.name === "Sales Order" ||
+        formDetails[0]?.name === "Sales Quotation" ||
+        formDetails[0]?.name === "Sales Request";
+      if (type === "Item") {
+        payload = {
+          CardCode: formData.CardCode || selectedcardcode,
+          DocDate: formData.PostingDate
+            ? new Date(formData.PostingDate)
+                .toISOString()
+                .split("T")[0]
+                .replace(/-/g, "")
+            : new Date().toISOString().split("T")[0].replace(/-/g, ""),
+          DocDueDate: formData.DocDueDate
+            ? new Date(formData.DocDueDate)
+                .toISOString()
+                .split("T")[0]
+                .replace(/-/g, "")
+            : new Date().toISOString().split("T")[0].replace(/-/g, ""),
+          TaxDate: formData.TaxDate
+            ? new Date(formData.TaxDate)
+                .toISOString()
+                .split("T")[0]
+                .replace(/-/g, "")
+            : new Date().toISOString().split("T")[0].replace(/-/g, ""),
+          ...(formDetails[0]?.name === "A/R Invoice" ||
+            (formDetails[0]?.name === "A/P Invoice" && {
+              DueDate: formData.DueDate
+                ? new Date(formData.DueDate)
+                    .toISOString()
+                    .split("T")[0]
+                    .replace(/-/g, "")
+                : new Date().toISOString().split("T")[0].replace(/-/g, ""),
+            })),
+
+          ...(!isSalesMenu && {
+            RequriedDate: formData.ReqDate
+              ? new Date(formData.ReqDate)
+                  .toISOString()
+                  .split("T")[0]
+                  .replace(/-/g, "")
+              : new Date().toISOString().split("T")[0].replace(/-/g, ""),
+          }),
+
+          //DocEntry: formData.DocEntry,
+          DocModule:formDetails[0]?.name.replace(/[^a-zA-Z0-9]/g, ""),
+          DocumentStatus: "open",
+          ContactPerson: formData.ContactPerson || "",
+          NumAtCard: formData.CustomerRefNo || "",
+          DocType: "dDocument_Items",
+          DocumentsOwner: selectedItemOwner || 1,
+          ...(formDetails[0]?.name === "Purchase Request" && {
+            RequesterEmail:
+              employeeList.find((e) => e.EmployeeID === selectedItemOwner)
+                ?.eMail || "",
+          }),
+          DocumentLines: itemTabledata.map((line) => ({
+            ItemCode: line.ItemCode,
+            ItemDescription: line.ItemName,
+            Quantity: Number(line.quantity),
+            UnitPrice: Number(line.amount),
+            WarehouseCode: line.WarehouseCode,
+            ProjectCode: line.ProjectCode,
+            TaxCode: line.TaxCode,
+            VatGroup: line.TaxCode,
+            DiscountPercent: Number(line.discount),
+            LineTotal: Number(line.total),
+            CostingCode: line["1_ProfitCenterCode"] || null,
+            CostingCode2: line["2_ProfitCenterCode"] || null,
+            CostingCode3: line["3_ProfitCenterCode"] || null,
+            CostingCode4: line["4_ProfitCenterCode"] || null,
+            CostingCode5: line["5_ProfitCenterCode"] || null,
+            RequiredDate: formData.ReqDate
+              ? new Date(formData.ReqDate)
+                  .toISOString()
+                  .split("T")[0]
+                  .replace(/-/g, "")
+              : new Date().toISOString().split("T")[0].replace(/-/g, ""),
+          })),
+
+          // data: userdefinedData || {},
+          Rounding: summaryData.Rounding || "tNO",
+          RoundingDiffAmount: summaryData.RoundingDiffAmount || 0,
+          DiscountPercent: summaryData.DiscountPercent || 0,
+          TotalDiscount: summaryData.TotalDiscount || 0,
+          Comments: summaryData.Remark || "",
+          VatSum: summaryData.VatSum || 0,
+          DocumentAdditionalExpenses: Object.values(freightRowSelection).map(
+            (freight) => ({
+              ExpenseCode: Number(freight.ExpensCode),
+              LineTotal: Number(freight.LineTotal),
+              Remarks: freight.Remarks,
+              TaxCode: freight.TaxCode,
+              TaxPercent: Number(freight.TaxPercent),
+              TaxSum: Number(freight.TotalTaxAmount),
+              LineGross: Number(freight.LineGross),
+            }),
+          ),
+        };
+      } else {
+        {
+          console.log("isSalesMenu", isSalesMenu, formData.ReqDate);
+        }
+        payload = {
+          CardCode: formData.CardCode || selectedcardcode,
+          DocType: "dDocument_Service",
+          DocDate: formData.PostingDate
+            ? new Date(formData.PostingDate)
+                .toISOString()
+                .split("T")[0]
+                .replace(/-/g, "")
+            : new Date().toISOString().split("T")[0].replace(/-/g, ""),
+          DocDueDate: formData.DocDueDate
+            ? new Date(formData.DocDueDate)
+                .toISOString()
+                .split("T")[0]
+                .replace(/-/g, "")
+            : new Date().toISOString().split("T")[0].replace(/-/g, ""),
+          TaxDate: formData.TaxDate
+            ? new Date(formData.TaxDate)
+                .toISOString()
+                .split("T")[0]
+                .replace(/-/g, "")
+            : new Date().toISOString().split("T")[0].replace(/-/g, ""),
+          ...(formDetails[0]?.name === "A/R Invoice" ||
+            (formDetails[0]?.name === "A/P Invoice" && {
+              DueDate: formData.DueDate
+                ? new Date(formData.DueDate)
+                    .toISOString()
+                    .split("T")[0]
+                    .replace(/-/g, "")
+                : new Date().toISOString().split("T")[0].replace(/-/g, ""),
+            })),
+          ...(!isSalesMenu && {
+            RequriedDate: formData.ReqDate
+              ? new Date(formData.ReqDate)
+                  .toISOString()
+                  .split("T")[0]
+                  .replace(/-/g, "")
+              : new Date().toISOString().split("T")[0].replace(/-/g, ""),
+          }),
+          //DocEntry: formData.DocEntry,
+          DocModule:formDetails[0]?.name.replace(/[^a-zA-Z0-9]/g, ""),
+          DocumentStatus: "open",
+          DocumentsOwner: selectedServiceOwner || "",
+          ...(formDetails[0]?.name === "Purchase Request" && {
+            RequesterEmail: employeeList.find(
+              (e) => e.EmployeeID === selectedItemOwner,
+            )?.eMail,
+          }),
+          ContactPerson: formData.ContactPerson || "",
+          NumAtCard: formData.CustomerRefNo || "",
+          DocumentLines: serviceTabledata.map((line) => ({
+            AccountCode: line.ServiceCode,
+            ItemDescription: line.ServiceName,
+            UnitPrice: Number(line.amount),
+            WarehouseCode: line.WarehouseCode,
+            ProjectCode: line.ProjectCode,
+            TaxCode: line.TaxCode,
+            VatGroup: line.TaxCode,
+            DiscountPercent: Number(line.discount),
+            LineTotal: Number(line.total),
+            CostingCode: line["1_ProfitCenterCode"] || null,
+            CostingCode2: line["2_ProfitCenterCode"] || null,
+            CostingCode3: line["3_ProfitCenterCode"] || null,
+            CostingCode4: line["4_ProfitCenterCode"] || null,
+            CostingCode5: line["5_ProfitCenterCode"] || null,
+            RequiredDate: formData.ReqDate
+              ? new Date(formData.ReqDate)
+                  .toISOString()
+                  .split("T")[0]
+                  .replace(/-/g, "")
+              : new Date().toISOString().split("T")[0].replace(/-/g, ""),
+          })),
+
+          //data: userdefinedData || {},
+          Rounding: summaryData.Rounding || "tNO",
+          RoundingDiffAmount: summaryData.RoundingDiffAmount || 0,
+          DiscountPercent: summaryData.DiscountPercent || 0,
+          TotalDiscount: summaryData.TotalDiscount || 0,
+          Comments: summaryData.Remark || "",
+          VatSum: summaryData.VatSum || 0,
+          DocumentAdditionalExpenses: Object.values(freightRowSelection).map(
+            (freight) => ({
+              ExpenseCode: Number(freight.ExpensCode),
+              LineTotal: Number(freight.LineTotal),
+              Remarks: freight.Remarks,
+              TaxCode: freight.TaxCode,
+              TaxPercent: Number(freight.TaxPercent),
+              TaxSum: Number(freight.TotalTaxAmount),
+              LineGross: Number(freight.LineGross),
+            }),
+          ),
+        };
+      }
+
+      const formDataToSend = new FormData();
+      attachmentsList.forEach((f) => {
+        if (f.rawFile) {
+          return formDataToSend.append("Attachments2_Lines", f.rawFile);
+        }
+      });
+
+      formDataToSend.append(
+        "DocumentLines",
+        JSON.stringify(payload.DocumentLines),
+      );
+      formDataToSend.append(
+        "DocumentAdditionalExpenses",
+        JSON.stringify(payload.DocumentAdditionalExpenses),
+      );
+      //formDataToSend.append("data", JSON.stringify(payload.data));
+
+      Object.keys(payload).forEach((key) => {
+        if (
+          key !== "DocumentLines" &&
+          key !== "data" &&
+          key !== "DocumentAdditionalExpenses"
+        ) {
+          formDataToSend.append(key, payload[key]);
+        }
+      });
+      console.log(
+        "formdatatosend",
+        payload,
+        formDataToSend,
+        formDetails,
+        "attachmentsList",
+        attachmentsList,
+        employeeList,
+      );
+      let res = await dispatch(createDrafts(formDataToSend)).unwrap();
+      
+      console.log("reshandlesubmit", res);
+
+      if (res.message === "Please Login!") {
+        navigate("/login");
+        return;
+      }
+      res && setApiError(null);
+      setOpen(true);
+    } catch (err) {
+      console.error("Failed to create order:", err);
+      const statusCode = err?.status || err?.response?.status || 0;
+      const message = err || "Failed to load data";
+
+      console.error("c:", statusCode, "Message:", message);
+      setApiError(message);
+
+      // If 401, redirect to login
+      if (statusCode === 401) {
+        navigate("/login");
+      }
+      setApiError(err.message || "Error creating order");
+    } finally {
+      setTimeout(() => {
+        setLoading(false);
+        setOpen(true);
+      }, 500);
+    }
+
+  }
   const handleSubmit = async () => {
     try {
       console.log(
@@ -902,6 +1177,17 @@ export default function SalesOrder() {
           <Bar
             design={BarDesign.FloatingFooter}
             style={{ padding: 0.5, marginBottom: "16px" }}
+            startContent={
+              <FlexBox style={{ gap: "1rem", alignItems: "center" }}>
+                <Button
+                  design="default"
+                  onClick={() => handleSubmitDraft()}
+                >
+                  Save Draft
+                </Button>
+                </FlexBox>
+
+            }
             endContent={
               <FlexBox style={{ gap: "0.5rem" }}>
                 {formDetails[0]?.name === "GRPO" && (

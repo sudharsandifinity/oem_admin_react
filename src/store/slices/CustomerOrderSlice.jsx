@@ -4,6 +4,48 @@ import api from "../../api/axios";
 // API Base URL
 const API_URL = "/sap/orders";
 const BUSINESS_PARTNER_API = "/sap/business-partners/customers";
+const API_DRAFT_URL = "/sap/drafts";
+
+//draft apis
+export const fetchDrafts = createAsyncThunk(
+  "drafts/fetchAll",
+  async ({ top = 20, skip = 0 }, thunkApi) => {
+    try {
+      const response = await api.get(`/sap/drafts?top=${top}&skip=${skip}`, {
+        withCredentials: true,
+      });
+      return response.data;
+    } catch (error) {
+      return thunkApi.rejectWithValue({
+        status: error.response?.status,
+        message: error.response?.data?.message || "Login failed",
+      });
+    }
+  }
+);
+export const createDrafts = createAsyncThunk(
+  "drafts/create",
+  async (draftData, thunkApi) => {
+    try {
+      console.log("🚀 Sending order to API:", draftData); 
+  
+      const response = await api.post(API_DRAFT_URL, draftData, {
+        headers: { "Content-Type": "multipart/form-data" },
+        withCredentials: true,
+        timeout: 50000,
+      });
+      return response.data;
+    } catch (error) {
+      console.error("❌ API error:", error.response?.data || error.message);
+       return thunkApi.rejectWithValue({
+        status: error.response?.status,
+        message:error.response?.data?.error?.error?.message||error.response?.data?.message || "Login failed",
+      });
+    }
+  }
+);
+//draft apis
+
 
 // ✅ Fetch Business Partners
 export const fetchSalesBusinessPartner = createAsyncThunk(
@@ -124,12 +166,37 @@ const customerorderSlice = createSlice({
   initialState: {
     customerorder: [],
     businessPartner: [],
+    drafts:[],
     loading: false,
     error: null,
   },
   reducers: {},
   extraReducers: (builder) => {
     builder
+
+    // Fetch Drafts
+      .addCase(fetchDrafts.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchDrafts.fulfilled, (state, action) => {
+        state.loading = false;
+        // If API returns { value: [...] }, handle that
+        state.drafts = Array.isArray(action.payload)
+          ? action.payload
+          : action.payload?.value || [];
+      })
+      .addCase(fetchDrafts.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(createDrafts.fulfilled, (state, action) => {
+        if (Array.isArray(state.drafts)) {
+          state.drafts.push(action.payload);
+        } else {
+          state.drafts = [action.payload];
+        }
+      })
       // Fetch Orders
       .addCase(fetchCustomerOrder.pending, (state) => {
         state.loading = true;
