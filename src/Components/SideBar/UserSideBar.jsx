@@ -1,5 +1,17 @@
-import { Bar, Button, FlexBox, Option, Select, SideNavigation, SideNavigationGroup, SideNavigationItem, SideNavigationSubItem, Text, Title } from "@ui5/webcomponents-react";
-import React, { useContext, useEffect, useRef, useState } from 'react'
+import {
+  Bar,
+  Button,
+  FlexBox,
+  Option,
+  Select,
+  SideNavigation,
+  SideNavigationGroup,
+  SideNavigationItem,
+  SideNavigationSubItem,
+  Text,
+  Title,
+} from "@ui5/webcomponents-react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
@@ -20,8 +32,14 @@ function buildMenuTree(menus) {
 }
 
 const UserSideBar = (props) => {
-  const { selectedCompany, setSelectedCompany, selectedBranch, setSelectedBranch,collapsed } =props;
-    // const { Menuitems } = useContext(FormConfigContext);
+  const {
+    selectedCompany,
+    setSelectedCompany,
+    selectedBranch,
+    setSelectedBranch,
+    collapsed,
+  } = props;
+  // const { Menuitems } = useContext(FormConfigContext);
   const { usermenus } = useSelector((state) => state.usermenus);
   const { user } = useSelector((state) => state.auth);
   const companies = user && user.Branches;
@@ -31,7 +49,6 @@ const UserSideBar = (props) => {
 
   const buttonRef = useRef(null);
   const [menuIsOpen, setMenuIsOpen] = useState(false);
- 
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -40,14 +57,13 @@ const UserSideBar = (props) => {
     ? authUserMenus.filter((menu) => menu.branchId === selectedBranch)
     : authUserMenus;
   const menuTree = buildMenuTree(
-    menulist.length > 0 ? menulist : authUserMenus
+    menulist.length > 0 ? menulist : authUserMenus,
   );
-    useEffect(()=>{
-      if(authUserMenus.length===0){
-        navigate("/")
-      }
-  
-    },[authUserMenus])
+  useEffect(() => {
+    if (authUserMenus.length === 0) {
+      navigate("/");
+    }
+  }, [authUserMenus]);
   const handleCompanyClick = (companyName) => {
     console.log("Selected company:", companyName);
     setSelectedCompany(companyName);
@@ -102,8 +118,11 @@ const UserSideBar = (props) => {
     }, {});
   return (
     <FlexBox style={{ height: "100vh" }}>
-        <FlexBox direction="Column" style={{ display:collapsed ? "none" : "flex" }}>
-          {/* <Bar
+      <FlexBox
+        direction="Column"
+        style={{ display: collapsed ? "none" : "flex" }}
+      >
+        {/* <Bar
             design="Header"
             style={{width: '256px', height: '180px' }}
           >
@@ -143,45 +162,51 @@ const UserSideBar = (props) => {
                 </div>
             </div>
           </Bar> */}
-            
-            {/* <Text style={{ paddingLeft: '16px', paddingBottom: '20px' }}>Menu List</Text> */}
-            <SideNavigation>
-              {/* <SideNavigationItem text="Dashboard" icon="bbyd-dashboard" /> */}
-                <SideNavigationGroup text="User Modules" expanded>
-                    {menulist.length > 0 &&
-                    menulist.map((menu) =>
-                        !menu.RoleMenu.can_list_view ? null : (
-                        <SideNavigationItem key={menu.id} text={menu.display_name} unselectable>
-                            {menu.children?.length > 0 &&
-                            menu.children.filter((r) => r.status===1).map((child) => (
-                                <SideNavigationSubItem
-                                key={child.id}
-                                text={child.display_name}
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    navigate(`/${menu.display_name}/${child.formId}`);
-                                }}
-                                />
-                            ))}
-                        </SideNavigationItem>
-                        )
-                    )}
-                </SideNavigationGroup>
-                <SideNavigationGroup text="Approver Module" expanded>
-                    <SideNavigationItem text="Approval Workflow Template" unselectable>
-                        <SideNavigationSubItem
-                        text="Approval Workflow Template"
-                        onClick={(e) => {
-                            e.preventDefault();
-                            navigate(`/approver/ApproverTemplate`);
-                        }}
-                        />
-                    </SideNavigationItem>
-                  </SideNavigationGroup>
-            </SideNavigation>
-        </FlexBox>
-    </FlexBox>
-  )
-}
 
-export default UserSideBar
+        {/* <Text style={{ paddingLeft: '16px', paddingBottom: '20px' }}>Menu List</Text> */}
+        <SideNavigation>
+          {/* <SideNavigationItem text="Dashboard" icon="bbyd-dashboard" /> */}
+          <SideNavigationGroup text="User Modules" expanded>
+            {menulist.length > 0 &&
+              menulist.filter((r) => r.status===1).map((menu) =>
+                !menu.RoleMenu.can_list_view ? null : (
+                  <SideNavigationItem
+                    key={menu.id}
+                    text={menu.display_name}
+                    unselectable
+                  >
+                    {menu.children?.length > 0 &&
+                      menu.children
+                        .filter((r) => r.status === 1)
+                        .map((child) => (
+                          <SideNavigationSubItem
+                            key={child.id}
+                            text={child.display_name}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              navigate(`/${menu.display_name}/${child.formId}`);
+                            }}
+                          />
+                        ))}
+                  </SideNavigationItem>
+                ),
+              )}
+          </SideNavigationGroup>
+          {/* <SideNavigationGroup text="Approver Module" expanded>
+            <SideNavigationItem text="Approval Workflow Template" unselectable>
+              <SideNavigationSubItem
+                text="Approval Workflow Template"
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigate(`/approver/ApproverTemplate`);
+                }}
+              />
+            </SideNavigationItem>
+          </SideNavigationGroup> */}
+        </SideNavigation>
+      </FlexBox>
+    </FlexBox>
+  );
+};
+
+export default UserSideBar;

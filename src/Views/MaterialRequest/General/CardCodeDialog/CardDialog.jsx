@@ -9,6 +9,7 @@ import {
   Option,
   ComboBox,
   ComboBoxItem,
+  BusyIndicator,
 } from "@ui5/webcomponents-react";
 
 const CardDialog = ({
@@ -23,11 +24,12 @@ const CardDialog = ({
   setOriginalgeneralData,
   inputValue,
   setInputValue,
+  cardloading,
+  setCardLoading,
 }) => {
   const [selected, setSelected] = useState(null);
 
   const columns = [
-   
     {
       Header: "Customer Code",
       accessor: "CardCode",
@@ -35,11 +37,11 @@ const CardDialog = ({
     { Header: "Customer Name", accessor: "CardName" },
     // { Header: "Contact Person", accessor: "ContactPerson" },
   ];
- const clearFilter = () => {
+  const clearFilter = () => {
     // Implement clear filter logic here
-     setgeneralData(originalGeneralData);
-              setInputValue({});
-  }
+    setgeneralData(originalGeneralData);
+    setInputValue({});
+  };
   const handleSelectionChange = (event) => {
     const selectedRow = event.detail.row;
     console.log("selectedRow", selectedRow, event);
@@ -76,7 +78,7 @@ const CardDialog = ({
       item[fieldname]
         ?.toString()
         .toLowerCase()
-        .includes(selectedValue.toLowerCase())
+        .includes(selectedValue.toLowerCase()),
     );
 
     setgeneralData(filteredList);
@@ -105,7 +107,7 @@ const CardDialog = ({
         </>
       }
       onAfterClose={handleCardDialogClose}
-      style={{ width: "40vw"}}
+      style={{ width: "40vw" }}
     >
       <FlexBox direction="Column">
         {/* <FlexBox direction="Row" style={{ padding: "0.5rem", gap: "2rem" }}> */}
@@ -158,7 +160,7 @@ const CardDialog = ({
                 </Option>
               ))}
             </Select> */}
-              <ComboBox
+            <ComboBox
               filter
               value={inputValue.CardName || ""}
               onChange={(e) => handleFilterChange(e, "CardName")}
@@ -185,25 +187,40 @@ const CardDialog = ({
             </ComboBox>
           </FlexBox> */}
           {console.log("originalGeneralData", originalGeneralData)}
-          <Button
-            style={{ width: "100px" }}
-            onClick={clearFilter}
-          >
+          <Button style={{ width: "100px" }} onClick={clearFilter}>
             Clear Filter
           </Button>
         </FlexBox>
-        {console.log("generalDtaanalyticaltable", generalData)}
-        <AnalyticalTable
-          data={generalData}
-          columns={columns}
-          selectionMode="Single"
-          onRowSelect={handleSelectionChange}
-          selectionBehavior="RowOnly"
-          scaleWidthMode="Grow"
-         visibleRows={6}
-         style={{border: "1px solid #ccc",   /* keeps a grey outline */
-  borderRadius: "4px",padding: "0.25rem"}}
-        />
+        {console.log("generalDtaanalyticaltable",cardloading, generalData)}
+        {cardloading ? (
+           <div
+    style={{
+      height: "250px",
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      fontSize: "20px",
+      color: "red",
+    }}
+  >
+   <BusyIndicator active size="M" /> </div>
+        ) : (
+          <AnalyticalTable
+            data={generalData}
+            columns={columns}
+            selectionMode="Single"
+            onRowSelect={handleSelectionChange}
+            selectionBehavior="RowOnly"
+            scaleWidthMode="Grow"
+            
+            visibleRows={6}
+            style={{
+              border: "1px solid #ccc",
+              borderRadius: "4px",
+              padding: "0.25rem",
+            }}
+          />
+        )}
       </FlexBox>
     </Dialog>
   );

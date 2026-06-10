@@ -79,6 +79,7 @@ const General = ({
   const [originalGeneralData, setOriginalgeneralData] = useState([]);
   const [originalProjectdata, setOriginalProjectData] = useState([]);
   const [pageLoading, setPageLoading] = useState(true);
+    const [cardloading, setCardLoading] = useState(true);
   const [inputValue, setInputValue] = useState([
     {
       CusCode: "",
@@ -93,7 +94,7 @@ const General = ({
       ExcelImport: "",
     },
   ]);
-  const { customerorder, businessPartner, loading, error } = useSelector(
+  const { customerorder, businessPartner, error } = useSelector(
     (state) => state.customerorder,
   );
 
@@ -109,18 +110,20 @@ const General = ({
   const [projectdialogOpen, setProjectDialogOpen] = useState(false);
   const [projectList, setProjectList] = useState([]);
   const [selectedProject, setSelectedProject] = useState(null);
-  const { user } = useSelector((state) => state.auth);
+  const { user,loading } = useSelector((state) => state.auth);
 
   const handleProjectCodeDialogOpen = () => setProjectDialogOpen(true);
   const handleProjectDialogClose = () => setProjectDialogOpen(false);
 
   useEffect(() => {
     console.log("formdetailgeneral", formDetails);
+    setCardLoading(true);
     const fetchData = async () => {
       try {
         let res = [];
-
+        //await new Promise((resolve) => setTimeout(resolve, 5000));
         res = await dispatch(fetchCustomerDetails()).unwrap();
+     
         const projectdataConfig = user.Projects.map((item) => ({
           ProjectCode: item.Code,
           ProjectName: item.Name,
@@ -145,6 +148,8 @@ const General = ({
           setOriginalProjectData(projectdataConfig);
           // }
           setgeneralData(dataconfig);
+
+          
         }
 
         if (res.message === "Please Login!") {
@@ -154,7 +159,11 @@ const General = ({
         console.log("Failed to fetch user", err.message);
         err.message && navigate("/");
       }
-      setPageLoading(false);
+      finally {
+        setCardLoading(false);
+         setPageLoading(false);
+      }
+     
     };
 
     fetchData();
@@ -607,13 +616,16 @@ const General = ({
         setOriginalgeneralData={setOriginalgeneralData}
         inputValue={inputValue}
         setInputValue={setInputValue}
-        setSelectedCard={(card) => {
-          setSelectedCard(card);
-          setValue("CardCode", card.CardCode); // update RHF field
-          setValue("CardName", card.CardName); // fill another field automatically
-          setValue("ContactPerson", card.ContactPerson);
-          setValue("Series", card.Series);
-        }}
+        
+        // setSelectedCard={(card) => {
+        //   setSelectedCard(card);
+        //   setValue("CardCode", card.CardCode); // update RHF field
+        //   setValue("CardName", card.CardName); // fill another field automatically
+        //   setValue("ContactPerson", card.ContactPerson);
+        //   setValue("Series", card.Series);
+        // }}
+        cardloading={cardloading}
+        setCardLoading={setCardLoading}
       />
       <ProjectCodeDialog
         open={projectdialogOpen}
@@ -627,6 +639,7 @@ const General = ({
         setOriginalProjectData={setOriginalProjectData}
         inputValue={inputValue}
         setInputValue={setInputValue}
+        loading={loading}
         setSelectedProject={(project) => {
           setSelectedProject(project);
           setValue("ProjectCode", project.ProjectCode); // update RHF field

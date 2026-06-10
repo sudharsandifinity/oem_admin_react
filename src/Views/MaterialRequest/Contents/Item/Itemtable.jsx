@@ -121,8 +121,12 @@ const Itemtable = (props) => {
     selectedItemOwner,
     setSelectedItemOwner,
   } = props;
-    const location = useLocation();
-  console.log("formdataitemtable",location?.state?.formname,formDetails[0].name)
+  const location = useLocation();
+  console.log(
+    "formdataitemtable",
+    location?.state?.formname,
+    formDetails[0].name,
+  );
   const menuRef = useRef();
 
   const handleOpenMenu = (e) => {
@@ -225,23 +229,26 @@ const Itemtable = (props) => {
     setSummaryData((prev) => ({
       ...prev,
       RequestorCode: selectedUserId,
-       RequestorName: userList ? userList[0]?.UserName : "",
+      RequestorName: userList ? userList[0]?.UserName : "",
       eMail: userList ? userList[0]?.eMail : "",
       Department: userList ? userList[0]?.Department : "",
     }));
   };
-
   const handlechangeUser = (e) => {
-    const selectedUserId = e.target.value;
+    const selectedUserId = Number(e.target.value || e.detail?.selectedOption?.value);
+
     const selectedUser = userList.find(
-      (user) => String(user.UserName) === selectedUserId,
+      (user) => user.InternalKey === selectedUserId,
     );
-    console.log("selectedUser",userList, selectedUser,selectedUser.UserName, selectedUserId);
+
+    console.log(selectedUserId, selectedUser);
+
     setSummaryData((prev) => ({
       ...prev,
-      RequestorName: selectedUser ? selectedUser.UserName : "",
-      eMail: selectedUser ? selectedUser.eMail : "",
-      Department: selectedUser ? selectedUser.Department : "",
+      InternalKey: selectedUser?.InternalKey ?? "",
+      RequestorName: selectedUser?.UserName ?? "",
+      eMail: selectedUser?.eMail ?? "",
+      Department: selectedUser?.Department ?? "",
     }));
   };
   const handlechangeOwner = (e) => {
@@ -913,210 +920,232 @@ const Itemtable = (props) => {
           </>
         ),
       },
-       ...(location?.state?.formname === "Material Request"||formDetails[0].name === "Material Request"
-    ? [
-       {
-        Header: "BOM QTY",
-        accessor: "bomqty",
-        Cell: ({ row }) => (
-          <>
-            <Input
-              value={row.original.uom ? row.original.uom : ""}
-              readonly
-              disabled={mode === "view"}
-              style={{ textAlign: "right" }}
-              onFocus={(e) =>
-                (e.target.style.borderBottom = "1px solid #007aff")
-              }
-              onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
-              // onClick={() =>
-              //   // !row.original.UOM &&
-              //   {
-              //     setSelectedProjectRowIndex(row.index);
-              //     setisProjectDialogOpen(true);
-              //   }
-              // }
-            />
-          </>
-        ),
-      },
-      ]
-    : []),
-     ...(location?.state?.formname === "Material Request"||formDetails[0].name === "Material Request"
-    ? [
-       {
-        Header: "BOM Open Qty",
-        accessor: "bomopenqty",
-        Cell: ({ row }) => (
-          <>
-            <Input
-              value={row.original.bomopenqty ? row.original.bomopenqty : ""}
-              readonly
-              disabled={mode === "view"}
-              style={{ textAlign: "right" }}
-              onFocus={(e) =>
-                (e.target.style.borderBottom = "1px solid #007aff")
-              }
-              onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
-              // onClick={() =>
-              //   // !row.original.UOM &&
-              //   {
-              //     setSelectedProjectRowIndex(row.index);
-              //     setisProjectDialogOpen(true);
-              //   }
-              // }
-            />
-          </>
-        ),
-      },
-      ]
-    : []),
-     ...(location?.state?.formname === "Material Request"||formDetails[0].name === "Material Request"
-    ? [
-       {
-        Header: "MR Open Qty",
-        accessor: "mropenqty",
-        Cell: ({ row }) => (
-          <>
-            <Input
-              value={row.original.mropenqty ? row.original.mropenqty   : ""}
-              readonly
-              disabled={mode === "view"}
-              style={{ textAlign: "right" }}
-              onFocus={(e) =>
-                (e.target.style.borderBottom = "1px solid #007aff")
-              }
-              onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
-              // onClick={() =>
-              //   // !row.original.UOM &&
-              //   {
-              //     setSelectedProjectRowIndex(row.index);
-              //     setisProjectDialogOpen(true);
-              //   }
-              // }
-            />
-          </>
-        ),
-      },
-      ]
-    : []),
-       ...(location?.state?.formname === "Purchase Request"||formDetails[0].name === "Purchase Request"
-    ? [
-        {
-        Header: "MR Qty",
-        accessor: "mrqty",
-        Cell: ({ row }) => (
-          <>
-            <Input
-              value={row.original.mrqty ? row.original.mrqty   : ""}
-              readonly
-              disabled={mode === "view"}
-              style={{ textAlign: "right" }}
-              onFocus={(e) =>
-                (e.target.style.borderBottom = "1px solid #007aff")
-              }
-              onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
-              // onClick={() =>
-              //   // !row.original.UOM &&
-              //   {
-              //     setSelectedProjectRowIndex(row.index);
-              //     setisProjectDialogOpen(true);
-              //   }
-              // }
-            />
-          </>
-        ),
-      },]
-    : []),
-   
-     ...(location?.state?.formname === "Purchase Request"||formDetails[0].name === "Purchase Request"
-    ? [
-       {
-        Header: "PR Open Qty",
-        accessor: "propenqty",
-        Cell: ({ row }) => (
-          <>
-            <Input
-              value={row.original.propenqty ? row.original.propenqty   : ""}
-              readonly
-              disabled={mode === "view"}
-              style={{ textAlign: "right" }}
-              onFocus={(e) =>
-                (e.target.style.borderBottom = "1px solid #007aff")
-              }
-              onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
-              // onClick={() =>
-              //   // !row.original.UOM &&
-              //   {
-              //     setSelectedProjectRowIndex(row.index);
-              //     setisProjectDialogOpen(true);
-              //   }
-              // }
-            />
-          </>
-        ),
-      },
-      ]
-    : []),
-     ...(location?.state?.formname === "GRPO" ||formDetails[0].name === "GRPO"
-    ? [
-       {
-        Header: "PO Qty",
-        accessor: "poqty",
-        Cell: ({ row }) => (
-          <>
-            <Input
-              value={row.original.poqty ? row.original.poqty   : ""}
-              readonly
-              disabled={mode === "view"}
-              style={{ textAlign: "right" }}
-              onFocus={(e) =>
-                (e.target.style.borderBottom = "1px solid #007aff")
-              }
-              onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
-              // onClick={() =>
-              //   // !row.original.UOM &&
-              //   {
-              //     setSelectedProjectRowIndex(row.index);
-              //     setisProjectDialogOpen(true);
-              //   }
-              // }
-            />
-          </>
-        ),
-      },
-       ]
-    : []),
-     ...(location?.state?.formname === "GRPO" ||formDetails[0].name === "GRPO"
-    ? [
-       {
-        Header: "PO Open Qty",
-        accessor: " poopenqty",
-        Cell: ({ row }) => (
-          <>
-            <Input
-              value={row.original.poopenqty ? row.original.poopenqty   : ""}
-              readonly
-              disabled={mode === "view"}
-              style={{ textAlign: "right" }}
-              onFocus={(e) =>
-                (e.target.style.borderBottom = "1px solid #007aff")
-              }
-              onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
-              // onClick={() =>
-              //   // !row.original.UOM &&
-              //   {
-              //     setSelectedProjectRowIndex(row.index);
-              //     setisProjectDialogOpen(true);
-              //   }
-              // }
-            />
-          </>
-        ),
-      },
-      ]
-    : []),
-       {
+      ...(location?.state?.formname === "Material Request" ||
+      formDetails[0].name === "Material Request"
+        ? [
+            {
+              Header: "BOM QTY",
+              accessor: "bomqty",
+              Cell: ({ row }) => (
+                <>
+                  <Input
+                    value={row.original.uom ? row.original.uom : ""}
+                    readonly
+                    disabled={mode === "view"}
+                    style={{ textAlign: "right" }}
+                    onFocus={(e) =>
+                      (e.target.style.borderBottom = "1px solid #007aff")
+                    }
+                    onBlur={(e) =>
+                      (e.target.style.borderBottom = "1px solid #ccc")
+                    }
+                    // onClick={() =>
+                    //   // !row.original.UOM &&
+                    //   {
+                    //     setSelectedProjectRowIndex(row.index);
+                    //     setisProjectDialogOpen(true);
+                    //   }
+                    // }
+                  />
+                </>
+              ),
+            },
+          ]
+        : []),
+      ...(location?.state?.formname === "Material Request" ||
+      formDetails[0].name === "Material Request"
+        ? [
+            {
+              Header: "BOM Open Qty",
+              accessor: "bomopenqty",
+              Cell: ({ row }) => (
+                <>
+                  <Input
+                    value={
+                      row.original.bomopenqty ? row.original.bomopenqty : ""
+                    }
+                    readonly
+                    disabled={mode === "view"}
+                    style={{ textAlign: "right" }}
+                    onFocus={(e) =>
+                      (e.target.style.borderBottom = "1px solid #007aff")
+                    }
+                    onBlur={(e) =>
+                      (e.target.style.borderBottom = "1px solid #ccc")
+                    }
+                    // onClick={() =>
+                    //   // !row.original.UOM &&
+                    //   {
+                    //     setSelectedProjectRowIndex(row.index);
+                    //     setisProjectDialogOpen(true);
+                    //   }
+                    // }
+                  />
+                </>
+              ),
+            },
+          ]
+        : []),
+      ...(location?.state?.formname === "Material Request" ||
+      formDetails[0].name === "Material Request"
+        ? [
+            {
+              Header: "MR Open Qty",
+              accessor: "mropenqty",
+              Cell: ({ row }) => (
+                <>
+                  <Input
+                    value={row.original.mropenqty ? row.original.mropenqty : ""}
+                    readonly
+                    disabled={mode === "view"}
+                    style={{ textAlign: "right" }}
+                    onFocus={(e) =>
+                      (e.target.style.borderBottom = "1px solid #007aff")
+                    }
+                    onBlur={(e) =>
+                      (e.target.style.borderBottom = "1px solid #ccc")
+                    }
+                    // onClick={() =>
+                    //   // !row.original.UOM &&
+                    //   {
+                    //     setSelectedProjectRowIndex(row.index);
+                    //     setisProjectDialogOpen(true);
+                    //   }
+                    // }
+                  />
+                </>
+              ),
+            },
+          ]
+        : []),
+      ...(location?.state?.formname === "Purchase Request" ||
+      formDetails[0].name === "Purchase Request"
+        ? [
+            {
+              Header: "MR Qty",
+              accessor: "mrqty",
+              Cell: ({ row }) => (
+                <>
+                  <Input
+                    value={row.original.mrqty ? row.original.mrqty : ""}
+                    readonly
+                    disabled={mode === "view"}
+                    style={{ textAlign: "right" }}
+                    onFocus={(e) =>
+                      (e.target.style.borderBottom = "1px solid #007aff")
+                    }
+                    onBlur={(e) =>
+                      (e.target.style.borderBottom = "1px solid #ccc")
+                    }
+                    // onClick={() =>
+                    //   // !row.original.UOM &&
+                    //   {
+                    //     setSelectedProjectRowIndex(row.index);
+                    //     setisProjectDialogOpen(true);
+                    //   }
+                    // }
+                  />
+                </>
+              ),
+            },
+          ]
+        : []),
+
+      ...(location?.state?.formname === "Purchase Request" ||
+      formDetails[0].name === "Purchase Request"
+        ? [
+            {
+              Header: "PR Open Qty",
+              accessor: "propenqty",
+              Cell: ({ row }) => (
+                <>
+                  <Input
+                    value={row.original.propenqty ? row.original.propenqty : ""}
+                    readonly
+                    disabled={mode === "view"}
+                    style={{ textAlign: "right" }}
+                    onFocus={(e) =>
+                      (e.target.style.borderBottom = "1px solid #007aff")
+                    }
+                    onBlur={(e) =>
+                      (e.target.style.borderBottom = "1px solid #ccc")
+                    }
+                    // onClick={() =>
+                    //   // !row.original.UOM &&
+                    //   {
+                    //     setSelectedProjectRowIndex(row.index);
+                    //     setisProjectDialogOpen(true);
+                    //   }
+                    // }
+                  />
+                </>
+              ),
+            },
+          ]
+        : []),
+      ...(location?.state?.formname === "GRPO" || formDetails[0].name === "GRPO"
+        ? [
+            {
+              Header: "PO Qty",
+              accessor: "poqty",
+              Cell: ({ row }) => (
+                <>
+                  <Input
+                    value={row.original.poqty ? row.original.poqty : ""}
+                    readonly
+                    disabled={mode === "view"}
+                    style={{ textAlign: "right" }}
+                    onFocus={(e) =>
+                      (e.target.style.borderBottom = "1px solid #007aff")
+                    }
+                    onBlur={(e) =>
+                      (e.target.style.borderBottom = "1px solid #ccc")
+                    }
+                    // onClick={() =>
+                    //   // !row.original.UOM &&
+                    //   {
+                    //     setSelectedProjectRowIndex(row.index);
+                    //     setisProjectDialogOpen(true);
+                    //   }
+                    // }
+                  />
+                </>
+              ),
+            },
+          ]
+        : []),
+      ...(location?.state?.formname === "GRPO" || formDetails[0].name === "GRPO"
+        ? [
+            {
+              Header: "PO Open Qty",
+              accessor: " poopenqty",
+              Cell: ({ row }) => (
+                <>
+                  <Input
+                    value={row.original.poopenqty ? row.original.poopenqty : ""}
+                    readonly
+                    disabled={mode === "view"}
+                    style={{ textAlign: "right" }}
+                    onFocus={(e) =>
+                      (e.target.style.borderBottom = "1px solid #007aff")
+                    }
+                    onBlur={(e) =>
+                      (e.target.style.borderBottom = "1px solid #ccc")
+                    }
+                    // onClick={() =>
+                    //   // !row.original.UOM &&
+                    //   {
+                    //     setSelectedProjectRowIndex(row.index);
+                    //     setisProjectDialogOpen(true);
+                    //   }
+                    // }
+                  />
+                </>
+              ),
+            },
+          ]
+        : []),
+      {
         Header: "Warehouse",
         accessor: "warehouse",
         Cell: ({ row }) => (
@@ -1125,9 +1154,7 @@ const Itemtable = (props) => {
             {console.log("originalWarehouseData", warehouseData)}
             <Input
               value={
-                row.original.warehouse
-                  ? row.original.warehouse
-                  : ""//originalWarehouseData[0]?.WarehouseCode
+                row.original.warehouse ? row.original.warehouse : "" //originalWarehouseData[0]?.WarehouseCode
               }
               readonly
               disabled={mode === "view"}
@@ -1173,12 +1200,10 @@ const Itemtable = (props) => {
                 (e.target.style.borderBottom = "1px solid #007aff")
               }
               onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
-              
             />
           </>
         ),
       },
-     
 
       // {
       //   Header: "Stage",
@@ -1221,7 +1246,6 @@ const Itemtable = (props) => {
                 (e.target.style.borderBottom = "1px solid #007aff")
               }
               onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
-             
             />
           </>
         ),
@@ -1241,14 +1265,11 @@ const Itemtable = (props) => {
                 (e.target.style.borderBottom = "1px solid #007aff")
               }
               onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
-              
             />
           </>
         ),
       },
 
-      
-      
       // {
       //   Header: "Rate Total",
       //   accessor: "rateTotal",
@@ -1274,46 +1295,46 @@ const Itemtable = (props) => {
       //     </>
       //   ),
       // },
-  ...(location?.state?.formname === "Purchase Request" 
-    ? [
-        {
-          Header: "Required Date",
-          accessor: "requiredDate",
-          Cell: ({ row }) => (
-            <Input
-              value={
-                formData.requiredDate
-                  ? formData.requiredDate
-                  : row.original.requiredDate
-              }
-              type="Date"
-              disabled={mode === "view"}
-              style={{ textAlign: "right" }}
-              onFocus={(e) =>
-                (e.target.style.borderBottom = "1px solid #007aff")
-              }
-              onBlur={(e) =>
-                (e.target.style.borderBottom = "1px solid #ccc")
-              }
-              onChange={(e) => {
-              const newValue = e.target.value;
-              const rowIndex = row.index;
-              console.log("selectedrow", row);
-              setitemTableData((prev) => {
-                const updated = [...prev];
+      ...(location?.state?.formname === "Purchase Request"
+        ? [
+            {
+              Header: "Required Date",
+              accessor: "requiredDate",
+              Cell: ({ row }) => (
+                <Input
+                  value={
+                    formData.requiredDate
+                      ? formData.requiredDate
+                      : row.original.requiredDate
+                  }
+                  type="Date"
+                  disabled={mode === "view"}
+                  style={{ textAlign: "right" }}
+                  onFocus={(e) =>
+                    (e.target.style.borderBottom = "1px solid #007aff")
+                  }
+                  onBlur={(e) =>
+                    (e.target.style.borderBottom = "1px solid #ccc")
+                  }
+                  onChange={(e) => {
+                    const newValue = e.target.value;
+                    const rowIndex = row.index;
+                    console.log("selectedrow", row);
+                    setitemTableData((prev) => {
+                      const updated = [...prev];
 
-                updated[rowIndex] = {
-                  ...updated[rowIndex],
-                  requiredDate: newValue,
-                };
-                return updated;
-              });
-            }}
-            />
-          ),
-        },
-      ]
-    : []),
+                      updated[rowIndex] = {
+                        ...updated[rowIndex],
+                        requiredDate: newValue,
+                      };
+                      return updated;
+                    });
+                  }}
+                />
+              ),
+            },
+          ]
+        : []),
 
       {
         Header: "Remarks",
@@ -1322,7 +1343,6 @@ const Itemtable = (props) => {
           <>
             <Input
               value={row.original.U_HLB_Rmarks ? row.original.U_HLB_Rmarks : ""}
-              
               disabled={mode === "view"}
               type="Text"
               style={{ textAlign: "right" }}
@@ -1331,30 +1351,30 @@ const Itemtable = (props) => {
               }
               onBlur={(e) => (e.target.style.borderBottom = "1px solid #ccc")}
               onChange={(e) => {
-              const newValue = e.target.value;
-              const rowIndex = row.index;
-              console.log("selectedrow", row);
-              setitemTableData((prev) => {
-                const updated = [...prev];
+                const newValue = e.target.value;
+                const rowIndex = row.index;
+                console.log("selectedrow", row);
+                setitemTableData((prev) => {
+                  const updated = [...prev];
 
-                updated[rowIndex] = {
-                  ...updated[rowIndex],
-                  remarks: newValue,
-                };
-                return updated;
-              });
-            }}
-            onInput={(e) => {
-              const newValue = e.target.value;
-              const rowIndex = row.index;
+                  updated[rowIndex] = {
+                    ...updated[rowIndex],
+                    remarks: newValue,
+                  };
+                  return updated;
+                });
+              }}
+              onInput={(e) => {
+                const newValue = e.target.value;
+                const rowIndex = row.index;
 
-              setitemTableData((prev) => {
-                const updated = [...prev];
-                const newRow = { ...updated[rowIndex], remarks: newValue };
-                
-                return updated;
-              });
-            }}
+                setitemTableData((prev) => {
+                  const updated = [...prev];
+                  const newRow = { ...updated[rowIndex], remarks: newValue };
+
+                  return updated;
+                });
+              }}
             />
           </>
         ),
@@ -1395,11 +1415,13 @@ const Itemtable = (props) => {
     ];
 
     // Create an array of accessors that should be visible
-    const visibleAccessors = dynamcicItemCols?.map((col) => col?.accessor) || [];
+    const visibleAccessors =
+      dynamcicItemCols?.map((col) => col?.accessor) || [];
 
     // Filter columns based on dynamic list
     const visibleColumns = allColumns.filter(
-      (col) => visibleAccessors.includes(col?.accessor) || col?.id === "actions", // always include actions
+      (col) =>
+        visibleAccessors.includes(col?.accessor) || col?.id === "actions", // always include actions
     );
 
     return allColumns;
@@ -1492,7 +1514,8 @@ const Itemtable = (props) => {
       {console.log(
         "copiedItemDocumentLines",
         copiedItemDocumentLines,
-        itemTabledata,formDetails
+        itemTabledata,
+        formDetails,
       )}
       <AnalyticalTable
         style={{ borderTop: "1px solid #d6dbe0" }}
@@ -1545,7 +1568,12 @@ const Itemtable = (props) => {
             gap: "0.5rem",
           }}
         >
-          {console.log("summaryData", summaryData, userList,summaryData?.RequestorName)}
+          {console.log(
+            "summaryData",
+            summaryData,
+            userList,
+            summaryData?.RequestorName,
+          )}
           {/* Requestor Code */}
           {formName !== "Goods Issue" && (
             <FlexBox alignItems="Center" style={{ gap: "1rem" }}>
@@ -1576,14 +1604,14 @@ const Itemtable = (props) => {
               <Select
                 disabled={mode === "view"}
                 style={{ width: "200px" }}
-                value={summaryData?.RequestorName || ""}
+                value={summaryData?.InternalKey}
                 onChange={handlechangeUser}
               >
                 <Option value="">Select Requestor</Option>
                 {summaryData?.RequestorCode === "1"
                   ? userList.length > 0 &&
                     userList.map((user) => (
-                      <Option key={user.InternalKey} value={user.UserName}>
+                      <Option key={user.InternalKey} value={user.InternalKey}>
                         {user.UserName}
                       </Option>
                     ))
@@ -1602,11 +1630,11 @@ const Itemtable = (props) => {
               <Text style={{ width: "140px" }}>Department</Text>
 
               <Input
-               disabled={mode === "view"}
+                disabled={mode === "view"}
                 value={
                   summaryData?.Department
                     ? departmentList?.find(
-                        (dept) => dept.Code === summaryData?.Department,
+                        (dept) => dept.Code === Number(summaryData?.Department),
                       )?.Name || ""
                     : departmentList?.find((dept) => dept.Code === 1)?.Name
                 }
@@ -1616,8 +1644,6 @@ const Itemtable = (props) => {
             </FlexBox>
           )}
         </FlexBox>
-
-       
       </FlexBox>
       <Dialog
         headerText="Select Item"

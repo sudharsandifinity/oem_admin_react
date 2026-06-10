@@ -47,7 +47,7 @@ import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import { fetchPurchaseDeliveryNotes } from "../../store/slices/purDeliveryNoteSlice";
 import { fetchMaterialRequest } from "../../store/slices/materialRequestSlice";
-import {  fetchARInvoices } from "../../store/slices/ARInvoice";
+import { fetchARInvoices } from "../../store/slices/ARInvoice";
 import { fetchPRInvoices } from "../../store/slices/APInvoice";
 
 const ManageSalesOrder = () => {
@@ -229,7 +229,8 @@ const ManageSalesOrder = () => {
             }),
           ).unwrap();
 
-          const data = purRes?.data?.value ?? purRes?.data??purRes.value ?? purRes ?? [];
+          const data =
+            purRes?.data?.value ?? purRes?.data ?? purRes.value ?? purRes ?? [];
 
           res =
             location === "Contracting-Management"
@@ -252,11 +253,11 @@ const ManageSalesOrder = () => {
           res = await dispatch(
             fetchMaterialRequest({ top: pageSize, skip: 0 }),
           ).unwrap();
-        }else if (formDetails[0]?.name === "A/R Invoice") {
+        } else if (formDetails[0]?.name === "A/R Invoice") {
           res = await dispatch(
             fetchARInvoices({ top: pageSize, skip: 0 }),
           ).unwrap();
-        }else if (formDetails[0]?.name === "A/P Invoice") {
+        } else if (formDetails[0]?.name === "A/P Invoice") {
           res = await dispatch(
             fetchPRInvoices({ top: pageSize, skip: 0 }),
           ).unwrap();
@@ -270,9 +271,7 @@ const ManageSalesOrder = () => {
           formDetails[0]?.name,
         );
         const raw = res?.data?.value ?? res?.data ?? res?.value ?? res;
-        setTotalRecords(
-         res?.["@odata.count"]
-        );
+        setTotalRecords(res?.["@odata.count"]);
         // Ensure it's an array
         const list = Array.isArray(raw)
           ? raw
@@ -465,11 +464,17 @@ const ManageSalesOrder = () => {
     },
   ];
   const columnConfig = {
-    "Sales": ManageSalesOrderTableColumn,
-    "Purchase": ManagePurchaseOrderTableColumn,
+    Sales: ManageSalesOrderTableColumn,
+    Purchase: ManagePurchaseOrderTableColumn,
     "Contracting Management": ManageProjectOrderTableColumn,
   };
-console.log("ManagePurchaseOrderTableColumn",ManagePurchaseOrderTableColumn,columnConfig,"matchedMenu",matchedMenu)
+  console.log(
+    "ManagePurchaseOrderTableColumn",
+    ManagePurchaseOrderTableColumn,
+    columnConfig,
+    "matchedMenu",
+    matchedMenu,
+  );
   const ManageSalesOrderTableCols = (
     columnConfig[matchedMenu?.menuName] || []
   ).map((col) => ({
@@ -568,16 +573,21 @@ console.log("ManagePurchaseOrderTableColumn",ManagePurchaseOrderTableColumn,colu
                   setLayout("TwoColumnsMidExpanded");
                   //viewRow(row.original)
 
-                 const viewitem = {
-  ...row.original,
-  ManageOrderTableCols: ManageSalesOrderTableCols
-    .filter((col) => col.accessor !== "DocumentLines")
-    .reduce((acc, col) => {
-      acc[col.Header] = row.original[col.accessor];
-      return acc;
-    }, {}),
-};
-                  console.log("viewRow", viewitem,ManageSalesOrderTableCols,row.original);
+                  const viewitem = {
+                    ...row.original,
+                    ManageOrderTableCols: ManageSalesOrderTableCols.filter(
+                      (col) => col.accessor !== "DocumentLines",
+                    ).reduce((acc, col) => {
+                      acc[col.Header] = row.original[col.accessor];
+                      return acc;
+                    }, {}),
+                  };
+                  console.log(
+                    "viewRow",
+                    viewitem,
+                    ManageSalesOrderTableCols,
+                    row.original,
+                  );
                   setViewItem(viewitem.ManageOrderTableCols);
                 }}
                 // onClick={() => editRow(row)}
@@ -1030,7 +1040,11 @@ console.log("ManagePurchaseOrderTableColumn",ManagePurchaseOrderTableColumn,colu
                       height: "90%",
                       verticalAlign: "middle",
                     }}
-                  >{console.log("ManageSalesOrderTableCols11",ManageSalesOrderTableCols)}
+                  >
+                    {console.log(
+                      "ManageSalesOrderTableCols11",
+                      ManageSalesOrderTableCols,
+                    )}
                     <ViewSalesOrder viewItem={viewItem} />
                     {/* <BusyIndicator active={formPreviewLoading}>
                       <PreviewForm
