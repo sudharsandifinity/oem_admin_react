@@ -173,7 +173,7 @@ useEffect(() => {
         }}
       >
         {/* Header */}
-        <Title level="H2">Project Analytics Dashboard</Title>
+        <Title level="H2">Projects</Title>
 
         {/* Project Cards */}
         <div
@@ -181,6 +181,8 @@ useEffect(() => {
             display: "grid",
             gridTemplateColumns: "repeat(auto-fit,minmax(250px,1fr))",
             gap: "1rem",
+                paddingLeft: "20px",
+
           }}
         >
           {dashboardData.map((project, index) => (
@@ -189,7 +191,7 @@ useEffect(() => {
               onClick={() => setSelectedProject(project)}
               style={{
                 cursor: "pointer",
-                width: "30%",
+                maxWidth: "30%",
                 borderRadius: "14px",
                 border:
                   selectedProject?.projectCode === project.projectCode
@@ -205,7 +207,7 @@ useEffect(() => {
                 }}
               >
                 <FlexBox justifyContent="SpaceBetween" alignItems="Center">
-                  <div>
+                  <div style={{maxHeight:"50px"}}>
                     <Title level="H4" style={{ color: "white" }}>
                       {project.projectName}
                     </Title>

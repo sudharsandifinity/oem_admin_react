@@ -98,6 +98,7 @@ const EditMaterialRequest = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { orderItems } = useSelector((state) => state.orderItems);
+  const {userList} = useSelector((state) => state.materialRequests);
   const [apiError, setApiError] = useState(null);
   const user = useSelector((state) => state.auth.user);
   const [open, setOpen] = useState(false);
@@ -726,6 +727,7 @@ console.log("formDetails",formDetails[0]?.name)
           setSummaryData((prev) => ({
             ...prev,
             RequestorCode: orderListById.U_ReqCode,
+              InternalKey:String(userList.find(u=>u.UserName === orderListById.U_ReqName)?.InternalKey || ""),
             RequestorName: orderListById.U_ReqName,
             eMail:orderListById.eMail,
             Department: orderListById.U_Dept,

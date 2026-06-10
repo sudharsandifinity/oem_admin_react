@@ -23,11 +23,11 @@ const ProjectCodeDialog = ({
   setOriginalgeneralData,
   inputValue,
   setInputValue,
+  loading,
 }) => {
   const [selected, setSelected] = useState(null);
 
   const columns = [
-   
     {
       Header: "Project Code ",
       accessor: "ProjectCode",
@@ -36,11 +36,11 @@ const ProjectCodeDialog = ({
     { Header: "Project Name", accessor: "ProjectName" },
     { Header: "Status", accessor: "status" },
   ];
- const clearFilter = () => {
+  const clearFilter = () => {
     // Implement clear filter logic here
-     setProjectList(originalProjectdata);
-              setInputValue({});
-  }
+    setProjectList(originalProjectdata);
+    setInputValue({});
+  };
   const handleSelectionChange = (event) => {
     const selectedRow = event.detail.row;
     console.log("selectedRow", selectedRow, event);
@@ -52,9 +52,8 @@ const ProjectCodeDialog = ({
         ProjectCode: selectedRow.original.ProjectCode,
         ProjectName: selectedRow.original.ProjectName,
         status: selectedRow.original.status,
-
       }));
-       handleOk();
+      handleOk();
       setTimeout(() => {
         clearFilter();
         handleProjectDialogClose();
@@ -81,7 +80,7 @@ const ProjectCodeDialog = ({
       item[fieldname]
         ?.toString()
         .toLowerCase()
-        .includes(selectedValue.toLowerCase())
+        .includes(selectedValue.toLowerCase()),
     );
 
     setProjectList(filteredList);
@@ -110,7 +109,7 @@ const ProjectCodeDialog = ({
         </>
       }
       onAfterClose={handleProjectDialogClose}
-      style={{ width: "40vw"}}
+      style={{ width: "40vw" }}
     >
       <FlexBox direction="Column">
         {/* <FlexBox direction="Row" style={{ padding: "0.5rem", gap: "2rem" }}> */}
@@ -127,7 +126,6 @@ const ProjectCodeDialog = ({
           <FlexBox direction="Column">
             {" "}
             <Label>Project Code</Label>
-           
             <ComboBox
               filter
               value={inputValue.Code || ""}
@@ -142,8 +140,7 @@ const ProjectCodeDialog = ({
           <FlexBox direction="Column">
             {" "}
             <Label>Project Name</Label>
-           
-              <ComboBox
+            <ComboBox
               filter
               value={inputValue.Name || ""}
               onChange={(e) => handleFilterChange(e, "ProjectName")}
@@ -154,27 +151,42 @@ const ProjectCodeDialog = ({
               ))}
             </ComboBox>
           </FlexBox>
-          
+
           {console.log("originalProjectdata", originalProjectdata)}
-          <Button
-            style={{ width: "100px" }}
-            onClick={clearFilter}
-          >
+          <Button style={{ width: "100px" }} onClick={clearFilter}>
             Clear Filter
           </Button>
         </FlexBox>
-        {console.log("projectListanalyticaltable", projectList)}
-        <AnalyticalTable
-          data={projectList}
-          columns={columns}
-          selectionMode="Single"
-          onRowSelect={handleSelectionChange}
-          selectionBehavior="RowOnly"
-          scaleWidthMode="Grow"
-         visibleRows={6}
-         style={{border: "1px solid #ccc",   /* keeps a grey outline */
-  borderRadius: "4px",padding: "0.25rem"}}
-        />
+        {console.log("projectListanalyticaltable", projectList, loading)}
+        {loading ? (
+          <div
+            style={{
+              height: "250px",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              fontSize: "20px",
+              color: "red",
+            }}
+          >
+            <BusyIndicator active size="M" />{" "}
+          </div>
+        ) : (
+          <AnalyticalTable
+            data={projectList}
+            columns={columns}
+            selectionMode="Single"
+            onRowSelect={handleSelectionChange}
+            selectionBehavior="RowOnly"
+            scaleWidthMode="Grow"
+            visibleRows={6}
+            style={{
+              border: "1px solid #ccc" /* keeps a grey outline */,
+              borderRadius: "4px",
+              padding: "0.25rem",
+            }}
+          />
+        )}
       </FlexBox>
     </Dialog>
   );
