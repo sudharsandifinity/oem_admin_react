@@ -129,7 +129,26 @@ const ViewMaterialRequest = () => {
   const [copiedFormData, setCopiedFormData] = useState({});
   const [isCloneSelected, setIsCloneSelected] = useState(false);
   const [itemTabledata, setitemTableData] = useState([
-    { slno: 1, ItemCode: "", ItemName: "", quantity: "", amount: "" },
+    {
+      slno: 1,
+      task: "",
+      BoqLineNum: "",
+      ItemCode: "",
+      ItemName: "",
+      fulldescription: "",
+      quantity: "",
+      amount: "",
+      linetotal: "",
+      project: "",
+      warehouse: "",
+      uom: "",
+      stage: "",
+      issuedQty: "",
+      inStock: "",
+      availableQty: "",
+      rateTotal: "",
+      remarks: "",
+    },
   ]);
   const [serviceTabledata, setserviceTableData] = useState([
     { slno: 1, ServiceCode: "", ServiceName: "", quantity: "", amount: "" },
@@ -220,12 +239,14 @@ const ViewMaterialRequest = () => {
           });
           // 2. Merge document lines into orderItems
           if (orderListById.HLB_MRQ1Collection||orderListById.DocumentLines?.length > 0) {
+                    const data=orderListById.HLB_MRQ1Collection||orderListById.DocumentLines
+           
             setType("Item");
             setitemData(
               () =>
                 orderList.value
                   .map((item, index) => {
-                    const matched = orderListById.HLB_MRQ1Collection||orderListById.DocumentLines.find(
+                    const matched = data.find(
                       (line) => line.U_ItmSerCode === item.ItemCode,
                     );
 
@@ -278,13 +299,14 @@ const ViewMaterialRequest = () => {
               () =>
                 orderList.value
                   .map((item) => {
-                    const matched = orderListById.HLB_MRQ1Collection||orderListById.DocumentLines.find(
+                    const matched =data.find(
                       (line) => line.ItemCode === item.U_ItmSerCode,
                     );
+                    console.log("111",matched)
                     return matched !== undefined
                       ? {
                          task: matched.U_Task||matched.Task, // usually LineNum is 0-based
-                          BoqLineNum: matched.U_SQlineNum||matched.SQlineNum,
+                          BoqLineNum: matched.LineId||matched.SQlineNum,
                           ItemCode: matched.U_ItmSerCode||matched.ItemCode,
                           ItemName: matched.U_ItemType||matched.ItemDescription,
                           fulldescription: matched.U_ItemDesc||matched.ItemDescription,
@@ -303,7 +325,7 @@ const ViewMaterialRequest = () => {
                         }
                       : {
                            task: item.U_Task||item.Task, // usually LineNum is 0-based
-                          BoqLineNum: item.U_SQlineNum||item.SQlineNum,
+                          BoqLineNum: item.LineId||item.SQlineNum,
                           ItemCode: item.U_ItmSerCode||item.ItemCode,
                           ItemName: item.U_ItemType||item.ItemDescription,
                           fulldescription: item.U_ItemDesc||item.ItemDescription,
@@ -325,9 +347,10 @@ const ViewMaterialRequest = () => {
             );
 
             setitemTableData(() =>
-              orderListById.HLB_MRQ1Collection||orderListById.DocumentLines.map((item, index) => ({
+              data.map((item, index) => ({
                 task: item.U_Task||item.Task, // usually LineNum is 0-based
-                BoqLineNum: item.U_SQlineNum||item.SQlineNum,
+                BoqLineNum: item.LineId||item.SQlineNum,
+                LineId:item.LineId,
                 ItemCode: item.U_ItmSerCode||item.ItemCode,
                 ItemName: item.U_ItemType||item.ItemDescription,
                 fulldescription: item.U_ItemDesc||item.ItemDescription,
@@ -347,7 +370,7 @@ const ViewMaterialRequest = () => {
             );
             if (orderList.value?.length > 0) {
               const preselected = {};
-              orderListById.HLB_MRQ1Collection||orderListById.DocumentLines.forEach((line) => {
+              data.forEach((line) => {
                 const idx = orderList.value.findIndex(
                   (o) => o.ItemCode === line.U_ItmSerCode,
                 );

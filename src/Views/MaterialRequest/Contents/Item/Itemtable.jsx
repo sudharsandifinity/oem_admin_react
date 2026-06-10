@@ -1127,7 +1127,7 @@ const Itemtable = (props) => {
               value={
                 row.original.warehouse
                   ? row.original.warehouse
-                  : originalWarehouseData[0]?.WarehouseCode
+                  : ""//originalWarehouseData[0]?.WarehouseCode
               }
               readonly
               disabled={mode === "view"}

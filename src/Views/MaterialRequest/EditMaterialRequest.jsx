@@ -1153,9 +1153,9 @@ console.log("formDetails",formDetails[0]?.name)
                   >
                     Purchase Request
                   </Button>
-                    {/* <Button design="Default" onClick={() => goodsIssue()}>
+                    <Button design="Default" onClick={() => goodsIssue()}>
                     Goods Issue
-                  </Button> */}
+                  </Button>
                  
                 </FlexBox>
               }
